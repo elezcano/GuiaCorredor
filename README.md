@@ -1,4 +1,4 @@
-#🌐 Red de Cargas Corredor BioOceánico
+# 🌐 Red de Cargas Corredor BioOceánico
 La plataforma Red de Cargas – Corredor Bioceánico es un SaaS B2B que conecta empresas con carga disponible y empresas con capacidad logística, dentro del ámbito del Corredor Bioceánico.
 🎯 El objetivo es reducir fricción, tiempo y coste en la contratación logística, facilitando el encuentro, la negociación y la trazabilidad de operaciones reales.
 
