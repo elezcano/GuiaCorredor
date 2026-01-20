@@ -22,18 +22,18 @@ La plataforma Red de Cargas – Corredor Bioceánico es un SaaS B2B que conecta 
 - Matching: proceso de emparejar oferta y demanda
 
 ## 👥 Actores / Perfiles de usuario
-📦 Exportador
-📥 Importador
-🏗️ Cargador
-🧭 Transitario (Freight Forwarder)
-🚛 Transportista
-🏢 Operador logístico (3PL / 4PL)
-🏛️ Agente de aduanas (pasivo en MVP)
-🛡️ Aseguradora / Financiera (pasivo en MVP)
-🛠️ Administrador de la plataforma
+- 📦 Exportador
+- 📥 Importador
+- 🏗️ Cargador
+- 🧭 Transitario (Freight Forwarder)
+- 🚛 Transportista
+- 🏢 Operador logístico (3PL / 4PL)
+- 🏛️ Agente de aduanas (pasivo en MVP)
+- 🛡️ Aseguradora / Financiera (pasivo en MVP)
+- 🛠️ Administrador de la plataforma
 
 ## 🧩 Funcionalidades por módulo
-###🔐 1. Gestión de usuarios y empresas
+### 🔐 1. Gestión de usuarios y empresas
 Permite a los usuarios la autogesión de roles a nivel de empresa 
 - Registro y autenticación de usuarios
 - Asociación usuario ↔ empresa
