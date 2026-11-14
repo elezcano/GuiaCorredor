@@ -60,6 +60,7 @@ GitHub Pages en un repositorio **privado** requiere plan de pago. Alternativas g
 - [ ] Revisión de las páginas de la guía por un despachante y quitar `borrador: true`.
 - [ ] Enlace de pago de la ficha destacada.
 - [ ] Textos legales (aviso legal, privacidad, condiciones).
+- [ ] `"indexable": true` en `data/site.json` (mientras sea `false`, Google no indexa la web).
 
 ## Hoja de ruta
 

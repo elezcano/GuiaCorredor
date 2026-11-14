@@ -59,7 +59,7 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '' })
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(t)}</title>
 <meta name="description" content="${esc(descripcion || site.lema)}">
-<link rel="canonical" href="${esc(canon)}">
+<link rel="canonical" href="${esc(canon)}">${site.indexable === false ? '\n<meta name="robots" content="noindex, nofollow">' : ''}
 <meta property="og:title" content="${esc(t)}">
 <meta property="og:description" content="${esc(descripcion || site.lema)}">
 <meta property="og:type" content="website">
@@ -382,7 +382,10 @@ ${paginas
 </urlset>
 `;
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'), sitemap);
-fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${urlBase}/sitemap.xml\n`);
+fs.writeFileSync(
+  path.join(DIST, 'robots.txt'),
+  site.indexable === false ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${urlBase}/sitemap.xml\n`
+);
 fs.writeFileSync(path.join(DIST, '.nojekyll'), '');
 
 console.log(`OK: ${paginas.length} páginas en dist/ (${guia.length} de guía, ${empresas.length} empresas).`);

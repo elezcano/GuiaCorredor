@@ -19,6 +19,8 @@ if (!site.contacto.whatsapp) avisos.push('data/site.json: falta el WhatsApp de c
 const destacada = site.planes.find((p) => p.id === 'destacada');
 if (destacada && !destacada.enlacePago) avisos.push('data/site.json: la ficha destacada no tiene enlace de pago.');
 
+if (site.indexable === false) avisos.push('data/site.json: "indexable" es false; Google no indexará la web. Ponlo a true el día del lanzamiento.');
+
 // Guía
 for (const p of guia) {
   for (const c of CAMPOS_OBLIGATORIOS) if (!p.meta[c]) errores.push(`${p.archivo}: falta "${c}" en la cabecera.`);
