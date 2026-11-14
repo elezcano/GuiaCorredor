@@ -4,42 +4,42 @@
     {
       "id": "campo-grande",
       "nombre": "Campo Grande",
-      "pais": "BR"
+      "pais": "BR", "lat": -20.47, "lon": -54.62
     },
     {
       "id": "porto-murtinho",
       "nombre": "Porto Murtinho",
-      "pais": "BR"
+      "pais": "BR", "lat": -21.7, "lon": -57.88
     },
     {
       "id": "carmelo-peralta",
       "nombre": "Carmelo Peralta",
-      "pais": "PY"
+      "pais": "PY", "lat": -21.68, "lon": -57.92
     },
     {
       "id": "mariscal-estigarribia",
       "nombre": "Mariscal Estigarribia",
-      "pais": "PY"
+      "pais": "PY", "lat": -22.03, "lon": -60.62
     },
     {
       "id": "pozo-hondo",
       "nombre": "Pozo Hondo",
-      "pais": "PY"
+      "pais": "PY", "lat": -22.36, "lon": -62.55
     },
     {
       "id": "salta-jujuy",
       "nombre": "Salta / Jujuy",
-      "pais": "AR"
+      "pais": "AR", "lat": -24.5, "lon": -65.35
     },
     {
       "id": "norte-chile",
       "nombre": "San Pedro de Atacama / Calama",
-      "pais": "CL"
+      "pais": "CL", "lat": -22.7, "lon": -68.5
     },
     {
       "id": "puertos-chile",
       "nombre": "Antofagasta / Mejillones / Iquique",
-      "pais": "CL"
+      "pais": "CL", "lat": -23.65, "lon": -70.4
     }
   ],
   "tramos": [
@@ -86,7 +86,7 @@
       "paso": {
         "id": "pozo-hondo",
         "nombre": "Paso Pozo Hondo (PY–AR)",
-        "guia": null
+        "guia": "pasos/pozo-hondo"
       }
     },
     {

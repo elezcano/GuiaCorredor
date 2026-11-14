@@ -1,9 +1,13 @@
 [
-  { "id": "transitario", "nombre": "Transitarios / agentes de carga" },
-  { "id": "transportista", "nombre": "Transportistas" },
-  { "id": "despachante", "nombre": "Despachantes de aduana" },
-  { "id": "deposito", "nombre": "Depósitos y almacenes" },
-  { "id": "taller", "nombre": "Talleres y auxilio en ruta" },
-  { "id": "seguro", "nombre": "Seguros de carga" },
-  { "id": "servicios", "nombre": "Combustible, hotel y servicios en ruta" }
+  {"id": "transitario", "nombre": "Transitarios / agentes de carga"},
+  {"id": "transportista", "nombre": "Transportistas"},
+  {"id": "despachante", "nombre": "Despachantes de aduana"},
+  {"id": "combustible", "nombre": "Estaciones de servicio"},
+  {"id": "descanso", "nombre": "Áreas de descanso y aparcamiento de camiones"},
+  {"id": "taller", "nombre": "Talleres y auxilio en ruta"},
+  {"id": "bascula", "nombre": "Básculas"},
+  {"id": "alojamiento", "nombre": "Alojamiento"},
+  {"id": "deposito", "nombre": "Depósitos y centros logísticos"},
+  {"id": "seguro", "nombre": "Seguros de carga"},
+  {"id": "servicios", "nombre": "Otros servicios en ruta"}
 ]
