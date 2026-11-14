@@ -37,6 +37,10 @@ jobs:
         env:
           SITE_URL: ${{ vars.SITE_URL }}
           BASE_PATH: ${{ vars.BASE_PATH }}
+      - name: Comprobar enlaces internos
+        run: npm run enlaces
+        env:
+          BASE_PATH: ${{ vars.BASE_PATH }}
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main' && vars.PUBLICAR != 'false'
         with:

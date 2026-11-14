@@ -5,18 +5,12 @@ resumen: Frontera sobre el río Pilcomayo entre el Chaco paraguayo y Salta. Es e
 paises: PY, AR
 puntos: pozo-hondo, salta-jujuy
 revisado: 2026-11-14
-borrador: true
+validacion: borrador
 ---
 
 ## Qué es
 
 Paso sobre el río Pilcomayo entre **Pozo Hondo** (departamento de Boquerón, Paraguay) y **Misión La Paz** (provincia de Salta, Argentina). En la ruta del corredor une la PY15 paraguaya con el norte argentino.
-
-## Estado
-
-- Migraciones de Argentina lo incluye entre sus pasos habilitados, con atención de 8 a 20 h en su oficina.
-- No hemos confirmado las condiciones para camiones de carga ni qué controles aduaneros funcionan hoy de cada lado.
-- Del lado paraguayo, el tramo de la PY15 que llega al paso está en obras.
 
 ## Antes de salir
 

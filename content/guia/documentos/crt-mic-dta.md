@@ -3,9 +3,8 @@ titulo: Documentos para cruzar con carga (CRT y MIC/DTA)
 tipo: documento
 resumen: Qué papeles lleva un camión en un viaje internacional por el corredor y para qué sirve cada uno.
 paises: BR, PY, AR, CL
-estado: operativo
 revisado: 2026-11-14
-borrador: true
+validacion: borrador
 ---
 
 > **Borrador pendiente de revisión por un despachante de aduana.** No usar como referencia hasta que desaparezca este aviso.

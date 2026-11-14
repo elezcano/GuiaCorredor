@@ -715,7 +715,7 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .mapa-leyenda span { display: inline-block; flex: none; }
 .ley-ruta { width: 24px; height: 6px; border-radius: 3px; background: var(--asfalto); }
 .ley-alterna { width: 24px; height: 0; border-top: 3px dashed var(--asfalto); }
-.ley-paso { width: 10px; height: 10px; background: var(--ok-dot); transform: rotate(45deg); }
+.ley-paso { width: 10px; height: 10px; background: var(--sin-dato); transform: rotate(45deg); }
 .ley-ciudad { width: 12px; height: 12px; border-radius: 50%; border: 3px solid var(--foreground); }
 .ley-puerto { width: 10px; height: 10px; background: var(--foreground); }
 
@@ -848,4 +848,59 @@ td.num, th.num { text-align: right; white-space: nowrap; }
   .ficha-cabeza .btn, .boton-imprimir, .aviso .btn, .filtros-noticias, .mapa-marco { display: none !important; }
   .ficha-operativa { border: 0; padding: 0; }
   .fest-item[hidden], .mes-cab[hidden] { display: none !important; }
+}
+
+/* ---------- Validación única, ficha de resultados y calendario aduanero ---------- */
+.val { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; border-radius: 999px; font-size: 12px; line-height: 20px; font-weight: 600; white-space: nowrap; vertical-align: 1px; border: 1px solid currentColor; }
+.val::before { content: ""; width: 8px; height: 8px; flex: none; }
+.val-verificado { color: var(--ok); }
+.val-verificado::before { background: var(--ok-dot); border-radius: 50%; }
+.val-por-verificar { color: var(--muted-foreground); }
+.val-por-verificar::before { border: 2px solid currentColor; border-radius: 50%; width: 6px; height: 6px; }
+.val-caducado { color: var(--obras); }
+.val-caducado::before { background: var(--obras-dot); transform: rotate(45deg); }
+.val-borrador { color: var(--muted-foreground); border-style: dashed; }
+.val-borrador::before { border-top: 2px solid currentColor; width: 8px; height: 0; }
+.paso-meta .val { margin-right: 4px; }
+.dato-fuente .val { margin-right: 4px; }
+.aviso-por-verificar { border-left-color: var(--border-strong); background: var(--muted); }
+.aviso-caducado { border-left-color: var(--obras-dot); }
+.tag { display: inline-flex; padding: 0 6px; border-radius: 4px; font-size: 12px; line-height: 18px; font-weight: 600; vertical-align: 1px; white-space: nowrap; }
+.tag-calculado { background: var(--muted); color: var(--foreground); }
+.tag-estimado { background: transparent; color: var(--muted-foreground); border: 1px dashed var(--border-strong); line-height: 16px; }
+.tag-verificado { color: var(--ok); border: 1px solid currentColor; line-height: 16px; }
+.tag-sin-verificar { color: var(--muted-foreground); border: 1px solid var(--border-strong); line-height: 16px; }
+.tag-ruta { background: var(--muted); color: var(--muted-foreground); }
+.ficha-resultado { margin-top: 24px; }
+.ficha-resultado h3 { font-size: 20px; line-height: 28px; }
+.res-datos { margin: 16px 0 0; }
+.res-fila { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-top: 1px solid var(--border); font-size: 14px; line-height: 20px; }
+.res-fila dt { font-weight: 600; }
+.res-fila dd { margin: 0; display: grid; gap: 4px; justify-items: start; }
+.res-fila ul { list-style: none; padding: 0; display: grid; gap: 8px; }
+.res-fila li .estado-fecha { display: inline; margin-left: 4px; }
+.res-nota { color: var(--muted-foreground); font-size: 12px; line-height: 16px; }
+.res-leyenda { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
+.res-leyenda b { color: var(--foreground); font-weight: 600; }
+.titulo-opciones { margin-top: 32px; font-size: 20px; line-height: 28px; }
+.it-fila .tag { margin-left: 4px; }
+.it-estado { margin-left: auto; text-align: right; }
+.it-estado .estado-fecha { margin-top: 2px; }
+.tramo-km { margin-top: 8px; }
+.directorio-vacio { margin-top: 32px; max-width: 720px; }
+.directorio-vacio h2 { font-size: 20px; line-height: 28px; }
+.directorio-vacio p { margin-top: 8px; }
+.directorio-vacio .btn { margin-top: 16px; }
+.cal-bloque { margin-top: 48px; }
+.cal-bloque > h2 { font-size: 24px; line-height: 32px; }
+.cal-bloque > .texto-suave { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.cal-bloque .calendario { margin-top: 8px; }
+.cal-bloque .tabla-marco { margin-top: 16px; }
+.mes-cab h3 { font-size: 20px; line-height: 28px; padding-bottom: 8px; border-bottom: 2px solid var(--foreground); }
+.cal-estado { margin-top: 8px; font-size: 14px; line-height: 20px; font-weight: 600; min-height: 20px; }
+.filtros-cal input[type="date"] { margin-right: 8px; }
+.tabla-horarios tr[hidden] { display: none; }
+@media (max-width: 760px) {
+  .res-fila { grid-template-columns: 1fr; gap: 4px; }
+  .it-estado { margin-left: 0; text-align: left; width: 100%; }
 }

@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES } from './lib.mjs';
+import { nivel, peor, estadoMostrable, NIVELES, diasEntre } from './validacion.mjs';
 import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO } from './cruces.mjs';
 
 const require = createRequire(import.meta.url);
@@ -21,35 +22,47 @@ if (process.env.SITE_URL) site.url = process.env.SITE_URL;
 if (process.env.BASE_PATH) site.basePath = process.env.BASE_PATH === '/' ? '' : process.env.BASE_PATH;
 const B = (site.basePath || '').replace(/\/$/, '');
 const u = (p) => `${B}${p}`;
+const hayFuente = (() => {
+  try {
+    createRequire(import.meta.url).resolve('@fontsource-variable/overpass/package.json');
+    return true;
+  } catch {
+    return false;
+  }
+})();
 
 const categorias = readJSON('data/categorias.json');
 const catNombre = Object.fromEntries(categorias.map((c) => [c.id, c.nombre]));
 const rutas = readJSON('data/rutas.json');
 const nodoNombre = Object.fromEntries(rutas.nodos.map((n) => [n.id, n.nombre]));
-let empresas = readJSON('data/directorio.json');
-if (site.mostrarEjemplos === false) empresas = empresas.filter((e) => !e.ejemplo);
+const empresas = readJSON('data/directorio.json');
 empresas.sort((a, b) => Number(b.destacada) - Number(a.destacada) || a.nombre.localeCompare(b.nombre, 'es'));
 const empresasEn = (ids = []) => empresas.filter((e) => (e.puntos || []).some((p) => ids.includes(p)));
-const novedades = readJSON('data/novedades.json').sort((a, b) => b.fecha.localeCompare(a.fecha));
+const novedades = readJSON('data/novedades.json').sort((a, b) => b.publicado.localeCompare(a.publicado));
 
 // ---------- datos operativos ----------
 const HOY = new Date().toISOString().slice(0, 10);
 const diasDesde = (iso) => (iso ? Math.floor((Date.parse(HOY) - Date.parse(iso)) / 864e5) : Infinity);
 const fichaPasos = readJSON('data/pasos.json').pasos;
 const fichaPaso = Object.fromEntries(fichaPasos.map((p) => [p.id, p]));
-// Un estado de operación caduca a los 30 días; uno de obra o cierre, a los 120. Caducado = "Por verificar".
-const CADUCIDAD = { operativo: 30, restricciones: 30, intermitente: 30, 'en-obras': 120, cerrado: 120, 'cierre-programado': 120 };
-function estadoPaso(id) {
-  const e = fichaPaso[id]?.estado;
-  if (!e) return { valor: 'pendiente', ultimo: 'pendiente', caducado: false };
-  const caducado = e.valor !== 'pendiente' && diasDesde(e.fecha) > (CADUCIDAD[e.valor] ?? 30);
-  return { ...e, valor: caducado ? 'pendiente' : e.valor, ultimo: e.valor, caducado };
-}
-// El estado de cada paso sale solo de data/pasos.json.
+// Validación: una sola regla para todo el portal (scripts/validacion.mjs).
+const metaGuia = Object.fromEntries(loadGuia().map((p) => [`${p.seccion}/${p.slug}`, p.meta]));
+const registroFicha = (m) => ({ validacion: m.validacion || (m.borrador === true ? 'borrador' : 'por-verificar'), verificado: m.verificado || null });
+const nivelFicha = (ruta) => (metaGuia[ruta] ? nivel(registroFicha(metaGuia[ruta]), 'ficha', HOY) : null);
+const guiaDePaso = Object.fromEntries(rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).filter(Boolean).map((q) => [q.id, q.guia]));
+/** Estado mostrable de un paso: combina la validación del dato y la de su ficha. */
+const estadoPaso = (id) => estadoMostrable(fichaPaso[id]?.estado, HOY, nivelFicha(guiaDePaso[id]));
+const estadoTramo = (t) => (t.paso?.id ? estadoPaso(t.paso.id) : estadoMostrable(t.reporte, HOY, t.guia ? nivelFicha(t.guia) : null));
 rutas.tramos.forEach((t) => {
-  if (t.paso?.id) t.estado = estadoPaso(t.paso.id).valor;
-  if (t.alternativa?.id) t.alternativa.estado = estadoPaso(t.alternativa.id).valor;
+  t.vista = estadoTramo(t);
+  t.estado = t.vista.valor;
+  if (t.alternativa?.id) {
+    t.alternativa.vista = estadoPaso(t.alternativa.id);
+    t.alternativa.estado = t.alternativa.vista.valor;
+  }
 });
+const tramoPorId = Object.fromEntries(rutas.tramos.map((t) => [t.id, t]));
+const nombreTramo = (t) => `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}`;
 const festivosDoc = readJSON('data/festivos.json');
 const festivos = festivosDoc.festivos.filter((f) => f.fecha >= HOY);
 const incidencias = readJSON('data/incidencias.json').incidencias;
@@ -98,10 +111,17 @@ const guia = loadGuia().map((p) => {
 });
 const guiaPorRuta = Object.fromEntries(guia.map((p) => [`${p.seccion}/${p.slug}`, p]));
 // Estado de una ficha: los pasos lo toman de data/pasos.json (función declarada más abajo).
-const estadoGuia = (p) => {
-  const id = rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.guia === `${p.seccion}/${p.slug}`)?.id;
-  return id ? estadoPaso(id).valor : p.meta.estado;
+const vistaGuia = (p) => {
+  const ruta = `${p.seccion}/${p.slug}`;
+  const id = rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.guia === ruta)?.id;
+  if (id) return estadoPaso(id);
+  const ts = rutas.tramos.filter((t) => t.guia === ruta && !t.paso);
+  if (!ts.length) return null; // documentos: sin estado operativo
+  // El tramo con el dato más relevante: obras antes que operativo.
+  return ts.map((t) => t.vista).sort((a, b) => Number(b.ultimo === 'en-obras') - Number(a.ultimo === 'en-obras'))[0];
 };
+const estadoGuia = (p) => vistaGuia(p)?.valor || 'sin-estado';
+const nivelGuia = (p) => nivelFicha(`${p.seccion}/${p.slug}`);
 
 // ---------- iconos (trazo, 24×24) ----------
 const ICONOS = {
@@ -138,20 +158,35 @@ const fecha = (iso) => {
 const tiempo = (iso) => `<time class="rel" datetime="${esc(iso)}">${fecha(iso)}</time>`;
 const fechaCorta = (iso) => {
   const d = new Date(iso + 'T12:00:00Z');
-  return isNaN(d) ? esc(iso) : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', timeZone: 'UTC' }).replace('.', '');
+  // Con año si no es el año en curso, para que un dato viejo no parezca de este año.
+  const conAnio = iso.slice(0, 4) !== HOY.slice(0, 4);
+  return isNaN(d) ? esc(iso) : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', ...(conAnio ? { year: 'numeric' } : {}), timeZone: 'UTC' }).replace('.', '');
 };
 const diaSemana = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 const fuenteEnlace = (f) => (f?.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.nombre)}</a>` : esc(f?.nombre || ''));
-/** Estado de un paso con la fecha del dato. Si caducó, dice cuál fue el último dato. */
-function estadoPasoHTML(id, { corto = false } = {}) {
-  const e = estadoPaso(id);
-  if (!e.fecha) return estado('pendiente');
-  const cuando = corto ? fechaCorta(e.fecha) : fecha(e.fecha);
-  const pie = e.caducado
-    ? `Último dato: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${cuando}`
-    : `${corto ? '' : 'Parte del '}${cuando}`;
-  return `${estado(e.valor)}<span class="estado-fecha">${pie}</span>`;
+const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', otra: 'otra fuente' };
+/** Insignia de validación (texto + icono, no solo color). */
+function validacionHTML(n, verificado) {
+  const txt = n === 'verificado' && verificado ? `Verificado el ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
+  return `<span class="val val-${esc(n)}">${esc(txt)}</span>`;
 }
+/** Estado operativo + línea de contexto: confirmado, o "Por verificar" con el último dato. */
+function vistaHTML(v, { corto = false } = {}) {
+  if (v.confirmado) return `${estado(v.valor)}<span class="estado-fecha">Verificado ${corto ? '' : 'el '}${corto ? fechaCorta(v.verificado) : fecha(v.verificado)}</span>`;
+  if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
+  const cuando = v.publicado ? (corto ? fechaCorta(v.publicado) : fecha(v.publicado)) : 'sin fecha';
+  const origen = !corto && v.fuente?.tipo ? `, ${TIPO_FUENTE[v.fuente.tipo]}` : '';
+  const dato = v.ultimo === 'pendiente' ? 'sin estado confirmado' : `último dato: ${esc((ESTADOS[v.ultimo] || v.ultimo).toLowerCase())}`;
+  return `${estado('pendiente')}<span class="estado-fecha">${dato[0].toUpperCase() + dato.slice(1)}, ${cuando}${origen}</span>`;
+}
+const estadoPasoHTML = (id, o) => vistaHTML(estadoPaso(id), o);
+const HISTORICO_DIAS = 90;
+const esHistorico = (iso) => diasDesde(iso) > HISTORICO_DIAS;
+const recientes = novedades.filter((n) => !esHistorico(n.publicado));
+const nivelReg = (r, tipo) => nivel(r, tipo, HOY);
+/** Incidencias activas de un paso o de cualquiera de sus tramos. */
+// Misma regla que el planificador: una incidencia con paso solo cuenta para ese paso; sin paso, para sus tramos.
+const incidenciasDe = ({ paso, tramos = [] }) => activas.filter((i) => (i.paso ? i.paso === paso : (i.tramos || []).some((t) => tramos.includes(t))));
 const tipoIncidencia = (t) => {
   const [txt, ic] = TIPOS_INCIDENCIA[t] || [t, 'restriccion'];
   return `<span class="tipo-inc tipo-${esc(ic)}">${icono(ic)}${esc(txt)}</span>`;
@@ -195,7 +230,7 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '' })
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0e1012" media="(prefers-color-scheme: dark)">
 ${temaInicial}
-<link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2')}" as="font" type="font/woff2" crossorigin>
+${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2')}" as="font" type="font/woff2" crossorigin>` : ''}
 <link rel="stylesheet" href="${u('/assets/styles.css')}">
 </head>
 <body>
@@ -297,7 +332,7 @@ const empresaFila = (e) => `
 )}">
   <div>
     <div class="empresa-cabeza"><h3>${esc(e.nombre)}</h3>${e.destacada ? '<span class="etiqueta">Destacada</span>' : ''}${
-      e.ejemplo ? '<span class="etiqueta etiqueta-ejemplo">Ficha de ejemplo</span>' : ''
+      ''
     }</div>
     <p class="empresa-datos">${esc(catNombre[e.categoria] || e.categoria)} en ${esc(e.ciudad)}, ${esc(PAISES[e.pais] || e.pais)}</p>
     ${e.descripcion ? `<p class="empresa-desc">${esc(e.descripcion)}</p>` : ''}
@@ -314,15 +349,15 @@ const empresaFila = (e) => `
 
 const empresaMini = (e) => `
 <li class="mini${e.destacada ? ' mini-destacada' : ''}">
-  <span class="mini-texto"><strong>${esc(e.nombre)}</strong><span>${esc(catNombre[e.categoria] || e.categoria)}${e.ejemplo ? ', ficha de ejemplo' : ''}</span></span>
+  <span class="mini-texto"><strong>${esc(e.nombre)}</strong><span>${esc(catNombre[e.categoria] || e.categoria)}</span></span>
   ${e.contacto?.whatsapp ? `<a class="btn btn-wa btn-pequeno" href="${wa(e.contacto.whatsapp)}" rel="nofollow" aria-label="Escribir por WhatsApp a ${esc(e.nombre)}">${icono('chat')}</a>` : ''}
 </li>`;
 
 const noticia = (n, { principal = false, conLugar = true } = {}) => {
   const lugar = n.guia && guiaPorRuta[n.guia];
   return `
-<article class="noticia${principal ? ` noticia-principal noticia-${esc(n.estado || 'sin-estado')}` : ''}">
-  <p class="noticia-meta"><span class="noticia-medio">${esc(n.fuente.nombre)}</span><span>${esc(listaY((n.paises || []).map((p) => PAISES[p] || p)))}</span>${tiempo(n.fecha)}</p>
+<article class="noticia${principal ? ' noticia-principal' : ''}">
+  <p class="noticia-meta"><span class="noticia-medio">${esc(n.fuente.nombre)}</span><span>${esc(listaY((n.paises || []).map((p) => PAISES[p] || p)))}</span>${tiempo(n.publicado)}${esHistorico(n.publicado) ? '<span class="etiqueta-suave">Histórico</span>' : ''}</p>
   <h3><a href="${esc(n.fuente.url)}" rel="noopener">${esc(n.titulo)}</a></h3>
   ${n.detalle ? `<p>${esc(n.detalle)}</p>` : ''}
   ${conLugar && lugar ? `<a class="noticia-lugar" href="${u(lugar.ruta)}">Abrir ${esc(lugar.meta.titulo.replace(/\s*\(.*\)$/, ''))}</a>` : ''}
@@ -347,9 +382,23 @@ const datosRutas = (extra = {}) =>
     // Festivos de los próximos 45 días e incidencias activas por paso, para avisar en el planificador.
     festivos: festivos
       .filter((f) => diasDesde(f.fecha) >= -45)
-      .map((f) => ({ pais: f.pais, fecha: f.fecha, nombre: f.nombre, tipo: f.tipo, porConfirmar: f.estado === 'por-confirmar' })),
-    incidencias: activas.filter((i) => i.paso).map((i) => ({ paso: i.paso, tipo: TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo, texto: i.descripcion })),
+      .map((f) => ({ pais: f.pais, fecha: f.fecha, nombre: f.nombre, tipo: f.tipo, porConfirmar: f.validacion !== 'verificado' })),
+    incidencias: activas.map((i) => ({
+      id: i.id,
+      paso: i.paso || null,
+      tramos: i.tramos || [],
+      tipo: TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo,
+      ubicacion: i.ubicacion,
+      texto: i.descripcion,
+      fuente: i.fuente.nombre,
+      publicado: i.publicado,
+      nivel: nivelReg(i, 'incidencia'),
+    })),
+    niveles: Object.fromEntries(Object.entries(NIVELES).map(([k, v]) => [k, v.texto])),
+    pasosGeo: Object.fromEntries(fichaPasos.map((p) => [p.id, { lat: p.ubicacion.lat, lon: p.ubicacion.lon }])),
+    tiposFuente: TIPO_FUENTE,
     calendario: u('/calendario/'),
+    avisos: u('/avisos/'),
     ...extra,
   }).replace(/</g, '\\u003c')}</script>`;
 
@@ -408,14 +457,14 @@ function panelCruce(paso) {
 const filaFestivo = (f) => `<li class="fila-fest">
   <time datetime="${esc(f.fecha)}"><span>${esc(diaSemana(f.fecha))}</span>${esc(fechaCorta(f.fecha))}</time>
   <abbr class="pais" title="${esc(PAISES[f.pais])}">${esc(f.pais)}</abbr>
-  <span class="fest-nombre">${esc(f.nombre)}${f.tipo !== 'feriado' ? `<span class="etiqueta-suave">${esc(TIPOS_FESTIVO[f.tipo])}</span>` : ''}${f.estado === 'por-confirmar' ? '<span class="etiqueta-suave">Por confirmar</span>' : ''}</span>
+  <span class="fest-nombre">${esc(f.nombre)}${f.tipo !== 'feriado' ? `<span class="etiqueta-suave">${esc(TIPOS_FESTIVO[f.tipo])}</span>` : ''}${f.validacion !== 'verificado' ? '<span class="etiqueta-suave">Por confirmar</span>' : ''}</span>
 </li>`;
 
 const enlaceOrganismo = (o) => `<li><abbr class="pais" title="${esc(PAISES[o.pais])}">${esc(o.pais)}</abbr><a href="${esc(o.url)}" rel="noopener">${esc(o.nombre)}</a></li>`;
 
 /** Portada: festivos, obras y meteorología en tres paneles. */
 function tablero() {
-  const ultimaInc = incidencias.map((i) => i.actualizado).sort().pop();
+  const ultimaInc = incidencias.map((i) => i.publicado).filter(Boolean).sort().pop();
   const meteo = avisosMeteo.length
     ? `<ul class="lista-inc">${avisosMeteo
         .slice(0, 3)
@@ -434,7 +483,7 @@ function tablero() {
   </section>
   <section class="panel tablero-panel" aria-labelledby="t-tab-obras">
     <h3 id="t-tab-obras">Obras y restricciones</h3>
-    <p>${plural(activas.length, 'incidencia activa', 'incidencias activas')}. Revisado el ${fecha(ultimaInc)}.</p>
+    <p>${plural(activas.length, 'incidencia activa', 'incidencias activas')}, sin verificar salvo indicación. Última publicada el ${fecha(ultimaInc)}.</p>
     <ul class="lista-inc">${activas
       .slice(0, 3)
       .map((i) => `<li>${tipoIncidencia(i.tipo)}<strong>${esc(i.ubicacion)}</strong><span>${esc(i.descripcion)}</span></li>`)
@@ -529,7 +578,7 @@ function mapaHTML() {
     <ul class="mapa-leyenda">
       <li><span class="ley-ruta"></span>Ruta principal</li>
       <li><span class="ley-alterna"></span>Alternativa por Sico</li>
-      <li><span class="ley-paso"></span>Paso fronterizo (con su estado)</li>
+      <li><span class="ley-paso"></span>Paso fronterizo (en color solo si su estado está verificado)</li>
       <li><span class="ley-ciudad"></span>Ciudad</li>
       <li><span class="ley-puerto"></span>Puerto</li>
     </ul>
@@ -542,20 +591,21 @@ function mapaHTML() {
 function fichaOperativa(p) {
   const e = estadoPaso(p.id);
   const fila = (titulo, contenido) => `<div class="dato-fila"><dt>${titulo}</dt><dd>${contenido}</dd></div>`;
-  const conFuente = (x) => `${esc(x.texto)}<span class="dato-fuente">${fuenteEnlace(x.fuente)}${x.fecha ? `, ${fecha(x.fecha)}` : ''}</span>`;
-  const lista = (xs, vacio) => (xs?.length ? `<ul>${xs.map((x) => `<li>${conFuente(x)}</li>`).join('')}</ul>` : `<span class="sin-dato">${vacio}</span>`);
+  const conFuente = (x, tipo = 'ficha') =>
+    `${esc(x.texto)}<span class="dato-fuente">${validacionHTML(peor(nivelReg(x, tipo), e.nivel === 'borrador' ? 'borrador' : null), x.verificado)} ${fuenteEnlace(x.fuente)}${x.publicado ? `, ${fecha(x.publicado)}` : ', sin fecha'}</span>`;
+  const lista = (xs, vacio, tipo) => (xs?.length ? `<ul>${xs.map((x) => `<li>${conFuente(x, tipo)}</li>`).join('')}</ul>` : `<span class="sin-dato">${vacio}</span>`);
   const orgs = (p.organismos || []).map((id) => organismoPorId[id]).filter(Boolean);
-  const inc = activas.filter((i) => i.paso === p.id);
+  const inc = incidenciasDe({ paso: p.id, tramos: rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id) });
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
   <div class="ficha-cabeza"><h2 id="t-ficha">Datos del paso</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
   <dl class="datos">
-    ${fila('Estado', `<div class="dato-estado">${estado(e.valor)}</div>${esc(p.estado.texto)}<span class="dato-fuente">${fuenteEnlace(p.estado.fuente)}, ${fecha(p.estado.fecha)}${e.caducado ? '. Dato de hace más de un mes: confírmalo antes de salir.' : ''}</span>`)}
+    ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}</span>`)}
     ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
     ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">Coordenadas aproximadas: ${p.ubicacion.lat.toLocaleString('es-ES')}, ${p.ubicacion.lon.toLocaleString('es-ES')}</span>`)}
-    ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado)}:</strong> ${conFuente(h)}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario verificado</span>')}
+    ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado)}:</strong> ${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
     ${fila('Operaciones habilitadas', p.operaciones ? conFuente(p.operaciones) : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
     ${fila('Transporte pesado', lista(p.restricciones, 'Sin restricciones verificadas'))}
-    ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${fuenteEnlace(i.fuente)}</span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
+    ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado)} ${fuenteEnlace(i.fuente)} · <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
     ${fila('Acceso', lista(p.acceso, 'Sin verificar'))}
     ${fila('Organismos', orgs.length ? `<ul class="lista-enlaces">${orgs.map(enlaceOrganismo).join('')}</ul>` : '<span class="sin-dato">Sin verificar</span>')}
     ${fila('Servicios en el paso', lista(p.servicios, 'Sin verificar'))}
@@ -564,6 +614,36 @@ function fichaOperativa(p) {
   </dl>
 </section>`;
 }
+
+/** Aviso de ficha según su nivel de validación (mismo sistema que los estados). */
+function avisoValidacion(n, verificado) {
+  const t = {
+    borrador: '<strong>Borrador.</strong> Contenido pendiente de revisión. Los estados se muestran como «Por verificar» y no deben usarse como referencia para viajar.',
+    'por-verificar': '<strong>Sin verificar.</strong> Datos tomados de fuentes públicas que nadie del equipo ha confirmado todavía con el organismo.',
+    caducado: `<strong>Verificación caducada.</strong> Se comprobó el ${fecha(verificado)}. Confírmalo antes de viajar.`,
+  }[n];
+  return t ? `<p class="aviso aviso-${esc(n)}"><span>${t}</span></p>` : '';
+}
+
+/** Tramos de una ficha de tramo: distancia, estado e incidencias, desde data/rutas.json e incidencias.json. */
+function bloqueTramos(ruta) {
+  const ts = rutas.tramos.filter((t) => t.guia === ruta && !t.paso);
+  if (!ts.length) return '';
+  const filas = ts
+    .map((t) => {
+      const inc = incidenciasDe({ tramos: [t.id] });
+      const km = t.km ? `${GCkm(t.km)}<span class="dato-fuente">${t.kmTipo === 'calculado' ? `Calculado: ${esc(t.kmNota || '')}` : t.kmFuente ? `Según ${fuenteEnlace(t.kmFuente)}` : ''}</span>` : '<span class="sin-dato">Sin dato</span>';
+      return `<div class="dato-fila"><dt>${esc(nombreTramo(t))}</dt><dd>
+        <div class="dato-estado">${vistaHTML(t.vista)}</div>
+        ${t.vista.fuente ? `<span class="dato-fuente">${fuenteEnlace(t.vista.fuente)}</span>` : ''}
+        <p class="tramo-km">Distancia: ${km}</p>
+        ${inc.map((i) => `<p class="it-aviso">${tipoIncidencia(i.tipo)} ${esc(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></p>`).join('')}
+      </dd></div>`;
+    })
+    .join('');
+  return `<section class="ficha-operativa" aria-labelledby="t-tramos"><div class="ficha-cabeza"><h2 id="t-tramos">Estado de los tramos</h2></div><dl class="datos">${filas}</dl></section>`;
+}
+const GCkm = (n) => `${Number(n).toLocaleString('es-ES', { maximumFractionDigits: 1, useGrouping: 'always' })}\u202Fkm`;
 
 // Pasos fronterizos para las historias
 const pasosHistoria = [];
@@ -612,12 +692,14 @@ ${seccion({
 })}
 ${seccion({
   titulo: 'Últimos cambios',
-  contexto: 'Obras, estado de pasos y acuerdos entre países, con su fuente.',
+  contexto: `Noticias de los últimos ${HISTORICO_DIAS} días, con su fuente. Las anteriores están en novedades como histórico.`,
   enlace: ['/novedades/', 'Ver todas las novedades'],
-  cuerpo: `<div class="portal">${noticia(novedades[0], { principal: true })}<ul class="lista-noticias">${novedades
-    .slice(1, 4)
-    .map((n) => `<li>${noticia(n)}</li>`)
-    .join('')}</ul></div>`,
+  cuerpo: recientes.length
+    ? `<div class="portal">${noticia(recientes[0], { principal: true })}<ul class="lista-noticias">${recientes
+        .slice(1, 4)
+        .map((n) => `<li>${noticia(n)}</li>`)
+        .join('')}</ul></div>`
+    : `<p class="sin-dato">No hay noticias de los últimos ${HISTORICO_DIAS} días.</p>`,
 })}
 <section class="contenedor seccion" aria-labelledby="t-empresas-banda">
   <div class="banda">
@@ -634,7 +716,6 @@ ${seccion({
     nombre: e.nombre,
     cat: catNombre[e.categoria] || e.categoria,
     destacada: !!e.destacada,
-    ejemplo: !!e.ejemplo,
     wa: e.contacto?.whatsapp ? wa(e.contacto.whatsapp) : '',
     puntos: e.puntos || [],
   }));
@@ -697,11 +778,12 @@ ${seccion({
   const filas = Object.keys(SECCIONES)
     .flatMap((sec) => guia.filter((p) => p.seccion === sec))
     .map(
-      (p) => `<tr data-pais="${esc((p.meta.paises || []).join(' '))}" data-estado="${esc(estadoGuia(p))}">
+      (p) => `<tr data-pais="${esc((p.meta.paises || []).join(' '))}" data-estado="${esc(estadoGuia(p))}" data-validacion="${esc(nivelGuia(p))}">
         <td><a href="${u(p.ruta)}">${esc(p.meta.titulo)}</a></td>
         <td class="col-tipo">${esc({ pasos: 'Paso fronterizo', tramos: 'Tramo', documentos: 'Documentos' }[p.seccion] || p.seccion)}</td>
         <td>${paises(p.meta.paises)}</td>
-        <td>${estado(estadoGuia(p))}</td>
+        <td>${vistaGuia(p) ? estado(estadoGuia(p)) : '<span class="sin-dato">No aplica</span>'}</td>
+        <td>${validacionHTML(nivelGuia(p), p.meta.verificado)}</td>
         <td class="col-revisado">${fecha(p.meta.revisado)}</td>
       </tr>`
     )
@@ -715,7 +797,7 @@ ${seccion({
       scripts: ['/assets/filtros.js'],
       cuerpo: `
 <div class="contenedor">
-  <header class="cabeza-pagina"><h1>Guía del corredor</h1><p>Pasos, tramos y papeles. Cada página indica su estado, sus fuentes y cuándo se revisó.</p></header>
+  <header class="cabeza-pagina"><h1>Guía del corredor</h1><p>Pasos, tramos y papeles. Cada página indica su estado, si está verificada y cuándo se revisó.</p></header>
   <div class="filtros-guia" data-filtros="#tabla-guia tbody">
     <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>
       <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
@@ -723,12 +805,16 @@ ${seccion({
     </div>
     <div class="filtro-linea" role="group" aria-label="Estado"><span class="filtro-etiqueta">Estado</span>
       <button class="chip" type="button" data-filtro="estado" data-valor="" aria-pressed="true">Todos</button>
-      ${estadosG.map((e) => `<button class="chip" type="button" data-filtro="estado" data-valor="${esc(e)}" aria-pressed="false">${esc(ESTADOS[e])}</button>`).join('')}
+      ${estadosG.map((e) => `<button class="chip" type="button" data-filtro="estado" data-valor="${esc(e)}" aria-pressed="false">${esc(ESTADOS[e] || 'No aplica')}</button>`).join('')}
+    </div>
+    <div class="filtro-linea" role="group" aria-label="Validación"><span class="filtro-etiqueta">Validación</span>
+      <button class="chip" type="button" data-filtro="validacion" data-valor="" aria-pressed="true">Todas</button>
+      ${[...new Set(guia.map(nivelGuia))].map((n) => `<button class="chip" type="button" data-filtro="validacion" data-valor="${esc(n)}" aria-pressed="false">${esc(NIVELES[n].texto)}</button>`).join('')}
     </div>
   </div>
   <div class="tabla-marco">
     <table class="tabla-guia" id="tabla-guia">
-      <thead><tr><th scope="col">Página</th><th scope="col">Tipo</th><th scope="col">Países</th><th scope="col">Estado</th><th scope="col">Revisado</th></tr></thead>
+      <thead><tr><th scope="col">Página</th><th scope="col">Tipo</th><th scope="col">Países</th><th scope="col">Estado</th><th scope="col">Validación</th><th scope="col">Revisado</th></tr></thead>
       <tbody>${filas}</tbody>
     </table>
   </div>
@@ -758,14 +844,14 @@ for (const p of guia) {
   <nav class="migas" aria-label="Estás en"><a href="${u('/guia/')}">Guía</a><span aria-hidden="true">/</span><span>${esc(SECCIONES[p.seccion] || p.seccion)}</span></nav>
   <header class="paso-cabeza senal">
     <h1 class="senal-titulo">${esc(p.meta.titulo)}</h1>
-    <span class="senal-pie">${estado(estadoGuia(p))}${paises(p.meta.paises)}</span>
+    <span class="senal-pie">${vistaGuia(p) ? estado(estadoGuia(p)) : ''}${paises(p.meta.paises)}</span>
   </header>
-  <p class="paso-meta"><span>Revisado el ${fecha(p.meta.revisado)}</span>${nov.length ? `<span>Último cambio ${tiempo(nov[0].fecha)}</span>` : ''}</p>
-  ${p.meta.borrador ? '<p class="aviso"><span><strong>Borrador.</strong> Este contenido aún no está verificado. No lo uses como referencia para viajar.</span></p>' : ''}
+  <p class="paso-meta">${validacionHTML(nivelGuia(p), p.meta.verificado)}<span>Revisado el ${fecha(p.meta.revisado)}</span>${nov.length ? `<span>Última noticia ${tiempo(nov[0].publicado)}</span>` : ''}</p>
+  ${avisoValidacion(nivelGuia(p), p.meta.verificado)}
   <div class="paso-cuerpo">
     <article class="articulo">
       <p class="resumen">${esc(p.meta.resumen)}</p>
-      ${paso && fichaPaso[paso.id] ? fichaOperativa(fichaPaso[paso.id]) : ''}
+      ${paso && fichaPaso[paso.id] ? fichaOperativa(fichaPaso[paso.id]) : bloqueTramos(`${p.seccion}/${p.slug}`)}
       ${p.html}
       ${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}
     </article>
@@ -810,17 +896,27 @@ for (const p of guia) {
     ...categorias.filter((c) => cuenta((e) => e.categoria === c.id)).map((c) => ({ t: c.nombre, d: 'Tipo de empresa' })),
     ...[...new Set(empresas.flatMap((e) => e.servicios || []))].map((s) => ({ t: s, d: 'Servicio' })),
   ];
+  const vacioDirectorio = `
+<div class="contenedor">
+  <header class="cabeza-pagina"><h1>Servicios del corredor</h1><p>Transitarios, despachantes, transportistas y servicios para el camión en cada punto de la ruta.</p></header>
+  <section class="panel directorio-vacio" aria-labelledby="t-dir-vacio">
+    <h2 id="t-dir-vacio">Todavía no hay empresas verificadas</h2>
+    <p>Solo publicamos empresas que han confirmado sus datos. Estamos contactando con proveedores de cada punto de la ruta.</p>
+    <p>Categorías previstas: ${esc(listaY(categorias.map((c) => c.nombre.toLowerCase())))}.</p>
+    <a class="btn btn-principal" href="${u('/anunciate/')}">Dar de alta mi empresa gratis</a>
+  </section>
+</div>`;
   add(
     '/directorio/',
     layout({
-      titulo: 'Empresas del corredor',
+      titulo: 'Servicios del corredor',
       descripcion: 'Transitarios, transportistas, despachantes, depósitos y servicios en cada punto del Corredor Bioceánico.',
       ruta: '/directorio/',
-      scripts: ['/assets/directorio.js'],
+      scripts: empresas.length ? ['/assets/directorio.js'] : [],
       datos: `<script type="application/json" id="datos-sugerencias">${JSON.stringify(sugerencias).replace(/</g, '\\u003c')}</script>`,
-      cuerpo: `
+      cuerpo: !empresas.length ? vacioDirectorio : `
 <div class="contenedor">
-  <header class="cabeza-pagina"><h1>Empresas del corredor</h1><p>Busca quién da servicio en cada punto de la ruta y escríbele directamente.</p></header>
+  <header class="cabeza-pagina"><h1>Servicios del corredor</h1><p>Busca quién da servicio en cada punto de la ruta y escríbele directamente.</p></header>
   <div class="busqueda-web">
     ${icono('buscar')}
     <label class="oculto" for="f-texto">Buscar empresas</label>
@@ -905,6 +1001,7 @@ ${seccion({
   <div class="acciones alta-acciones">
     ${site.contacto.email ? `<a class="btn btn-principal" href="mailto:${esc(site.contacto.email)}?subject=${asunto}&body=${cuerpoMail}">${icono('correo')}Enviar datos por email</a>` : ''}
     ${waAlta}
+    ${!site.contacto.email && !site.contacto.whatsapp ? '<p class="sin-dato">El canal de alta se publica en breve. Mientras tanto, prepara los datos de la lista.</p>' : ''}
   </div>`,
 })}`,
     })
@@ -989,7 +1086,7 @@ ${seccion({
 {
   const paisesI = [...new Set(incidencias.flatMap((i) => i.paises))];
   const tiposI = [...new Set(incidencias.map((i) => i.tipo))];
-  const tarjetaInc = (i) => `<li class="inc-tarjeta" data-pais="${esc(i.paises.join(' '))}" data-tipo="${esc(i.tipo)}">
+  const tarjetaInc = (i) => `<li class="inc-tarjeta" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-tipo="${esc(i.tipo)}">
   <div class="inc-cabeza">${tipoIncidencia(i.tipo)}<span class="inc-estado">${i.estado === 'activa' ? 'Activa' : 'Resuelta'}</span>${paises(i.paises)}</div>
   <h3>${esc(i.ubicacion)}</h3>
   <p class="inc-tramo">${esc(i.tramo)}</p>
@@ -998,9 +1095,17 @@ ${seccion({
     <div><dt>Inicio</dt><dd>${i.inicio ? fecha(i.inicio) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
     <div><dt>Fin previsto</dt><dd>${i.finPrevista ? esc(i.finPrevista) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
     <div class="inc-impacto"><dt>Transporte pesado</dt><dd>${i.impacto ? esc(i.impacto) : '<span class="sin-dato">Sin datos verificados</span>'}</dd></div>
-    <div><dt>Fuente</dt><dd>${fuenteEnlace(i.fuente)}${i.fuente.fecha ? `, ${fecha(i.fuente.fecha)}` : ''}</dd></div>
+    <div><dt>Fuente</dt><dd>${fuenteEnlace(i.fuente)} (${TIPO_FUENTE[i.fuente.tipo] || 'fuente'})${i.publicado ? `, ${fecha(i.publicado)}` : ', sin fecha'}</dd></div>
+    <div><dt>Tramos afectados</dt><dd>${(i.tramos || [])
+      .map((id) => tramoPorId[id])
+      .filter(Boolean)
+      .map((t) => {
+        const g = t.paso?.guia || t.guia;
+        return g ? `<a href="${u(`/guia/${g}/`)}">${esc(nombreTramo(t))}</a>` : esc(nombreTramo(t));
+      })
+      .join('<br>') || '<span class="sin-dato">Sin asignar</span>'}</dd></div>
   </dl>
-  <p class="inc-revisado">Revisado el ${fecha(i.actualizado)}</p>
+  <p class="inc-revisado">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado)}</p>
 </li>`;
   const porPais = Object.keys(PAISES).map((k) => {
     const de = (t) => organismos.filter((o) => o.pais === k && t.includes(o.tipo));
@@ -1055,36 +1160,57 @@ ${seccion({
   titulo: 'Novedades recientes',
   contexto: 'Avances de obras y acuerdos entre países, con su fuente.',
   enlace: ['/novedades/', 'Ver todas las novedades'],
-  cuerpo: `<ul class="lista-noticias lista-noticias-tres">${novedades.slice(0, 3).map((n) => `<li>${noticia(n)}</li>`).join('')}</ul>`,
+  cuerpo: `<ul class="lista-noticias lista-noticias-tres">${recientes.slice(0, 3).map((n) => `<li>${noticia(n)}</li>`).join('')}</ul>`,
 })}`,
     })
   );
 }
 
-// Calendario de festivos
+// Calendario aduanero: festivos y horarios
 {
+  const ORGANISMOS_CAL = { general: 'Feriado nacional', aduana: 'Aduana', migraciones: 'Migraciones', sanitario: 'Sanitario', complejo: 'Complejo fronterizo' };
   const anios = [...new Set(festivos.map((f) => f.fecha.slice(0, 4)))];
   const meses = [...new Set(festivos.map((f) => f.fecha.slice(0, 7)))];
-  const nombreMes = (ym) => new Date(ym + '-15T12:00:00Z').toLocaleDateString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const nombreMes = (ym) => {
+    const t = new Date(ym + '-15T12:00:00Z').toLocaleDateString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    return t[0].toUpperCase() + t.slice(1);
+  };
+  const paisesDeLado = (lado, p) => {
+    const ks = Object.keys(PAISES).filter((k) => lado.includes(k));
+    return ks.length ? ks : Object.keys(p.lados);
+  };
   const proximoPais = Object.keys(PAISES)
     .map((k) => {
       const f = festivos.find((x) => x.pais === k && x.tipo === 'feriado');
       return f ? `<li><span class="prox-pais">${esc(PAISES[k])}</span><strong>${esc(diaSemana(f.fecha))} ${esc(fechaCorta(f.fecha))}</strong><span>${esc(f.nombre)}</span></li>` : '';
     })
     .join('');
-  const filas = meses
+  const festivosHTML = meses
     .map((m) => {
       const delMes = festivos.filter((f) => f.fecha.startsWith(m));
-      return `<li class="mes-cab" data-cabecera><h2>${esc(nombreMes(m))}</h2></li>${delMes
+      return `<li class="mes-cab" data-cabecera><h3>${esc(nombreMes(m))}</h3></li>${delMes
         .map(
-          (f) => `<li class="fest-item" data-pais="${esc(f.pais)}" data-tipo="${esc(f.tipo)}" data-estado="${esc(f.estado)}" data-mes="${esc(m)}">
+          (f) => `<li class="fest-item" data-cal data-pais="${esc(f.pais)}" data-organismo="${esc(f.organismo || 'general')}" data-fecha="${esc(f.fecha)}" data-mes="${esc(m)}">
   <ul class="fest-fila">${filaFestivo(f)}</ul>
-  <p class="fest-detalle">${f.nota ? `${esc(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
+  <p class="fest-detalle">${validacionHTML(nivelReg(f, 'festivo'), f.verificado)} ${f.nota ? `${esc(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
 </li>`
         )
         .join('')}`;
     })
     .join('');
+  const horarios = fichaPasos.flatMap((p) => (p.horarios || []).map((h) => ({ p, h })));
+  const especiales = fichaPasos.flatMap((p) => (p.horariosEspeciales || []).map((h) => ({ p, h })));
+  const filaHorario = ({ p, h }, especial = false) => `<tr data-cal data-pais="${esc(paisesDeLado(h.lado || '', p).join(' '))}" data-organismo="${esc(h.organismo || 'complejo')}"${
+    especial ? ` data-desde="${esc(h.desde)}" data-hasta="${esc(h.hasta)}"` : ''
+  }>
+    <th scope="row"><a href="${u(`/guia/${guiaDePaso[p.id]}/`)}">${esc(p.nombre)}</a></th>
+    <td data-l="Lado">${esc(h.lado || '')}</td>
+    <td data-l="Organismo">${esc(ORGANISMOS_CAL[h.organismo] || h.organismo || '')}</td>
+    <td data-l="Horario">${especial ? `<strong>${fecha(h.desde)} – ${fecha(h.hasta)}:</strong> ` : ''}${esc(h.texto)}</td>
+    <td data-l="Fuente">${fuenteEnlace(h.fuente)}${h.publicado ? `, ${fechaCorta(h.publicado)}` : ''}<br>${validacionHTML(nivelReg(h, 'horario'), h.verificado)}</td>
+  </tr>`;
+  const tablaHorarios = (filas) => `<div class="tabla-marco"><table class="tabla-oficial tabla-horarios"><thead><tr><th scope="col">Paso</th><th scope="col">Lado</th><th scope="col">Organismo</th><th scope="col">Horario</th><th scope="col">Fuente y validación</th></tr></thead><tbody>${filas}</tbody></table></div>`;
+  const orgsUsados = [...new Set(['general', ...horarios.map((x) => x.h.organismo), ...especiales.map((x) => x.h.organismo)].filter(Boolean))];
   const chips = (filtro, valores) =>
     `<button class="chip" type="button" data-filtro="${filtro}" data-valor="" aria-pressed="true">Todos</button>${valores
       .map(([v, t]) => `<button class="chip" type="button" data-filtro="${filtro}" data-valor="${esc(v)}" aria-pressed="false">${esc(t)}</button>`)
@@ -1092,30 +1218,55 @@ ${seccion({
   add(
     '/calendario/',
     layout({
-      titulo: `Festivos ${anios.join('–')}`,
-      descripcion: 'Festivos nacionales de Brasil, Paraguay, Argentina y Chile que pueden afectar a aduanas y organismos del corredor, con su norma.',
+      titulo: 'Calendario aduanero',
+      descripcion: 'Festivos y horarios de atención en fronteras de Brasil, Paraguay, Argentina y Chile, con su fuente y su estado de verificación.',
       ruta: '/calendario/',
-      scripts: ['/assets/filtros.js'],
+      scripts: ['/assets/calendario.js'],
       cuerpo: `
 <div class="contenedor">
-  <header class="cabeza-pagina"><h1>Festivos ${esc(anios.join('–'))}</h1><p>Festivos nacionales de los cuatro países, del ${fecha(festivosDoc.desde)} al ${fecha(festivosDoc.hasta)}. Cada fecha indica su norma. Revisado el ${fecha(festivosDoc.actualizado)}.</p></header>
+  <header class="cabeza-pagina"><h1>Calendario aduanero</h1><p>Festivos ${esc(anios.join('–'))} y horarios de atención en frontera de los cuatro países. Cada dato indica su fuente y si está verificado.</p></header>
   <section class="seccion-corta" aria-labelledby="t-prox">
     <h2 id="t-prox" class="titulo-pequeno">Próximo feriado en cada país</h2>
     <ul class="proximos">${proximoPais}</ul>
   </section>
-  <div class="filtros-noticias" data-filtros="#lista-fest">
+  <div class="filtros-noticias filtros-cal" data-cal-filtros>
     <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>${chips('pais', Object.entries(PAISES))}</div>
-    <div class="filtro-linea" role="group" aria-label="Tipo"><span class="filtro-etiqueta">Tipo</span>${chips('tipo', Object.entries(TIPOS_FESTIVO))}</div>
-    <div class="filtro-linea"><label class="filtro-etiqueta" for="filtro-mes">Mes</label>
-      <select class="selector" id="filtro-mes" data-filtro="mes"><option value="">Todos los meses</option>${meses.map((m) => `<option value="${esc(m)}">${esc(nombreMes(m))}</option>`).join('')}</select>
+    <div class="filtro-linea" role="group" aria-label="Organismo"><span class="filtro-etiqueta">Organismo</span>${chips(
+      'organismo',
+      orgsUsados.map((o) => [o, ORGANISMOS_CAL[o] || o])
+    )}</div>
+    <div class="filtro-linea">
+      <label class="filtro-etiqueta" for="filtro-fecha">Fecha de cruce</label>
+      <input class="selector" type="date" id="filtro-fecha" min="${esc(festivosDoc.desde)}" max="${esc(festivosDoc.hasta)}">
+      <label class="filtro-etiqueta" for="filtro-mes">Mes</label>
+      <select class="selector" id="filtro-mes"><option value="">Todos los meses</option>${meses.map((m) => `<option value="${esc(m)}">${esc(nombreMes(m))}</option>`).join('')}</select>
       <button class="btn btn-borde btn-pequeno boton-imprimir" type="button" onclick="window.print()">${icono('imprimir')}Imprimir</button>
     </div>
+    <p class="cal-estado" id="cal-estado" role="status"></p>
   </div>
-  <ul class="calendario" id="lista-fest">${filas}</ul>
-  <div class="vacio" data-vacio hidden><p>No hay festivos con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>
+  <section class="cal-bloque" aria-labelledby="t-horarios">
+    <h2 id="t-horarios">Horarios de atención en frontera</h2>
+    <p class="texto-suave">Horarios publicados para cada paso. Un horario de más de ${180} días sin verificar se marca como caducado.</p>
+    ${tablaHorarios(horarios.map((x) => filaHorario(x)).join(''))}
+    <p class="vacio" data-vacio-de="tabla-horarios" hidden>No hay horarios con esos filtros.</p>
+  </section>
+  <section class="cal-bloque" aria-labelledby="t-festivos">
+    <h2 id="t-festivos">Festivos</h2>
+    <p class="texto-suave">Del ${fecha(festivosDoc.desde)} al ${fecha(festivosDoc.hasta)}. En un feriado nacional, comprueba la atención de aduanas y organismos.</p>
+    <ul class="calendario" id="lista-fest">${festivosHTML}</ul>
+    <p class="vacio" data-vacio-de="lista-fest" hidden>No hay festivos con esos filtros.</p>
+  </section>
+  <section class="cal-bloque" aria-labelledby="t-especiales">
+    <h2 id="t-especiales">Horarios especiales</h2>
+    ${
+      especiales.length
+        ? tablaHorarios(especiales.map((x) => filaHorario(x, true)).join(''))
+        : '<p class="sin-dato">No hay horarios especiales publicados. Cuando Migraciones, Aduanas o un complejo fronterizo anuncien un horario temporal, aparecerá aquí con sus fechas.</p>'
+    }
+  </section>
   <section class="panel pendientes" aria-labelledby="t-pend">
     <h2 id="t-pend">Qué falta por verificar</h2>
-    <ul>${festivosDoc.pendiente.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+    <ul>${festivosDoc.pendiente.map((x) => `<li>${esc(x)}</li>`).join('')}<li>Horarios del lado paraguayo y chileno de cada paso.</li></ul>
   </section>
 </div>`,
     })
@@ -1198,7 +1349,7 @@ ${seccion({
     }),
     ...guia.filter((p) => p.seccion !== 'pasos').map((p) => ({ t: p.meta.titulo, d: p.meta.resumen, u: u(p.ruta), k: SECCIONES[p.seccion] })),
     ...incidencias.map((i) => ({ t: `${i.ubicacion}: ${TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo}`, d: i.descripcion, u: u('/avisos/#obras'), k: 'Obra o restricción' })),
-    ...festivos.map((f) => ({ t: `${f.nombre} (${PAISES[f.pais]})`, d: `${fecha(f.fecha)}. ${TIPOS_FESTIVO[f.tipo]}${f.estado === 'por-confirmar' ? ', por confirmar' : ''}.`, u: u('/calendario/'), k: 'Festivo' })),
+    ...festivos.map((f) => ({ t: `${f.nombre} (${PAISES[f.pais]})`, d: `${fecha(f.fecha)}. ${TIPOS_FESTIVO[f.tipo]}${f.validacion !== 'verificado' ? ', por confirmar' : ''}.`, u: u('/calendario/'), k: 'Festivo' })),
     ...novedades.map((n) => ({ t: n.titulo, d: n.detalle || '', u: n.fuente.url, k: `Novedad, ${n.fuente.nombre}` })),
     ...organismos.map((o) => ({ t: o.nombre, d: `Organismo oficial de ${PAISES[o.pais]}`, u: o.url, k: 'Enlace oficial' })),
     ...empresas.map((e) => ({ t: e.nombre, d: `${catNombre[e.categoria] || ''}, ${e.ciudad}`, u: u(`/directorio/?q=${encodeURIComponent(e.nombre)}`), k: 'Empresa' })),

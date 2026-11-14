@@ -1,28 +1,205 @@
 {
-  "nota": "Solo enlaces comprobados. 'verificado' es la fecha en que se comprobó que el enlace existe y corresponde al organismo.",
+  "nota": "Enlaces oficiales comprobados. La url del organismo es su propia fuente. verificado = fecha de la última comprobación (caduca al año).",
   "organismos": [
-    { "id": "br-receita", "pais": "BR", "tipo": "aduana", "nombre": "Receita Federal (Aduana)", "url": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior", "verificado": "2026-11-14" },
-    { "id": "br-transito", "pais": "BR", "tipo": "tramite", "nombre": "Declarar tránsito aduanero (Siscomex Trânsito)", "url": "https://www.gov.br/pt-br/servicos/declarar-transito-aduaneiro", "verificado": "2026-11-14" },
-    { "id": "br-inmet", "pais": "BR", "tipo": "meteorologia", "nombre": "INMET – Avisos meteorológicos", "url": "https://avisos.inmet.gov.br/", "verificado": "2026-11-14" },
-    { "id": "br-dnit", "pais": "BR", "tipo": "vialidad", "nombre": "DNIT – Condiciones de las rodovias federales", "url": "http://servicos.dnit.gov.br/condicoes/", "verificado": "2026-11-14" },
-
-    { "id": "py-dnit", "pais": "PY", "tipo": "aduana", "nombre": "DNIT – Dirección Nacional de Ingresos Tributarios (Aduanas)", "url": "https://www.dnit.gov.py/web/portal-institucional/otros-sistemas", "verificado": "2026-11-14" },
-    { "id": "py-senave", "pais": "PY", "tipo": "sanitario", "nombre": "SENAVE – Sanidad vegetal", "url": "https://www.senave.gov.py/", "verificado": "2026-11-14" },
-    { "id": "py-dinatran", "pais": "PY", "tipo": "transporte", "nombre": "DINATRAN – Dirección Nacional de Transporte", "url": "https://www.dinatran.gov.py/cp_introduccion.html", "verificado": "2026-11-14" },
-    { "id": "py-mopc", "pais": "PY", "tipo": "vialidad", "nombre": "MOPC – Ministerio de Obras Públicas y Comunicaciones", "url": "https://mopc.gov.py/", "verificado": "2026-11-14" },
-    { "id": "py-dmh", "pais": "PY", "tipo": "meteorologia", "nombre": "Dirección de Meteorología e Hidrología (DINAC)", "url": "https://www.meteorologia.gov.py/", "verificado": "2026-11-14" },
-
-    { "id": "ar-arca", "pais": "AR", "tipo": "aduana", "nombre": "ARCA – Aduana (tránsito y MIC/DTA)", "url": "https://arca.gob.ar/tarifa-reducida/ayuda/normativa.asp", "verificado": "2026-11-14" },
-    { "id": "ar-senasa", "pais": "AR", "tipo": "sanitario", "nombre": "SENASA – Permiso fitozoosanitario de tránsito internacional", "url": "https://www.argentina.gob.ar/servicio/productos-de-origen-vegetalanimal-solicitud-de-permiso-fitozoosanitario-de-transito", "verificado": "2026-11-14" },
-    { "id": "ar-migraciones", "pais": "AR", "tipo": "migraciones", "nombre": "Migraciones – Pasos internacionales y horarios", "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales", "verificado": "2026-11-14" },
-    { "id": "ar-control", "pais": "AR", "tipo": "tramite", "nombre": "Organismos de control en frontera", "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/fronteras/organismos", "verificado": "2026-11-14" },
-    { "id": "ar-pasos", "pais": "AR", "tipo": "estado-pasos", "nombre": "Estado de los pasos internacionales", "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales", "verificado": "2026-11-14" },
-    { "id": "ar-alertas-pasos", "pais": "AR", "tipo": "estado-pasos", "nombre": "Comisión Nacional de Fronteras – Alertas de pasos", "url": "https://www.argentina.gob.ar/jefatura/comision-nacional-de-fronteras/alertas-de-pasos-internacionales", "verificado": "2026-11-14" },
-    { "id": "ar-smn", "pais": "AR", "tipo": "meteorologia", "nombre": "SMN – Alertas meteorológicas", "url": "https://www.smn.gob.ar/smn_alertas/alertas", "verificado": "2026-11-14" },
-
-    { "id": "cl-aduanas", "pais": "CL", "tipo": "aduana", "nombre": "Servicio Nacional de Aduanas", "url": "https://www.aduana.cl/aduana/site/edic/base/port/inicio.html", "verificado": "2026-11-14" },
-    { "id": "cl-sag", "pais": "CL", "tipo": "sanitario", "nombre": "SAG – Control de frontera", "url": "https://www.sag.gob.cl/ambitos-de-accion/control-de-frontera", "verificado": "2026-11-14" },
-    { "id": "cl-pasos", "pais": "CL", "tipo": "estado-pasos", "nombre": "Pasos Fronterizos (Gobierno de Chile)", "url": "http://www.pasosfronterizos.gov.cl/", "verificado": "2026-11-14" },
-    { "id": "cl-dmc", "pais": "CL", "tipo": "meteorologia", "nombre": "Dirección Meteorológica de Chile – Avisos y alertas", "url": "https://www.meteochile.gob.cl/", "verificado": "2026-11-14" }
+    {
+      "id": "br-receita",
+      "pais": "BR",
+      "tipo": "aduana",
+      "nombre": "Receita Federal (Aduana)",
+      "url": "https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "br-transito",
+      "pais": "BR",
+      "tipo": "tramite",
+      "nombre": "Declarar tránsito aduanero (Siscomex Trânsito)",
+      "url": "https://www.gov.br/pt-br/servicos/declarar-transito-aduaneiro",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "br-inmet",
+      "pais": "BR",
+      "tipo": "meteorologia",
+      "nombre": "INMET – Avisos meteorológicos",
+      "url": "https://avisos.inmet.gov.br/",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "br-dnit",
+      "pais": "BR",
+      "tipo": "vialidad",
+      "nombre": "DNIT – Condiciones de las rodovias federales",
+      "url": "http://servicos.dnit.gov.br/condicoes/",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "py-dnit",
+      "pais": "PY",
+      "tipo": "aduana",
+      "nombre": "DNIT – Dirección Nacional de Ingresos Tributarios (Aduanas)",
+      "url": "https://www.dnit.gov.py/web/portal-institucional/otros-sistemas",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "py-senave",
+      "pais": "PY",
+      "tipo": "sanitario",
+      "nombre": "SENAVE – Sanidad vegetal",
+      "url": "https://www.senave.gov.py/",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "py-dinatran",
+      "pais": "PY",
+      "tipo": "transporte",
+      "nombre": "DINATRAN – Dirección Nacional de Transporte",
+      "url": "https://www.dinatran.gov.py/cp_introduccion.html",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "py-mopc",
+      "pais": "PY",
+      "tipo": "vialidad",
+      "nombre": "MOPC – Ministerio de Obras Públicas y Comunicaciones",
+      "url": "https://mopc.gov.py/",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "py-dmh",
+      "pais": "PY",
+      "tipo": "meteorologia",
+      "nombre": "Dirección de Meteorología e Hidrología (DINAC)",
+      "url": "https://www.meteorologia.gov.py/",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "ar-arca",
+      "pais": "AR",
+      "tipo": "aduana",
+      "nombre": "ARCA – Aduana (tránsito y MIC/DTA)",
+      "url": "https://arca.gob.ar/tarifa-reducida/ayuda/normativa.asp",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "ar-senasa",
+      "pais": "AR",
+      "tipo": "sanitario",
+      "nombre": "SENASA – Permiso fitozoosanitario de tránsito internacional",
+      "url": "https://www.argentina.gob.ar/servicio/productos-de-origen-vegetalanimal-solicitud-de-permiso-fitozoosanitario-de-transito",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "ar-migraciones",
+      "pais": "AR",
+      "tipo": "migraciones",
+      "nombre": "Migraciones – Pasos internacionales y horarios",
+      "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "ar-control",
+      "pais": "AR",
+      "tipo": "tramite",
+      "nombre": "Organismos de control en frontera",
+      "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/fronteras/organismos",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "ar-pasos",
+      "pais": "AR",
+      "tipo": "estado-pasos",
+      "nombre": "Estado de los pasos internacionales",
+      "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "ar-alertas-pasos",
+      "pais": "AR",
+      "tipo": "estado-pasos",
+      "nombre": "Comisión Nacional de Fronteras – Alertas de pasos",
+      "url": "https://www.argentina.gob.ar/jefatura/comision-nacional-de-fronteras/alertas-de-pasos-internacionales",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "ar-smn",
+      "pais": "AR",
+      "tipo": "meteorologia",
+      "nombre": "SMN – Alertas meteorológicas",
+      "url": "https://www.smn.gob.ar/smn_alertas/alertas",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "cl-aduanas",
+      "pais": "CL",
+      "tipo": "aduana",
+      "nombre": "Servicio Nacional de Aduanas",
+      "url": "https://www.aduana.cl/aduana/site/edic/base/port/inicio.html",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "cl-sag",
+      "pais": "CL",
+      "tipo": "sanitario",
+      "nombre": "SAG – Control de frontera",
+      "url": "https://www.sag.gob.cl/ambitos-de-accion/control-de-frontera",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "cl-pasos",
+      "pais": "CL",
+      "tipo": "estado-pasos",
+      "nombre": "Pasos Fronterizos (Gobierno de Chile)",
+      "url": "http://www.pasosfronterizos.gov.cl/",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    },
+    {
+      "id": "cl-dmc",
+      "pais": "CL",
+      "tipo": "meteorologia",
+      "nombre": "Dirección Meteorológica de Chile – Avisos y alertas",
+      "url": "https://www.meteochile.gob.cl/",
+      "verificado": "2026-11-14",
+      "publicado": null,
+      "validacion": "verificado"
+    }
   ]
 }

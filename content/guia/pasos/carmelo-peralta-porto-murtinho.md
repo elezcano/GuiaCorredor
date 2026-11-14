@@ -5,7 +5,7 @@ resumen: El puente sobre el río Paraguay que une el Chaco paraguayo con Mato Gr
 paises: PY, BR
 puntos: porto-murtinho, carmelo-peralta
 revisado: 2026-11-14
-borrador: true
+validacion: borrador
 ---
 
 ## Qué es
@@ -19,13 +19,12 @@ Puente atirantado sobre el río Paraguay entre **Carmelo Peralta** (Alto Paragua
 | Vano principal | 350 m |
 | Uso previsto | Camiones con carga, vehículos livianos y peatones |
 
-## Estado
+## Cronología
 
 - **Julio de 2026:** unión física de las dos mitades del puente.
-- **Pendiente:** pavimentación, iluminación, señalización y sistemas de protección.
-- **Accesos viales:** previstos para **febrero de 2027**. El propio MOPC ha señalado como mayor preocupación los accesos del lado brasileño.
-- **Habilitación al tránsito:** sin fecha confirmada.
+- **Febrero de 2027 (previsto):** accesos viales. El MOPC señaló como mayor preocupación los accesos del lado brasileño.
 
+El estado actual y las incidencias están en «Datos del paso», con su fuente y su fecha.
 ## Qué necesitas saber antes de cruzar
 
 *Sección pendiente hasta que el paso esté habilitado: horarios de aduana, controles integrados, documentación y tiempos de espera.*
