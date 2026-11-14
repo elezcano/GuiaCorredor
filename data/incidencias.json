@@ -20,12 +20,17 @@
       "paso": "puente-bioceanica",
       "fuente": "infonegocios-accesos-puente",
       "publicado": "2026-10-07",
-      "validacion": "por-verificar",
+      "validacion": "verificado",
       "tramos": [
         "puente"
       ],
       "actualizado": "2026-11-15",
-      "verificacion": null,
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-15",
+        "alcance": "Ernesto confirmó el 15/11/2026 que el puente sigue en terminaciones y que el acceso paraguayo se prevé para el primer trimestre de 2027 (MOPC)."
+      },
       "evidencia": "tercero"
     },
     {
