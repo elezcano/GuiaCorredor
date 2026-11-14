@@ -13,14 +13,13 @@ Generado el 2026-11-14 con `npm run informe`. No editar a mano.
 | Estados de tramo | 0 | 1 | 0 | 0 |
 | Incidencias | 0 | 4 | 0 | 0 |
 | Novedades | 0 | 5 | 0 | 0 |
-| Festivos | 64 | 7 | 0 | 0 |
-| Enlaces de organismos | 20 | 0 | 0 | 0 |
+| Festivos | 0 | 71 | 0 | 0 |
+| Enlaces de organismos | 0 | 20 | 0 | 0 |
 
 Mientras un dato no esté «Verificado», la web lo muestra como «Por verificar» con su último valor, su fuente y su fecha.
 
 ## Contenido incompleto
 
-- Contacto del sitio: sin email ni WhatsApp (las empresas no pueden darse de alta).
 - Plan destacado: sin enlace de PayPal.
 - Tiempos de cruce: formulario sin configurar.
 - Directorio: sin empresas verificadas.
