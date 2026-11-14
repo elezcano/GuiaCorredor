@@ -118,6 +118,12 @@
       "tipo": "oficial"
     },
     {
+      "id": "migraciones-paraguay-puestos",
+      "nombre": "Dirección General de Migraciones (Paraguay): puestos de control",
+      "url": "https://migraciones.gov.py/puestos-de-control-migratorio/",
+      "tipo": "oficial"
+    },
+    {
       "id": "mopc",
       "nombre": "MOPC",
       "url": "https://mopc.gov.py/mopc-participara-en-reunion-clave-para-avanzar-con-el-puente-bioceanico-entre-paraguay-y-brasil/",
@@ -127,6 +133,12 @@
       "id": "mopc-2",
       "nombre": "MOPC",
       "url": "https://mopc.gov.py/iniciaron-los-trabajos-para-unir-los-extremos-del-puente-de-la-bioceanica/",
+      "tipo": "oficial"
+    },
+    {
+      "id": "mopc-nuevo-puente-pozo-hondo",
+      "nombre": "MOPC: Nuevo puente internacional en Pozo Hondo (27/04/2026)",
+      "url": "https://mopc.gov.py/nuevo-puente-internacional-traera-consigo-soluciones-y-seguridad-a-pozo-hondo/",
       "tipo": "oficial"
     },
     {
@@ -145,6 +157,12 @@
       "id": "revista-plus",
       "nombre": "Revista Plus",
       "url": "https://revistaplus.com.py/2026/10/14/el-puente-de-la-bioceanica-avanza-con-trabajos-en-ambas-margenes-del-rio-paraguay/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "saltazoom-pasos-30-09-2026",
+      "nombre": "Salta Zoom: Pasos fronterizos, parte de Defensa Civil (30/09/2026)",
+      "url": "https://saltazoom.com.ar/pasos-fronterizos-miercoles-horarios-clima/",
       "tipo": "prensa"
     },
     {
