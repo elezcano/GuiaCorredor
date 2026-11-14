@@ -5,7 +5,23 @@
 // y api/v1 se sigue publicando durante la transición (6 meses, docs/ia-dev.md).
 import { CADUCIDAD, EVIDENCIAS, NIVELES, VERIFICADORES, tipoEstado } from './validacion.mjs';
 
-export const API_VERSION = '1.0.0';
+export const API_VERSION = '1.1.0';
+
+/**
+ * Registro de versiones publicadas. Gestión interna del formato:
+ * - Cambio compatible (campos nuevos): subir la versión menor y anotarlo en AVISOS_API y docs/api-cambios.md.
+ * - Cambio incompatible: crear la generación v2, marcar v1 como "obsoleta" con obsoletaDesde y
+ *   retiradaPrevista (= obsoletaDesde + 6 meses). Ambas se publican hasta esa fecha; check avisa antes.
+ * El contrato de v1 está en data/esquemas/api-v1.schema.json y prueba-api.mjs lo exige en CI.
+ */
+export const API_VERSIONES = {
+  v1: { version: API_VERSION, estado: 'estable', desde: '2026-11-15', obsoletaDesde: null, retiradaPrevista: null },
+};
+/** Avisos para consumidores (los más recientes primero). */
+export const AVISOS_API = [
+  { fecha: '2026-11-15', version: '1.1.0', tipo: 'compatible', texto: 'Nuevo campo tramos[].estimacion y alternativa.estimacion: estimación provisional en línea recta (evidencia "estimacion").' },
+  { fecha: '2026-11-15', version: '1.0.0', tipo: 'inicial', texto: 'Primera versión de api/v1.' },
+];
 
 const sumar = (fecha, dias) => (fecha && Number.isFinite(dias) ? new Date(Date.parse(fecha) + dias * 864e5).toISOString().slice(0, 10) : null);
 
@@ -60,9 +76,11 @@ export function generarApi(ctx) {
     distancia:
       typeof t.km === 'number'
         ? { km: t.km, evidencia: t.kmEvidencia || null, fuente: t.kmFuente || null, nota: t.kmNota || null }
-        : { km: null, evidencia: null, fuente: null, nota: 'Sin distancia con fuente. No se estima.' },
+        : { km: null, evidencia: null, fuente: null, nota: 'Sin distancia con fuente.' },
+    // Estimación provisional (evidencia "estimacion"): nunca es un dato oficial ni verificado.
+    estimacion: t.estimacion || null,
     paso: t.paso ? { id: t.paso.id, nombre: t.paso.nombre } : null,
-    alternativa: t.alternativa ? { id: t.alternativa.id, nombre: t.alternativa.nombre } : null,
+    alternativa: t.alternativa ? { id: t.alternativa.id, nombre: t.alternativa.nombre, estimacion: t.alternativa.estimacion || null } : null,
     estado: { reporte: t.reporte ? pv(t.reporte, tipoEstado(t.reporte.valor)) : null, mostrar: mostrar(t.vista) },
     incidencias: incDeTramo(t),
     nota: t.nota || null,
@@ -98,17 +116,24 @@ export function generarApi(ctx) {
     'fuentes.json': envolver('fuentes', fuentes),
     'organismos.json': envolver('organismos', organismos),
   };
+  const v1 = API_VERSIONES.v1;
   archivos['indice.json'] = {
     api: 'v1',
     version: API_VERSION,
     generado,
+    estado: v1.estado,
+    obsoletaDesde: v1.obsoletaDesde,
+    retiradaPrevista: v1.retiradaPrevista,
+    versionesDisponibles: Object.entries(API_VERSIONES).map(([id, v]) => ({ id, version: v.version, estado: v.estado, url: `${urlBase}/api/${id}/indice.json`, retiradaPrevista: v.retiradaPrevista })),
+    avisos: AVISOS_API,
+    cambios: 'https://github.com/elezcano/GuiaCorredor/blob/main/docs/api-cambios.md',
     sitio: { nombre: site.nombreCompleto, url: urlBase, contacto: site.contacto.email || null },
     contrato: 'https://github.com/elezcano/GuiaCorredor/blob/main/docs/ia-dev.md',
     reglas: [
       'Solo nivel "verificado" significa que el responsable editorial revisó el dato y su evidencia.',
       'mostrar.nivelMostrado combina el nivel del dato y el de su ficha de la guía (una ficha en borrador arrastra a sus datos). mostrar.confirmado = false: el valor que se muestra es "pendiente" (Por verificar); ultimoReportado es el último dato publicado por la fuente, sin confirmar.',
       'evidencia "estimacion" o "calculo" nunca es un dato oficial; "historico" nunca es la situación actual.',
-      'Distancia con km null: no hay dato con fuente. No estimar.',
+      'distancia.km null = no hay distancia con fuente. Si hay "estimacion", es provisional, en línea recta y sin verificar: decirlo siempre así y nunca sumarla como dato oficial.',
       'Un festivo no implica cierre de aduana.',
     ],
     niveles: NIVELES,

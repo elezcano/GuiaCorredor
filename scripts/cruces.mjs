@@ -15,10 +15,15 @@ export const SENTIDOS = { chile: 'Hacia Chile', brasil: 'Hacia Brasil' };
 export const DIAS = 7; // ventana de reportes
 export const MINIMO = 3; // reportes necesarios para dar un tiempo
 
-const CAMPOS = ['paso', 'sentido', 'tiempo', 'fecha', 'dispositivo'];
+const CAMPOS_CRUCE = ['paso', 'sentido', 'tiempo', 'fecha', 'dispositivo'];
+/** Claves del formulario de solicitudes de empresas (docs/como-editar.md#formulario-de-google-de-solicitudes). */
+export const CAMPOS_SOLICITUD = ['tipo', 'nombre', 'razonsocial', 'pais', 'localidad', 'categoria', 'servicios', 'puntos', 'cobertura', 'persona', 'email', 'telefono', 'web', 'referencias', 'cambio'];
 
-/** Lee un enlace prellenado de Google Forms (con PASO, SENTIDO, TIEMPO, FECHA, DISPOSITIVO) y devuelve dónde enviar. */
-export function configEnvio(enlace) {
+/**
+ * Lee un enlace prellenado de Google Forms y devuelve dónde enviar.
+ * Cada pregunta se rellena con su clave (por defecto: paso, sentido, tiempo, fecha, dispositivo).
+ */
+export function configEnvio(enlace, CAMPOS = CAMPOS_CRUCE) {
   if (!enlace) return null;
   let url;
   try {

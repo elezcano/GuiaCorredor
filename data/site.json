@@ -38,5 +38,12 @@
   "cruces": {
     "enlacePrellenado": "",
     "csv": ""
+  },
+  "estimaciones": {
+    "provisionales": true,
+    "nota": "Estimaciones provisionales en línea recta para tramos sin distancia con fuente, hasta tener distancias oficiales (P1.7). Por carretera la distancia es mayor."
+  },
+  "solicitudes": {
+    "enlacePrellenado": ""
   }
 }

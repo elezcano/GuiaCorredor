@@ -45,7 +45,9 @@ Cada registro conserva: identificador, `fuente` **resuelta** (`{ id, nombre, url
 ### Versionado
 
 - Campos nuevos o recursos nuevos: versión menor (`1.1.0`) en `api/v1`. Los consumidores deben ignorar campos que no conozcan.
-- Cambio incompatible (renombrar o quitar campos, cambiar significados): nueva ruta `api/v2`. `api/v1` se sigue publicando **6 meses** con aviso en `indice.json`.
+- Cambio incompatible (renombrar o quitar campos, cambiar significados): nueva ruta `api/v2`. `api/v1` pasa a `estado: "obsoleta"` y se sigue publicando **6 meses** (`retiradaPrevista`).
+- **Aviso:** `indice.json` → `estado`, `versionesDisponibles` y `avisos`, y el registro [`api-cambios.md`](api-cambios.md). Claude debe leer `estado` y `avisos` antes de usar los datos.
+- **Gestión interna:** registro `API_VERSIONES` en `scripts/api.mjs`; contrato `data/esquemas/api-v1.schema.json` que la CI exige a la salida (un cambio de formato no pasa desapercibido); `npm run check` avisa antes de retirar una versión.
 - Cada archivo de `data/` lleva `version` de su esquema; `indice.json` → `versionesDatos` las lista.
 
 ## Reglas de interpretación (obligatorias para Claude)
@@ -53,7 +55,7 @@ Cada registro conserva: identificador, `fuente` **resuelta** (`{ id, nombre, url
 1. **Solo `nivel: "verificado"` es dato verificado.** Significa que el responsable editorial revisó el dato y su evidencia. Decirlo así: «verificado el AAAA-MM-DD».
 2. Si `mostrar.confirmado` es `false`, la respuesta es **«por verificar»**. Se puede dar `ultimoReportado` y `texto` como «último dato publicado por <fuente> el <publicado>», nunca como estado confirmado.
 3. Distinguir siempre la evidencia: `oficial` (organismo o norma), `tercero` (prensa, referencia), `declaracion-empresa`, `calculo`, `estimacion`, `historico`. Una estimación o un cálculo no es un dato oficial; un dato histórico no es la situación actual.
-4. `distancia.km: null` = no hay distancia con fuente. **No estimar ni sumar** tramos sin dato; decir cuántos faltan.
+4. `distancia.km: null` = no hay distancia con fuente. Si el tramo trae `estimacion`, es **provisional, en línea recta y sin verificar**: darla siempre como «≈ X km, estimación provisional», decir qué tramos son estimados (`estimacion.puntos`) y que por carretera es más. No inventar estimaciones propias.
 5. Coordenadas con `precision: "referencia"` son puntos de referencia de nodos que agrupan varias localidades. No sirven para medir distancias operativas.
 6. Un festivo no implica que la aduana cierre. Solo cuentan horarios u horarios especiales del organismo.
 7. Directorio vacío = no hay empresas publicadas. No sugerir empresas de fuera de la API como si fueran del directorio.
@@ -66,7 +68,7 @@ Cada registro conserva: identificador, `fuente` **resuelta** (`{ id, nombre, url
 |---|---|
 | ¿Está abierto el Paso de Jama? | Por verificar. El último dato publicado (TodoJujuy, parte de Migraciones, 07/11/2026, fuente de terceros) lo daba habilitado para todo tipo de vehículos con precaución por clima. Hay incidencias de cierres preventivos por clima en el tramo. No está confirmado por el responsable editorial. |
 | ¿Puedo cruzar ya por el Puente de la Bioceánica? | Según el último dato publicado (Revista Plus, 14/10/2026) no está habilitado al tránsito; accesos previstos para febrero de 2027. Por verificar. |
-| ¿Cuántos km hay de Campo Grande a Antofagasta? | No hay distancia total con fuente. Documentados: Puente 1,3 km (prensa), Carmelo Peralta–Mariscal Estigarribia 307 km (cálculo), Mariscal Estigarribia–Pozo Hondo 224 km (prensa). Cuatro tramos sin dato. No se estima. |
+| ¿Cuántos km hay de Campo Grande a Antofagasta? | No hay distancia total con fuente. Con fuente: Puente 1,3 km (prensa), Carmelo Peralta–Mariscal Estigarribia 307 km (cálculo), Mariscal Estigarribia–Pozo Hondo 224 km (prensa). Estimación provisional sin verificar en línea recta para los otros cuatro tramos (≈ 1.360 km por Jama); total orientativo, más de unos 1.890 km. Por carretera es más. |
 | ¿Cierra la aduana chilena el 1 de enero de 2027? | El 1 de enero es feriado nacional en Chile (por verificar), pero eso no implica cierre de la aduana. No hay horario especial publicado para esa fecha; confirmar con el organismo. |
 | ¿Qué transportistas hay en Pozo Hondo? | El directorio no tiene empresas publicadas todavía. |
 | ¿Dónde está exactamente «Salta / Jujuy»? | Es un nodo que agrupa dos ciudades; la coordenada es un punto de referencia en la ciudad de Salta (Wikipedia), no una ubicación operativa. |

@@ -2,6 +2,7 @@
 // Ejecutar después de build: node scripts/prueba-api.mjs
 import fs from 'node:fs';
 import path from 'node:path';
+import { createRequire } from 'node:module';
 import { ROOT, readJSON } from './lib.mjs';
 
 const DIST = path.join(ROOT, 'dist');
@@ -31,6 +32,9 @@ for (const t of leer('tramos.json').registros) {
   if (!w) fallos.push(`tramo ${t.id}: no está en el planificador.`);
   else if (w.vista.valor !== t.estado.mostrar.valor) fallos.push(`tramo ${t.id}: el planificador muestra "${w.vista.valor}" y la API "${t.estado.mostrar.valor}".`);
   if (t.distancia.km === null && w && typeof w.km === 'number') fallos.push(`tramo ${t.id}: distancia distinta.`);
+  if (w && (w.estimacion?.km ?? null) !== (t.estimacion?.km ?? null)) fallos.push(`tramo ${t.id}: la estimación de la web y la de la API no coinciden.`);
+  if (t.estimacion && t.estimacion.evidencia !== 'estimacion') fallos.push(`tramo ${t.id}: estimación sin evidencia "estimacion".`);
+  if (t.estimacion && t.distancia.km !== null) fallos.push(`tramo ${t.id}: tiene distancia con fuente y estimación a la vez.`);
 }
 // Nada verificado sin verificación humana.
 for (const r of indice.recursos) {
@@ -40,6 +44,19 @@ for (const r of indice.recursos) {
     if (v && typeof v === 'object' && v.nivel === 'verificado' && !v.verificacion) fallos.push(`${r.recurso}: registro con nivel verificado sin verificacion.`);
     return v;
   });
+}
+// Contrato: la salida cumple data/esquemas/api-v1.schema.json (un cambio de formato no pasa desapercibido).
+{
+  const A = createRequire(import.meta.url)('ajv/dist/2020');
+  const ajv = new (A.default || A)({ allErrors: true, strict: false });
+  const dir = path.join(ROOT, 'data/esquemas');
+  for (const f of ['comun.schema.json', 'api-v1.schema.json']) ajv.addSchema(JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')), f);
+  for (const f of fs.readdirSync(path.join(DIST, 'api/v1'))) {
+    const def = f.replace('.json', '');
+    const v = ajv.getSchema(`api-v1.schema.json#/$defs/${def}`);
+    if (!v) fallos.push(`api/v1/${f}: no está en el contrato (data/esquemas/api-v1.schema.json).`);
+    else if (!v(leer(f))) fallos.push(...v.errors.slice(0, 5).map((e) => `api/v1/${f}${e.instancePath}: ${e.message} (incumple el contrato: ¿cambio incompatible?)`));
+  }
 }
 for (const f of fallos) console.log(`FALLO  ${f}`);
 console.log(`Prueba api/v1: ${fallos.length} fallos.`);

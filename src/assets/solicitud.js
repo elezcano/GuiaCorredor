@@ -4,6 +4,7 @@
   const f = document.getElementById('solicitud');
   if (!f) return;
   const error = f.querySelector('.sol-error');
+  const ok = f.querySelector('.sol-ok');
   const tipo = () => f.elements.tipo.value;
   const TITULO = { alta: 'Alta', correccion: 'Corrección', retirada: 'Retirada' };
   const ETIQ = {
@@ -23,6 +24,19 @@
   f.addEventListener('change', (e) => e.target.name === 'tipo' && visibles());
   visibles();
 
+  // Valores para el formulario de Google (claves de CAMPOS_SOLICITUD).
+  const valores = () => {
+    const d = new FormData(f);
+    const sel = (k) => (f.elements[k].value ? f.elements[k].selectedOptions[0].text : '');
+    const activo = (k) => !(f.elements[k].disabled ?? f.elements[k][0]?.disabled);
+    const puntos = d.getAll('puntos').map((id) => f.querySelector(`input[name=puntos][value="${id}"]`).parentNode.textContent.trim()).join(', ');
+    const t = (k) => (activo(k) ? (d.get(k) || '').trim() : '');
+    return {
+      tipo: TITULO[tipo()], nombre: t('nombre'), razonsocial: t('razonSocial'), pais: sel('pais'), localidad: t('localidad'),
+      categoria: activo('categoria') ? sel('categoria') : '', servicios: t('servicios'), puntos: activo('cobertura') ? puntos : '', cobertura: t('cobertura'),
+      persona: t('persona'), email: t('email'), telefono: t('telefono'), web: t('web'), referencias: t('referencias'), cambio: t('cambio'),
+    };
+  };
   const texto = () => {
     const d = new FormData(f);
     const lineas = [`Tipo de solicitud: ${TITULO[tipo()]}`, `Fecha: ${new Date().toISOString().slice(0, 10)}`, ''];
@@ -49,13 +63,33 @@
     error.textContent = m;
     error.hidden = !m;
   };
-  f.addEventListener('submit', (e) => {
+  f.addEventListener('submit', async (e) => {
     e.preventDefault();
     const m = valida();
     mostrar(m);
     if (m) return;
     const asunto = `[Solicitud de empresa] ${TITULO[tipo()]}: ${f.elements.nombre.value.trim()}`;
-    location.href = `mailto:${f.dataset.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(texto())}`;
+    const porEmail = () => (location.href = `mailto:${f.dataset.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(texto())}`);
+    if (!f.dataset.accion) return porEmail();
+    // Formulario de Google: se envía en segundo plano a su hoja privada (no-cors: no se puede leer la respuesta).
+    const campos = JSON.parse(f.dataset.campos);
+    const v = valores();
+    const cuerpo = new URLSearchParams();
+    for (const [clave, entry] of Object.entries(campos)) cuerpo.append(entry, v[clave] || '');
+    const boton = f.querySelector('button[type=submit]');
+    boton.disabled = true;
+    try {
+      await fetch(f.dataset.accion, { method: 'POST', mode: 'no-cors', body: cuerpo });
+      ok.textContent = `Solicitud enviada. La revisaremos y te escribiremos a ${v.email}. No se publica nada sin revisión.`;
+      ok.hidden = false;
+      f.querySelectorAll('input:not([type=radio]):not([type=checkbox]),textarea,select').forEach((el) => (el.value = ''));
+      f.querySelectorAll('input[type=checkbox]').forEach((el) => (el.checked = false));
+    } catch {
+      mostrar('No se pudo enviar. Te abrimos el email con la solicitud para que la mandes desde tu correo.');
+      porEmail();
+    } finally {
+      boton.disabled = false;
+    }
   });
   f.querySelector('[data-copiar]').addEventListener('click', async (e) => {
     const m = valida();

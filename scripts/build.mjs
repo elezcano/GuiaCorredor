@@ -7,7 +7,8 @@ import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES } from './lib
 import { nivel, peor, estadoMostrable, NIVELES, diasEntre, registroGuia, EVIDENCIAS } from './validacion.mjs';
 import { cargar } from './datos.mjs';
 import { generarApi } from './api.mjs';
-import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO } from './cruces.mjs';
+import { aplicarEstimaciones } from './estimaciones.mjs';
+import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO, CAMPOS_SOLICITUD } from './cruces.mjs';
 
 const require = createRequire(import.meta.url);
 let marked;
@@ -56,6 +57,8 @@ const guiaDePaso = Object.fromEntries(rutas.tramos.flatMap((t) => [t.paso, t.alt
 /** Estado mostrable de un paso: combina la validación del dato y la de su ficha. */
 const estadoPaso = (id) => estadoMostrable(fichaPaso[id]?.estado, HOY, nivelFicha(guiaDePaso[id]));
 const estadoTramo = (t) => (t.paso?.id ? estadoPaso(t.paso.id) : estadoMostrable(t.reporte, HOY, t.guia ? nivelFicha(t.guia) : null));
+// Estimaciones provisionales de distancia (solo tramos sin km con fuente).
+aplicarEstimaciones(rutas, fichaPasos, site.estimaciones?.provisionales !== false);
 rutas.tramos.forEach((t) => {
   t.vista = estadoTramo(t);
   t.estado = t.vista.valor;
@@ -646,7 +649,12 @@ function bloqueTramos(ruta) {
   const filas = ts
     .map((t) => {
       const inc = incidenciasDe({ tramos: [t.id] });
-      const km = t.km ? `${GCkm(t.km)}<span class="dato-fuente">${t.kmTipo === 'calculado' ? `Calculado: ${esc(t.kmNota || '')}` : t.kmFuente ? `Según ${fuenteEnlace(t.kmFuente)}` : ''}</span>` : '<span class="sin-dato">Sin dato</span>';
+      const est = (e, via) => (e ? `≈ ${GCkm(e.km)}${via ? ` por ${esc(via)}` : ''} <span class="tag tag-estimado">Estimación provisional</span><span class="dato-fuente">${esc(e.aviso)}</span>` : '');
+      const km = t.km
+        ? `${GCkm(t.km)}<span class="dato-fuente">${t.kmTipo === 'calculado' ? `Calculado: ${esc(t.kmNota || '')}` : t.kmFuente ? `Según ${fuenteEnlace(t.kmFuente)}` : ''}</span>`
+        : t.estimacion
+          ? `${est(t.estimacion, t.alternativa ? t.paso.nombre : '')}${t.alternativa?.estimacion ? `<br>${est(t.alternativa.estimacion, t.alternativa.nombre)}` : ''}`
+          : '<span class="sin-dato">Sin dato</span>';
       return `<div class="dato-fila"><dt>${esc(nombreTramo(t))}</dt><dd>
         <div class="dato-estado">${vistaHTML(t.vista)}</div>
         ${t.vista.fuente ? `<span class="dato-fuente">${fuenteEnlace(t.vista.fuente)}</span>` : ''}
@@ -988,8 +996,11 @@ for (const p of guia) {
   // Formulario de solicitud (P0.6): sin servidor. Prepara un email al contacto del proyecto.
   // La solicitud no se publica: queda pendiente de revisión (docs/como-editar.md#solicitudes-de-empresas).
   const opc = (xs) => xs.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('');
+  // Si hay formulario de Google configurado, la solicitud va a su hoja de cálculo (privada); si no, por email.
+  const envioSol = configEnvio(site.solicitudes?.enlacePrellenado, CAMPOS_SOLICITUD);
+  const conGoogle = envioSol && !envioSol.error;
   const formSolicitud = site.contacto.email
-    ? `<form class="solicitud" id="solicitud" data-email="${esc(site.contacto.email)}" novalidate>
+    ? `<form class="solicitud" id="solicitud" data-email="${esc(site.contacto.email)}"${conGoogle ? ` data-accion="${esc(envioSol.accion)}" data-campos="${esc(JSON.stringify(envioSol.campos))}"` : ''} novalidate>
     <fieldset class="sol-tipo"><legend>Qué quieres hacer</legend>
       <label class="chip chip-radio"><input type="radio" name="tipo" value="alta" checked>Dar de alta</label>
       <label class="chip chip-radio"><input type="radio" name="tipo" value="correccion">Corregir una ficha</label>
@@ -1016,10 +1027,15 @@ for (const p of guia) {
     <label class="sol-acepto"><input type="checkbox" name="acepto" required> Entiendo que la solicitud se revisa antes de publicarse y que los datos aparecerán como declarados por la empresa hasta que se verifiquen.</label>
     <p class="sol-error" role="alert" hidden></p>
     <div class="acciones">
-      <button class="btn btn-principal" type="submit">${icono('correo')}Preparar el email de solicitud</button>
+      <button class="btn btn-principal" type="submit">${conGoogle ? 'Enviar la solicitud' : `${icono('correo')}Preparar el email de solicitud`}</button>
       <button class="btn btn-borde" type="button" data-copiar>Copiar la solicitud</button>
     </div>
-    <p class="nota">Se abre tu programa de correo con la solicitud ya escrita, dirigida a <a href="mailto:${esc(site.contacto.email)}">${esc(site.contacto.email)}</a>. Esta web no guarda nada. Si no se abre, usa «Copiar la solicitud» y pégala en un email.</p>
+    <p class="sol-ok" role="status" hidden></p>
+    <p class="nota">${
+      conGoogle
+        ? `La solicitud se guarda en una hoja privada del proyecto (Formularios de Google) para revisarla. Si tienes problemas, escríbenos a <a href="mailto:${esc(site.contacto.email)}">${esc(site.contacto.email)}</a>.`
+        : `Se abre tu programa de correo con la solicitud ya escrita, dirigida a <a href="mailto:${esc(site.contacto.email)}">${esc(site.contacto.email)}</a>. Esta web no guarda nada. Si no se abre, usa «Copiar la solicitud» y pégala en un email.`
+    }</p>
   </form>`
     : '<p class="sin-dato">El canal de alta se publica en breve.</p>';
   add(
@@ -1064,7 +1080,7 @@ add(
       <li>Cada dato indica su fuente, su fecha y el tipo de evidencia: oficial, de terceros, declarado por una empresa, cálculo o histórico.</li>
       <li><b>Verificado</b> significa que el responsable editorial del proyecto revisó el dato y su fuente. Nadie más, tampoco un proceso automático ni un asistente de IA, puede marcar un dato como verificado.</li>
       <li>Lo demás se muestra como <b>Por verificar</b>, con el último dato publicado y su fuente.</li>
-      <li>No estimamos distancias: si un tramo no tiene distancia con fuente, lo decimos.</li>
+      <li>Si un tramo no tiene distancia con fuente, mostramos una <b>estimación provisional</b> en línea recta, indicando el tramo y los puntos usados. Por carretera la distancia es mayor.</li>
       <li>Un festivo nacional no significa que la aduana cierre; solo cuenta lo que publica cada organismo.</li>
       <li>Si ves un dato desactualizado, ${site.contacto.email ? `escríbenos a <a href="mailto:${esc(site.contacto.email)}">${esc(site.contacto.email)}</a>` : 'escríbenos'} y lo corregimos.</li>
     </ul>

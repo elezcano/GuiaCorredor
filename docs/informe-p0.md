@@ -11,7 +11,7 @@ Se repitieron las de la auditoría del 14/11/2026 sobre `main` (tras fusionar #3
 | Tarea | Qué se hizo |
 |---|---|
 | **P0.1** Verificación (#36) | Ningún registro queda `verificado`: los 64 festivos y 20 organismos que marcó la IA pasan a `por-verificar` (incluidos los festivos de Brasil 2027). La fecha de esas comprobaciones se conserva en `actualizado`. Nuevo campo `verificacion { verificadoPor, rol, fecha, alcance }` con el identificador `responsable-editorial`. El esquema y `check` rechazan `verificado` sin verificación válida. La CI exige la etiqueta `revision-editorial` en un PR que añade verificaciones (`scripts/verificaciones.mjs`). Las fichas Markdown necesitan además `verificadoPor` |
-| **P0.2** Coordenadas (#37) | Cada coordenada lleva fuente, evidencia, precisión y fecha de consulta (Wikipedia, Geodatos, Terralocate; todas `tercero`). Retiradas por no tener fuente: Puente de la Bioceánica (se dibuja entre sus dos localidades), Mejillones e Iquique (fuera del mapa hasta P1.1). Los nodos fusionados usan un punto de referencia declarado (Salta, San Pedro de Atacama, Antofagasta). El planificador deja de estimar distancias en línea recta: muestra «Distancia sin fuente» |
+| **P0.2** Coordenadas (#37) | Cada coordenada lleva fuente, evidencia, precisión y fecha de consulta (Wikipedia, Geodatos, Terralocate; todas `tercero`). Retiradas por no tener fuente: Puente de la Bioceánica (se dibuja entre sus dos localidades), Mejillones e Iquique (fuera del mapa hasta P1.1). Los nodos fusionados usan un punto de referencia declarado (Salta, San Pedro de Atacama, Antofagasta). El planificador estima en línea recta solo como «Estimación provisional» (decisión del 15/11) |
 | **P0.3** Modelo (#38) | `data/fuentes.json` con 35 fuentes; los datos las citan por id. Campos comunes: `evidencia`, `actualizado`, `verificacion`, `vigencia`. 11 esquemas Draft 2020-12 en `data/esquemas/` validados con ajv en `check`. Cada archivo lleva `$schema` y `version`. Migración en `scripts/migraciones/001-p0-modelo.mjs`. Carga única en `scripts/datos.mjs`. Las páginas siguen igual salvo lo indicado |
 | **P0.4** Calidad (#39) | `check` añade: duplicados por nombre normalizado y teléfono, coordenadas dentro del corredor, teléfonos E.164, estados incompatibles, incidencias vencidas activas, referencias inexistentes (fuentes, tramos, pasos, organismos, puntos), fechas futuras e incoherentes, fuentes repetidas o sin uso. Revisión semanal de enlaces externos que abre o actualiza un issue sin bloquear |
 | **P0.5** API (#40) | `api/v1` con índice y 8 recursos, fuente resuelta y estado calculado por el mismo código que la web. Esquemas publicados en `/esquemas/`. `robots.txt` permite `/api/`. Contrato, versionado, reglas, conectores y preguntas de prueba en `docs/ia-dev.md`. Prueba de coherencia web/API en CI |
@@ -25,7 +25,8 @@ Se repitieron las de la auditoría del 14/11/2026 sobre `main` (tras fusionar #3
 | `npm run check` (esquemas + reglas) | 0 errores, 21 avisos (todos conocidos: borradores, tramos sin dato, PayPal, indexable, tiempos de cruce, directorio vacío) |
 | Pruebas negativas de `check` (empresa duplicada, teléfono local, incidencia vencida activa, tramo inexistente, coordenada fuera de rango, `verificado` sin verificación) | Todas detectadas |
 | `build` | 19 páginas + 9 archivos de `api/v1` |
-| `prueba-api.mjs` (estado web = estado API en pasos y tramos; nada verificado sin verificación) | 0 fallos |
+| `prueba-api.mjs` (estado y estimaciones web = API; nada verificado sin verificación; contrato api-v1) | 0 fallos; romper el contrato a propósito lo detecta |
+| Formulario de Google simulado (envío a la hoja con las 15 claves, mensaje de confirmación) | Correcto |
 | `enlaces.mjs` | 0 enlaces internos rotos |
 | `verificaciones.mjs` frente a `main` | Ninguna verificación nueva |
 | 21 comprobaciones funcionales con navegador (portada, planificador, avisos, fichas, calendario, buscador) | Sin fallos (umbral del mapa ajustado de 10 a 9 enlaces al retirar Mejillones e Iquique) |
@@ -37,7 +38,7 @@ Se repitieron las de la auditoría del 14/11/2026 sobre `main` (tras fusionar #3
 - **Control de verificación:** es de procedimiento mientras el asistente use la cuenta del propietario. Para que sea técnico: proteger `main` y exigir su revisión (P1.11, #49).
 - **Atlassian:** no conectado en la sesión; Trello y GitHub sí.
 - **Coordenadas:** fuentes de referencia (no oficiales); Pozo Hondo procede de un agregador. Quedan `por-verificar`.
-- **Formulario por email:** depende de que el usuario tenga un programa de correo; hay botón de copiar como alternativa. Un servicio de formularios (Formspree, Google Forms) evitaría ese paso; Google Forms es gratis, Formspree tiene plan gratuito limitado.
+- **Formulario de Google:** pendiente de que Ernesto lo cree y pase el enlace prellenado. Google no deja confirmar desde otra web que la respuesta se guardó: si la petición sale, se da por enviada.
 - **Pruebas de navegador:** siguen en local; pasan al repositorio en P1.12 (#50).
 
 ## Pendiente (fuera de P0)
@@ -45,10 +46,12 @@ Se repitieron las de la auditoría del 14/11/2026 sobre `main` (tras fusionar #3
 - Verificación por Ernesto de los datos prioritarios: estado de los cuatro pasos, horarios, festivos de 2027.
 - P1: ver issues con la etiqueta `P1`.
 
-## Decisiones técnicas pendientes de aprobación
+## Decisiones tomadas (15/11/2026)
 
-1. **Distancias:** se retiró la estimación en línea recta del planificador. ¿Se acepta mostrar solo distancias con fuente hasta P1.7?
-2. **Mapa:** Mejillones e Iquique salen del mapa hasta separar localidades (P1.1).
-3. **Canal de solicitudes:** email prellenado (sin coste) frente a un formulario de Google (gratis, con hoja de cálculo). Se recomienda empezar por email.
-4. **Periodo de transición de la API:** 6 meses para una versión incompatible.
-5. **Protección de `main`** con revisión obligatoria del propietario (P1.11).
+| # | Decisión de Ernesto | Cómo queda |
+|---|---|---|
+| 1 | Estimar distancias avisando de qué parte no está verificada, como solución provisional | Estimación en línea recta en tramos sin distancia con fuente, calculada en el build (`scripts/estimaciones.mjs`) e igual en web y API. Cada tramo indica que es una estimación provisional, entre qué puntos y si un extremo agrupa varias ciudades. El total separa lo que tiene fuente de lo estimado. Interruptor en `site.json` → `estimaciones.provisionales` |
+| 2 | Quitar provisionalmente lo que no se pueda verificar | Mejillones e Iquique siguen fuera del mapa hasta P1.1 |
+| 3 | Formulario de Google | El formulario de la web envía a un formulario de Google vinculado a una hoja privada en cuanto se configure el enlace prellenado (`site.json` → `solicitudes`); mientras, por email. No hacen falta credenciales |
+| 4 | Avisar de los cambios de formato y gestionarlos internamente; mantener 6 meses la versión anterior | Registro de versiones, avisos en `indice.json`, `docs/api-cambios.md`, contrato `api-v1.schema.json` exigido en CI y aviso de retirada en `check` |
+| 5 | No proteger `main` por ahora (web en borrador / MVP) | Aplazado; el control de verificaciones sigue siendo de procedimiento |

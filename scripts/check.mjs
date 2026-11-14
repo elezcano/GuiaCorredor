@@ -2,10 +2,11 @@
 // Errores = no se puede publicar. Avisos = se puede, pero hay que mirarlo.
 // Orden: 1) esquemas JSON (estructura), 2) reglas de contenido y referencias, 3) calidad.
 import { readJSON, loadGuia, CAMPOS_OBLIGATORIOS, ESTADOS, SECCIONES, PAISES } from './lib.mjs';
-import { configEnvio } from './cruces.mjs';
+import { configEnvio, CAMPOS_SOLICITUD } from './cruces.mjs';
 import { erroresRegistro, nivel, tipoEstado, VERIFICADORES } from './validacion.mjs';
 import { cargar } from './datos.mjs';
 import { validarEsquemas } from './esquemas.mjs';
+import { API_VERSIONES } from './api.mjs';
 
 const errores = [];
 const avisos = [];
@@ -44,6 +45,14 @@ if (/example\.com/.test(site.url)) avisos.push('data/site.json: "url" sigue sien
 if (/example\.com/.test(site.contacto.email || '')) errores.push('data/site.json: el email de contacto es de ejemplo.');
 if (!site.contacto.email) errores.push('data/site.json: falta el email de contacto del proyecto (canal de solicitudes de empresas).');
 else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(site.contacto.email)) errores.push('data/site.json: email de contacto no válido.');
+{
+  const e = site.solicitudes?.enlacePrellenado;
+  if (!e) avisos.push('data/site.json: solicitudes de empresas por email; falta el formulario de Google ("solicitudes.enlacePrellenado"). Ver docs/como-editar.md.');
+  else {
+    const r = configEnvio(e, CAMPOS_SOLICITUD);
+    if (r?.error) errores.push(`data/site.json: solicitudes.enlacePrellenado: ${r.error}.`);
+  }
+}
 const destacada = site.planes.find((p) => p.id === 'destacada');
 if (destacada && !destacada.enlacePago) avisos.push('data/site.json: la ficha destacada no tiene enlace de suscripción de PayPal.');
 if (site.indexable === false) avisos.push('data/site.json: "indexable" es false; Google no indexará la web. Ponlo a true el día del lanzamiento.');
@@ -93,7 +102,7 @@ rutas.tramos.forEach((t, i) => {
   if (t.kmTipo === 'calculado' && !t.kmNota) errores.push(`${donde}: kmTipo "calculado" sin kmNota que explique el cálculo.`);
   for (const g of [t.guia, t.paso?.guia, t.alternativa?.guia].filter(Boolean)) if (!rutasGuia.has(g)) errores.push(`${donde}: enlaza a "${g}", que no existe en content/guia.`);
   if (!t.paso && !t.reporte) avisos.push(`${donde}: sin estado con fuente; se muestra «Por verificar · Sin datos».`);
-  if (typeof t.km !== 'number') avisos.push(`${donde}: sin distancia con fuente; el planificador muestra «Distancia sin fuente».`);
+  if (typeof t.km !== 'number') avisos.push(`${donde}: sin distancia con fuente; se muestra una estimación provisional.`);
 });
 for (const p of pasosRuta) if (!p.id) errores.push(`rutas: el paso "${p.nombre}" no tiene "id".`);
 
@@ -190,6 +199,13 @@ for (const e of empresas) {
   for (const pt of e.puntos || []) if (!idsNodos.has(pt)) errores.push(`${donde}: punto desconocido "${pt}".`);
 }
 if (!empresas.length) avisos.push('directorio: vacío; la página de servicios muestra el aviso de alta.');
+
+// Versiones de la API: avisar antes de retirar una versión obsoleta.
+for (const [id, v] of Object.entries(API_VERSIONES)) {
+  if (v.estado === 'obsoleta' && !v.retiradaPrevista) errores.push(`api ${id}: obsoleta sin "retiradaPrevista".`);
+  if (v.retiradaPrevista && v.retiradaPrevista <= HOY) errores.push(`api ${id}: su retirada estaba prevista el ${v.retiradaPrevista}; quítala del registro (scripts/api.mjs).`);
+  else if (v.retiradaPrevista && dias(v.retiradaPrevista) > -30) avisos.push(`api ${id}: se retira el ${v.retiradaPrevista}; avisa a los consumidores.`);
+}
 
 // 3. Calidad
 // Duplicados de empresas por nombre normalizado y por teléfono.
