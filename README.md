@@ -138,7 +138,7 @@ Issues por fase: etiquetas [`P0`](../../issues?q=label%3AP0), [`P1`](../../issue
 ## Antes del lanzamiento
 
 - [x] Email de contacto del proyecto
-- [ ] Formulario de Google de solicitudes de empresas (enlace prellenado en `data/site.json`)
+- [x] Formulario de Google de solicitudes de empresas (hoja privada en el Drive del proyecto)
 - [x] Ninguna empresa ficticia en el directorio
 - [ ] Primeras empresas reales verificadas (#46)
 - [ ] Revisión de las fichas de la guía y verificación por el responsable editorial (#22)
