@@ -62,14 +62,14 @@
         "coordenadasNota": "Sin coordenadas propias del paso; el mapa usa la localidad de Pozo Hondo."
       },
       "estado": {
-        "valor": "pendiente",
-        "texto": "Migraciones de Argentina lo lista como paso habilitado. No hemos confirmado las condiciones para carga pesada.",
-        "fuente": "migraciones-argentina",
-        "publicado": "2025-12-10",
+        "valor": "restricciones",
+        "texto": "Habilitado para personas y vehículos de 7 a 20 h según el parte de Defensa Civil de Salta. El puente actual, de 1995, limita el tránsito: el paso de carga pesada no está confirmado. Hay un puente nuevo en estudio, sin fecha de licitación.",
+        "fuente": "saltazoom-pasos-30-09-2026",
+        "publicado": "2026-09-30",
         "validacion": "por-verificar",
-        "actualizado": null,
+        "actualizado": "2026-11-15",
         "verificacion": null,
-        "evidencia": "oficial"
+        "evidencia": "tercero"
       },
       "horarios": [
         {
@@ -82,6 +82,28 @@
           "actualizado": null,
           "verificacion": null,
           "evidencia": "oficial"
+        },
+        {
+          "lado": "PY",
+          "organismo": "migraciones",
+          "texto": "Lunes a domingo; el listado oficial muestra 7 a 20 h y, en otra línea, 7 a 19 h (por confirmar)",
+          "fuente": "migraciones-paraguay-puestos",
+          "evidencia": "oficial",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "lado": "AR",
+          "organismo": "complejo",
+          "texto": "7 a 20 h, vehículos y peatones (parte de Defensa Civil de Salta del 30/09/2026)",
+          "fuente": "saltazoom-pasos-30-09-2026",
+          "evidencia": "tercero",
+          "publicado": "2026-09-30",
+          "actualizado": "2026-11-15",
+          "validacion": "por-verificar",
+          "verificacion": null
         }
       ],
       "operaciones": null,
@@ -105,7 +127,7 @@
       ],
       "servicios": [],
       "contactos": [],
-      "revisado": "2026-11-14",
+      "revisado": "2026-11-15",
       "horariosEspeciales": []
     },
     {
