@@ -44,12 +44,12 @@ npm run build    # solo genera dist/
 
 ## Publicar
 
-Cada cambio en `main` se revisa, se genera y se publica con GitHub Actions (`.github/workflows/publicar.yml`).
+Cada cambio en `main` se revisa, se genera y se publica en GitHub Pages con GitHub Actions (`.github/workflows/publicar.yml`).
 
-1. Settings → Pages → Source: **GitHub Actions**.
-2. Settings → Secrets and variables → Actions → Variables: `PUBLICAR` = `true`, `SITE_URL` (p. ej. `https://midominio.com`) y, si se publica en una subcarpeta, `BASE_PATH` (p. ej. `/guia`).
-
-GitHub Pages en un repositorio **privado** requiere plan de pago. Alternativas gratis: hacer el repo público o conectar Cloudflare Pages (build: `npm run build`, salida: `dist`).
+- Dirección actual: **https://elezcano.github.io/GuiaCorredor/** (`url` y `basePath` en `data/site.json`).
+- Requisito único: Settings → Pages → Source: **GitHub Actions**.
+- Con dominio propio: poner el dominio en `url`, dejar `basePath` vacío y configurarlo en Settings → Pages → *Custom domain*.
+- Para pausar la publicación: variable de repositorio `PUBLICAR` = `false`.
 
 ## Antes del lanzamiento
 

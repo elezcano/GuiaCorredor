@@ -17,7 +17,7 @@ try {
 const DIST = path.join(ROOT, 'dist');
 const site = readJSON('data/site.json');
 if (process.env.SITE_URL) site.url = process.env.SITE_URL;
-if (process.env.BASE_PATH !== undefined) site.basePath = process.env.BASE_PATH;
+if (process.env.BASE_PATH) site.basePath = process.env.BASE_PATH === '/' ? '' : process.env.BASE_PATH;
 const B = (site.basePath || '').replace(/\/$/, '');
 const u = (p) => `${B}${p}`;
 
