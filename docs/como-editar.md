@@ -6,6 +6,8 @@ Todo se edita desde GitHub en el navegador: abre el archivo, pulsa el lápiz, ca
 
 Con el formulario de Google, las solicitudes de `/anunciate/` se guardan en una hoja de cálculo privada tuya, sin base de datos ni coste. Mientras no esté configurado, el formulario prepara un email.
 
+**Configurado el 15/11/2026** con `scripts/google/crear-formulario-solicitudes.gs` (crea formulario y hoja de una vez). Para rehacerlo a mano:
+
 1. En [forms.google.com](https://forms.google.com), con tu cuenta, crea un formulario «Solicitudes de empresas – Guía del Corredor».
 2. Añade 15 preguntas de **respuesta corta** (todas opcionales; la web ya valida), en este orden: Tipo de solicitud, Nombre comercial, Razón social, País, Localidad, Tipo de empresa, Servicios, Puntos de la ruta, Cobertura, Persona de contacto, Email, Teléfono, Web, Referencias, Cambio solicitado.
 3. Pestaña *Respuestas* → *Vincular con Hojas de cálculo* → hoja nueva. La hoja es privada: no la publiques.
