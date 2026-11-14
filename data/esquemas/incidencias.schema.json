@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/incidencias.schema.json",
+  "title": "Incidencias",
+  "type": "object",
+  "required": [
+    "version",
+    "incidencias"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "incidencias": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "comun.schema.json#/$defs/registroConFuente"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "paises",
+              "ubicacion",
+              "tramo",
+              "tipo",
+              "estado",
+              "descripcion"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "comun.schema.json#/$defs/id"
+              },
+              "paises": {
+                "type": "array",
+                "items": {
+                  "$ref": "comun.schema.json#/$defs/pais"
+                },
+                "minItems": 1
+              },
+              "tipo": {
+                "enum": [
+                  "obra",
+                  "restriccion",
+                  "corte",
+                  "cierre",
+                  "pendiente",
+                  "peso",
+                  "desvio",
+                  "clima",
+                  "otro"
+                ]
+              },
+              "estado": {
+                "enum": [
+                  "activa",
+                  "resuelta"
+                ]
+              },
+              "inicio": {
+                "$ref": "comun.schema.json#/$defs/fechaONull"
+              },
+              "fin": {
+                "$ref": "comun.schema.json#/$defs/fechaONull"
+              },
+              "tramos": {
+                "type": "array",
+                "items": {
+                  "$ref": "comun.schema.json#/$defs/id"
+                }
+              },
+              "paso": {
+                "$ref": "comun.schema.json#/$defs/id"
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "tramos"
+                ]
+              },
+              {
+                "required": [
+                  "paso"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

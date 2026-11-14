@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/categorias.schema.json",
+  "title": "Categorías de servicios",
+  "type": "object",
+  "required": [
+    "version",
+    "categorias"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "categorias": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "nombre": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

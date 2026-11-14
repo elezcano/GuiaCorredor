@@ -867,7 +867,7 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .aviso-caducado { border-left-color: var(--obras-dot); }
 .tag { display: inline-flex; padding: 0 6px; border-radius: 4px; font-size: 12px; line-height: 18px; font-weight: 600; vertical-align: 1px; white-space: nowrap; }
 .tag-calculado { background: var(--muted); color: var(--foreground); }
-.tag-estimado { background: transparent; color: var(--muted-foreground); border: 1px dashed var(--border-strong); line-height: 16px; }
+.tag-estimado, .tag-sin-dato { background: transparent; color: var(--muted-foreground); border: 1px dashed var(--border-strong); line-height: 16px; }
 .tag-verificado { color: var(--ok); border: 1px solid currentColor; line-height: 16px; }
 .tag-sin-verificar { color: var(--muted-foreground); border: 1px solid var(--border-strong); line-height: 16px; }
 .tag-ruta { background: var(--muted); color: var(--muted-foreground); }
@@ -904,3 +904,20 @@ td.num, th.num { text-align: right; white-space: nowrap; }
   .res-fila { grid-template-columns: 1fr; gap: 4px; }
   .it-estado { margin-left: 0; text-align: left; width: 100%; }
 }
+
+/* Formulario de solicitud de empresa (P0.6) */
+.solicitud { display: grid; gap: 16px; max-width: 760px; margin-top: 24px; }
+.solicitud fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.solicitud legend { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.sol-tipo { display: flex; flex-wrap: wrap; gap: 8px; }
+.sol-campos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.sol-campo { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sol-campo > span { font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
+.sol-campo input, .sol-campo select, .sol-campo textarea { font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--input); border-radius: var(--radius); background: var(--background); color: var(--foreground); width: 100%; }
+.sol-campo input:focus, .sol-campo select:focus, .sol-campo textarea:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 4px var(--ring-halo); }
+.sol-ancho { grid-column: 1 / -1; }
+.sol-puntos { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.sol-acepto { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.sol-acepto input { margin-top: 3px; }
+.sol-error { color: var(--danger, #b42318); font-weight: 600; margin: 0; }
+@media (max-width: 640px) { .sol-campos { grid-template-columns: minmax(0, 1fr); } }

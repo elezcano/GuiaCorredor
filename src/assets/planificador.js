@@ -38,7 +38,7 @@
   const anioActual = new Date().toISOString().slice(0, 4);
   const fechaCorta = (iso) =>
     new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== anioActual ? { year: 'numeric' } : {}), timeZone: 'UTC' }).replace('.', '');
-  const TAGS = { calculado: 'Calculado', estimado: 'Estimado', verificado: 'Verificado', 'sin-verificar': 'Sin verificar', ruta: 'Dato de la ruta' };
+  const TAGS = { calculado: 'Calculado', 'sin-dato': 'Sin dato', verificado: 'Verificado', 'sin-verificar': 'Sin verificar', ruta: 'Dato de la ruta' };
   const tag = (t) => `<span class="tag tag-${t}">${TAGS[t]}</span>`;
   // Mismo criterio que el resto del portal: solo lo verificado se muestra como confirmado.
   function vista(v) {
@@ -101,8 +101,8 @@
     const fmt = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
     const distancia = op.sinKm
       ? `<p>${op.conKm ? `${GC.km(op.km)} con fuente en ${op.conKm} de ${op.tramos.length} tramos ${tag('calculado')}` : 'Ningún tramo tiene distancia con fuente.'}</p>
-         <p>+ ${GC.km(Math.round(op.kmEstimado))} en línea recta para ${GC.plural(op.sinKm, 'tramo sin dato', 'tramos sin dato')} ${tag('estimado')}</p>
-         <p class="res-nota">Total orientativo: más de ${GC.km(Math.round(op.km + op.kmEstimado))}. Por carretera la distancia es mayor.</p>`
+         <p>${GC.plural(op.sinKm, 'tramo sin distancia con fuente', 'tramos sin distancia con fuente')} ${tag('sin-dato')}</p>
+         <p class="res-nota">La distancia total es mayor: faltan tramos por documentar. No se estima.</p>`
       : `<p>${GC.km(op.km)} ${tag('calculado')}</p>`;
     return `<section class="panel ficha-resultado" aria-labelledby="t-resumen">
       <h3 id="t-resumen">Resumen del viaje</h3>
@@ -138,7 +138,7 @@
           'Alternativas',
           alts.length
             ? `<ul>${alts
-                .map((o) => `<li>${esc(o.nombre)}: ${GC.plural(o.problemas.length, 'incidencia', 'incidencias')}, más de ${GC.km(Math.round(o.km + o.kmEstimado))} ${tag('estimado')} <button class="btn-texto" type="button" data-abrir="det-${o.id}">Ver opción</button></li>`)
+                .map((o) => `<li>${esc(o.nombre)}: ${GC.plural(o.problemas.length, 'incidencia', 'incidencias')}, ${o.sinKm ? `${GC.km(o.km)} documentados, ${GC.plural(o.sinKm, 'tramo', 'tramos')} sin dato` : GC.km(o.km)} <button class="btn-texto" type="button" data-abrir="det-${o.id}">Ver opción</button></li>`)
                 .join('')}</ul>`
             : 'No hay alternativas documentadas para este recorrido.'
         )}
@@ -168,7 +168,7 @@
         <div class="it-fila">${
           typeof t.km === 'number'
             ? `<span class="it-km">${GC.km(t.km)}</span>${t.kmTipo === 'calculado' ? tag('calculado') : ''}`
-            : `<span class="it-km-falta">≈ ${GC.km(t.kmRecta || 0)} en línea recta</span>${tag('estimado')}`
+            : `<span class="it-km-falta">Distancia sin fuente</span>${tag('sin-dato')}`
         }<span class="it-estado">${vista(t.vista)}</span></div>
         ${t.paso ? `<p class="it-frontera">Frontera: ${enlace(t.paso.guia, t.paso.nombre)}</p>` : ''}
         ${t.paso ? cruce(t) : ''}
@@ -201,7 +201,7 @@
       <button class="opcion-fila" type="button" aria-expanded="${abierta}" aria-controls="${det}">
         <span class="opcion-nombre"><strong>${esc(op.nombre)}${op.recomendada && ops_n > 1 ? '<span class="etiqueta">Menos incidencias</span>' : ''}</strong><span>${esc(op.fronteras.join(', ') || 'Sin fronteras')}</span></span>
         <span class="dato"><b>${op.fronteras.length}</b><span>${op.fronteras.length === 1 ? 'frontera' : 'fronteras'}</span></span>
-        <span class="dato"><b>${op.sinKm ? `≈ ${GC.km(Math.round(op.km + op.kmEstimado))}` : GC.km(op.km)}</b><span>${op.sinKm ? 'estimado, más por carretera' : 'calculado'}</span></span>
+        <span class="dato"><b>${op.sinKm ? `${GC.km(op.km)} +` : GC.km(op.km)}</b><span>${op.sinKm ? `${GC.plural(op.sinKm, 'tramo', 'tramos')} sin dato` : 'con fuente'}</span></span>
         <span class="dato ${inc ? 'dato-alerta' : 'dato-ok'}"><b>${inc}</b><span>${inc === 1 ? 'incidencia' : 'incidencias'}</span></span>
         <span class="chevron">${I_FLECHA}</span>
       </button>

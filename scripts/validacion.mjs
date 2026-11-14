@@ -1,11 +1,36 @@
-// Sistema único de validación del portal.
-// Todo registro con información operativa lleva: fuente, publicado, verificado y validacion.
-//   fuente:     { nombre, url, tipo: 'oficial' | 'prensa' | 'otra' }
-//   publicado:  fecha (AAAA-MM-DD) en que la fuente publicó el dato (null si es una norma o no consta)
-//   verificado: fecha en que alguien del equipo comprobó el dato contra la fuente (null si nadie)
-//   validacion: 'verificado' | 'por-verificar' | 'borrador'
+// Sistema único de validación del portal. Lo usan la web, la API (api/v1) y las comprobaciones.
+// Campos comunes de un registro (ver docs/politica-validacion.md):
+//   fuente:       id de data/fuentes.json (en memoria se resuelve a { id, nombre, url, tipo })
+//   evidencia:    oficial | declaracion-empresa | tercero | calculo | estimacion | historico
+//   publicado:    fecha (AAAA-MM-DD) en que la fuente publicó el dato (null si es una norma o no consta)
+//   actualizado:  fecha en que se comprobó el dato contra la fuente por última vez (persona o asistente)
+//   validacion:   'verificado' | 'por-verificar' | 'borrador'
+//   verificacion: { verificadoPor, rol, fecha, alcance } o null. Solo una persona responsable la escribe.
+// Un registro solo es 'verificado' si tiene verificacion de un verificador de VERIFICADORES.
+// La IA nunca escribe 'verificado' ni 'verificacion'.
 // La web calcula el NIVEL que muestra: verificado, por-verificar, caducado o borrador.
-// Regla: un estado operativo solo se muestra como confirmado si su nivel es 'verificado'.
+
+/** Identificadores de verificador aceptados. Representan un rol, no a una persona concreta. */
+export const VERIFICADORES = {
+  'responsable-editorial': 'Responsable editorial del proyecto (Ernesto)',
+};
+export const EVIDENCIAS = {
+  oficial: 'Dato oficial',
+  'declaracion-empresa': 'Declarado por la empresa',
+  tercero: 'Fuente de terceros',
+  calculo: 'Cálculo',
+  estimacion: 'Estimación',
+  historico: 'Dato histórico',
+};
+export const TIPOS_FUENTE = ['oficial', 'prensa', 'referencia', 'empresa', 'otra'];
+const esFecha = (x) => /^\d{4}-\d{2}-\d{2}$/.test(x || '') && !Number.isNaN(Date.parse(x));
+
+/** Fecha de verificación humana válida o null. */
+export function fechaVerificacion(r) {
+  const v = r?.verificacion;
+  if (r?.validacion !== 'verificado' || !v || !VERIFICADORES[v.verificadoPor] || !esFecha(v.fecha)) return null;
+  return v.fecha;
+}
 
 export const NIVELES = {
   verificado: { texto: 'Verificado', orden: 3 },
@@ -35,8 +60,9 @@ export const diasEntre = (desde, hasta) => (desde ? Math.floor((Date.parse(hasta
 export function nivel(registro, tipo, hoy) {
   if (!registro) return 'por-verificar';
   if (registro.validacion === 'borrador' || registro.borrador === true) return 'borrador';
-  if (registro.validacion !== 'verificado' || !registro.verificado) return 'por-verificar';
-  return diasEntre(registro.verificado, hoy) > (CADUCIDAD[tipo] ?? 30) ? 'caducado' : 'verificado';
+  const fecha = fechaVerificacion(registro);
+  if (registro.validacion !== 'verificado' || !fecha) return 'por-verificar';
+  return diasEntre(fecha, hoy) > (CADUCIDAD[tipo] ?? 30) ? 'caducado' : 'verificado';
 }
 
 /** El peor de varios niveles: una ficha borrador arrastra a sus datos. */
@@ -58,23 +84,45 @@ export function estadoMostrable(registro, hoy, nivelFicha) {
     confirmado,
     fuente: registro.fuente || null,
     publicado: registro.publicado || null,
-    verificado: registro.verificado || null,
+    verificado: fechaVerificacion(registro),
+    verificacion: fechaVerificacion(registro) ? registro.verificacion : null,
+    evidencia: registro.evidencia || null,
+    actualizado: registro.actualizado || null,
     texto: registro.texto || '',
   };
 }
 
-/** Comprueba los campos comunes. Devuelve lista de errores (texto). */
-export function erroresRegistro(r, donde, { exigeFuente = true, permitePublicadoNulo = false } = {}) {
+/** Comprueba los campos comunes (sobre el registro tal como está en el archivo, con la fuente como id). */
+export function erroresRegistro(r, donde, { exigeFuente = true, permitePublicadoNulo = false, fuentes = null } = {}) {
   const e = [];
-  const esFecha = (x) => /^\d{4}-\d{2}-\d{2}$/.test(x || '');
-  if (exigeFuente && !(r.fuente?.nombre && /^https?:\/\//.test(r.fuente?.url || ''))) e.push(`${donde}: falta fuente (nombre y url).`);
-  if (r.fuente && r.fuente.tipo && !['oficial', 'prensa', 'otra'].includes(r.fuente.tipo)) e.push(`${donde}: fuente.tipo debe ser oficial, prensa u otra.`);
+  if (exigeFuente && !r.fuente) e.push(`${donde}: falta "fuente".`);
+  if (r.fuente && fuentes && !fuentes.has(r.fuente)) e.push(`${donde}: la fuente "${r.fuente}" no está en data/fuentes.json.`);
+  if (!EVIDENCIAS[r.evidencia]) e.push(`${donde}: "evidencia" debe ser ${Object.keys(EVIDENCIAS).join(', ')}.`);
   if (!('publicado' in r)) e.push(`${donde}: falta "publicado".`);
   else if (r.publicado !== null && !esFecha(r.publicado)) e.push(`${donde}: "publicado" debe ser AAAA-MM-DD o null.`);
   else if (r.publicado === null && !permitePublicadoNulo) e.push(`${donde}: "publicado" no puede ser null.`);
-  if (!('verificado' in r)) e.push(`${donde}: falta "verificado".`);
-  else if (r.verificado !== null && !esFecha(r.verificado)) e.push(`${donde}: "verificado" debe ser AAAA-MM-DD o null.`);
+  if (!('actualizado' in r)) e.push(`${donde}: falta "actualizado".`);
+  else if (r.actualizado !== null && !esFecha(r.actualizado)) e.push(`${donde}: "actualizado" debe ser AAAA-MM-DD o null.`);
+  if ('verificado' in r) e.push(`${donde}: "verificado" ya no se usa; la fecha va en "actualizado" y la verificación humana en "verificacion".`);
   if (!['verificado', 'por-verificar', 'borrador'].includes(r.validacion)) e.push(`${donde}: "validacion" debe ser verificado, por-verificar o borrador.`);
-  if (r.validacion === 'verificado' && !r.verificado) e.push(`${donde}: marcado como verificado sin fecha de verificación.`);
+  if (!('verificacion' in r)) e.push(`${donde}: falta "verificacion" (null si nadie lo ha verificado).`);
+  const v = r.verificacion;
+  if (r.validacion === 'verificado') {
+    if (!v) e.push(`${donde}: marcado como verificado sin "verificacion".`);
+    else {
+      if (!VERIFICADORES[v.verificadoPor]) e.push(`${donde}: "verificacion.verificadoPor" debe ser uno de: ${Object.keys(VERIFICADORES).join(', ')}.`);
+      if (!esFecha(v.fecha)) e.push(`${donde}: "verificacion.fecha" debe ser AAAA-MM-DD.`);
+      if (!v.alcance) e.push(`${donde}: "verificacion.alcance" vacío.`);
+    }
+    if (r.evidencia === 'estimacion' || r.evidencia === 'historico') e.push(`${donde}: una ${r.evidencia} no se puede marcar como verificada como dato actual.`);
+  } else if (v) e.push(`${donde}: tiene "verificacion" pero "validacion" es ${r.validacion}. Estados incompatibles.`);
+  if (r.publicado && r.actualizado && r.actualizado < r.publicado) e.push(`${donde}: "actualizado" (${r.actualizado}) es anterior a "publicado" (${r.publicado}).`);
+  if (v?.fecha && r.publicado && v.fecha < r.publicado) e.push(`${donde}: verificado antes de publicarse.`);
   return e;
 }
+
+/** Registro de validación de una ficha de la guía (frontmatter Markdown). */
+export const registroGuia = (m) => ({
+  validacion: m.validacion || (m.borrador === true ? 'borrador' : 'por-verificar'),
+  verificacion: m.verificadoPor ? { verificadoPor: m.verificadoPor, fecha: m.verificado, alcance: 'ficha completa' } : null,
+});

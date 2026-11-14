@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/fuentes.schema.json",
+  "title": "Fuentes",
+  "type": "object",
+  "required": [
+    "version",
+    "fuentes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "fuentes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "url",
+          "tipo"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "nombre": {
+            "type": "string",
+            "minLength": 2
+          },
+          "url": {
+            "$ref": "comun.schema.json#/$defs/url"
+          },
+          "tipo": {
+            "enum": [
+              "oficial",
+              "prensa",
+              "referencia",
+              "empresa",
+              "otra"
+            ]
+          },
+          "nota": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

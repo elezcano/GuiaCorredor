@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/rutas.schema.json",
+  "title": "Nodos y tramos del corredor",
+  "type": "object",
+  "required": [
+    "version",
+    "nodos",
+    "tramos"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "nodos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "pais",
+          "coordenadas"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "pais": {
+            "$ref": "comun.schema.json#/$defs/pais"
+          },
+          "coordenadas": {
+            "$ref": "comun.schema.json#/$defs/coordenadas"
+          }
+        }
+      }
+    },
+    "tramos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "desde",
+          "hasta",
+          "km"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "desde": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "hasta": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "km": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "kmTipo": {
+            "enum": [
+              "fuente",
+              "calculado"
+            ]
+          },
+          "kmFuente": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "kmEvidencia": {
+            "$ref": "comun.schema.json#/$defs/evidencia"
+          },
+          "kmNota": {
+            "type": "string"
+          },
+          "guia": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "nota": {
+            "type": "string"
+          },
+          "paso": {
+            "type": "object",
+            "required": [
+              "id",
+              "nombre",
+              "guia"
+            ]
+          },
+          "alternativa": {
+            "type": "object",
+            "required": [
+              "id",
+              "nombre",
+              "guia"
+            ]
+          },
+          "reporte": {
+            "allOf": [
+              {
+                "$ref": "comun.schema.json#/$defs/registroConFuente"
+              },
+              {
+                "required": [
+                  "valor",
+                  "texto"
+                ],
+                "properties": {
+                  "valor": {
+                    "$ref": "comun.schema.json#/$defs/estado"
+                  }
+                }
+              }
+            ]
+          },
+          "estado": false
+        }
+      }
+    },
+    "documentosCruce": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "nombre": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Documentos que se piden al cruzar (lista orientativa)."
+    },
+    "tiposCarga": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "nombre": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "avisoDocumentos": {
+      "type": "string"
+    }
+  }
+}

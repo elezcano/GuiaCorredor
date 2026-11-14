@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/avisos.schema.json",
+  "title": "Avisos meteorológicos",
+  "type": "object",
+  "required": [
+    "version",
+    "avisos"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "avisos": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "comun.schema.json#/$defs/registroConFuente"
+          },
+          {
+            "type": "object",
+            "required": [
+              "titulo",
+              "zona",
+              "vigenteHasta"
+            ],
+            "properties": {
+              "vigenteHasta": {
+                "$ref": "comun.schema.json#/$defs/fecha"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

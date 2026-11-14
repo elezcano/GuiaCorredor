@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/novedades.schema.json",
+  "title": "Novedades del corredor",
+  "type": "object",
+  "required": [
+    "version",
+    "novedades"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "novedades": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "comun.schema.json#/$defs/registroConFuente"
+          },
+          {
+            "type": "object",
+            "required": [
+              "publicado",
+              "tema",
+              "titulo",
+              "paises"
+            ],
+            "properties": {
+              "publicado": {
+                "$ref": "comun.schema.json#/$defs/fecha"
+              },
+              "paises": {
+                "type": "array",
+                "items": {
+                  "$ref": "comun.schema.json#/$defs/pais"
+                }
+              },
+              "estado": false
+            }
+          }
+        ]
+      }
+    }
+  }
+}

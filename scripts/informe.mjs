@@ -3,17 +3,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, readJSON, loadGuia, PAISES } from './lib.mjs';
-import { nivel, tipoEstado, NIVELES } from './validacion.mjs';
+import { cargar } from './datos.mjs';
+const D = cargar();
+import { nivel, tipoEstado, NIVELES, registroGuia } from './validacion.mjs';
 
 const HOY = new Date().toISOString().slice(0, 10);
 const site = readJSON('data/site.json');
-const rutas = readJSON('data/rutas.json');
-const pasos = readJSON('data/pasos.json').pasos;
-const incidencias = readJSON('data/incidencias.json').incidencias;
-const novedades = readJSON('data/novedades.json');
-const festivos = readJSON('data/festivos.json').festivos.filter((f) => f.fecha >= HOY);
-const organismos = readJSON('data/organismos.json').organismos;
-const empresas = readJSON('data/directorio.json');
+const rutas = D.rutas;
+const pasos = D.pasos;
+const incidencias = D.incidencias;
+const novedades = D.novedades;
+const festivos = D.festivos.festivos.filter((f) => f.fecha >= HOY);
+const organismos = D.organismos;
+const empresas = D.empresas;
 const guia = loadGuia();
 const nodo = Object.fromEntries(rutas.nodos.map((n) => [n.id, n.nombre]));
 
@@ -22,7 +24,7 @@ const contar = (grupo, n) => {
   recuento[grupo] ||= Object.fromEntries(Object.keys(NIVELES).map((k) => [k, 0]));
   recuento[grupo][n]++;
 };
-const fichaNivel = (p) => nivel({ validacion: p.meta.validacion, verificado: p.meta.verificado || null }, 'ficha', HOY);
+const fichaNivel = (p) => nivel(registroGuia(p.meta), 'ficha', HOY);
 guia.forEach((p) => contar('Fichas de la guía', fichaNivel(p)));
 pasos.forEach((p) => {
   contar('Estados de paso', nivel(p.estado, tipoEstado(p.estado.valor), HOY));

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/organismos.schema.json",
+  "title": "Organismos oficiales",
+  "type": "object",
+  "required": [
+    "version",
+    "organismos"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "organismos": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "comun.schema.json#/$defs/registro"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "pais",
+              "tipo",
+              "nombre",
+              "url"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "comun.schema.json#/$defs/id"
+              },
+              "pais": {
+                "$ref": "comun.schema.json#/$defs/pais"
+              },
+              "tipo": {
+                "type": "string"
+              },
+              "nombre": {
+                "type": "string"
+              },
+              "url": {
+                "$ref": "comun.schema.json#/$defs/url"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
