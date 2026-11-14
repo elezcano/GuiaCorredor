@@ -16,15 +16,28 @@
       "id": "basica",
       "nombre": "Ficha básica",
       "precio": "Gratis",
-      "incluye": ["Aparece en el directorio", "Nombre, ciudad, servicios y contacto", "Se edita a petición"]
+      "incluye": [
+        "Aparece en el directorio",
+        "Nombre, ciudad, servicios y contacto",
+        "Se edita a petición"
+      ]
     },
     {
       "id": "destacada",
       "nombre": "Ficha destacada",
       "precio": "45 € / mes",
-      "incluye": ["Sale primero en su ciudad y categoría", "Logo y descripción ampliada", "Botón directo de WhatsApp", "Informe mensual de visitas"],
+      "incluye": [
+        "Sale primero en su ciudad y categoría",
+        "Logo y descripción ampliada",
+        "Botón directo de WhatsApp",
+        "Informe mensual de visitas"
+      ],
       "enlacePago": ""
     }
   ],
-  "aviso": "Información en revisión. Antes de viajar confirma siempre con la aduana o tu despachante."
+  "aviso": "Información en revisión. Antes de viajar confirma siempre con la aduana o tu despachante.",
+  "cruces": {
+    "enlacePrellenado": "",
+    "csv": ""
+  }
 }

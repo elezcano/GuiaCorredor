@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES } from './lib.mjs';
+import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO } from './cruces.mjs';
 
 const require = createRequire(import.meta.url);
 let marked;
@@ -30,6 +31,18 @@ if (site.mostrarEjemplos === false) empresas = empresas.filter((e) => !e.ejemplo
 empresas.sort((a, b) => Number(b.destacada) - Number(a.destacada) || a.nombre.localeCompare(b.nombre, 'es'));
 const empresasEn = (ids = []) => empresas.filter((e) => (e.puntos || []).some((p) => ids.includes(p)));
 const novedades = readJSON('data/novedades.json').sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+// Tiempos de cruce
+const pasos = rutas.tramos.flatMap((t) => [t.paso, t.alternativa].filter(Boolean));
+const pasoPorGuia = Object.fromEntries(pasos.filter((p) => p.guia).map((p) => [p.guia, p]));
+let envioCruce = configEnvio(site.cruces?.enlacePrellenado);
+if (envioCruce?.error) {
+  console.warn(`Aviso: tiempos de cruce sin formulario: ${envioCruce.error}.`);
+  envioCruce = null;
+}
+const cruces = await cargarCruces(site.cruces, new Set(pasos.map((p) => p.id)));
+cruces.avisos.forEach((a) => console.warn(`Aviso: ${a}`));
+const nombreTiempo = Object.fromEntries(TRAMOS_TIEMPO.map((t) => [t.id, t]));
 
 const slugify = (s) =>
   s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/<[^>]+>/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -253,19 +266,71 @@ const datosRutas = (extra = {}) =>
     estados: ESTADOS,
     paises: PAISES,
     base: B,
+    cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, sentidos: SENTIDOS, dias: DIAS },
     ...extra,
   }).replace(/</g, '\\u003c')}</script>`;
+
+/** "Cruce 2–4 h" con el sentido más reportado, si hay datos suficientes. */
+function cruceCorto(id) {
+  const s = Object.values(cruces.porPaso[id] || {}).filter((x) => x.mediana).sort((a, b) => b.n - a.n)[0];
+  return s ? `<span class="historia-cruce">Cruce ${nombreTiempo[s.mediana].nombre}</span>` : '';
+}
+
+/** Panel lateral de la página de un paso: tiempos reportados y formulario para contar el tuyo. */
+function panelCruce(paso) {
+  const datos = cruces.porPaso[paso.id] || {};
+  const hayDatos = Object.keys(datos).length > 0;
+  if (!envioCruce && !hayDatos) return '';
+  const fila = (sentido) => {
+    const s = datos[sentido];
+    let valor;
+    if (s?.mediana) {
+      const max = Math.max(...Object.values(s.cuenta));
+      const barras = TRAMOS_TIEMPO.map(
+        (t) => `<li${t.id === s.mediana ? ' class="es-mediana"' : ''}><span class="barra" style="--h:${Math.round((s.cuenta[t.id] / max) * 100)}%"></span><span class="barra-txt">${t.corto}</span></li>`
+      ).join('');
+      valor = `<dd><strong>${nombreTiempo[s.mediana].nombre}</strong><span>${plural(s.n, 'reporte', 'reportes')}</span></dd>
+        <dd class="cruce-barras"><ul aria-hidden="true">${barras}</ul></dd>`;
+    } else {
+      valor = s
+        ? `<dd><strong class="sin-dato">Faltan datos</strong><span>${plural(s.n, 'reporte', 'reportes')} de ${MINIMO} necesarios</span></dd>`
+        : `<dd><strong class="sin-dato">Nadie lo ha contado esta semana</strong></dd>`;
+    }
+    return `<div class="cruce-fila"><dt>${SENTIDOS[sentido]}</dt>${valor}</div>`;
+  };
+  const opcion = (nombre, valor, texto, req = false) =>
+    `<label class="chip chip-radio"><input type="radio" name="${nombre}" value="${esc(valor)}"${req ? ' required' : ''}>${texto}</label>`;
+  const formulario = envioCruce
+    ? `<button class="btn btn-principal" type="button" data-abrir>Contar mi tiempo</button>
+      <form class="cruce-form" data-form hidden>
+        <fieldset><legend>Sentido</legend><div class="chips">${Object.entries(SENTIDOS).map(([k, v], i) => opcion('sentido', k, v, i === 0)).join('')}</div></fieldset>
+        <fieldset><legend>Cuánto tardaste</legend><div class="chips">${TRAMOS_TIEMPO.map((t, i) => opcion('tiempo', t.id, t.nombre, i === 0)).join('')}</div></fieldset>
+        <fieldset><legend>Cuándo cruzaste</legend><div class="chips">${opcion('cuando', '0', 'Hoy', true)}${opcion('cuando', '1', 'Ayer')}</div></fieldset>
+        <p class="cruce-error" data-error role="alert" hidden></p>
+        <div class="cruce-acciones"><button class="btn btn-principal" type="submit">Enviar mi tiempo</button><button class="btn btn-texto" type="button" data-cancelar>Cancelar</button></div>
+      </form>
+      <p class="cruce-gracias" data-gracias role="status" hidden></p>`
+    : '';
+  return `<section class="panel cruce" aria-labelledby="t-cruce" data-cruce="${esc(paso.id)}"${
+    envioCruce ? ` data-accion="${esc(envioCruce.accion)}" data-campos="${esc(JSON.stringify(envioCruce.campos))}"` : ''
+  }>
+    <h2 id="t-cruce">Tiempo de cruce</h2>
+    <p>De la fila a la salida de la aduana. Lo que contaron otros en los últimos ${DIAS} días.</p>
+    <dl class="cruce-sentidos">${Object.keys(SENTIDOS).map(fila).join('')}</dl>
+    ${formulario}
+  </section>`;
+}
 
 // Pasos fronterizos para las historias
 const pasosHistoria = [];
 rutas.tramos.forEach((t) => {
   const a = rutas.nodos.find((n) => n.id === t.desde);
   const b = rutas.nodos.find((n) => n.id === t.hasta);
-  if (t.paso) pasosHistoria.push({ nombre: t.paso.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, '').replace('Puente de la ', 'Puente '), guia: t.paso.guia, estado: t.estado, cara: `${a.pais}–${b.pais}` });
-  if (t.alternativa) pasosHistoria.push({ nombre: t.alternativa.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, ''), guia: t.alternativa.guia, estado: t.alternativa.estado || t.estado, cara: `${a.pais}–${b.pais}` });
+  if (t.paso) pasosHistoria.push({ id: t.paso.id, nombre: t.paso.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, '').replace('Puente de la ', 'Puente '), guia: t.paso.guia, estado: t.estado, cara: `${a.pais}–${b.pais}` });
+  if (t.alternativa) pasosHistoria.push({ id: t.alternativa.id, nombre: t.alternativa.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, ''), guia: t.alternativa.guia, estado: t.alternativa.estado || t.estado, cara: `${a.pais}–${b.pais}` });
 });
 const historia = (h) => {
-  const contenido = `<span class="historia-anillo"><span class="historia-cara">${esc(h.cara)}</span></span><span class="historia-nombre">${esc(h.nombre)}</span>${estado(h.estado)}`;
+  const contenido = `<span class="historia-anillo"><span class="historia-cara">${esc(h.cara)}</span></span><span class="historia-nombre">${esc(h.nombre)}</span>${estado(h.estado)}${cruceCorto(h.id)}`;
   return `<li>${h.guia ? `<a class="historia historia-${esc(h.estado)}" href="${u(`/guia/${h.guia}/`)}">${contenido}</a>` : `<div class="historia historia-${esc(h.estado)}">${contenido}</div>`}</li>`;
 };
 
@@ -432,12 +497,15 @@ for (const p of guia) {
   const emp = empresasEn(zona);
   const nov = novedades.filter((n) => n.guia === `${p.seccion}/${p.slug}`);
   const nombresZona = listaY(zona.map((z) => nodoNombre[z] || z));
+  const paso = pasoPorGuia[`${p.seccion}/${p.slug}`];
+  const cruce = paso ? panelCruce(paso) : '';
   add(
     p.ruta,
     layout({
       titulo: p.meta.titulo,
       descripcion: p.meta.resumen,
       ruta: p.ruta,
+      scripts: cruce && envioCruce ? ['/assets/cruces.js'] : [],
       cuerpo: `
 <div class="contenedor">
   <nav class="migas" aria-label="Estás en"><a href="${u('/guia/')}">Guía</a><span aria-hidden="true">/</span><span>${esc(SECCIONES[p.seccion] || p.seccion)}</span></nav>
@@ -454,6 +522,7 @@ for (const p of guia) {
       ${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}
     </article>
     <aside class="lateral">
+      ${cruce}
       ${
         zona.length
           ? `<section class="panel" aria-labelledby="t-zona"><h2 id="t-zona">Quién te ayuda en ${esc(nombresZona)}</h2>
@@ -613,6 +682,7 @@ add(
     </ul>
     <h2>Tu ruta y tus datos</h2>
     <p>El planificador guarda tu última ruta solo en tu navegador. No pedimos registro ni guardamos datos personales.</p>
+    <p>Si cuentas tu tiempo de cruce, se envía a un formulario de Google el paso, el sentido, el tiempo, el día y un número al azar que genera tu navegador para no contar dos veces el mismo cruce. Nada que te identifique.</p>
     <h2>Qué no hacemos</h2>
     <p>No transportamos mercancía, no intermediamos en contratos ni cobramos comisiones por operación. La contratación es directa entre empresas.</p>
   </div>

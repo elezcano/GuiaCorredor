@@ -69,6 +69,33 @@ La revisión avisa si la última novedad tiene más de 30 días: una portada par
 3. En `data/site.json`, dentro de `planes`, pégalo en `"enlacePago"` del plan `destacada`. El botón "Contratar con PayPal" aparece solo.
 4. Cuando entre un pago: pon `"destacada": true` en la empresa y emite la factura como autónomo.
 
+## Activar los tiempos de cruce
+
+Quien cruza una frontera cuenta cuánto tardó (de la fila a la salida de la aduana) desde la página del paso. La web muestra la mediana de los últimos 7 días por sentido, con un mínimo de 3 reportes. Los reportes se guardan en un formulario de Google tuyo; la web se vuelve a publicar sola cada 3 horas con los datos nuevos.
+
+Se hace una vez y lleva unos 5 minutos:
+
+1. En [forms.google.com](https://forms.google.com) crea un formulario en blanco. Título: "Tiempos de cruce – Guía del Corredor".
+2. Añade 5 preguntas de tipo **Respuesta corta** con estos títulos exactos, en minúscula: `paso`, `sentido`, `tiempo`, `fecha`, `dispositivo`. Ninguna obligatoria.
+3. En **Configuración → Respuestas**: no recoger correos y **no** activar "Limitar a 1 respuesta" (obliga a iniciar sesión).
+4. Menú ⋮ → **Obtener enlace prellenado**. Escribe en cada pregunta, en mayúsculas: `PASO`, `SENTIDO`, `TIEMPO`, `FECHA`, `DISPOSITIVO`. Pulsa **Obtener enlace** y cópialo.
+5. Pestaña **Respuestas → Vincular con Hojas de cálculo** → crear hoja nueva. En la hoja: **Archivo → Compartir → Publicar en la Web**, elige la hoja de respuestas y **Valores separados por comas (.csv)**, publica y copia el enlace.
+6. Pega los dos enlaces en `data/site.json`:
+
+```json
+"cruces": {
+  "enlacePrellenado": "https://docs.google.com/forms/d/e/…/viewform?usp=pp_url&entry.…=PASO&…",
+  "csv": "https://docs.google.com/spreadsheets/d/e/…/pub?gid=…&single=true&output=csv"
+}
+```
+
+`npm run check` te avisa si falta algo. Hasta que pegues el primer enlace, el botón "Contar mi tiempo" no aparece.
+
+- La hoja publicada es pública: solo contiene el paso, el sentido, el tiempo, el día y un número al azar por navegador. Nada personal.
+- Para borrar un reporte falso, borra su fila en la hoja; desaparece en la siguiente publicación.
+- Cada navegador cuenta una vez por paso y día. No es a prueba de alguien empeñado en falsear, pero la mediana aguanta reportes sueltos extremos.
+- GitHub desactiva las tareas programadas si el repositorio pasa 60 días sin cambios. Si los tiempos dejan de actualizarse, haz cualquier cambio (una novedad) o pulsa **Actions → Publicar web → Enable workflow**.
+
 ## Cambiar el estado de un tramo o paso
 
 En `data/rutas.json`, cambia `"estado"` del tramo: `operativo`, `en-obras`, `intermitente` o `pendiente`. Cambia también el `estado:` de su página de guía.

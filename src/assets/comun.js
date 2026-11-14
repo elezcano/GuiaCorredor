@@ -85,7 +85,7 @@
       if (conAlternativa >= 0) {
         const t = base[conAlternativa];
         variantes[0].via = sinParentesis(t.paso.nombre);
-        const alt = base.map((x, k) => (k === conAlternativa ? { ...x, paso: { nombre: t.alternativa.nombre, guia: t.alternativa.guia }, estado: t.alternativa.estado || x.estado, alternativa: null, nota: null } : x));
+        const alt = base.map((x, k) => (k === conAlternativa ? { ...x, paso: { id: t.alternativa.id, nombre: t.alternativa.nombre, guia: t.alternativa.guia }, estado: t.alternativa.estado || x.estado, alternativa: null, nota: null } : x));
         variantes.push({ tramos: alt, via: sinParentesis(t.alternativa.nombre) });
       }
       const ops = variantes.map((v, k) => {
