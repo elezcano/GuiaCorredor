@@ -13,18 +13,18 @@
       "tramo": "Puente de la Bioceánica (río Paraguay)",
       "tipo": "pendiente",
       "estado": "activa",
-      "descripcion": "Puente unido físicamente en julio de 2026. Siguen los trabajos de terminación en ambas márgenes.",
+      "descripcion": "Puente unido físicamente el 16/07/2026. Siguen las terminaciones en ambas márgenes y el acceso paraguayo (23 % de avance a octubre de 2026).",
       "inicio": null,
-      "finPrevista": "Accesos previstos para febrero de 2027",
+      "finPrevista": "Acceso paraguayo previsto para el primer trimestre de 2027 (MOPC); sin fecha de habilitación",
       "impacto": "No habilitado al tránsito: no se puede cruzar por el puente.",
       "paso": "puente-bioceanica",
-      "fuente": "revista-plus",
-      "publicado": "2026-10-14",
+      "fuente": "infonegocios-accesos-puente",
+      "publicado": "2026-10-07",
       "validacion": "por-verificar",
       "tramos": [
         "puente"
       ],
-      "actualizado": null,
+      "actualizado": "2026-11-15",
       "verificacion": null,
       "evidencia": "tercero"
     },

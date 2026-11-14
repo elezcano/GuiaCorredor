@@ -236,7 +236,8 @@ if (site.contacto.whatsapp && !E164.test(site.contacto.whatsapp.replace(/[\s-]/g
 for (const n of rutas.nodos) coordenadas(n.coordenadas, `rutas: nodo "${n.id}"`);
 // Fechas futuras: nada se publica ni se verifica en el futuro.
 JSON.stringify(C, (k, v) => {
-  if (['publicado', 'actualizado'].includes(k) && esFecha(v) && v > HOY) errores.push(`fecha futura en "${k}": ${v}.`);
+  // Un día de margen: el servidor va en UTC y el equipo trabaja en España y Sudamérica.
+  if (['publicado', 'actualizado'].includes(k) && esFecha(v) && dias(v) < -1) errores.push(`fecha futura en "${k}": ${v}.`);
   return v;
 });
 // Ninguna verificación la puede firmar el asistente.
