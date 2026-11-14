@@ -4,6 +4,7 @@ tipo: paso
 resumen: El puente sobre el río Paraguay que une el Chaco paraguayo con Mato Grosso do Sul. Pieza clave del corredor; todavía sin habilitar al tránsito.
 paises: PY, BR
 estado: en-obras
+puntos: porto-murtinho, carmelo-peralta
 revisado: 2026-11-14
 borrador: true
 ---

@@ -4,6 +4,7 @@ tipo: paso
 resumen: Salida natural del noroeste argentino (Salta) hacia el Pacífico. Alternativa a Jama, con tramos de la RN51 todavía por pavimentar.
 paises: AR, CL
 estado: operativo
+puntos: salta-jujuy, norte-chile
 revisado: 2026-11-14
 borrador: true
 ---
