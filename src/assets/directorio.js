@@ -1,58 +1,116 @@
-// Filtros del directorio: punto de la ruta, búsqueda, país y tipo. El estado queda en la URL (?punto=&q=&pais=&tipo=).
+// Empresas: búsqueda con sugerencias al escribir (patrón buscador web), filtros por tipo, país y punto.
+// El estado queda en la URL (?q=&tipo=&pais=&punto=).
 (function () {
-  const form = document.querySelector('.filtros');
+  const input = document.getElementById('f-texto');
+  const lista = document.getElementById('sugerencias');
   const punto = document.getElementById('f-punto');
-  const texto = document.getElementById('f-texto');
   const fichas = Array.from(document.querySelectorAll('#lista-empresas .empresa'));
   const contador = document.getElementById('contador');
   const vacio = document.getElementById('sin-resultados');
-  const limpiar = document.getElementById('limpiar');
-
-  const valor = (name) => form.querySelector(`input[name="${name}"]:checked`)?.value || '';
-  const marcar = (name, v) => {
-    const el = form.querySelector(`input[name="${name}"][value="${CSS.escape(v)}"]`);
-    if (el) el.checked = true;
-  };
+  const sugerencias = JSON.parse(document.getElementById('datos-sugerencias').textContent);
+  const activos = { tipo: '', pais: '' };
+  const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  let actual = -1;
 
   const params = new URLSearchParams(location.search);
-  if (params.get('punto')) punto.value = params.get('punto');
-  if (params.get('q')) texto.value = params.get('q');
-  if (params.get('pais')) marcar('pais', params.get('pais'));
-  if (params.get('tipo')) marcar('tipo', params.get('tipo'));
+  input.value = params.get('q') || '';
+  punto.value = params.get('punto') || '';
+  activos.tipo = params.get('tipo') || '';
+  activos.pais = params.get('pais') || '';
 
   function filtrar() {
-    const q = texto.value.trim().toLowerCase();
+    const q = norm(input.value.trim());
     const pt = punto.value;
-    const pais = valor('pais');
-    const tipo = valor('tipo');
     let visibles = 0;
     for (const f of fichas) {
       const ok =
         (!pt || f.dataset.puntos.split(' ').includes(pt)) &&
-        (!pais || f.dataset.pais === pais) &&
-        (!tipo || f.dataset.categoria === tipo) &&
-        (!q || f.dataset.texto.includes(q));
+        (!activos.pais || f.dataset.pais === activos.pais) &&
+        (!activos.tipo || f.dataset.categoria === activos.tipo) &&
+        (!q || q.split(/\s+/).every((p) => norm(f.dataset.texto).includes(p)));
       f.hidden = !ok;
       if (ok) visibles++;
     }
     const lugar = pt ? ` en ${punto.options[punto.selectedIndex].text.replace(/\s*\(\d+\)$/, '')}` : '';
     contador.textContent = `${visibles} ${visibles === 1 ? 'empresa' : 'empresas'}${lugar}`;
     vacio.hidden = visibles > 0;
-
+    document.querySelectorAll('[data-filtro]').forEach((b) => b.setAttribute('aria-pressed', String(activos[b.dataset.filtro] === b.dataset.valor)));
     const url = new URL(location.href);
-    [['punto', pt], ['q', q], ['pais', pais], ['tipo', tipo]].forEach(([k, v]) => (v ? url.searchParams.set(k, v) : url.searchParams.delete(k)));
+    [['q', input.value.trim()], ['tipo', activos.tipo], ['pais', activos.pais], ['punto', pt]].forEach(([k, v]) => (v ? url.searchParams.set(k, v) : url.searchParams.delete(k)));
     history.replaceState(null, '', url);
   }
 
-  form.addEventListener('input', filtrar);
-  form.addEventListener('change', filtrar);
-  limpiar.addEventListener('click', () => {
-    punto.value = '';
-    texto.value = '';
-    marcar('pais', '');
-    marcar('tipo', '');
+  // Sugerencias (combobox accesible: flechas, Intro y Escape)
+  function cerrar() {
+    lista.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+    actual = -1;
+  }
+  function abrir() {
+    const q = norm(input.value.trim());
+    if (q.length < 2) return cerrar();
+    const encontradas = sugerencias.filter((s) => norm(s.t).includes(q)).slice(0, 6);
+    if (!encontradas.length) return cerrar();
+    lista.innerHTML = encontradas
+      .map((s, i) => `<li role="option" id="sug-${i}" aria-selected="false" data-valor="${s.t.replace(/"/g, '&quot;')}">${s.t.replace(/</g, '&lt;')}<span>${s.d}</span></li>`)
+      .join('');
+    lista.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+    actual = -1;
+  }
+  function marcar(i) {
+    const opts = lista.querySelectorAll('li');
+    if (!opts.length) return;
+    actual = (i + opts.length) % opts.length;
+    opts.forEach((o, k) => o.setAttribute('aria-selected', String(k === actual)));
+    input.setAttribute('aria-activedescendant', opts[actual].id);
+  }
+  function elegir(valor) {
+    input.value = valor;
+    cerrar();
     filtrar();
-    punto.focus();
+  }
+  input.addEventListener('input', () => {
+    abrir();
+    filtrar();
+  });
+  input.addEventListener('keydown', (e) => {
+    if (lista.hidden) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      marcar(actual + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      marcar(actual - 1);
+    } else if (e.key === 'Enter' && actual >= 0) {
+      e.preventDefault();
+      elegir(lista.querySelectorAll('li')[actual].dataset.valor);
+    } else if (e.key === 'Escape') cerrar();
+  });
+  lista.addEventListener('mousedown', (e) => {
+    const li = e.target.closest('li');
+    if (li) {
+      e.preventDefault();
+      elegir(li.dataset.valor);
+    }
+  });
+  input.addEventListener('blur', () => setTimeout(cerrar, 100));
+
+  document.querySelector('.filtros-empresas').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-filtro]');
+    if (!b) return;
+    activos[b.dataset.filtro] = b.dataset.valor;
+    filtrar();
+  });
+  punto.addEventListener('change', filtrar);
+  document.getElementById('limpiar').addEventListener('click', () => {
+    input.value = '';
+    punto.value = '';
+    activos.tipo = '';
+    activos.pais = '';
+    filtrar();
+    input.focus();
   });
   filtrar();
 })();
