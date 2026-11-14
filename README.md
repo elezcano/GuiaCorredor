@@ -47,7 +47,7 @@ npm run build    # solo genera dist/
 Cada cambio en `main` se revisa, se genera y se publica con GitHub Actions (`.github/workflows/publicar.yml`).
 
 1. Settings → Pages → Source: **GitHub Actions**.
-2. Settings → Secrets and variables → Actions → Variables: `SITE_URL` (p. ej. `https://midominio.com`) y, si se publica en una subcarpeta, `BASE_PATH` (p. ej. `/guia`).
+2. Settings → Secrets and variables → Actions → Variables: `PUBLICAR` = `true`, `SITE_URL` (p. ej. `https://midominio.com`) y, si se publica en una subcarpeta, `BASE_PATH` (p. ej. `/guia`).
 
 GitHub Pages en un repositorio **privado** requiere plan de pago. Alternativas gratis: hacer el repo público o conectar Cloudflare Pages (build: `npm run build`, salida: `dist`).
 
@@ -60,6 +60,7 @@ GitHub Pages en un repositorio **privado** requiere plan de pago. Alternativas g
 - [ ] Revisión de las páginas de la guía por un despachante y quitar `borrador: true`.
 - [ ] Enlace de pago de la ficha destacada.
 - [ ] Textos legales (aviso legal, privacidad, condiciones).
+- [ ] `"indexable": true` en `data/site.json` (mientras sea `false`, Google no indexa la web).
 
 ## Hoja de ruta
 

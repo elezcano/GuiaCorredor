@@ -6,6 +6,7 @@
   "basePath": "",
   "idioma": "es",
   "mostrarEjemplos": true,
+  "indexable": false,
   "contacto": {
     "email": "contacto@example.com",
     "whatsapp": ""
