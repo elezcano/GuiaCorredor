@@ -96,9 +96,49 @@ Se hace una vez y lleva unos 5 minutos:
 - Cada navegador cuenta una vez por paso y día. No es a prueba de alguien empeñado en falsear, pero la mediana aguanta reportes sueltos extremos.
 - GitHub desactiva las tareas programadas si el repositorio pasa 60 días sin cambios. Si los tiempos dejan de actualizarse, haz cualquier cambio (una novedad) o pulsa **Actions → Publicar web → Enable workflow**.
 
+## Datos operativos (sin tocar código)
+
+Cada archivo de `data/` alimenta una sección. Todo registro lleva **fuente** (nombre y url) y **fecha**; `npm run check` no deja publicar sin ellas.
+
+| Archivo | Qué cambias | Cuándo |
+|---|---|---|
+| `pasos.json` | `estado.valor` (operativo, restricciones, cierre-programado, cerrado, en-obras, pendiente), `estado.texto`, `estado.fecha`, `estado.fuente`; horarios, restricciones, acceso | Cuando salga un parte oficial |
+| `incidencias.json` | Añade una entrada por obra, corte o restricción; pon `"estado": "resuelta"` cuando termine | Al conocer la novedad |
+| `festivos.json` | Añade el año siguiente y cambia `"por-confirmar"` a `"confirmado"` cuando se publique el decreto | Noviembre–diciembre |
+| `avisos.json` | Copia un aviso meteorológico oficial con `titulo`, `zona`, `vigenteHasta` (AAAA-MM-DD) y `fuente`. Desaparece solo al vencer | Solo si afecta a la ruta |
+| `organismos.json` | Corrige un enlace roto y actualiza `verificado` | Al detectarlo |
+
+Reglas que aplica la web sola:
+
+- Un estado «operativo» o «con restricciones» con más de **30 días** se muestra como «Por verificar» con su último dato. Uno de obra o cierre, a los **120 días**.
+- Lo que dejes vacío o en `null` se muestra como «Sin verificar». No pongas datos que no tengan fuente.
+
+Ejemplo de incidencia:
+
+```json
+{
+  "id": "rn52-corte-nieve",
+  "paises": ["AR"],
+  "ubicacion": "Purmamarca – Jama",
+  "tramo": "Ruta Nacional 52",
+  "tipo": "corte",
+  "estado": "activa",
+  "descripcion": "Cortada por nieve entre Susques y Jama.",
+  "inicio": "2027-06-10",
+  "finPrevista": null,
+  "impacto": "Sin paso para camiones hasta nuevo aviso.",
+  "paso": "jama",
+  "fuente": { "nombre": "Vialidad Nacional", "url": "https://…", "fecha": "2027-06-10" },
+  "actualizado": "2027-06-10"
+}
+```
+
+Tipos de incidencia: `obra`, `restriccion`, `corte`, `pendiente` (infraestructura sin habilitar), `peso`, `desvio`.
+
 ## Cambiar el estado de un tramo o paso
 
-En `data/rutas.json`, cambia `"estado"` del tramo: `operativo`, `en-obras`, `intermitente` o `pendiente`. Cambia también el `estado:` de su página de guía.
+- **Pasos fronterizos**: solo en `data/pasos.json` (ver arriba). La ficha, el mapa, la portada y el planificador lo toman de ahí.
+- **Tramos de carretera**: en `data/rutas.json`, `"estado"` del tramo (`operativo`, `en-obras`, `intermitente` o `pendiente`), y el `estado:` de su página de guía si la tiene.
 
 ## Si algo falla
 

@@ -1,0 +1,4 @@
+{
+  "nota": "Avisos meteorológicos copiados de una fuente oficial. Se muestran solo mientras 'vigenteHasta' no haya pasado. Lista vacía = no hay avisos cargados (la web enlaza a los servicios oficiales).",
+  "avisos": []
+}

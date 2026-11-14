@@ -41,8 +41,8 @@
 
   const [i, j] = r.rango;
   const carretera = document.getElementById('ruta-corredor');
-  carretera.classList.add('con-ruta');
-  carretera.querySelectorAll('li').forEach((li) => {
+  carretera?.classList.add('con-ruta');
+  carretera?.querySelectorAll('li').forEach((li) => {
     const k = Number(li.dataset.i);
     li.classList.toggle('en-ruta', li.classList.contains('parada') ? k >= i && k <= j : k >= i && k < j);
   });
@@ -50,7 +50,7 @@
   document.getElementById('olvidar-ruta').addEventListener('click', () => {
     GC.olvidarRuta();
     panel.hidden = true;
-    carretera.classList.remove('con-ruta');
+    carretera?.classList.remove('con-ruta');
     document.getElementById('origen').focus();
   });
 })();

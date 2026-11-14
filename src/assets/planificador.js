@@ -55,6 +55,28 @@
     }</div>`;
   }
 
+  // Incidencias activas del paso.
+  function avisosPaso(t) {
+    return (datos.incidencias || [])
+      .filter((i) => i.paso === t.paso.id)
+      .map((i) => `<p class="it-aviso"><strong>${esc(i.tipo)}:</strong> ${esc(i.texto)}</p>`)
+      .join('');
+  }
+
+  // Festivos de los próximos días en los países que cruza la ruta.
+  function festivosRuta(op) {
+    const paisesRuta = new Set(op.tramos.flatMap((t) => [nodo(t.de).pais, nodo(t.a).pais]));
+    const hoy = new Date().toISOString().slice(0, 10);
+    const limite = new Date(Date.now() + 21 * 864e5).toISOString().slice(0, 10);
+    const lista = (datos.festivos || []).filter((f) => paisesRuta.has(f.pais) && f.fecha >= hoy && f.fecha <= limite);
+    if (!lista.length) return '';
+    const fmt = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+    return `<aside class="panel festivos-ruta" aria-labelledby="t-fest-ruta"><h3 id="t-fest-ruta">Festivos en tu ruta, próximos 21 días</h3>
+      <p class="nota">Comprueba la atención de aduanas y organismos en esas fechas.</p>
+      <ul>${lista.map((f) => `<li><strong>${esc(fmt(f.fecha))}</strong> <abbr class="pais" title="${esc(datos.paises[f.pais])}">${esc(f.pais)}</abbr> ${esc(f.nombre)}${f.porConfirmar ? ' (por confirmar)' : ''}</li>`).join('')}</ul>
+      <a class="enlace-mas" href="${esc(datos.calendario)}">Abrir el calendario</a></aside>`;
+  }
+
   // Tiempo de cruce reportado en el sentido del viaje.
   function cruce(t) {
     const idx = (id) => datos.nodos.findIndex((n) => n.id === id);
@@ -76,6 +98,7 @@
         <div class="it-fila">${typeof t.km === 'number' ? `<span class="it-km">${GC.km(t.km)}</span>` : '<span class="it-km-falta">Distancia por verificar</span>'}${estado(t.estado)}</div>
         ${t.paso ? `<p class="it-frontera">Frontera: ${enlace(t.paso.guia, t.paso.nombre)}</p>` : ''}
         ${t.paso ? cruce(t) : ''}
+        ${t.paso ? avisosPaso(t) : ''}
         ${t.guia ? `<p class="it-nota">${enlace(t.guia, 'Abrir el tramo en la guía')}</p>` : ''}
         ${t.nota ? `<p class="it-nota">${esc(t.nota)}</p>` : ''}
       </div></li>`);
@@ -109,7 +132,7 @@
       </button>
       <div class="opcion-detalle" id="${det}"${abierta ? '' : ' hidden'}>
         ${inc ? `<p class="alerta"><strong>${GC.plural(inc, 'tramo no está', 'tramos no están')} plenamente operativo${inc === 1 ? '' : 's'}.</strong> Revisa su estado antes de salir.</p>` : ''}
-        <div class="plan-viaje">${itinerario(op)}${papeles(op)}</div>
+        <div class="plan-viaje">${itinerario(op)}<div class="plan-lateral">${festivosRuta(op)}${papeles(op)}</div></div>
       </div>
     </li>`;
   }

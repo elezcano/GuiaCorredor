@@ -9,9 +9,12 @@ export const readJSON = (rel) => JSON.parse(fs.readFileSync(path.join(ROOT, rel)
 
 export const ESTADOS = {
   operativo: 'Operativo',
-  'en-obras': 'En obras',
+  restricciones: 'Con restricciones',
   intermitente: 'Intermitente',
-  pendiente: 'Por confirmar',
+  'cierre-programado': 'Cierre programado',
+  cerrado: 'Cerrado',
+  'en-obras': 'En obras',
+  pendiente: 'Por verificar',
 };
 
 export const SECCIONES = {
