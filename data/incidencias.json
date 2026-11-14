@@ -104,6 +104,28 @@
       "actualizado": null,
       "verificacion": null,
       "evidencia": "tercero"
+    },
+    {
+      "id": "pozo-hondo-puente-limitado",
+      "paises": [
+        "PY",
+        "AR"
+      ],
+      "ubicacion": "Pozo Hondo – Misión La Paz",
+      "tramo": "Puente sobre el río Pilcomayo",
+      "tipo": "restriccion",
+      "estado": "activa",
+      "descripcion": "El puente actual, de 1995, limita el tránsito y la operatividad del paso, según el MOPC. Se estudia un puente nuevo de 360 m financiado por Paraguay; aún sin fecha de licitación.",
+      "inicio": null,
+      "finPrevista": "Sin fecha: puente nuevo en estudios",
+      "impacto": "Carga pesada no confirmada por este paso.",
+      "paso": "pozo-hondo",
+      "fuente": "mopc-nuevo-puente-pozo-hondo",
+      "publicado": "2026-04-27",
+      "actualizado": "2026-11-15",
+      "evidencia": "oficial",
+      "validacion": "por-verificar",
+      "verificacion": null
     }
   ]
 }
