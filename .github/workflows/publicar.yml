@@ -1,5 +1,7 @@
 # Revisa y genera la web en cada cambio. Publica en GitHub Pages al subir a main.
-# Para publicar: Settings → Pages → Source: "GitHub Actions".
+# Para publicar: Settings → Pages → Source: "GitHub Actions" y crear la variable
+# de repositorio PUBLICAR = true (Settings → Secrets and variables → Actions → Variables).
+# Sin esa variable solo se revisa y se genera la web, sin publicarla.
 # Ojo: GitHub Pages en repositorios privados requiere un plan de pago de GitHub.
 name: Publicar web
 
@@ -33,12 +35,12 @@ jobs:
           SITE_URL: ${{ vars.SITE_URL }}
           BASE_PATH: ${{ vars.BASE_PATH }}
       - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && vars.PUBLICAR == 'true'
         with:
           path: dist
 
   publicar:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && vars.PUBLICAR == 'true'
     needs: construir
     runs-on: ubuntu-latest
     environment:
