@@ -1,0 +1,18 @@
+{
+  "name": "guia-corredor-bioceanico",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Guía del Corredor Bioceánico: guía de rutas y pasos fronterizos, directorio de empresas y planificador de ruta. Web estática.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "dev": "node scripts/build.mjs && node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "marked": "^12.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
