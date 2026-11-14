@@ -1,0 +1,140 @@
+/* Guía del Corredor — estilos base. Sin frameworks. */
+:root {
+  --tinta: #1b2430;
+  --tinta-suave: #556170;
+  --fondo: #f7f6f2;
+  --papel: #ffffff;
+  --borde: #e2dfd6;
+  --marca: #0f4c5c;
+  --marca-osc: #0a3641;
+  --acento: #e09f3e;
+  --ok: #2f7d4f;
+  --ok-fondo: #e3f2e8;
+  --obras: #9a5b00;
+  --obras-fondo: #fbefd9;
+  --alerta: #a33a2b;
+  --alerta-fondo: #f9e3df;
+  --neutro-fondo: #ecebe6;
+  --radio: 10px;
+  --sombra: 0 1px 2px rgba(20, 30, 40, 0.06), 0 4px 14px rgba(20, 30, 40, 0.05);
+  --fuente: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font-family: var(--fuente); color: var(--tinta); background: var(--fondo); line-height: 1.55; }
+a { color: var(--marca); }
+a:hover { color: var(--marca-osc); }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 0.5em; }
+h1 { font-size: clamp(1.7rem, 3.5vw, 2.4rem); }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.05rem; }
+img { max-width: 100%; }
+
+.contenedor { width: min(1120px, 100% - 2rem); margin-inline: auto; }
+
+/* Cabecera */
+.cabecera { background: var(--marca); color: #fff; }
+.cabecera-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 0; flex-wrap: wrap; }
+.marca { color: #fff; text-decoration: none; font-weight: 700; font-size: 1.15rem; display: flex; align-items: center; gap: 0.45rem; }
+.marca:hover { color: #fff; }
+.marca-icono { color: var(--acento); }
+.nav { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+.nav a { color: #d8e6ea; text-decoration: none; font-weight: 500; }
+.nav a:hover, .nav a[aria-current="page"] { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+.aviso { background: #fff7e6; border-bottom: 1px solid #f0dfb8; font-size: 0.85rem; color: #6b5420; padding: 0.4rem 0; }
+
+main { padding: 2rem 0 3rem; }
+
+/* Portada */
+.portada { padding: 2rem 0 1rem; max-width: 760px; }
+.entradilla { font-size: 1.1rem; color: var(--tinta-suave); margin-top: 0; }
+.acciones { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+
+.bloque { margin-top: 2.5rem; }
+.llamada { background: var(--marca); color: #fff; border-radius: var(--radio); padding: 1.75rem; }
+.llamada p { color: #d8e6ea; }
+.nota { font-size: 0.85rem; color: var(--tinta-suave); }
+.vacio { color: var(--tinta-suave); font-style: italic; }
+
+/* Botones */
+.boton { display: inline-block; background: var(--acento); color: #1b1203; padding: 0.6rem 1.1rem; border-radius: 8px; text-decoration: none; font-weight: 600; border: 0; cursor: pointer; }
+.boton:hover { filter: brightness(0.95); color: #1b1203; }
+.boton-sec { background: var(--papel); color: var(--marca); border: 1px solid var(--borde); }
+.boton-sec:hover { color: var(--marca-osc); }
+.boton-wa { background: #25d366; color: #fff; }
+.boton-wa:hover { color: #fff; }
+.boton-desactivado { background: var(--neutro-fondo); color: var(--tinta-suave); cursor: default; }
+.llamada .boton-sec { border-color: transparent; }
+
+/* Tarjetas */
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.tarjeta, .empresa, .caja, .plan { background: var(--papel); border: 1px solid var(--borde); border-radius: var(--radio); padding: 1.1rem 1.2rem; box-shadow: var(--sombra); }
+.tarjeta { text-decoration: none; color: inherit; display: block; transition: transform 0.12s ease; }
+.tarjeta:hover { transform: translateY(-2px); color: inherit; }
+.tarjeta p, .empresa p { margin: 0.3rem 0 0; color: var(--tinta-suave); font-size: 0.95rem; }
+.tarjeta-meta { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.6rem; }
+.empresa.destacada { border-color: var(--acento); box-shadow: 0 0 0 2px rgba(224, 159, 62, 0.25), var(--sombra); }
+.empresa-sub { font-weight: 500; color: var(--tinta) !important; }
+.empresa-acciones { display: flex; gap: 0.5rem; margin-top: 0.8rem; flex-wrap: wrap; }
+.empresa-acciones .boton { padding: 0.4rem 0.8rem; font-size: 0.9rem; }
+
+/* Etiquetas */
+.estado, .pais, .sello { font-size: 0.75rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 999px; white-space: nowrap; }
+.estado-operativo { background: var(--ok-fondo); color: var(--ok); }
+.estado-en-obras { background: var(--obras-fondo); color: var(--obras); }
+.estado-intermitente { background: var(--alerta-fondo); color: var(--alerta); }
+.estado-pendiente { background: var(--neutro-fondo); color: var(--tinta-suave); }
+.pais { background: var(--neutro-fondo); color: var(--tinta); letter-spacing: 0.03em; }
+.sello { background: var(--acento); color: #1b1203; }
+.sello-ejemplo { background: #e8e4f7; color: #4b3f8a; }
+.revisado { font-size: 0.8rem; color: var(--tinta-suave); }
+.chips { list-style: none; padding: 0; margin: 0.6rem 0 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.chips li { font-size: 0.8rem; background: #eef4f5; color: var(--marca-osc); padding: 0.15rem 0.55rem; border-radius: 6px; }
+
+.lista-estado { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+.lista-estado li { background: var(--papel); border: 1px solid var(--borde); border-radius: 8px; padding: 0.6rem 0.8rem; display: flex; gap: 0.6rem; align-items: center; }
+
+/* Página de guía */
+.migas { font-size: 0.9rem; color: var(--tinta-suave); margin-bottom: 1rem; }
+.pagina-guia { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 2rem; align-items: start; }
+.articulo { background: var(--papel); border: 1px solid var(--borde); border-radius: var(--radio); padding: 1.6rem 1.8rem; }
+.articulo h2 { margin-top: 1.6rem; }
+.articulo table, .tabla { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.95rem; background: var(--papel); }
+.articulo th, .articulo td, .tabla th, .tabla td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--borde); vertical-align: top; }
+.articulo th, .tabla th { background: #f1efe9; font-weight: 600; }
+.articulo blockquote { margin: 1rem 0; padding: 0.8rem 1rem; background: #fff7e6; border-left: 4px solid var(--acento); border-radius: 6px; }
+.articulo blockquote p { margin: 0; }
+.lateral { display: grid; gap: 1rem; position: sticky; top: 1rem; }
+.caja p { color: var(--tinta-suave); font-size: 0.95rem; }
+.borrador { background: var(--obras-fondo); color: var(--obras); padding: 0.55rem 0.8rem; border-radius: 8px; font-weight: 500; }
+
+/* Formularios */
+.formulario { display: flex; gap: 1rem; flex-wrap: wrap; background: var(--papel); border: 1px solid var(--borde); border-radius: var(--radio); padding: 1rem 1.2rem; margin-bottom: 1rem; }
+.formulario label { display: flex; flex-direction: column; gap: 0.3rem; font-weight: 600; font-size: 0.9rem; flex: 1 1 200px; }
+.formulario input, .formulario select { font: inherit; font-weight: 400; padding: 0.55rem 0.6rem; border: 1px solid var(--borde); border-radius: 8px; background: #fff; }
+
+/* Planificador */
+.resumen-ruta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0; }
+.resumen-ruta div { background: var(--papel); border: 1px solid var(--borde); border-radius: var(--radio); padding: 0.9rem 1rem; }
+.resumen-ruta strong { display: block; font-size: 1.5rem; color: var(--marca); }
+.resumen-ruta span { font-size: 0.85rem; color: var(--tinta-suave); }
+.tabla td.num { white-space: nowrap; }
+.fila-paso { font-size: 0.9rem; margin-top: 0.2rem; }
+
+/* Planes */
+.planes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.plan-destacado { border-color: var(--acento); box-shadow: 0 0 0 2px rgba(224, 159, 62, 0.25), var(--sombra); }
+.precio { font-size: 1.6rem; font-weight: 700; color: var(--marca); margin: 0.2rem 0 0.6rem; }
+.plan ul { padding-left: 1.1rem; color: var(--tinta-suave); }
+
+/* Pie */
+.pie { border-top: 1px solid var(--borde); background: var(--papel); font-size: 0.9rem; color: var(--tinta-suave); }
+.pie-inner { display: flex; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 1.5rem 0; }
+
+@media (max-width: 820px) {
+  .pagina-guia { grid-template-columns: 1fr; }
+  .lateral { position: static; }
+  .resumen-ruta { grid-template-columns: 1fr; }
+  .articulo { padding: 1.2rem; }
+}
