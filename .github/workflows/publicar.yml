@@ -9,6 +9,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
   # Cada 3 horas: recoge los tiempos de cruce nuevos y vuelve a publicar.
   schedule:
@@ -28,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -37,6 +40,13 @@ jobs:
         env:
           SITE_URL: ${{ vars.SITE_URL }}
           BASE_PATH: ${{ vars.BASE_PATH }}
+      - name: Coherencia web / api/v1
+        run: node scripts/prueba-api.mjs
+      - name: Verificaciones nuevas (requieren la etiqueta revision-editorial)
+        if: github.event_name == 'pull_request'
+        env:
+          REVISION_EDITORIAL: ${{ contains(github.event.pull_request.labels.*.name, 'revision-editorial') }}
+        run: node scripts/verificaciones.mjs origin/${{ github.base_ref }}
       - name: Comprobar enlaces internos
         run: npm run enlaces
         env:

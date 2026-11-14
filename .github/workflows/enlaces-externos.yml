@@ -1,0 +1,30 @@
+# Revisión semanal de enlaces externos (P0.4). No bloquea la publicación: abre o actualiza un issue.
+name: Enlaces externos
+
+on:
+  schedule:
+    - cron: '41 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/enlaces-externos.mjs
+        continue-on-error: true
+      - name: Publicar el informe en un issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITULO="Enlaces externos: revisión semanal"
+          N=$(gh issue list --state open --search "in:title \"$TITULO\"" --json number --jq '.[0].number')
+          if [ -n "$N" ]; then gh issue edit "$N" --body-file enlaces-externos.md; else gh issue create --title "$TITULO" --body-file enlaces-externos.md --label "L3 contenido"; fi

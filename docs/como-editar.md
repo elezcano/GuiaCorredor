@@ -2,34 +2,45 @@
 
 Todo se edita desde GitHub en el navegador: abre el archivo, pulsa el lápiz, cambia y guarda ("Commit changes"). La web se regenera sola.
 
+## Solicitudes de empresas
+
+Las empresas piden el alta, una corrección o la retirada desde `/anunciate/`. El formulario no guarda nada: abre un email dirigido al contacto del proyecto (`contacto.email` en `data/site.json`) con asunto `[Solicitud de empresa] Alta: Nombre` y los datos en líneas `Campo: valor`.
+
+1. Al llegar el email, crea una tarjeta en Trello (tablero *Guía del Corredor Bioceánico*, lista de solicitudes) y pega el texto. **No** la subas al repositorio: es público y la solicitud aún no está revisada.
+2. Revisa la empresa: existe, opera en el corredor, la sede y la cobertura cuadran, las referencias responden.
+3. Si se publica, añádela a `data/directorio.json` en una rama y abre un Pull Request con la etiqueta `revision-editorial`.
+4. Una retirada se atiende siempre: borra el registro y avisa a la empresa.
+
 ## Añadir una empresa al directorio
 
-Solo se publican empresas que han confirmado sus datos (por WhatsApp, email o llamada). Nunca empresas de ejemplo ni datos sin confirmar.
+Solo empresas reales que el responsable editorial ha revisado. Nunca empresas de ejemplo, valoraciones ni reseñas externas. La **sede** (`pais`, `ciudad`) es distinta de la **cobertura** (`puntos`, `cobertura`).
 
-1. Abre `data/directorio.json` (es una lista `[ ]`).
-2. Añade un bloque por empresa. El `id` no puede repetirse.
-3. Para hacerla destacada (ha pagado): `"destacada": true`.
+1. Si la fuente no existe, añádela a `data/fuentes.json` (`tipo: "empresa"` si es la propia empresa).
+2. Añade el bloque en `data/directorio.json` → `empresas`. El `id` no se repite. Teléfonos en formato internacional sin espacios (`+595211234567`).
 
 ```json
 {
   "id": "nombre-empresa-ciudad",
-  "nombre": "Nombre de la empresa",
+  "nombre": "Nombre comercial",
+  "razonSocial": "Razón social S.A.",
   "categoria": "transitario",
   "pais": "PY",
   "ciudad": "Loma Plata",
-  "servicios": ["Granos"],
-  "descripcion": "Lo que la empresa ha confirmado.",
-  "destacada": false,
   "puntos": ["mariscal-estigarribia"],
-  "contacto": { "email": "", "whatsapp": "", "web": "" },
-  "fuente": { "nombre": "Confirmado por la empresa", "url": "https://web-de-la-empresa", "tipo": "otra" },
+  "cobertura": "Chaco central y Pozo Hondo",
+  "servicios": ["Granos"],
+  "destacada": false,
+  "contacto": { "email": "info@empresa.com", "telefono": "+595211234567", "web": "https://empresa.com" },
+  "fuente": "empresa-nombre",
+  "evidencia": "declaracion-empresa",
   "publicado": null,
-  "verificado": "AAAA-MM-DD",
-  "validacion": "verificado"
+  "actualizado": "AAAA-MM-DD",
+  "validacion": "verificado",
+  "verificacion": { "verificadoPor": "responsable-editorial", "rol": "responsable-editorial", "fecha": "AAAA-MM-DD", "alcance": "Existencia de la empresa, contacto y cobertura comprobados" }
 }
 ```
 
-`puntos`: `campo-grande`, `porto-murtinho`, `carmelo-peralta`, `mariscal-estigarribia`, `pozo-hondo`, `salta-jujuy`, `norte-chile`, `puertos-chile`. Categorías: ver `data/categorias.json`. La confirmación caduca al año: vuelve a escribirles.
+`puntos`: `campo-grande`, `porto-murtinho`, `carmelo-peralta`, `mariscal-estigarribia`, `pozo-hondo`, `salta-jujuy`, `norte-chile`, `puertos-chile`. Categorías: `data/categorias.json`. La verificación caduca al año.
 
 ## Añadir o actualizar una página de la guía
 
@@ -37,7 +48,7 @@ Solo se publican empresas que han confirmado sus datos (por WhatsApp, email o ll
 2. Copia la cabecera de otra página. No pongas `estado:`: sale de los datos.
 3. Escribe el contenido. Termina con `## Fuentes` y los enlaces (mejor si hay alguno oficial).
 4. Al revisar una página, actualiza `revisado:` con la fecha del día.
-5. Mientras no esté revisada: `validacion: borrador`. Cuando el despachante la haya validado: `validacion: verificado` y `verificado: AAAA-MM-DD`.
+5. Mientras no esté revisada: `validacion: borrador`. Cuando el responsable editorial la haya revisado (con el despachante si hace falta): `validacion: verificado`, `verificado: AAAA-MM-DD` y `verificadoPor: responsable-editorial`.
 
 ## Añadir una novedad
 
@@ -51,9 +62,11 @@ Abre `data/novedades.json` y añade un bloque al principio:
   "detalle": "Reapertura prevista cuando mejore el tiempo del lado chileno.",
   "guia": "pasos/jama",
   "paises": ["AR", "CL"],
-  "fuente": { "nombre": "Vialidad Chile", "url": "https://...", "tipo": "oficial" },
-  "verificado": null,
-  "validacion": "por-verificar"
+  "fuente": "vialidad-chile",
+  "evidencia": "oficial",
+  "actualizado": null,
+  "validacion": "por-verificar",
+  "verificacion": null
 }
 ```
 
@@ -97,14 +110,16 @@ Se hace una vez y lleva unos 5 minutos:
 
 ## Validación: un solo sistema para todo el portal
 
-Todo dato operativo lleva estos cuatro campos:
+La política completa está en [`politica-validacion.md`](politica-validacion.md). Todo dato operativo lleva:
 
 | Campo | Qué es |
 |---|---|
-| `fuente` | `{ "nombre", "url", "tipo" }`; tipo: `oficial`, `prensa` u `otra` |
+| `fuente` | id de `data/fuentes.json` (nombre, url y tipo están allí, una sola vez) |
+| `evidencia` | `oficial`, `declaracion-empresa`, `tercero`, `calculo`, `estimacion` o `historico` |
 | `publicado` | Fecha (AAAA-MM-DD) en que la fuente publicó el dato. `null` si es una norma o no consta |
-| `verificado` | Fecha en que alguien del equipo lo comprobó contra la fuente. `null` si nadie |
+| `actualizado` | Última vez que se comprobó contra la fuente (lo puede hacer el asistente) |
 | `validacion` | `verificado`, `por-verificar` o `borrador` |
+| `verificacion` | `null`, o `{ verificadoPor, rol, fecha, alcance }` cuando lo verifica el responsable editorial |
 
 **Regla:** un estado (operativo, en obras…) solo se muestra como confirmado si el dato está `verificado` **y** su ficha también. Si no, la web muestra «Por verificar» con el último dato, su fuente y su fecha. Una verificación caduca sola:
 
@@ -116,7 +131,7 @@ Todo dato operativo lleva estos cuatro campos:
 | Horario | 180 días |
 | Ficha, empresa, enlace de organismo | 365 días |
 
-**Para marcar algo como verificado:** comprueba el dato en la fuente (mejor oficial), pon `"validacion": "verificado"` y `"verificado": "AAAA-MM-DD"` con la fecha de hoy. En una ficha Markdown, en la cabecera: `validacion: verificado` y `verificado: AAAA-MM-DD`.
+**Para marcar algo como verificado (solo el responsable editorial):** comprueba el dato y su evidencia, pon `"validacion": "verificado"` y `"verificacion": { "verificadoPor": "responsable-editorial", "rol": "responsable-editorial", "fecha": "AAAA-MM-DD", "alcance": "qué comprobaste" }`. Hazlo en un Pull Request y ponle la etiqueta `revision-editorial`: sin ella, la comprobación del PR falla. El asistente de IA nunca escribe `verificado` ni `verificacion`.
 
 ## Dónde está cada dato (sin duplicados)
 
@@ -130,20 +145,24 @@ Todo dato operativo lleva estos cuatro campos:
 | Festivos | `data/festivos.json` | Calendario, portada, planificador |
 | Organismos | `data/organismos.json` | Fichas, avisos, papeles |
 | Empresas | `data/directorio.json` (solo `validacion: verificado`) | Servicios, fichas, planificador |
+| Fuentes | `data/fuentes.json` | Todos los datos las citan por id |
+| Coordenadas | `data/rutas.json` → `nodos[].coordenadas`, `data/pasos.json` → `ubicacion.coordenadas` (con fuente y precisión) | Mapa y fichas |
 
 Las fichas Markdown **no** llevan estado ni una sección «## Estado»: el estado se genera desde los datos.
 
 - **Incidencia:** `tramos` = ids de `data/rutas.json` (`cg-pm`, `puente`, `cp-me`, `me-ph`, `pozo-hondo`, `andes`, `calama-puertos`). Si además lleva `paso`, solo se muestra en la variante de ruta que pasa por ese paso. Tipos: `obra`, `restriccion`, `corte`, `pendiente`, `peso`, `desvio`. Pon `"estado": "resuelta"` cuando termine.
-- **Distancia de un tramo:** `kmTipo: "fuente"` con `kmFuente`, o `kmTipo: "calculado"` con `kmNota` explicando la cuenta. Sin km, el planificador estima la línea recta y lo marca como «Estimado».
+- **Distancia de un tramo:** `kmTipo: "fuente"` con `kmFuente`, o `kmTipo: "calculado"` con `kmNota` explicando la cuenta. Sin km, el planificador muestra «Distancia sin fuente»: no se estima.
 - **Horario especial:** en `horariosEspeciales` con `desde`, `hasta`, `organismo` (`aduana`, `migraciones`, `sanitario`, `complejo`), `lado`, `texto` y los cuatro campos comunes.
 - **Avisos meteorológicos:** `data/avisos.json` con `titulo`, `zona`, `vigenteHasta` y los campos comunes. Desaparecen solos al vencer.
 - **Festivos:** añade el año siguiente cada noviembre; los traslados por decreto van con `validacion: por-verificar` hasta que se publiquen.
 
 ## Comprobaciones
 
-- `npm run check`: no deja publicar si falta fuente, fecha o validación, o si un dato apunta a algo que no existe.
-- `npm run enlaces`: tras `npm run build`, comprueba que ningún enlace interno esté roto (también se ejecuta al publicar).
-- `npm run informe`: regenera `docs/informe-contenidos.md` con lo que falta, lo que está sin verificar y el tipo de fuentes de cada ficha.
+- `npm run check`: esquemas JSON (`data/esquemas/`, con ajv) y reglas de contenido: fuentes y referencias existentes, estados compatibles, verificaciones solo del responsable editorial, incidencias vencidas que siguen activas, fechas futuras o incoherentes, duplicados de empresas por nombre y teléfono, teléfonos internacionales, coordenadas dentro del corredor.
+- `npm run prueba`: genera la web y comprueba que la web y `api/v1` muestran el mismo estado, y que no hay enlaces internos rotos.
+- `npm run verificaciones`: lista los registros que pasan a `verificado` respecto a `main` (en los PR se exige la etiqueta `revision-editorial`).
+- `npm run enlaces-externos`: comprueba las URL de fuentes, organismos y guía. Se ejecuta cada lunes y deja el resultado en un issue; no bloquea la publicación.
+- `npm run informe`: regenera `docs/informe-contenidos.md`.
 
 ## Si algo falla
 

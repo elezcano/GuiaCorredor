@@ -92,34 +92,17 @@
         );
         variantes.push({ tramos: alt, via: sinParentesis(t.alternativa.nombre) });
       }
-      // Distancia en línea recta (km) entre dos puntos; se usa solo como estimación para tramos sin dato.
-      const rad = (g) => (g * Math.PI) / 180;
-      const recta = (p, q) => {
-        const h = Math.sin(rad(q.lat - p.lat) / 2) ** 2 + Math.cos(rad(p.lat)) * Math.cos(rad(q.lat)) * Math.sin(rad(q.lon - p.lon) / 2) ** 2;
-        return 2 * 6371 * Math.asin(Math.sqrt(h));
-      };
-      const nodo = (id) => datos.nodos.find((n) => n.id === id);
-      const geoPaso = (t) => t.paso && datos.pasosGeo?.[t.paso.id];
-      const estimar = (t) => {
-        const p = nodo(t.de), q = nodo(t.a), m = geoPaso(t);
-        if (p?.lat == null || q?.lat == null) return 0;
-        return m ? recta(p, m) + recta(m, q) : recta(p, q);
-      };
+      // Sin estimaciones en línea recta: las coordenadas de nodos agrupados no sirven para medir (P0.2).
       // Incidencias de un tramo: si la incidencia es de un paso, solo cuenta en la variante que pasa por él.
       const incDe = (t) => (datos.incidencias || []).filter((x) => (x.paso ? t.paso?.id === x.paso : (x.tramos || []).includes(t.id)));
       const ops = variantes.map((v, k) => {
         let km = 0;
         let sinKm = 0;
-        let kmEstimado = 0;
         const fronteras = [];
         const problemas = [];
         v.tramos.forEach((t) => {
           if (typeof t.km === 'number') km += t.km;
-          else {
-            sinKm++;
-            t.kmRecta = Math.round(estimar(t));
-            kmEstimado += t.kmRecta;
-          }
+          else sinKm++;
           if (t.paso) fronteras.push(sinParentesis(t.paso.nombre));
           incDe(t).forEach((x) => problemas.includes(x) || problemas.push(x));
         });
@@ -129,7 +112,6 @@
           fronteras,
           km,
           sinKm,
-          kmEstimado: Math.round(kmEstimado),
           conKm: v.tramos.length - sinKm,
           tramos: v.tramos,
           incDe,

@@ -1,13 +1,17 @@
 {
   "name": "guia-corredor-bioceanico",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Guía del Corredor Bioceánico: guía de rutas y pasos fronterizos, directorio de empresas y planificador de ruta. Web estática.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "check": "node scripts/check.mjs",
+    "esquemas": "node scripts/esquemas.mjs",
     "enlaces": "node scripts/enlaces.mjs",
+    "enlaces-externos": "node scripts/enlaces-externos.mjs",
+    "prueba": "node scripts/build.mjs && node scripts/prueba-api.mjs && node scripts/enlaces.mjs",
+    "verificaciones": "node scripts/verificaciones.mjs",
     "informe": "node scripts/informe.mjs",
     "dev": "node scripts/build.mjs && node scripts/serve.mjs"
   },
@@ -19,5 +23,8 @@
   },
   "optionalDependencies": {
     "@fontsource-variable/overpass": "^5.0.0"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1"
   }
 }

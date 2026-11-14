@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/comun.schema.json",
+  "title": "Definiciones comunes de Guía Corredor",
+  "$defs": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Versión del esquema del archivo (semver)."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "fecha": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "fechaONull": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/fecha"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pais": {
+      "enum": [
+        "BR",
+        "PY",
+        "AR",
+        "CL"
+      ]
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https?://"
+    },
+    "evidencia": {
+      "enum": [
+        "oficial",
+        "declaracion-empresa",
+        "tercero",
+        "calculo",
+        "estimacion",
+        "historico"
+      ]
+    },
+    "validacion": {
+      "enum": [
+        "verificado",
+        "por-verificar",
+        "borrador"
+      ]
+    },
+    "verificacion": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "verificadoPor",
+            "rol",
+            "fecha",
+            "alcance"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "verificadoPor": {
+              "enum": [
+                "responsable-editorial"
+              ]
+            },
+            "rol": {
+              "const": "responsable-editorial"
+            },
+            "fecha": {
+              "$ref": "#/$defs/fecha"
+            },
+            "alcance": {
+              "type": "string",
+              "minLength": 3
+            }
+          }
+        }
+      ]
+    },
+    "registro": {
+      "type": "object",
+      "description": "Campos comunes de procedencia y validación.",
+      "required": [
+        "evidencia",
+        "publicado",
+        "actualizado",
+        "validacion",
+        "verificacion"
+      ],
+      "properties": {
+        "fuente": {
+          "$ref": "#/$defs/id"
+        },
+        "evidencia": {
+          "$ref": "#/$defs/evidencia"
+        },
+        "publicado": {
+          "$ref": "#/$defs/fechaONull"
+        },
+        "actualizado": {
+          "$ref": "#/$defs/fechaONull"
+        },
+        "validacion": {
+          "$ref": "#/$defs/validacion"
+        },
+        "verificacion": {
+          "$ref": "#/$defs/verificacion"
+        },
+        "vigencia": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "desde": {
+              "$ref": "#/$defs/fechaONull"
+            },
+            "hasta": {
+              "$ref": "#/$defs/fechaONull"
+            }
+          }
+        },
+        "verificado": false
+      },
+      "if": {
+        "properties": {
+          "validacion": {
+            "const": "verificado"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "verificacion": {
+            "type": "object"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "verificacion": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    "registroConFuente": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/registro"
+        },
+        {
+          "required": [
+            "fuente"
+          ]
+        }
+      ]
+    },
+    "coordenadas": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "lat",
+            "lon",
+            "fuente",
+            "evidencia",
+            "precision",
+            "consultado"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "lat": {
+              "type": "number",
+              "minimum": -35,
+              "maximum": -15
+            },
+            "lon": {
+              "type": "number",
+              "minimum": -75,
+              "maximum": -45
+            },
+            "fuente": {
+              "$ref": "#/$defs/id"
+            },
+            "evidencia": {
+              "$ref": "#/$defs/evidencia"
+            },
+            "precision": {
+              "enum": [
+                "exacta",
+                "paso",
+                "localidad",
+                "referencia"
+              ]
+            },
+            "consultado": {
+              "$ref": "#/$defs/fecha"
+            },
+            "nota": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "estado": {
+      "enum": [
+        "operativo",
+        "restricciones",
+        "intermitente",
+        "en-obras",
+        "cierre-programado",
+        "cerrado",
+        "pendiente"
+      ]
+    }
+  }
+}

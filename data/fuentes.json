@@ -1,0 +1,217 @@
+{
+  "$schema": "./esquemas/fuentes.schema.json",
+  "version": "1.0.0",
+  "nota": "Registro único de fuentes. Los datos citan la fuente por su id. tipo: oficial (organismo público o norma) | prensa | referencia (enciclopedias, gazetteers, cartografía) | empresa (lo declara la propia empresa) | otra.",
+  "fuentes": [
+    {
+      "id": "abc-color",
+      "nombre": "ABC Color",
+      "url": "https://www.abc.com.py/nacionales/chaco/2026/07/13/puente-de-la-bioceanica-se-unira-esta-semana-cuando-se-habilitara/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "biblioteca-del-congreso-nacional-legislacion-sob",
+      "nombre": "Biblioteca del Congreso Nacional – Legislación sobre feriados",
+      "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151",
+      "tipo": "oficial"
+    },
+    {
+      "id": "comision-nacional-de-fronteras",
+      "nombre": "Comisión Nacional de Fronteras",
+      "url": "https://www.argentina.gob.ar/jefatura/comision-nacional-de-fronteras/alertas-de-pasos-internacionales",
+      "tipo": "oficial"
+    },
+    {
+      "id": "decreto-614-2025",
+      "nombre": "Decreto 614/2025",
+      "url": "https://www.argentina.gob.ar/normativa/nacional/decreto-614-2025-416911/texto",
+      "tipo": "oficial"
+    },
+    {
+      "id": "direccion-del-trabajo",
+      "nombre": "Dirección del Trabajo",
+      "url": "https://dt.gob.cl/portal/1626/w3-article-99612.html",
+      "tipo": "oficial"
+    },
+    {
+      "id": "emol",
+      "nombre": "Emol",
+      "url": "https://www.emol.com/noticias/Economia/2026/11/05/1216265/corredor-bioceanico-asia-reunion-ministerios.html",
+      "tipo": "prensa"
+    },
+    {
+      "id": "geodatos-carmelo-peralta",
+      "nombre": "Geodatos: Carmelo Peralta",
+      "url": "https://www.geodatos.net/en/coordinates/paraguay/carmelo-peralta",
+      "tipo": "referencia"
+    },
+    {
+      "id": "infraestructura-publica",
+      "nombre": "Infraestructura Pública",
+      "url": "https://www.infraestructurapublica.cl/el-paso-de-sico-recupera-su-operatividad-plena-en-el-corredor-bioceanico-argentino-chileno/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "infraestructura-publica-2",
+      "nombre": "Infraestructura Pública",
+      "url": "https://www.infraestructurapublica.cl/corredor-bioceanico-vial-avanza-con-obras-en-los-cuatro-paises/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "lei-14-759-2023",
+      "nombre": "Lei 14.759/2023",
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm",
+      "tipo": "oficial"
+    },
+    {
+      "id": "lei-662-1949-redaccion-de-la-lei-10-607-2002",
+      "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+      "tipo": "oficial"
+    },
+    {
+      "id": "ley-19-668-traslado-a-lunes",
+      "nombre": "Ley 19.668 (traslado a lunes)",
+      "url": "https://www.dt.gob.cl/legislacion/1624/w3-article-126661.html",
+      "tipo": "oficial"
+    },
+    {
+      "id": "ley-2-977",
+      "nombre": "Ley 2.977",
+      "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+      "tipo": "oficial"
+    },
+    {
+      "id": "ley-20-983",
+      "nombre": "Ley 20.983",
+      "url": "https://www.bcn.cl/leychile/navegar?idNorma=1098384",
+      "tipo": "oficial"
+    },
+    {
+      "id": "ley-27-399",
+      "nombre": "Ley 27.399",
+      "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+      "tipo": "oficial"
+    },
+    {
+      "id": "ley-7544-2025",
+      "nombre": "Ley 7544/2025",
+      "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+      "tipo": "oficial"
+    },
+    {
+      "id": "migraciones-argentina",
+      "nombre": "Migraciones Argentina",
+      "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales",
+      "tipo": "oficial"
+    },
+    {
+      "id": "mopc",
+      "nombre": "MOPC",
+      "url": "https://mopc.gov.py/mopc-participara-en-reunion-clave-para-avanzar-con-el-puente-bioceanico-entre-paraguay-y-brasil/",
+      "tipo": "oficial"
+    },
+    {
+      "id": "mopc-2",
+      "nombre": "MOPC",
+      "url": "https://mopc.gov.py/iniciaron-los-trabajos-para-unir-los-extremos-del-puente-de-la-bioceanica/",
+      "tipo": "oficial"
+    },
+    {
+      "id": "portaria-mgi-11-460-2025-calendario-federal-2026",
+      "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
+      "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
+      "tipo": "otra"
+    },
+    {
+      "id": "resolucion-jgm-164-2025",
+      "nombre": "Resolución JGM 164/2025",
+      "url": "https://www.argentina.gob.ar/normativa/nacional/norma-421799/texto",
+      "tipo": "oficial"
+    },
+    {
+      "id": "revista-plus",
+      "nombre": "Revista Plus",
+      "url": "https://revistaplus.com.py/2026/10/14/el-puente-de-la-bioceanica-avanza-con-trabajos-en-ambas-margenes-del-rio-paraguay/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "terralocate-pozo-hondo",
+      "nombre": "Terralocate: Pozo Hondo",
+      "url": "https://terralocate.com/place/py-pozo-hondo",
+      "tipo": "referencia"
+    },
+    {
+      "id": "todojujuy",
+      "nombre": "TodoJujuy",
+      "url": "https://www.todojujuy.com/paso-jama-chile-ordeno-un-nuevo-cierre-preventivo-las-12-n298182",
+      "tipo": "prensa"
+    },
+    {
+      "id": "todojujuy-2",
+      "nombre": "TodoJujuy",
+      "url": "https://www.todojujuy.com/jujuy/paso-jama-abierto-ambos-sentidos-pero-piden-circular-precaucion-n293054",
+      "tipo": "prensa"
+    },
+    {
+      "id": "todojujuy-parte-de-migraciones",
+      "nombre": "TodoJujuy (parte de Migraciones)",
+      "url": "https://www.todojujuy.com/paso-jama-habilitado-aunque-advierten-las-condiciones-circular-n298530",
+      "tipo": "prensa"
+    },
+    {
+      "id": "ultima-hora",
+      "nombre": "Última Hora",
+      "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html",
+      "tipo": "prensa"
+    },
+    {
+      "id": "wikipedia-en-antofagasta",
+      "nombre": "Wikipedia (en): Antofagasta",
+      "url": "https://en.wikipedia.org/wiki/Antofagasta",
+      "tipo": "referencia"
+    },
+    {
+      "id": "wikipedia-en-campo-grande",
+      "nombre": "Wikipedia (en): Campo Grande",
+      "url": "https://en.wikipedia.org/wiki/Campo_Grande",
+      "tipo": "referencia"
+    },
+    {
+      "id": "wikipedia-en-mariscal-estigarribia",
+      "nombre": "Wikipedia (en): Mariscal Estigarribia",
+      "url": "https://en.wikipedia.org/wiki/Mariscal_Estigarribia",
+      "tipo": "referencia"
+    },
+    {
+      "id": "wikipedia-en-paso-de-jama",
+      "nombre": "Wikipedia (en): Paso de Jama",
+      "url": "https://en.wikipedia.org/wiki/Paso_de_Jama",
+      "tipo": "referencia"
+    },
+    {
+      "id": "wikipedia-en-porto-murtinho",
+      "nombre": "Wikipedia (en): Porto Murtinho",
+      "url": "https://en.wikipedia.org/wiki/Porto_Murtinho",
+      "tipo": "referencia"
+    },
+    {
+      "id": "wikipedia-en-salta",
+      "nombre": "Wikipedia (en): Salta",
+      "url": "https://en.wikipedia.org/wiki/Salta",
+      "tipo": "referencia"
+    },
+    {
+      "id": "wikipedia-en-san-pedro-de-atacama",
+      "nombre": "Wikipedia (en): San Pedro de Atacama",
+      "url": "https://en.wikipedia.org/wiki/San_Pedro_de_Atacama",
+      "tipo": "referencia"
+    },
+    {
+      "id": "wikipedia-en-sico-pass",
+      "nombre": "Wikipedia (en): Sico Pass",
+      "url": "https://en.wikipedia.org/wiki/Sico_Pass",
+      "tipo": "referencia"
+    }
+  ]
+}

@@ -4,7 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES } from './lib.mjs';
-import { nivel, peor, estadoMostrable, NIVELES, diasEntre } from './validacion.mjs';
+import { nivel, peor, estadoMostrable, NIVELES, diasEntre, registroGuia, EVIDENCIAS } from './validacion.mjs';
+import { cargar } from './datos.mjs';
+import { generarApi } from './api.mjs';
 import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO } from './cruces.mjs';
 
 const require = createRequire(import.meta.url);
@@ -31,23 +33,24 @@ const hayFuente = (() => {
   }
 })();
 
-const categorias = readJSON('data/categorias.json');
+const D = cargar();
+const categorias = D.categorias;
 const catNombre = Object.fromEntries(categorias.map((c) => [c.id, c.nombre]));
-const rutas = readJSON('data/rutas.json');
+const rutas = D.rutas;
 const nodoNombre = Object.fromEntries(rutas.nodos.map((n) => [n.id, n.nombre]));
-const empresas = readJSON('data/directorio.json');
+const empresas = D.empresas;
 empresas.sort((a, b) => Number(b.destacada) - Number(a.destacada) || a.nombre.localeCompare(b.nombre, 'es'));
 const empresasEn = (ids = []) => empresas.filter((e) => (e.puntos || []).some((p) => ids.includes(p)));
-const novedades = readJSON('data/novedades.json').sort((a, b) => b.publicado.localeCompare(a.publicado));
+const novedades = D.novedades.sort((a, b) => b.publicado.localeCompare(a.publicado));
 
 // ---------- datos operativos ----------
 const HOY = new Date().toISOString().slice(0, 10);
 const diasDesde = (iso) => (iso ? Math.floor((Date.parse(HOY) - Date.parse(iso)) / 864e5) : Infinity);
-const fichaPasos = readJSON('data/pasos.json').pasos;
+const fichaPasos = D.pasos;
 const fichaPaso = Object.fromEntries(fichaPasos.map((p) => [p.id, p]));
 // Validación: una sola regla para todo el portal (scripts/validacion.mjs).
 const metaGuia = Object.fromEntries(loadGuia().map((p) => [`${p.seccion}/${p.slug}`, p.meta]));
-const registroFicha = (m) => ({ validacion: m.validacion || (m.borrador === true ? 'borrador' : 'por-verificar'), verificado: m.verificado || null });
+const registroFicha = registroGuia;
 const nivelFicha = (ruta) => (metaGuia[ruta] ? nivel(registroFicha(metaGuia[ruta]), 'ficha', HOY) : null);
 const guiaDePaso = Object.fromEntries(rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).filter(Boolean).map((q) => [q.id, q.guia]));
 /** Estado mostrable de un paso: combina la validación del dato y la de su ficha. */
@@ -63,12 +66,12 @@ rutas.tramos.forEach((t) => {
 });
 const tramoPorId = Object.fromEntries(rutas.tramos.map((t) => [t.id, t]));
 const nombreTramo = (t) => `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}`;
-const festivosDoc = readJSON('data/festivos.json');
+const festivosDoc = D.festivos;
 const festivos = festivosDoc.festivos.filter((f) => f.fecha >= HOY);
-const incidencias = readJSON('data/incidencias.json').incidencias;
+const incidencias = D.incidencias;
 const activas = incidencias.filter((i) => i.estado === 'activa');
-const avisosMeteo = readJSON('data/avisos.json').avisos.filter((a) => !a.vigenteHasta || a.vigenteHasta >= HOY);
-const organismos = readJSON('data/organismos.json').organismos;
+const avisosMeteo = D.avisos.filter((a) => !a.vigenteHasta || a.vigenteHasta >= HOY);
+const organismos = D.organismos;
 const organismoPorId = Object.fromEntries(organismos.map((o) => [o.id, o]));
 const TIPOS_INCIDENCIA = {
   obra: ['Obra', 'obra'],
@@ -164,7 +167,7 @@ const fechaCorta = (iso) => {
 };
 const diaSemana = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 const fuenteEnlace = (f) => (f?.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.nombre)}</a>` : esc(f?.nombre || ''));
-const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', otra: 'otra fuente' };
+const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', referencia: 'obra de referencia', empresa: 'declaración de la empresa', otra: 'otra fuente' };
 /** Insignia de validación (texto + icono, no solo color). */
 function validacionHTML(n, verificado) {
   const txt = n === 'verificado' && verificado ? `Verificado el ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
@@ -395,7 +398,6 @@ const datosRutas = (extra = {}) =>
       nivel: nivelReg(i, 'incidencia'),
     })),
     niveles: Object.fromEntries(Object.entries(NIVELES).map(([k, v]) => [k, v.texto])),
-    pasosGeo: Object.fromEntries(fichaPasos.map((p) => [p.id, { lat: p.ubicacion.lat, lon: p.ubicacion.lon }])),
     tiposFuente: TIPO_FUENTE,
     calendario: u('/calendario/'),
     avisos: u('/avisos/'),
@@ -505,15 +507,19 @@ function mapaHTML() {
   const X = (lon) => +((lon - LON0) * COS * K).toFixed(1);
   const Y = (lat) => +((LAT0 - lat) * K).toFixed(1);
   const n = Object.fromEntries(rutas.nodos.map((x) => [x.id, x]));
-  const loc = (id) => fichaPaso[id].ubicacion;
+  // Un paso sin coordenadas con fuente se dibuja entre las dos localidades de su tramo (posición esquemática).
+  const loc = (id) => {
+    const u = fichaPaso[id].ubicacion;
+    if (u.lat != null) return u;
+    const t = rutas.tramos.find((x) => x.paso?.id === id || x.alternativa?.id === id);
+    const a = n[t.desde], b = n[t.hasta];
+    return id === 'pozo-hondo' ? n['pozo-hondo'] : { lat: (a.lat + b.lat) / 2, lon: (a.lon + b.lon) / 2, esquematica: true };
+  };
   const linea = (pts) => pts.map((o) => `${X(o.lon)},${Y(o.lat)}`).join(' ');
   const principal = [n['campo-grande'], n['porto-murtinho'], n['mariscal-estigarribia'], n['pozo-hondo'], n['salta-jujuy'], loc('jama'), n['norte-chile'], n['puertos-chile']];
   const alterno = [n['salta-jujuy'], loc('sico'), n['norte-chile']];
-  const puertos = [
-    { nombre: 'Antofagasta', lat: -23.65, lon: -70.4, dx: 10, dy: 18 },
-    { nombre: 'Mejillones', lat: -23.1, lon: -70.45, dx: 10, dy: -8 },
-    { nombre: 'Iquique', lat: -20.21, lon: -70.15, dx: 10, dy: 4 },
-  ];
+  // Solo puertos con coordenadas con fuente (Mejillones e Iquique, pendientes de P1.1).
+  const puertos = [{ nombre: 'Antofagasta', lat: n['puertos-chile'].lat, lon: n['puertos-chile'].lon, dx: 10, dy: 18 }];
   const costa = [[-70.15, -19.3], [-70.15, -20.2], [-70.25, -21], [-70.2, -21.6], [-70.3, -22.3], [-70.5, -23], [-70.6, -23.5], [-70.45, -24], [-70.55, -25.6]];
   const oceano = `${costa.map(([lo, la]) => `${X(lo)},${Y(la)}`).join(' ')} 0,${Y(-25.6)} 0,0`;
   const etiqueta = (x, y, t, sub, a = 'start') =>
@@ -533,7 +539,8 @@ function mapaHTML() {
   const posPaso = { 'puente-bioceanica': [0, -30, 'middle'], 'pozo-hondo': [0, -30, 'middle'], jama: [14, 0], sico: [-12, 22, 'end'] };
   const pasos = fichaPasos
     .map((p) => {
-      const x = X(p.ubicacion.lon), y = Y(p.ubicacion.lat);
+      const g = loc(p.id);
+      const x = X(g.lon), y = Y(g.lat);
       const e = estadoPaso(p.id);
       const [dx, dy, a = 'start'] = posPaso[p.id] || [12, 4];
       const ruta = rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id);
@@ -564,13 +571,12 @@ function mapaHTML() {
   <div class="mapa-marco">
     <svg viewBox="0 0 1000 356" role="img" aria-labelledby="mapa-titulo mapa-desc">
       <title id="mapa-titulo">Mapa esquemático del Corredor Bioceánico</title>
-      <desc id="mapa-desc">De Campo Grande (Brasil) a los puertos del norte de Chile, por Paraguay y Argentina. Posiciones aproximadas, sin límites políticos.</desc>
+      <desc id="mapa-desc">De Campo Grande (Brasil) a los puertos del norte de Chile, por Paraguay y Argentina. Esquema sin límites políticos. Las localidades y los pasos de Jama y Sico se sitúan con coordenadas con fuente; el Puente de la Bioceánica se dibuja entre sus dos localidades.</desc>
       <polygon class="m-oceano" points="${oceano}"/>
       <text class="m-mar" x="${X(-72.1)}" y="${Y(-24.9)}">Océano Pacífico</text>
       ${paisesM.map(([t, la, lo]) => `<text class="m-pais" x="${X(lo)}" y="${Y(la)}" text-anchor="middle">${t}</text>`).join('')}
       <polyline class="m-ruta" points="${linea(principal)}"/>
       <polyline class="m-alterna" points="${linea(alterno)}"/>
-      <polyline class="m-ramal" points="${linea([n['norte-chile'], puertos[1]])} ${X(puertos[2].lon)},${Y(puertos[2].lat)}"/>
       ${ciudades}${pts}${pasos}
     </svg>
   </div>
@@ -582,9 +588,17 @@ function mapaHTML() {
       <li><span class="ley-ciudad"></span>Ciudad</li>
       <li><span class="ley-puerto"></span>Puerto</li>
     </ul>
-    <p>Esquema con posiciones aproximadas, sin límites políticos.</p>
+    <p>Esquema sin límites políticos. Las coordenadas tienen fuente; las de Salta, San Pedro de Atacama y Antofagasta son puntos de referencia de nodos que agrupan varias localidades.</p>
   </figcaption>
 </figure>`;
+}
+
+/** Coordenadas con su fuente y precisión (P0.2). */
+const PRECISION = { localidad: 'centro de la localidad', referencia: 'punto de referencia', paso: 'límite internacional', exacta: 'posición exacta' };
+function coordenadasHTML(c, nota) {
+  if (!c) return esc(nota || 'Sin coordenadas con fuente.');
+  const n = (x) => x.toLocaleString('es-ES', { maximumFractionDigits: 5 });
+  return `Coordenadas: ${n(c.lat)}, ${n(c.lon)} (${esc(PRECISION[c.precision] || c.precision)}, ${esc(EVIDENCIAS[c.evidencia].toLowerCase())}). ${fuenteEnlace(typeof c.fuente === 'string' ? D.fuentes.get(c.fuente) : c.fuente)}${c.nota ? `. ${esc(c.nota)}` : ''}`;
 }
 
 /** Bloque de datos operativos de un paso, cada dato con su fuente. */
@@ -601,7 +615,7 @@ function fichaOperativa(p) {
   <dl class="datos">
     ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}</span>`)}
     ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
-    ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">Coordenadas aproximadas: ${p.ubicacion.lat.toLocaleString('es-ES')}, ${p.ubicacion.lon.toLocaleString('es-ES')}</span>`)}
+    ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">${coordenadasHTML(p.ubicacion.coordenadas, p.ubicacion.coordenadasNota)}</span>`)}
     ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado)}:</strong> ${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
     ${fila('Operaciones habilitadas', p.operaciones ? conFuente(p.operaciones) : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
     ${fila('Transporte pesado', lista(p.restricciones, 'Sin restricciones verificadas'))}
@@ -971,19 +985,50 @@ for (const p of guia) {
 </section>`
     )
     .join('');
-  const asunto = encodeURIComponent('Alta en el directorio de la Guía del Corredor');
-  const cuerpoMail = encodeURIComponent(
-    'Empresa:\nPaís y ciudad:\nTipo (transitario, transportista, despachante…):\nPuntos de la ruta donde das servicio:\nServicios:\nEmail y WhatsApp de contacto:\nWeb:\n'
-  );
-  const waAlta = site.contacto.whatsapp
-    ? `<a class="btn btn-wa" href="${wa(site.contacto.whatsapp)}?text=${encodeURIComponent('Hola, quiero dar de alta mi empresa en la Guía del Corredor.')}">${icono('chat')}Enviar por WhatsApp</a>`
-    : '';
+  // Formulario de solicitud (P0.6): sin servidor. Prepara un email al contacto del proyecto.
+  // La solicitud no se publica: queda pendiente de revisión (docs/como-editar.md#solicitudes-de-empresas).
+  const opc = (xs) => xs.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('');
+  const formSolicitud = site.contacto.email
+    ? `<form class="solicitud" id="solicitud" data-email="${esc(site.contacto.email)}" novalidate>
+    <fieldset class="sol-tipo"><legend>Qué quieres hacer</legend>
+      <label class="chip chip-radio"><input type="radio" name="tipo" value="alta" checked>Dar de alta</label>
+      <label class="chip chip-radio"><input type="radio" name="tipo" value="correccion">Corregir una ficha</label>
+      <label class="chip chip-radio"><input type="radio" name="tipo" value="retirada">Retirar una ficha</label>
+    </fieldset>
+    <div class="sol-campos">
+      <label class="sol-campo"><span>Nombre comercial *</span><input name="nombre" required autocomplete="organization"></label>
+      <label class="sol-campo"><span>Razón social</span><input name="razonSocial"></label>
+      <label class="sol-campo"><span>País de la sede *</span><select name="pais" required><option value="">Elige</option>${opc(Object.entries(PAISES))}</select></label>
+      <label class="sol-campo"><span>Localidad de la sede *</span><input name="localidad" required></label>
+      <label class="sol-campo" data-solo="alta correccion"><span>Tipo de empresa *</span><select name="categoria" required><option value="">Elige</option>${opc(categorias.map((c) => [c.id, c.nombre]))}</select></label>
+      <label class="sol-campo sol-ancho" data-solo="alta correccion"><span>Servicios *</span><textarea name="servicios" rows="3" required placeholder="Qué haces, para qué cargas y con qué medios"></textarea></label>
+      <fieldset class="sol-campo sol-ancho" data-solo="alta correccion"><legend>Cobertura en el corredor (dónde das servicio, no tu sede)</legend>
+        <div class="sol-puntos">${rutas.nodos.map((n) => `<label class="chip"><input type="checkbox" name="puntos" value="${esc(n.id)}">${esc(n.nombre)}</label>`).join('')}</div>
+        <input name="cobertura" placeholder="Otras zonas o detalle de la cobertura" aria-label="Otras zonas o detalle de la cobertura">
+      </fieldset>
+      <label class="sol-campo"><span>Persona de contacto *</span><input name="persona" required autocomplete="name"></label>
+      <label class="sol-campo"><span>Email *</span><input name="email" type="email" required autocomplete="email"></label>
+      <label class="sol-campo"><span>Teléfono o WhatsApp (con prefijo de país)</span><input name="telefono" type="tel" placeholder="+595 …" autocomplete="tel"></label>
+      <label class="sol-campo"><span>Web</span><input name="web" type="url" placeholder="https://"></label>
+      <label class="sol-campo sol-ancho"><span>Documentación o referencias</span><textarea name="referencias" rows="2" placeholder="Registro, habilitación, clientes que puedan dar referencias, enlaces"></textarea></label>
+      <label class="sol-campo sol-ancho" data-solo="correccion retirada"><span>Qué hay que cambiar o retirar *</span><textarea name="cambio" rows="2"></textarea></label>
+    </div>
+    <label class="sol-acepto"><input type="checkbox" name="acepto" required> Entiendo que la solicitud se revisa antes de publicarse y que los datos aparecerán como declarados por la empresa hasta que se verifiquen.</label>
+    <p class="sol-error" role="alert" hidden></p>
+    <div class="acciones">
+      <button class="btn btn-principal" type="submit">${icono('correo')}Preparar el email de solicitud</button>
+      <button class="btn btn-borde" type="button" data-copiar>Copiar la solicitud</button>
+    </div>
+    <p class="nota">Se abre tu programa de correo con la solicitud ya escrita, dirigida a <a href="mailto:${esc(site.contacto.email)}">${esc(site.contacto.email)}</a>. Esta web no guarda nada. Si no se abre, usa «Copiar la solicitud» y pégala en un email.</p>
+  </form>`
+    : '<p class="sin-dato">El canal de alta se publica en breve.</p>';
   add(
     '/anunciate/',
     layout({
       titulo: 'Anunciar mi empresa',
       descripcion: 'Aparece en el punto del Corredor Bioceánico donde das servicio. Ficha básica gratis.',
       ruta: '/anunciate/',
+      scripts: site.contacto.email ? ['/assets/solicitud.js'] : [],
       cuerpo: `
 <div class="contenedor">
   <header class="cabeza-pagina"><h1>Anunciar mi empresa</h1><p>Tu empresa aparece en el punto de la ruta donde trabajas: en el planificador, en la guía y en el buscador.</p></header>
@@ -991,18 +1036,14 @@ for (const p of guia) {
 </div>
 ${seccion({
   titulo: 'Cómo darse de alta',
-  contexto: 'Publicamos tu ficha en menos de 48 horas.',
+  contexto: 'Cada solicitud la revisa una persona antes de publicarse.',
   id: 'alta',
   cuerpo: `<ol class="pasos-alta">
-    <li><b>Envía tus datos</b><span>Empresa, tipo, servicios, contacto y puntos de la ruta.</span></li>
-    <li><b>Revisamos la ficha</b><span>Comprobamos los datos antes de publicarla.</span></li>
-    <li><b>Te avisamos</b><span>Recibes el enlace para compartirla.</span></li>
+    <li><b>Envía la solicitud</b><span>Alta, corrección o retirada, con los datos de la empresa.</span></li>
+    <li><b>La revisamos</b><span>Comprobamos los datos y las referencias. La solicitud no se publica sola.</span></li>
+    <li><b>Te avisamos</b><span>Si se publica, la ficha indica qué datos están verificados y cuáles los declara la empresa.</span></li>
   </ol>
-  <div class="acciones alta-acciones">
-    ${site.contacto.email ? `<a class="btn btn-principal" href="mailto:${esc(site.contacto.email)}?subject=${asunto}&body=${cuerpoMail}">${icono('correo')}Enviar datos por email</a>` : ''}
-    ${waAlta}
-    ${!site.contacto.email && !site.contacto.whatsapp ? '<p class="sin-dato">El canal de alta se publica en breve. Mientras tanto, prepara los datos de la lista.</p>' : ''}
-  </div>`,
+  ${formSolicitud}`,
 })}`,
     })
   );
@@ -1020,11 +1061,15 @@ add(
   <div class="articulo">
     <h2>Fuentes y revisión</h2>
     <ul>
-      <li>Cada página y cada novedad indica sus fuentes y su fecha.</li>
-      <li>Usamos fuentes oficiales y prensa de referencia de cada país.</li>
-      <li>Un despachante de aduana revisa los requisitos antes de quitar el aviso de borrador.</li>
-      <li>Si ves un dato desactualizado, escríbenos y lo corregimos.</li>
+      <li>Cada dato indica su fuente, su fecha y el tipo de evidencia: oficial, de terceros, declarado por una empresa, cálculo o histórico.</li>
+      <li><b>Verificado</b> significa que el responsable editorial del proyecto revisó el dato y su fuente. Nadie más, tampoco un proceso automático ni un asistente de IA, puede marcar un dato como verificado.</li>
+      <li>Lo demás se muestra como <b>Por verificar</b>, con el último dato publicado y su fuente.</li>
+      <li>No estimamos distancias: si un tramo no tiene distancia con fuente, lo decimos.</li>
+      <li>Un festivo nacional no significa que la aduana cierre; solo cuenta lo que publica cada organismo.</li>
+      <li>Si ves un dato desactualizado, ${site.contacto.email ? `escríbenos a <a href="mailto:${esc(site.contacto.email)}">${esc(site.contacto.email)}</a>` : 'escríbenos'} y lo corregimos.</li>
     </ul>
+    <h2>Datos abiertos</h2>
+    <p>Los mismos datos que ves en la web, con su fuente y su estado de verificación, están en formato JSON en <a href="${u('/api/v1/indice.json')}">api/v1</a>.</p>
     <h2>Tu ruta y tus datos</h2>
     <p>El planificador guarda tu última ruta solo en tu navegador. No pedimos registro ni guardamos datos personales.</p>
     <p>Si cuentas tu tiempo de cruce, se envía a un formulario de Google el paso, el sentido, el tiempo, el día y un número al azar que genera tu navegador para no contar dos veces el mismo cruce. Nada que te identifique.</p>
@@ -1428,8 +1473,14 @@ ${paginas
 );
 fs.writeFileSync(
   path.join(DIST, 'robots.txt'),
-  site.indexable === false ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${urlBase}/sitemap.xml\n`
+  site.indexable === false ? 'User-agent: *\nAllow: /api/\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${urlBase}/sitemap.xml\n`
 );
 fs.writeFileSync(path.join(DIST, '.nojekyll'), '');
 
-console.log(`OK: ${paginas.filter((p) => !p.archivo).length} páginas en dist/ (${guia.length} de guía, ${empresas.length} empresas, ${novedades.length} novedades).`);
+// Exportación api/v1 y esquemas públicos (mismos datos y estados que las páginas).
+const api = generarApi({ D, HOY, site, urlBase, nivelReg, estadoPaso, nodoNombre });
+fs.mkdirSync(path.join(DIST, 'api', 'v1'), { recursive: true });
+for (const [f, o] of Object.entries(api)) fs.writeFileSync(path.join(DIST, 'api', 'v1', f), JSON.stringify(o, null, 2) + '\n');
+fs.cpSync(path.join(ROOT, 'data', 'esquemas'), path.join(DIST, 'esquemas'), { recursive: true });
+
+console.log(`OK: ${paginas.filter((p) => !p.archivo).length} páginas en dist/ (${guia.length} de guía, ${empresas.length} empresas, ${novedades.length} novedades) y api/v1 (${Object.keys(api).length} archivos).`);
