@@ -48,12 +48,14 @@ Lo que hace que la web parezca viva. Abre `data/novedades.json` y añade un bloq
   "titulo": "Paso de Jama cerrado por nieve",
   "detalle": "Reapertura prevista cuando mejore el tiempo del lado chileno.",
   "guia": "pasos/jama",
+  "paises": ["AR", "CL"],
   "fuente": { "nombre": "Vialidad Chile", "url": "https://..." }
 }
 ```
 
 - `tema`: Obras, Paso fronterizo, Acuerdos, Aviso…
 - `estado` (opcional) colorea el punto de la línea de tiempo: `operativo`, `en-obras`, `intermitente`, `pendiente`.
+- `paises`: países afectados (`BR`, `PY`, `AR`, `CL`); sirven para el filtro por país de la página de novedades.
 - `guia` (opcional) la enlaza con su página y la muestra allí en "Últimos cambios".
 - **Sin fuente no se publica:** la revisión automática lo rechaza.
 - Si el cambio afecta al estado de un tramo, cambia también `data/rutas.json` (siguiente apartado).

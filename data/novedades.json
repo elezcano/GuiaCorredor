@@ -5,7 +5,14 @@
     "titulo": "Chile y Brasil se reúnen para acelerar la puesta en marcha del corredor",
     "detalle": "Reunión de ministros centrada en el comercio con Asia-Pacífico. Paso de Jama como una de las principales puertas de entrada a Chile.",
     "guia": "pasos/jama",
-    "fuente": { "nombre": "Emol", "url": "https://www.emol.com/noticias/Economia/2026/11/05/1216265/corredor-bioceanico-asia-reunion-ministerios.html" }
+    "fuente": {
+      "nombre": "Emol",
+      "url": "https://www.emol.com/noticias/Economia/2026/11/05/1216265/corredor-bioceanico-asia-reunion-ministerios.html"
+    },
+    "paises": [
+      "CL",
+      "BR"
+    ]
   },
   {
     "fecha": "2026-10-24",
@@ -14,7 +21,13 @@
     "titulo": "PY15: el Lote 3 (Mariscal Estigarribia – Pozo Hondo) llega al 40,5 % de avance",
     "detalle": "Tramo estratégico de la ruta en el Chaco paraguayo.",
     "guia": "tramos/py15-chaco",
-    "fuente": { "nombre": "Última Hora", "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html" }
+    "fuente": {
+      "nombre": "Última Hora",
+      "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html"
+    },
+    "paises": [
+      "PY"
+    ]
   },
   {
     "fecha": "2026-10-14",
@@ -23,7 +36,14 @@
     "titulo": "Puente de la Bioceánica: trabajos de terminación en ambas márgenes",
     "detalle": "Siguen los ajustes estructurales y las terminaciones. Su utilidad dependerá también de las conexiones viales.",
     "guia": "pasos/carmelo-peralta-porto-murtinho",
-    "fuente": { "nombre": "Revista Plus", "url": "https://revistaplus.com.py/2026/10/14/el-puente-de-la-bioceanica-avanza-con-trabajos-en-ambas-margenes-del-rio-paraguay/" }
+    "fuente": {
+      "nombre": "Revista Plus",
+      "url": "https://revistaplus.com.py/2026/10/14/el-puente-de-la-bioceanica-avanza-con-trabajos-en-ambas-margenes-del-rio-paraguay/"
+    },
+    "paises": [
+      "PY",
+      "BR"
+    ]
   },
   {
     "fecha": "2026-07-15",
@@ -32,7 +52,14 @@
     "titulo": "Se unen las dos mitades del puente Carmelo Peralta – Porto Murtinho",
     "detalle": "No supone todavía la habilitación del paso: faltan pavimentación, terminaciones y accesos (previstos para febrero de 2027).",
     "guia": "pasos/carmelo-peralta-porto-murtinho",
-    "fuente": { "nombre": "MOPC", "url": "https://mopc.gov.py/iniciaron-los-trabajos-para-unir-los-extremos-del-puente-de-la-bioceanica/" }
+    "fuente": {
+      "nombre": "MOPC",
+      "url": "https://mopc.gov.py/iniciaron-los-trabajos-para-unir-los-extremos-del-puente-de-la-bioceanica/"
+    },
+    "paises": [
+      "PY",
+      "BR"
+    ]
   },
   {
     "fecha": "2026-06-14",
@@ -41,6 +68,13 @@
     "titulo": "El Paso de Sico recupera su operatividad plena",
     "detalle": "Vuelve la atención presencial de Aduana, PDI y servicio fitosanitario chilenos. Jama, en cambio, funciona de forma intermitente por el clima.",
     "guia": "pasos/sico",
-    "fuente": { "nombre": "Infraestructura Pública", "url": "https://www.infraestructurapublica.cl/el-paso-de-sico-recupera-su-operatividad-plena-en-el-corredor-bioceanico-argentino-chileno/" }
+    "fuente": {
+      "nombre": "Infraestructura Pública",
+      "url": "https://www.infraestructurapublica.cl/el-paso-de-sico-recupera-su-operatividad-plena-en-el-corredor-bioceanico-argentino-chileno/"
+    },
+    "paises": [
+      "AR",
+      "CL"
+    ]
   }
 ]

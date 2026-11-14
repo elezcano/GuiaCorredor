@@ -44,65 +44,92 @@ const guia = loadGuia().map((p) => {
       indice.push({ id, t: t.replace(/<[^>]+>/g, '') });
       return `<h2 id="${id}">${t}</h2>`;
     })
-    .replace(/<table>/g, '<div class="tabla-scroll"><table>')
+    .replace(/<table>/g, '<div class="tabla-marco"><table>')
     .replace(/<\/table>/g, '</table></div>');
   return { ...p, html, indice };
 });
 const guiaPorRuta = Object.fromEntries(guia.map((p) => [`${p.seccion}/${p.slug}`, p]));
 
+// ---------- iconos (trazo, 24×24) ----------
+const ICONOS = {
+  intercambiar: 'M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4',
+  buscar: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
+  sol: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+  luna: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z',
+  ruta: 'M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 17V9a4 4 0 0 1 4-4h6M18 7v8a4 4 0 0 1-4 4H8',
+  noticias: 'M4 5h16v14H4zM8 9h8M8 13h8M8 17h4',
+  guia: 'M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM8 7h7',
+  empresas: 'M4 21V6l8-3v18M12 9l8 3v9M2 21h20M8 9v0M8 13v0M8 17v0M16 15v0M16 18v0',
+  chat: 'M4 20l1.5-4.5A8 8 0 1 1 8.5 19z',
+  correo: 'M3 5h18v14H3zM3 7l9 6 9-6',
+};
+const icono = (n, clase = 'icono') =>
+  `<svg class="${clase}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICONOS[n]}"/></svg>`;
+
 // ---------- piezas comunes ----------
 const estado = (e) => `<span class="estado estado-${esc(e)}">${esc(ESTADOS[e] || e)}</span>`;
-const paises = (ps = []) => ps.map((p) => `<abbr class="pais" title="${esc(PAISES[p] || p)}">${esc(p)}</abbr>`).join('');
+const paises = (ps = []) => `<span class="paises">${ps.map((p) => `<abbr class="pais" title="${esc(PAISES[p] || p)}">${esc(p)}</abbr>`).join('')}</span>`;
 const fecha = (iso) => {
   const d = new Date(iso + 'T12:00:00Z');
   return isNaN(d) ? esc(iso) : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
 };
 const tiempo = (iso) => `<time class="rel" datetime="${esc(iso)}">${fecha(iso)}</time>`;
-const km = (n) => (typeof n === 'number' ? `${n.toLocaleString('es-ES')} km` : '');
+const km = (n) => (typeof n === 'number' ? `${n.toLocaleString('es-ES')}\u202fkm` : '');
 const wa = (n) => `https://wa.me/${String(n).replace(/\D/g, '')}`;
 const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
+const listaY = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} y ${xs[xs.length - 1]}`);
 
-const marca = `<span class="placa"><span class="placa-linea1">Guía del</span><span class="placa-linea2">Corredor</span></span>`;
+const marca = `<span class="placa"><span class="placa-l1">Guía del</span><span class="placa-l2">Corredor</span></span>`;
 
-function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', claseBody = '' }) {
+const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema');if(t==='oscuro'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.tema='oscuro'}catch(e){}</script>`;
+
+function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '' }) {
   const t = titulo ? `${titulo} | ${site.nombre}` : site.nombreCompleto;
   const canon = `${site.url.replace(/\/$/, '')}${u(ruta)}`;
-  const nav = [
-    ['/planificador/', 'Planificar ruta'],
-    ['/novedades/', 'Novedades'],
-    ['/guia/', 'Guía'],
-    ['/directorio/', 'Empresas'],
-  ]
-    .map(([href, txt]) => `<a href="${u(href)}"${ruta.startsWith(href) ? ' aria-current="page"' : ''}>${txt}</a>`)
+  const secciones = [
+    ['/planificador/', 'Rutas', 'ruta', (r) => r === '/' || r.startsWith('/planificador/')],
+    ['/novedades/', 'Novedades', 'noticias', (r) => r.startsWith('/novedades/')],
+    ['/guia/', 'Guía', 'guia', (r) => r.startsWith('/guia/')],
+    ['/directorio/', 'Empresas', 'empresas', (r) => r.startsWith('/directorio/')],
+  ];
+  const nav = secciones.map(([href, txt, , activo]) => `<a href="${u(href)}"${activo(ruta) && ruta !== '/' ? ' aria-current="page"' : ''}>${txt}</a>`).join('');
+  const barra = secciones
+    .map(([href, txt, ic, activo]) => `<a href="${u(href === '/planificador/' ? '/' : href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${icono(ic)}<span>${txt}</span></a>`)
     .join('');
   return `<!DOCTYPE html>
 <html lang="${site.idioma}">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(t)}</title>
 <meta name="description" content="${esc(descripcion || site.lema)}">
 <link rel="canonical" href="${esc(canon)}">${site.indexable === false ? '\n<meta name="robots" content="noindex, nofollow">' : ''}
 <meta property="og:title" content="${esc(t)}">
 <meta property="og:description" content="${esc(descripcion || site.lema)}">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#23272c">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1012" media="(prefers-color-scheme: dark)">
+${temaInicial}
 <link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${u('/assets/styles.css')}">
 </head>
-<body class="${claseBody}">
+<body>
 <a class="saltar" href="#contenido">Ir al contenido</a>
 <header class="cabecera">
-  <div class="marco cabecera-inner">
+  <div class="contenedor cabecera-inner">
     <a class="logo" href="${u('/')}" aria-label="${esc(site.nombreCompleto)}, inicio">${marca}</a>
-    <nav class="nav" aria-label="Principal">${nav}<a class="nav-cta" href="${u('/anunciate/')}">Anunciar mi empresa</a></nav>
+    <nav class="nav" aria-label="Principal">${nav}</nav>
+    <div class="cabecera-acciones">
+      <a class="btn btn-borde btn-pequeno" href="${u('/anunciate/')}">Anunciar mi empresa</a>
+      <button class="boton-icono" type="button" id="cambiar-tema" aria-label="Activar modo oscuro">${icono('luna', 'icono icono-luna')}${icono('sol', 'icono icono-sol')}</button>
+    </div>
   </div>
 </header>
 <main id="contenido">
 ${cuerpo}
 </main>
 <footer class="pie">
-  <div class="marco pie-inner">
+  <div class="contenedor pie-inner">
     <div class="pie-marca">${marca}<p>${esc(site.lema)}</p></div>
     <nav class="pie-nav" aria-label="Pie">
       <a href="${u('/planificador/')}">Planificar ruta</a>
@@ -116,6 +143,7 @@ ${cuerpo}
     <p class="pie-aviso">${esc(site.aviso)}</p>
   </div>
 </footer>
+<nav class="barra-inferior" aria-label="Secciones">${barra}</nav>
 ${datos}
 <script src="${u('/assets/comun.js')}" defer></script>
 ${scripts.map((s) => `<script src="${u(s)}" defer></script>`).join('\n')}
@@ -124,7 +152,16 @@ ${scripts.map((s) => `<script src="${u(s)}" defer></script>`).join('\n')}
 `;
 }
 
-/** Corredor como carretera: paradas y tramos alternos. Horizontal en escritorio, vertical en móvil. */
+const seccion = ({ titulo, contexto, enlace, cuerpo, id = '', clase = '' }) => `
+<section class="contenedor seccion ${clase}"${id ? ` id="${id}"` : ''} aria-labelledby="t-${slugify(titulo)}">
+  <div class="seccion-cabeza">
+    <div><h2 id="t-${slugify(titulo)}">${esc(titulo)}</h2>${contexto ? `<p>${esc(contexto)}</p>` : ''}</div>
+    ${enlace ? `<a class="enlace-seccion" href="${u(enlace[0])}">${esc(enlace[1])}</a>` : ''}
+  </div>
+  ${cuerpo}
+</section>`;
+
+/** Corredor como carretera. Horizontal en escritorio, vertical en móvil. */
 function rutaHTML() {
   const items = [];
   rutas.nodos.forEach((n, i) => {
@@ -136,74 +173,70 @@ function rutaHTML() {
     const t = rutas.tramos[i];
     if (!t) return;
     const enlace = t.paso?.guia || t.guia;
-    const etiqueta = t.paso ? t.paso.nombre.replace(/\s*\(.*\)$/, '') : km(t.km);
+    const etiqueta = t.paso ? `${rutas.nodos[i].pais}–${rutas.nodos[i + 1].pais}` : km(t.km);
     const contenido = `<span class="tramo-estado">${estado(t.estado)}</span>${
       etiqueta ? `<span class="tramo-etiqueta">${t.paso ? '<span class="frontera">Frontera</span>' : ''}${esc(etiqueta)}</span>` : ''
     }`;
     items.push(`<li class="tramo tramo-${esc(t.estado)}${t.paso ? ' tramo-frontera' : ''}" data-i="${i}"><span class="via" aria-hidden="true"></span>
       ${enlace ? `<a class="texto" href="${u(`/guia/${enlace}/`)}">${contenido}</a>` : `<span class="texto">${contenido}</span>`}</li>`);
   });
-  return `<ol class="ruta" id="ruta-corredor" aria-label="Recorrido del corredor de este a oeste">${items.join('')}</ol>`;
+  return `<div class="carretera-marco"><ol class="ruta" id="ruta-corredor" aria-label="Recorrido del corredor de este a oeste">${items.join('')}</ol></div>`;
 }
 
-const opcionesNodos = (sel) =>
-  rutas.nodos.map((n, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${esc(n.nombre)}</option>`).join('');
+const opcionesNodos = (sel) => rutas.nodos.map((n, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${esc(n.nombre)}</option>`).join('');
 
-const formPlanificador = (claseExtra = '') => `
-<form class="planificar ${claseExtra}" action="${u('/planificador/')}" method="get">
-  <label><span>Desde</span><select name="desde" id="origen">${opcionesNodos(0)}</select></label>
-  <label><span>Hasta</span><select name="hasta" id="destino">${opcionesNodos(rutas.nodos.length - 1)}</select></label>
-  <button class="boton boton-amarillo" type="submit">Ver la ruta</button>
+const buscador = (clase = '') => `
+<form class="buscador ${clase}" action="${u('/planificador/')}" method="get" role="search" aria-label="Buscar ruta">
+  <fieldset>
+    <legend>Tipo de carga</legend>
+    <div class="chips chips-carga">${rutas.tiposCarga
+      .map((c, i) => `<label class="chip chip-radio"><input type="radio" name="carga" value="${esc(c.id)}"${i === 0 ? ' checked' : ''}>${esc(c.nombre)}</label>`)
+      .join('')}</div>
+  </fieldset>
+  <div class="campos">
+    <label class="campo campo-desde"><span>Desde</span><select name="desde" id="origen">${opcionesNodos(0)}</select></label>
+    <button class="intercambiar" type="button" id="intercambiar" aria-label="Intercambiar origen y destino">${icono('intercambiar')}</button>
+    <label class="campo campo-hasta"><span>Hasta</span><select name="hasta" id="destino">${opcionesNodos(rutas.nodos.length - 1)}</select></label>
+    <button class="btn btn-principal" type="submit">${icono('buscar')}Buscar ruta</button>
+  </div>
 </form>`;
 
-const filaEmpresa = (e) => `
-<article class="empresa${e.destacada ? ' empresa-destacada' : ''}" data-pais="${esc(e.pais)}" data-categoria="${esc(e.categoria)}" data-puntos="${esc(
-  (e.puntos || []).join(' ')
-)}" data-texto="${esc([e.nombre, e.ciudad, catNombre[e.categoria], ...(e.servicios || []), ...(e.puntos || []).map((p) => nodoNombre[p])].join(' ').toLowerCase())}">
-  <div class="empresa-principal">
-    <h3>${esc(e.nombre)}</h3>
-    <p class="empresa-datos">${esc(catNombre[e.categoria] || e.categoria)}, ${esc(e.ciudad)} (${esc(PAISES[e.pais] || e.pais)})</p>
+const empresaFila = (e) => `
+<li class="empresa" data-pais="${esc(e.pais)}" data-categoria="${esc(e.categoria)}" data-puntos="${esc((e.puntos || []).join(' '))}" data-texto="${esc(
+  [e.nombre, e.ciudad, catNombre[e.categoria], ...(e.servicios || []), ...(e.puntos || []).map((p) => nodoNombre[p])].join(' ').toLowerCase()
+)}">
+  <div>
+    <div class="empresa-cabeza"><h3>${esc(e.nombre)}</h3>${e.destacada ? '<span class="etiqueta">Destacada</span>' : ''}${
+      e.ejemplo ? '<span class="etiqueta etiqueta-ejemplo">Ficha de ejemplo</span>' : ''
+    }</div>
+    <p class="empresa-datos">${esc(catNombre[e.categoria] || e.categoria)} en ${esc(e.ciudad)}, ${esc(PAISES[e.pais] || e.pais)}</p>
     ${e.descripcion ? `<p class="empresa-desc">${esc(e.descripcion)}</p>` : ''}
-    ${e.puntos?.length ? `<p class="empresa-puntos">Da servicio en ${e.puntos.map((p) => esc(nodoNombre[p] || p)).join(', ')}</p>` : ''}
-    ${e.servicios?.length ? `<ul class="etiquetas">${e.servicios.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+    ${e.puntos?.length ? `<p class="empresa-puntos">Da servicio en ${esc(listaY(e.puntos.map((p) => nodoNombre[p] || p)))}</p>` : ''}
+    ${e.servicios?.length ? `<ul class="servicios">${e.servicios.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
   </div>
-  <div class="empresa-lado">
-    ${e.destacada ? '<span class="sello">Destacada</span>' : ''}${e.ejemplo ? '<span class="sello sello-ejemplo">Ficha de ejemplo</span>' : ''}
-    <div class="empresa-acciones">
-      ${e.contacto?.whatsapp ? `<a class="boton boton-wa" href="${wa(e.contacto.whatsapp)}" rel="nofollow">WhatsApp</a>` : ''}
-      ${e.contacto?.email ? `<a class="boton boton-linea" href="mailto:${esc(e.contacto.email)}">Email</a>` : ''}
-      ${e.contacto?.web ? `<a class="boton boton-linea" href="${esc(e.contacto.web)}" rel="nofollow noopener">Web</a>` : ''}
-      ${!e.contacto?.whatsapp && !e.contacto?.email && !e.contacto?.web ? '<span class="sin-contacto">Sin datos de contacto</span>' : ''}
-    </div>
+  <div class="empresa-acciones">
+    ${e.contacto?.whatsapp ? `<a class="btn btn-wa btn-pequeno" href="${wa(e.contacto.whatsapp)}" rel="nofollow">${icono('chat')}Escribir por WhatsApp</a>` : ''}
+    ${e.contacto?.email ? `<a class="btn btn-borde btn-pequeno" href="mailto:${esc(e.contacto.email)}">Enviar email</a>` : ''}
+    ${e.contacto?.web ? `<a class="btn btn-borde btn-pequeno" href="${esc(e.contacto.web)}" rel="nofollow noopener">Abrir web</a>` : ''}
+    ${!e.contacto?.whatsapp && !e.contacto?.email && !e.contacto?.web ? '<span class="sin-contacto">Sin datos de contacto</span>' : ''}
   </div>
-</article>`;
+</li>`;
 
-/** Empresa en formato compacto, para mostrarla dentro de la ruta o de una página de la guía. */
 const empresaMini = (e) => `
 <li class="mini${e.destacada ? ' mini-destacada' : ''}">
   <span class="mini-texto"><strong>${esc(e.nombre)}</strong><span>${esc(catNombre[e.categoria] || e.categoria)}${e.ejemplo ? ', ficha de ejemplo' : ''}</span></span>
-  ${e.contacto?.whatsapp ? `<a class="mini-wa" href="${wa(e.contacto.whatsapp)}" rel="nofollow" aria-label="WhatsApp de ${esc(e.nombre)}">WhatsApp</a>` : ''}
+  ${e.contacto?.whatsapp ? `<a class="btn btn-wa btn-pequeno" href="${wa(e.contacto.whatsapp)}" rel="nofollow" aria-label="Escribir por WhatsApp a ${esc(e.nombre)}">${icono('chat')}</a>` : ''}
 </li>`;
 
-const senal = (p) => `
-<a class="senal" href="${u(p.ruta)}">
-  <span class="senal-titulo">${esc(p.meta.titulo)}</span>
-  <span class="senal-pie">${estado(p.meta.estado)}<span class="senal-paises">${paises(p.meta.paises)}</span></span>
-</a>`;
-
-const itemNovedad = (n, { conLugar = true } = {}) => {
+const noticia = (n, { principal = false, conLugar = true } = {}) => {
   const lugar = n.guia && guiaPorRuta[n.guia];
   return `
-<li class="novedad${n.estado ? ` novedad-${esc(n.estado)}` : ''}">
-  <div class="novedad-cuando">${tiempo(n.fecha)}<span class="novedad-tema">${esc(n.tema)}</span></div>
-  <div class="novedad-cuerpo">
-    <h3>${esc(n.titulo)}</h3>
-    ${n.detalle ? `<p>${esc(n.detalle)}</p>` : ''}
-    <p class="novedad-pie">${conLugar && lugar ? `<a href="${u(lugar.ruta)}">${esc(lugar.meta.titulo)}</a><span aria-hidden="true">/</span>` : ''}Fuente: <a href="${esc(
-      n.fuente.url
-    )}" rel="noopener">${esc(n.fuente.nombre)}</a></p>
-  </div>
-</li>`;
+<article class="noticia${principal ? ` noticia-principal noticia-${esc(n.estado || 'sin-estado')}` : ''}">
+  <p class="noticia-meta"><span class="noticia-medio">${esc(n.fuente.nombre)}</span><span>${esc(listaY((n.paises || []).map((p) => PAISES[p] || p)))}</span>${tiempo(n.fecha)}</p>
+  <h3><a href="${esc(n.fuente.url)}" rel="noopener">${esc(n.titulo)}</a></h3>
+  ${n.detalle ? `<p>${esc(n.detalle)}</p>` : ''}
+  ${conLugar && lugar ? `<a class="noticia-lugar" href="${u(lugar.ruta)}">Abrir ${esc(lugar.meta.titulo.replace(/\s*\(.*\)$/, ''))}</a>` : ''}
+</article>`;
 };
 
 // ---------- páginas ----------
@@ -216,171 +249,74 @@ const datosRutas = (extra = {}) =>
     tramos: rutas.tramos,
     documentosCruce: rutas.documentosCruce,
     avisoDocumentos: rutas.avisoDocumentos,
+    tiposCarga: rutas.tiposCarga,
     estados: ESTADOS,
     paises: PAISES,
     base: B,
     ...extra,
   }).replace(/</g, '\\u003c')}</script>`;
 
+// Pasos fronterizos para las historias
+const pasosHistoria = [];
+rutas.tramos.forEach((t) => {
+  const a = rutas.nodos.find((n) => n.id === t.desde);
+  const b = rutas.nodos.find((n) => n.id === t.hasta);
+  if (t.paso) pasosHistoria.push({ nombre: t.paso.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, '').replace('Puente de la ', 'Puente '), guia: t.paso.guia, estado: t.estado, cara: `${a.pais}–${b.pais}` });
+  if (t.alternativa) pasosHistoria.push({ nombre: t.alternativa.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, ''), guia: t.alternativa.guia, estado: t.alternativa.estado || t.estado, cara: `${a.pais}–${b.pais}` });
+});
+const historia = (h) => {
+  const contenido = `<span class="historia-anillo"><span class="historia-cara">${esc(h.cara)}</span></span><span class="historia-nombre">${esc(h.nombre)}</span>${estado(h.estado)}`;
+  return `<li>${h.guia ? `<a class="historia historia-${esc(h.estado)}" href="${u(`/guia/${h.guia}/`)}">${contenido}</a>` : `<div class="historia historia-${esc(h.estado)}">${contenido}</div>`}</li>`;
+};
+
 // Inicio
-{
-  const pasos = guia.filter((p) => p.seccion === 'pasos');
-  const otros = guia.filter((p) => p.seccion !== 'pasos');
-  add(
-    '/',
-    layout({
-      ruta: '/',
-      claseBody: 'portada',
-      scripts: ['/assets/inicio.js'],
-      datos: datosRutas(),
-      cuerpo: `
-<section class="hero">
-  <div class="marco">
-    <h1>Del Atlántico al Pacífico por carretera, tramo a tramo</h1>
-    <p class="hero-sub">Cómo está cada tramo y frontera hoy, qué papeles necesitas y quién te ayuda en cada punto de la ruta Brasil, Paraguay, Argentina, Chile.</p>
-    <div id="tu-ruta" hidden></div>
-    ${formPlanificador('planificar-hero')}
-  </div>
-  <div class="marco hero-ruta">
-    ${rutaHTML()}
-    <ul class="leyenda" aria-label="Leyenda de estados">${Object.keys(ESTADOS)
-      .map((k) => `<li>${estado(k)}</li>`)
-      .join('')}</ul>
+add(
+  '/',
+  layout({
+    ruta: '/',
+    scripts: ['/assets/inicio.js'],
+    datos: datosRutas(),
+    cuerpo: `
+<section class="portada-hero" aria-labelledby="titulo-portada">
+  <div class="contenedor">
+    <h1 id="titulo-portada">Planifica tu ruta por el corredor bioceánico</h1>
+    <p class="hero-sub">Estado de cada tramo y frontera, papeles para cruzar y empresas en cada punto, de Brasil a Chile.</p>
+    <div class="tu-ruta" id="tu-ruta" hidden></div>
+    ${buscador()}
   </div>
 </section>
-
-<section class="marco seccion">
-  <div class="seccion-cabeza">
-    <h2>Últimos cambios en el corredor</h2>
-    <a href="${u('/novedades/')}">Todas las novedades</a>
-  </div>
-  <ol class="novedades">${novedades.slice(0, 4).map((n) => itemNovedad(n)).join('')}</ol>
-</section>
-
-<section class="marco seccion">
-  <div class="seccion-cabeza">
-    <h2>Pasos fronterizos</h2>
-    <a href="${u('/guia/')}">Toda la guía</a>
-  </div>
-  <div class="senales">${pasos.map(senal).join('')}</div>
-  ${otros.length ? `<ul class="enlaces-guia">${otros.map((p) => `<li><a href="${u(p.ruta)}">${esc(p.meta.titulo)}</a>${estado(p.meta.estado)}</li>`).join('')}</ul>` : ''}
-</section>
-
-<section class="marco seccion">
+${seccion({
+  titulo: 'Pasos fronterizos hoy',
+  contexto: 'Toca un paso para ver requisitos, estado y últimos cambios.',
+  enlace: ['/guia/', 'Abrir la guía completa'],
+  cuerpo: `<ul class="historias">${pasosHistoria.map(historia).join('')}</ul>`,
+})}
+${seccion({
+  titulo: 'El corredor de punta a punta',
+  contexto: 'Cada tramo con su estado. Las empresas aparecen en el punto donde trabajan.',
+  cuerpo: `${rutaHTML()}<ul class="leyenda" aria-label="Leyenda de estados">${Object.keys(ESTADOS)
+    .map((k) => `<li>${estado(k)}</li>`)
+    .join('')}</ul>`,
+})}
+${seccion({
+  titulo: 'Últimos cambios',
+  contexto: 'Obras, estado de pasos y acuerdos entre países, con su fuente.',
+  enlace: ['/novedades/', 'Ver todas las novedades'],
+  cuerpo: `<div class="portal">${noticia(novedades[0], { principal: true })}<ul class="lista-noticias">${novedades
+    .slice(1, 4)
+    .map((n) => `<li>${noticia(n)}</li>`)
+    .join('')}</ul></div>`,
+})}
+<section class="contenedor seccion" aria-labelledby="t-empresas-banda">
   <div class="banda">
-    <div>
-      <h2>¿Das servicio en el corredor?</h2>
-      <p>Aparece en el punto de la ruta donde trabajas. Quien planifica un viaje por ahí te ve y te escribe directamente por WhatsApp.</p>
-    </div>
-    <a class="boton boton-amarillo" href="${u('/anunciate/')}">Anunciar mi empresa</a>
+    <div><h2 id="t-empresas-banda">¿Das servicio en el corredor?</h2><p>Aparece en el punto de la ruta donde trabajas. Quien planifica un viaje por ahí te escribe directamente.</p></div>
+    <a class="btn" href="${u('/anunciate/')}">Anunciar mi empresa</a>
   </div>
 </section>`,
-    })
-  );
-}
-
-// Novedades
-add(
-  '/novedades/',
-  layout({
-    titulo: 'Novedades del corredor',
-    descripcion: 'Cambios de estado, avances de obras y acuerdos del Corredor Bioceánico, con fecha y fuente.',
-    ruta: '/novedades/',
-    cuerpo: `
-<div class="marco">
-  <header class="cabeza-pagina"><h1>Novedades del corredor</h1><p>Cambios de estado de pasos y tramos, avances de obras y acuerdos entre países. Cada novedad lleva su fecha y su fuente.</p></header>
-  <ol class="novedades novedades-pagina">${novedades.map((n) => itemNovedad(n)).join('')}</ol>
-</div>`,
   })
 );
 
-// Índice de la guía
-{
-  const grupos = Object.entries(SECCIONES)
-    .map(([sec, nombre]) => {
-      const ps = guia.filter((p) => p.seccion === sec);
-      return ps.length ? `<section class="seccion"><h2>${esc(nombre)}</h2><div class="senales">${ps.map(senal).join('')}</div></section>` : '';
-    })
-    .join('');
-  add(
-    '/guia/',
-    layout({
-      titulo: 'Guía del corredor',
-      descripcion: 'Pasos fronterizos, tramos y documentos del Corredor Bioceánico, con estado y fuentes.',
-      ruta: '/guia/',
-      cuerpo: `<div class="marco"><header class="cabeza-pagina"><h1>Guía del corredor</h1><p>Cada página indica su estado, sus fuentes y la fecha de la última revisión.</p></header>${grupos}</div>`,
-    })
-  );
-}
-
-// Páginas de la guía
-for (const p of guia) {
-  const zona = p.meta.puntos || [];
-  const emp = empresasEn(zona);
-  const nov = novedades.filter((n) => n.guia === `${p.seccion}/${p.slug}`);
-  const nombresZona = zona.map((z) => nodoNombre[z] || z).join(', ').replace(/, ([^,]*)$/, ' y $1');
-  add(
-    p.ruta,
-    layout({
-      titulo: p.meta.titulo,
-      descripcion: p.meta.resumen,
-      ruta: p.ruta,
-      cuerpo: `
-<div class="marco">
-  <nav class="migas" aria-label="Estás en"><a href="${u('/guia/')}">Guía</a><span aria-hidden="true">/</span>${esc(SECCIONES[p.seccion] || p.seccion)}</nav>
-  <header class="senal senal-grande">
-    <h1 class="senal-titulo">${esc(p.meta.titulo)}</h1>
-    <span class="senal-pie">${estado(p.meta.estado)}<span class="senal-paises">${paises(p.meta.paises)}</span></span>
-  </header>
-  <p class="revisado">Revisado el ${fecha(p.meta.revisado)}${nov.length ? `. Último cambio: ${tiempo(nov[0].fecha)}` : ''}</p>
-  ${p.meta.borrador ? '<p class="aviso-borrador"><strong>Borrador.</strong> Este contenido aún no está verificado. No lo uses como referencia para viajar.</p>' : ''}
-  <div class="guia-cuerpo">
-    <article class="articulo">
-      <p class="resumen">${esc(p.meta.resumen)}</p>
-      ${p.html}
-      ${
-        nov.length
-          ? `<section class="cambios-pagina"><h2 id="ultimos-cambios">Últimos cambios</h2><ol class="novedades novedades-compactas">${nov
-              .map((n) => itemNovedad(n, { conLugar: false }))
-              .join('')}</ol></section>`
-          : ''
-      }
-    </article>
-    <aside class="lateral">
-      ${
-        zona.length
-          ? `<section class="caja caja-suave caja-zona">
-        <h2>Quién te ayuda en ${esc(nombresZona)}</h2>
-        ${
-          emp.length
-            ? `<ul class="minis">${emp.slice(0, 4).map(empresaMini).join('')}</ul>
-               <a class="enlace-mas" href="${u(`/directorio/?punto=${zona[0]}`)}">Ver todas las empresas de la zona</a>`
-            : `<p>Aún no hay empresas en esta zona.</p>`
-        }
-        <a class="boton boton-linea" href="${u('/anunciate/')}">Aparecer aquí</a>
-      </section>`
-          : ''
-      }
-      ${
-        p.indice.length > 2
-          ? `<nav class="indice" aria-label="En esta página"><h2>En esta página</h2><ol>${p.indice.map((h) => `<li><a href="#${h.id}">${esc(h.t)}</a></li>`).join('')}${
-              nov.length ? '<li><a href="#ultimos-cambios">Últimos cambios</a></li>' : ''
-            }</ol></nav>`
-          : ''
-      }
-      <div class="caja">
-        <h2>¿Viajas por aquí?</h2>
-        <p>Mira todos los tramos, fronteras, papeles y empresas de tu ruta.</p>
-        <a class="boton" href="${u('/planificador/')}">Planificar ruta</a>
-      </div>
-    </aside>
-  </div>
-</div>`,
-    })
-  );
-}
-
-// Planificador
+// Planificador (resultados)
 {
   const emp = empresas.map((e) => ({
     nombre: e.nombre,
@@ -394,25 +330,169 @@ for (const p of guia) {
     '/planificador/',
     layout({
       titulo: 'Planificar ruta',
-      descripcion: 'Elige origen y destino en el Corredor Bioceánico y mira tramos, fronteras, estado, papeles y empresas en cada punto.',
+      descripcion: 'Compara opciones de ruta por el Corredor Bioceánico: fronteras, estado de cada tramo, papeles y empresas en cada punto.',
       ruta: '/planificador/',
       scripts: ['/assets/planificador.js'],
       datos: datosRutas({ empresas: emp }),
       cuerpo: `
-<div class="marco">
-  <header class="cabeza-pagina"><h1>Planificar ruta</h1><p>Elige desde dónde y hasta dónde. Te mostramos cada tramo, las fronteras, cómo están hoy, los papeles que necesitas y quién te ayuda en cada punto. Guardamos tu ruta en este dispositivo para que la tengas a mano al volver.</p></header>
-  ${formPlanificador('planificar-pagina')}
-  <div id="resultado-ruta" aria-live="polite"></div>
-  <noscript><p>Activa JavaScript para usar el planificador.</p></noscript>
+<div class="contenedor">
+  <header class="cabeza-pagina"><h1>Planificar ruta</h1><p>Compara las opciones, revisa cada tramo y comparte la ruta con tu equipo.</p></header>
+  ${buscador('buscador-compacto')}
+  <div id="resultado" aria-live="polite"></div>
+  <noscript><p class="aviso">Activa JavaScript para ver las opciones de ruta.</p></noscript>
 </div>`,
     })
   );
 }
 
-// Directorio
+// Novedades
+{
+  const paisesN = [...new Set(novedades.flatMap((n) => n.paises || []))];
+  const temas = [...new Set(novedades.map((n) => n.tema))];
+  add(
+    '/novedades/',
+    layout({
+      titulo: 'Novedades del corredor',
+      descripcion: 'Cambios de estado, avances de obras y acuerdos del Corredor Bioceánico, con fecha y fuente.',
+      ruta: '/novedades/',
+      scripts: ['/assets/filtros.js'],
+      cuerpo: `
+<div class="contenedor">
+  <header class="cabeza-pagina"><h1>Novedades del corredor</h1><p>Lo que cambia en pasos, tramos y acuerdos. Cada noticia enlaza a su medio de origen.</p></header>
+  <div class="filtros-noticias" data-filtros="#lista-novedades">
+    <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>
+      <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
+      ${paisesN.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false">${esc(PAISES[p])}</button>`).join('')}
+    </div>
+    <div class="filtro-linea" role="group" aria-label="Tema"><span class="filtro-etiqueta">Tema</span>
+      <button class="chip" type="button" data-filtro="tema" data-valor="" aria-pressed="true">Todos</button>
+      ${temas.map((t) => `<button class="chip" type="button" data-filtro="tema" data-valor="${esc(t)}" aria-pressed="false">${esc(t)}</button>`).join('')}
+    </div>
+  </div>
+  <ul class="noticias-pagina" id="lista-novedades">${novedades
+    .map((n) => `<li data-pais="${esc((n.paises || []).join(' '))}" data-tema="${esc(n.tema)}">${noticia(n)}</li>`)
+    .join('')}</ul>
+  <div class="vacio" data-vacio hidden><p>No hay novedades con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>
+</div>`,
+    })
+  );
+}
+
+// Guía (tabla)
+{
+  const paisesG = [...new Set(guia.flatMap((p) => p.meta.paises || []))];
+  const estadosG = [...new Set(guia.map((p) => p.meta.estado))];
+  const filas = Object.keys(SECCIONES)
+    .flatMap((sec) => guia.filter((p) => p.seccion === sec))
+    .map(
+      (p) => `<tr data-pais="${esc((p.meta.paises || []).join(' '))}" data-estado="${esc(p.meta.estado)}">
+        <td><a href="${u(p.ruta)}">${esc(p.meta.titulo)}</a></td>
+        <td class="col-tipo">${esc({ pasos: 'Paso fronterizo', tramos: 'Tramo', documentos: 'Documentos' }[p.seccion] || p.seccion)}</td>
+        <td>${paises(p.meta.paises)}</td>
+        <td>${estado(p.meta.estado)}</td>
+        <td class="col-revisado">${fecha(p.meta.revisado)}</td>
+      </tr>`
+    )
+    .join('');
+  add(
+    '/guia/',
+    layout({
+      titulo: 'Guía del corredor',
+      descripcion: 'Pasos fronterizos, tramos y documentos del Corredor Bioceánico, con estado y fuentes.',
+      ruta: '/guia/',
+      scripts: ['/assets/filtros.js'],
+      cuerpo: `
+<div class="contenedor">
+  <header class="cabeza-pagina"><h1>Guía del corredor</h1><p>Pasos, tramos y papeles. Cada página indica su estado, sus fuentes y cuándo se revisó.</p></header>
+  <div class="filtros-guia" data-filtros="#tabla-guia tbody">
+    <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>
+      <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
+      ${paisesG.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false">${esc(PAISES[p])}</button>`).join('')}
+    </div>
+    <div class="filtro-linea" role="group" aria-label="Estado"><span class="filtro-etiqueta">Estado</span>
+      <button class="chip" type="button" data-filtro="estado" data-valor="" aria-pressed="true">Todos</button>
+      ${estadosG.map((e) => `<button class="chip" type="button" data-filtro="estado" data-valor="${esc(e)}" aria-pressed="false">${esc(ESTADOS[e])}</button>`).join('')}
+    </div>
+  </div>
+  <div class="tabla-marco">
+    <table class="tabla-guia" id="tabla-guia">
+      <thead><tr><th scope="col">Página</th><th scope="col">Tipo</th><th scope="col">Países</th><th scope="col">Estado</th><th scope="col">Revisado</th></tr></thead>
+      <tbody>${filas}</tbody>
+    </table>
+  </div>
+  <div class="vacio" data-vacio hidden><p>No hay páginas con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>
+</div>`,
+    })
+  );
+}
+
+// Páginas de la guía
+for (const p of guia) {
+  const zona = p.meta.puntos || [];
+  const emp = empresasEn(zona);
+  const nov = novedades.filter((n) => n.guia === `${p.seccion}/${p.slug}`);
+  const nombresZona = listaY(zona.map((z) => nodoNombre[z] || z));
+  add(
+    p.ruta,
+    layout({
+      titulo: p.meta.titulo,
+      descripcion: p.meta.resumen,
+      ruta: p.ruta,
+      cuerpo: `
+<div class="contenedor">
+  <nav class="migas" aria-label="Estás en"><a href="${u('/guia/')}">Guía</a><span aria-hidden="true">/</span><span>${esc(SECCIONES[p.seccion] || p.seccion)}</span></nav>
+  <header class="paso-cabeza senal">
+    <h1 class="senal-titulo">${esc(p.meta.titulo)}</h1>
+    <span class="senal-pie">${estado(p.meta.estado)}${paises(p.meta.paises)}</span>
+  </header>
+  <p class="paso-meta"><span>Revisado el ${fecha(p.meta.revisado)}</span>${nov.length ? `<span>Último cambio ${tiempo(nov[0].fecha)}</span>` : ''}</p>
+  ${p.meta.borrador ? '<p class="aviso"><span><strong>Borrador.</strong> Este contenido aún no está verificado. No lo uses como referencia para viajar.</span></p>' : ''}
+  <div class="paso-cuerpo">
+    <article class="articulo">
+      <p class="resumen">${esc(p.meta.resumen)}</p>
+      ${p.html}
+      ${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}
+    </article>
+    <aside class="lateral">
+      ${
+        zona.length
+          ? `<section class="panel" aria-labelledby="t-zona"><h2 id="t-zona">Quién te ayuda en ${esc(nombresZona)}</h2>
+        ${
+          emp.length
+            ? `<p>Empresas que dan servicio en esta zona.</p><ul class="minis">${emp.slice(0, 4).map(empresaMini).join('')}</ul>
+               <a class="enlace-mas" href="${u(`/directorio/?punto=${zona[0]}`)}">Ver todas las empresas de la zona</a>`
+            : `<p>Aún no hay empresas en esta zona.</p>`
+        }
+        <a class="btn btn-borde" href="${u('/anunciate/')}">Anunciar mi empresa aquí</a>
+      </section>`
+          : ''
+      }
+      ${
+        p.indice.length > 2
+          ? `<nav class="panel indice" aria-labelledby="t-indice"><h2 id="t-indice">En esta página</h2><ol>${p.indice
+              .map((h) => `<li><a href="#${h.id}">${esc(h.t)}</a></li>`)
+              .join('')}${nov.length ? '<li><a href="#ultimos-cambios">Últimos cambios</a></li>' : ''}</ol></nav>`
+          : ''
+      }
+      <section class="panel" aria-labelledby="t-viaje"><h2 id="t-viaje">¿Viajas por aquí?</h2><p>Compara rutas, fronteras y papeles de origen a destino.</p>
+        <a class="btn btn-principal" href="${u('/planificador/')}">Planificar ruta</a></section>
+    </aside>
+  </div>
+</div>`,
+    })
+  );
+}
+
+// Empresas
 {
   const paisesUsados = [...new Set(empresas.map((e) => e.pais))];
   const cuenta = (fn) => empresas.filter(fn).length;
+  const sugerencias = [
+    ...empresas.map((e) => ({ t: e.nombre, d: catNombre[e.categoria] })),
+    ...[...new Set(empresas.map((e) => e.ciudad))].map((c) => ({ t: c, d: 'Ciudad' })),
+    ...categorias.filter((c) => cuenta((e) => e.categoria === c.id)).map((c) => ({ t: c.nombre, d: 'Tipo de empresa' })),
+    ...[...new Set(empresas.flatMap((e) => e.servicios || []))].map((s) => ({ t: s, d: 'Servicio' })),
+  ];
   add(
     '/directorio/',
     layout({
@@ -420,64 +500,60 @@ for (const p of guia) {
       descripcion: 'Transitarios, transportistas, despachantes, depósitos y servicios en cada punto del Corredor Bioceánico.',
       ruta: '/directorio/',
       scripts: ['/assets/directorio.js'],
+      datos: `<script type="application/json" id="datos-sugerencias">${JSON.stringify(sugerencias).replace(/</g, '\\u003c')}</script>`,
       cuerpo: `
-<div class="marco">
-  <header class="cabeza-pagina"><h1>Empresas del corredor</h1><p>Busca por punto de la ruta y contacta directamente. ¿Falta la tuya? <a href="${u('/anunciate/')}">Date de alta gratis</a>.</p></header>
-  <div class="directorio">
-    <form class="filtros" onsubmit="return false" aria-label="Filtrar empresas">
-      <label class="filtro-buscar"><span>Punto de la ruta</span>
-        <select id="f-punto"><option value="">Toda la ruta</option>${rutas.nodos
-          .map((n) => `<option value="${esc(n.id)}">${esc(n.nombre)} (${cuenta((e) => (e.puntos || []).includes(n.id))})</option>`)
-          .join('')}</select>
-      </label>
-      <label class="filtro-buscar"><span>Buscar</span><input type="search" id="f-texto" placeholder="Nombre, ciudad o servicio"></label>
-      <fieldset>
-        <legend>País</legend>
-        <div class="segmentos">
-          <label><input type="radio" name="pais" value="" checked><span>Todos</span></label>
-          ${paisesUsados.map((p) => `<label><input type="radio" name="pais" value="${esc(p)}"><span>${esc(PAISES[p] || p)}</span></label>`).join('')}
-        </div>
-      </fieldset>
-      <fieldset class="tipos">
-        <legend>Tipo de empresa</legend>
-        <label class="opcion"><input type="radio" name="tipo" value="" checked><span>Todas</span><span class="n">${empresas.length}</span></label>
-        ${categorias
-          .map(
-            (c) =>
-              `<label class="opcion"><input type="radio" name="tipo" value="${esc(c.id)}"><span>${esc(c.nombre)}</span><span class="n">${cuenta((e) => e.categoria === c.id)}</span></label>`
-          )
-          .join('')}
-      </fieldset>
-    </form>
-    <section class="resultados" aria-label="Resultados">
-      <p class="contador" id="contador" role="status">${empresas.length} empresas</p>
-      <div id="lista-empresas">${empresas.map(filaEmpresa).join('')}</div>
-      <div class="vacio" id="sin-resultados" hidden>
-        <p><strong>No hay empresas con esos filtros.</strong> Prueba con otro punto, país o tipo, o borra la búsqueda.</p>
-        <button class="boton boton-linea" type="button" id="limpiar">Quitar filtros</button>
-      </div>
-    </section>
+<div class="contenedor">
+  <header class="cabeza-pagina"><h1>Empresas del corredor</h1><p>Busca quién da servicio en cada punto de la ruta y escríbele directamente.</p></header>
+  <div class="busqueda-web">
+    ${icono('buscar')}
+    <label class="oculto" for="f-texto">Buscar empresas</label>
+    <input id="f-texto" type="search" autocomplete="off" placeholder="Empresa, servicio o ciudad" role="combobox" aria-expanded="false" aria-controls="sugerencias" aria-autocomplete="list">
+    <ul class="sugerencias" id="sugerencias" role="listbox" aria-label="Sugerencias" hidden></ul>
+  </div>
+  <div class="filtros-empresas">
+    <div class="filtro-linea" role="group" aria-label="Tipo de empresa"><span class="filtro-etiqueta">Tipo</span>
+      <button class="chip" type="button" data-filtro="tipo" data-valor="" aria-pressed="true">Todas <span class="n">${empresas.length}</span></button>
+      ${categorias
+        .filter((c) => cuenta((e) => e.categoria === c.id))
+        .map((c) => `<button class="chip" type="button" data-filtro="tipo" data-valor="${esc(c.id)}" aria-pressed="false">${esc(c.nombre)} <span class="n">${cuenta((e) => e.categoria === c.id)}</span></button>`)
+        .join('')}
+    </div>
+    <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>
+      <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
+      ${paisesUsados.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false">${esc(PAISES[p])}</button>`).join('')}
+    </div>
+    <div class="filtro-linea"><label class="filtro-etiqueta" for="f-punto">Punto de la ruta</label>
+      <select class="selector" id="f-punto"><option value="">Toda la ruta</option>${rutas.nodos
+        .map((n) => `<option value="${esc(n.id)}">${esc(n.nombre)} (${cuenta((e) => (e.puntos || []).includes(n.id))})</option>`)
+        .join('')}</select>
+    </div>
+  </div>
+  <p class="contador" id="contador" role="status">${plural(empresas.length, 'empresa', 'empresas')}</p>
+  <ul class="resultados-empresas" id="lista-empresas">${empresas.map(empresaFila).join('')}</ul>
+  <div class="vacio" id="sin-resultados" hidden>
+    <p>No hay empresas con esos filtros. Prueba con otro punto, país o tipo.</p>
+    <button class="btn btn-borde" type="button" id="limpiar">Quitar filtros</button>
   </div>
 </div>`,
     })
   );
 }
 
-// Anúnciate
+// Anunciar
 {
   const planes = site.planes
     .map(
       (pl) => `
-<section class="plan${pl.id === 'destacada' ? ' plan-destacado' : ''}">
-  <h2>${esc(pl.nombre)}</h2>
-  <p class="precio">${esc(pl.precio)}</p>
+<section class="plan${pl.id === 'destacada' ? ' plan-destacado' : ''}" aria-labelledby="plan-${esc(pl.id)}">
+  <h2 id="plan-${esc(pl.id)}">${esc(pl.nombre)}</h2>
+  <p class="precio">${esc(pl.precio.replace(' € / mes', '\u202f€ al mes'))}</p>
   <ul class="lista-check">${pl.incluye.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
   ${
     pl.id === 'destacada'
       ? pl.enlacePago
-        ? `<a class="boton boton-amarillo" href="${esc(pl.enlacePago)}" rel="noopener">Contratar con PayPal</a><p class="nota">Pago mensual con PayPal o tarjeta. Factura incluida. Cancelas cuando quieras.</p>`
-        : '<p class="nota">Disponible en cuanto abramos los pagos (PayPal o tarjeta, con factura). Si te interesa, dínoslo al darte de alta.</p>'
-      : '<a class="boton" href="#alta">Darme de alta gratis</a>'
+        ? `<a class="btn btn-principal" href="${esc(pl.enlacePago)}" rel="noopener">Contratar con PayPal</a><p class="nota">Pago mensual con PayPal o tarjeta. Factura incluida. Cancelas cuando quieras.</p>`
+        : '<p class="nota">Abrimos los pagos pronto, con PayPal o tarjeta y factura. Si te interesa, indícalo al darte de alta.</p>'
+      : '<a class="btn btn-borde" href="#alta">Darme de alta gratis</a>'
   }
 </section>`
     )
@@ -487,7 +563,7 @@ for (const p of guia) {
     'Empresa:\nPaís y ciudad:\nTipo (transitario, transportista, despachante…):\nPuntos de la ruta donde das servicio:\nServicios:\nEmail y WhatsApp de contacto:\nWeb:\n'
   );
   const waAlta = site.contacto.whatsapp
-    ? `<a class="boton boton-wa" href="${wa(site.contacto.whatsapp)}?text=${encodeURIComponent('Hola, quiero dar de alta mi empresa en la Guía del Corredor.')}">Enviar por WhatsApp</a>`
+    ? `<a class="btn btn-wa" href="${wa(site.contacto.whatsapp)}?text=${encodeURIComponent('Hola, quiero dar de alta mi empresa en la Guía del Corredor.')}">${icono('chat')}Enviar por WhatsApp</a>`
     : '';
   add(
     '/anunciate/',
@@ -496,22 +572,24 @@ for (const p of guia) {
       descripcion: 'Aparece en el punto del Corredor Bioceánico donde das servicio. Ficha básica gratis.',
       ruta: '/anunciate/',
       cuerpo: `
-<div class="marco">
-  <header class="cabeza-pagina"><h1>Anunciar mi empresa</h1><p>Tu empresa aparece en el punto de la ruta donde trabajas: en el planificador, en las páginas de la guía y en el buscador. Quien pasa por ahí te encuentra y te escribe directamente.</p></header>
+<div class="contenedor">
+  <header class="cabeza-pagina"><h1>Anunciar mi empresa</h1><p>Tu empresa aparece en el punto de la ruta donde trabajas: en el planificador, en la guía y en el buscador.</p></header>
   <div class="planes">${planes}</div>
-  <section class="seccion alta" id="alta">
-    <h2>Cómo darse de alta</h2>
-    <ol class="pasos">
-      <li><strong>Envíanos tus datos</strong> por email o WhatsApp: empresa, tipo, servicios, contacto y en qué puntos de la ruta trabajas.</li>
-      <li><strong>Revisamos la ficha</strong> y la publicamos en menos de 48 horas.</li>
-      <li><strong>Te avisamos</strong> con el enlace para que la compartas.</li>
-    </ol>
-    <div class="acciones">
-      ${site.contacto.email ? `<a class="boton" href="mailto:${esc(site.contacto.email)}?subject=${asunto}&body=${cuerpoMail}">Enviar por email</a>` : ''}
-      ${waAlta}
-    </div>
-  </section>
-</div>`,
+</div>
+${seccion({
+  titulo: 'Cómo darse de alta',
+  contexto: 'Publicamos tu ficha en menos de 48 horas.',
+  id: 'alta',
+  cuerpo: `<ol class="pasos-alta">
+    <li><b>Envía tus datos</b><span>Empresa, tipo, servicios, contacto y puntos de la ruta.</span></li>
+    <li><b>Revisamos la ficha</b><span>Comprobamos los datos antes de publicarla.</span></li>
+    <li><b>Te avisamos</b><span>Recibes el enlace para compartirla.</span></li>
+  </ol>
+  <div class="acciones alta-acciones">
+    ${site.contacto.email ? `<a class="btn btn-principal" href="mailto:${esc(site.contacto.email)}?subject=${asunto}&body=${cuerpoMail}">${icono('correo')}Enviar datos por email</a>` : ''}
+    ${waAlta}
+  </div>`,
+})}`,
     })
   );
 }
@@ -523,19 +601,18 @@ add(
     titulo: 'Cómo trabajamos la información',
     ruta: '/sobre/',
     cuerpo: `
-<div class="marco">
-  <header class="cabeza-pagina"><h1>Cómo trabajamos la información</h1></header>
-  <div class="articulo articulo-solo">
-    <p>La ${esc(site.nombreCompleto)} reúne en un solo sitio la información práctica para mover mercancía por carretera entre Brasil, Paraguay, Argentina y Chile: rutas, pasos fronterizos, documentos y empresas que dan servicio en el camino.</p>
+<div class="contenedor">
+  <header class="cabeza-pagina"><h1>Cómo trabajamos la información</h1><p>Qué publicamos, de dónde sale y qué no hacemos.</p></header>
+  <div class="articulo">
     <h2>Fuentes y revisión</h2>
     <ul>
-      <li>Cada página y cada novedad indica sus <strong>fuentes</strong> y su <strong>fecha</strong>.</li>
-      <li>Usamos fuentes oficiales (ministerios, aduanas, vialidad) y prensa de referencia.</li>
-      <li>Los requisitos aduaneros los revisa un despachante de aduana antes de publicarse como definitivos.</li>
+      <li>Cada página y cada novedad indica sus fuentes y su fecha.</li>
+      <li>Usamos fuentes oficiales y prensa de referencia de cada país.</li>
+      <li>Un despachante de aduana revisa los requisitos antes de quitar el aviso de borrador.</li>
       <li>Si ves un dato desactualizado, escríbenos y lo corregimos.</li>
     </ul>
     <h2>Tu ruta y tus datos</h2>
-    <p>El planificador guarda tu última ruta solo en tu navegador, para mostrártela al volver. No pedimos registro ni guardamos datos personales.</p>
+    <p>El planificador guarda tu última ruta solo en tu navegador. No pedimos registro ni guardamos datos personales.</p>
     <h2>Qué no hacemos</h2>
     <p>No transportamos mercancía, no intermediamos en contratos ni cobramos comisiones por operación. La contratación es directa entre empresas.</p>
   </div>
@@ -549,7 +626,9 @@ paginas.push({
   html: layout({
     titulo: 'Página no encontrada',
     ruta: '/404.html',
-    cuerpo: `<div class="marco"><header class="cabeza-pagina"><h1>Esta página no existe</h1><p>Puede que el enlace esté mal o que la hayamos movido.</p></header><p class="acciones"><a class="boton" href="${u('/')}">Ir al inicio</a><a class="boton boton-linea" href="${u('/guia/')}">Ver la guía</a></p></div>`,
+    cuerpo: `<div class="contenedor"><header class="cabeza-pagina"><h1>Esta página no existe</h1><p>El enlace puede estar mal o la página se ha movido.</p></header><div class="acciones"><a class="btn btn-principal" href="${u(
+      '/'
+    )}">Ir al inicio</a><a class="btn btn-borde" href="${u('/guia/')}">Abrir la guía</a></div></div>`,
   }),
 });
 
@@ -576,15 +655,17 @@ try {
 
 const urlBase = site.url.replace(/\/$/, '') + B;
 const hoy = new Date().toISOString().slice(0, 10);
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+fs.writeFileSync(
+  path.join(DIST, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${paginas
   .filter((p) => !p.ruta.endsWith('.html'))
   .map((p) => `  <url><loc>${urlBase}${p.ruta}</loc><lastmod>${hoy}</lastmod></url>`)
   .join('\n')}
 </urlset>
-`;
-fs.writeFileSync(path.join(DIST, 'sitemap.xml'), sitemap);
+`
+);
 fs.writeFileSync(
   path.join(DIST, 'robots.txt'),
   site.indexable === false ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${urlBase}/sitemap.xml\n`

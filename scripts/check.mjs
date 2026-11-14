@@ -50,6 +50,7 @@ for (const e of empresas) {
 // Novedades
 for (const [i, n] of novedades.entries()) {
   for (const c of ['fecha', 'tema', 'titulo']) if (!n[c]) errores.push(`novedades[${i}]: falta "${c}".`);
+  if (!n.paises?.length) avisos.push(`novedades[${i}]: sin "paises"; no aparecerá al filtrar por país.`);
   if (!n.fuente?.url || !n.fuente?.nombre) errores.push(`novedades[${i}]: toda novedad necesita fuente (nombre y url).`);
   if (n.estado && !ESTADOS[n.estado]) errores.push(`novedades[${i}]: estado no válido "${n.estado}".`);
   if (n.guia && !rutasGuia.has(n.guia)) errores.push(`novedades[${i}]: enlaza a "${n.guia}", que no existe en content/guia.`);
