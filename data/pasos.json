@@ -20,9 +20,14 @@
         "texto": "No habilitado al tránsito. El puente está unido desde el 16/07/2026 y sigue en terminaciones en ambas márgenes; el MOPC prevé terminar el acceso paraguayo en el primer trimestre de 2027. Sin fecha oficial de habilitación.",
         "fuente": "abc-color-puente-recta-final",
         "publicado": "2026-10-22",
-        "validacion": "por-verificar",
+        "validacion": "verificado",
         "actualizado": "2026-11-15",
-        "verificacion": null,
+        "verificacion": {
+          "verificadoPor": "responsable-editorial",
+          "rol": "responsable-editorial",
+          "fecha": "2026-11-15",
+          "alcance": "Ernesto confirmó el 15/11/2026 que el puente sigue en obras y no está habilitado al tránsito, según ABC Color, la web del MOPC y prensa paraguaya (sin noticias de habilitación)."
+        },
         "evidencia": "tercero"
       },
       "horarios": [],
@@ -66,9 +71,14 @@
         "texto": "Habilitado para personas y vehículos de 7 a 20 h según el parte de Defensa Civil de Salta. El puente actual, de 1995, limita el tránsito: el paso de carga pesada no está confirmado. Hay un puente nuevo en estudio, sin fecha de licitación.",
         "fuente": "saltazoom-pasos-30-09-2026",
         "publicado": "2026-09-30",
-        "validacion": "por-verificar",
+        "validacion": "verificado",
         "actualizado": "2026-11-15",
-        "verificacion": null,
+        "verificacion": {
+          "verificadoPor": "responsable-editorial",
+          "rol": "responsable-editorial",
+          "fecha": "2026-11-15",
+          "alcance": "Ernesto confirmó el 15/11/2026: paso abierto a personas y vehículos (7–20 h, Defensa Civil de Salta), puente de 1995 limitante y carga pesada sin confirmar."
+        },
         "evidencia": "tercero"
       },
       "horarios": [
