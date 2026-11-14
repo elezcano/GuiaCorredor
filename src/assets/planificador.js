@@ -55,6 +55,16 @@
     }</div>`;
   }
 
+  // Tiempo de cruce reportado en el sentido del viaje.
+  function cruce(t) {
+    const idx = (id) => datos.nodos.findIndex((n) => n.id === id);
+    const sentido = idx(t.a) > idx(t.de) ? 'chile' : 'brasil';
+    const s = datos.cruces.porPaso[t.paso.id]?.[sentido];
+    if (!s?.mediana) return '';
+    const tramo = datos.cruces.tramos.find((x) => x.id === s.mediana);
+    return `<p class="it-cruce">Tiempo de cruce: <strong>${esc(tramo.nombre)}</strong> <span>${GC.plural(s.n, 'reporte', 'reportes')} en ${datos.cruces.dias} días</span></p>`;
+  }
+
   function itinerario(op) {
     const parada = (id) => {
       const n = nodo(id);
@@ -65,6 +75,7 @@
       out.push(`<li class="it-tramo tramo-${esc(t.estado)}"><span class="via" aria-hidden="true"></span><div class="contenido">
         <div class="it-fila">${typeof t.km === 'number' ? `<span class="it-km">${GC.km(t.km)}</span>` : '<span class="it-km-falta">Distancia por verificar</span>'}${estado(t.estado)}</div>
         ${t.paso ? `<p class="it-frontera">Frontera: ${enlace(t.paso.guia, t.paso.nombre)}</p>` : ''}
+        ${t.paso ? cruce(t) : ''}
         ${t.guia ? `<p class="it-nota">${enlace(t.guia, 'Abrir el tramo en la guía')}</p>` : ''}
         ${t.nota ? `<p class="it-nota">${esc(t.nota)}</p>` : ''}
       </div></li>`);

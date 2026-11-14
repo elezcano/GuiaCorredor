@@ -391,6 +391,7 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .articulo em { color: var(--muted-foreground); }
 .articulo .lista-noticias { margin-top: 8px; padding-left: 0; display: grid; gap: 0; }
 .lateral { display: grid; gap: 16px; position: sticky; top: 96px; }
+[hidden] { display: none !important; }
 .panel { padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
 .panel h2 { font-size: 16px; line-height: 24px; }
 .panel > p { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
@@ -615,3 +616,32 @@ td.num, th.num { text-align: right; white-space: nowrap; }
   .resultado-filtros { flex-direction: column; align-items: flex-start; }
 }
 .nota-guardado { margin-top: 16px; font-size: 12px; line-height: 16px; }
+
+/* Tiempo de cruce */
+.historia-cruce { font-size: 12px; line-height: 16px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.cruce > p { margin-bottom: 16px; }
+.cruce-sentidos { display: grid; gap: 12px; margin: 0; }
+.cruce-fila { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 4px 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.cruce-fila:last-child { padding-bottom: 0; border-bottom: 0; }
+.cruce-fila dt { font-size: 14px; line-height: 20px; color: var(--muted-foreground); grid-column: 1 / -1; }
+.cruce-fila dd { margin: 0; display: flex; align-items: baseline; gap: 8px; grid-column: 1 / -1; }
+.cruce-fila dd strong { font-size: 24px; line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cruce-fila dd strong.sin-dato { font-size: 16px; line-height: 24px; font-weight: 500; color: var(--muted-foreground); }
+.cruce-fila dd span { font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
+.cruce-barras ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 100%; }
+.cruce-barras li { display: grid; grid-template-rows: 32px auto; gap: 4px; }
+.cruce-barras .barra { align-self: end; height: max(2px, var(--h)); background: var(--border-strong); border-radius: 2px 2px 0 0; }
+.cruce-barras .es-mediana .barra { background: var(--primary); }
+.cruce-barras .barra-txt { font-size: 12px; line-height: 16px; text-align: center; color: var(--muted-foreground); white-space: nowrap; }
+.cruce-barras .es-mediana .barra-txt { color: var(--foreground); font-weight: 600; }
+.cruce > .btn { margin-top: 16px; width: 100%; }
+.cruce-form { margin-top: 16px; display: grid; gap: 16px; }
+.cruce-form fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.cruce-form legend { padding: 0; margin-bottom: 8px; font-size: 14px; line-height: 20px; font-weight: 500; }
+.cruce-form .chip { font-variant-numeric: tabular-nums; }
+.cruce-acciones { display: flex; gap: 8px; align-items: center; }
+.cruce-acciones .btn-principal { flex: 1; }
+.cruce-error { font-size: 14px; line-height: 20px; color: var(--corte); }
+.cruce-gracias { margin-top: 16px; padding: 12px; border-radius: var(--radius); background: var(--muted); font-size: 14px; line-height: 20px; }
+.it-cruce { margin-top: 8px; font-size: 14px; line-height: 20px; font-variant-numeric: tabular-nums; }
+.it-cruce span { color: var(--muted-foreground); font-size: 12px; }

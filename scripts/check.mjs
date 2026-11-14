@@ -1,6 +1,7 @@
 // Revisa los datos y el contenido antes de publicar.
 // Errores = no se puede publicar. Avisos = se puede, pero hay que mirarlo.
 import { readJSON, loadGuia, CAMPOS_OBLIGATORIOS, ESTADOS, SECCIONES } from './lib.mjs';
+import { configEnvio } from './cruces.mjs';
 
 const errores = [];
 const avisos = [];
@@ -20,6 +21,20 @@ if (/example\.com/.test(site.contacto.email)) avisos.push('data/site.json: el em
 if (!site.contacto.whatsapp) avisos.push('data/site.json: falta el WhatsApp de contacto.');
 const destacada = site.planes.find((p) => p.id === 'destacada');
 if (destacada && !destacada.enlacePago) avisos.push('data/site.json: la ficha destacada no tiene enlace de suscripción de PayPal.');
+
+// Tiempos de cruce
+{
+  const c = site.cruces || {};
+  if (!c.enlacePrellenado) avisos.push('data/site.json: tiempos de cruce sin formulario ("cruces.enlacePrellenado"); nadie puede contar su tiempo. Ver docs/como-editar.md.');
+  else {
+    const r = configEnvio(c.enlacePrellenado);
+    if (r?.error) errores.push(`data/site.json: cruces.enlacePrellenado: ${r.error}.`);
+  }
+  if (c.enlacePrellenado && !c.csv) avisos.push('data/site.json: falta "cruces.csv"; los tiempos enviados no se mostrarán.');
+  if (c.csv && !/output=csv/.test(c.csv)) avisos.push('data/site.json: "cruces.csv" no parece un enlace publicado como CSV (…output=csv).');
+}
+const idsPaso = rutas.tramos.flatMap((t) => [t.paso, t.alternativa].filter(Boolean));
+for (const p of idsPaso) if (!p.id) errores.push(`data/rutas.json: el paso "${p.nombre}" no tiene "id".`);
 
 if (site.indexable === false) avisos.push('data/site.json: "indexable" es false; Google no indexará la web. Ponlo a true el día del lanzamiento.');
 
