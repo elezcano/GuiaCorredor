@@ -88,3 +88,14 @@ Un estado «operativo» o «con restricciones» con más de 30 días se muestra 
 - **Meteorología y tráfico**: `avisos.json` acepta avisos con `vigenteHasta`; un conector solo tendría que escribir ese archivo.
 - **Panel de administración**: los datos son JSON planos, compatibles con un CMS basado en Git (Decap CMS, por ejemplo) sin cambiar la web.
 - **Notificaciones**: el Canal de WhatsApp propuesto puede publicar cada cambio de `pasos.json` o `incidencias.json`.
+
+## Iteración 2 (14/11/2026): fiabilidad
+
+- **Validación única** (`scripts/validacion.mjs`): niveles Verificado, Sin verificar, Caducado y Borrador. Sustituye a la «regla de frescura» anterior y al aviso `borrador` de las fichas. Un estado solo se muestra confirmado si el dato y su ficha están verificados.
+- **Campos comunes** en todos los registros: `fuente` (con tipo), `publicado`, `verificado`, `validacion`.
+- **Sin duplicados**: las fichas ya no escriben el estado; las novedades no llevan estado; las notas de tramos que repetían incidencias se quitaron.
+- **Conexiones**: tramos con id; las incidencias apuntan a tramos y pasos y aparecen en Avisos, en la ficha del tramo o del paso y en el planificador.
+- **Planificador**: ficha de resultados que separa dato de la ruta, calculado, estimado (línea recta) y verificado / sin verificar.
+- **Calendario aduanero**: festivos y horarios de atención, con filtros por país, organismo, mes y fecha de cruce.
+- **Limpieza**: sin empresas ficticias ni email de ejemplo; novedades de más de 90 días marcadas como histórico; fechas de otro año con el año visible.
+- **Automatizable sin backend**: `npm run check` (datos), `npm run enlaces` (enlaces internos, también en la publicación) y `npm run informe` (contenidos incompletos). Un conector futuro solo tiene que escribir JSON con los cuatro campos comunes.

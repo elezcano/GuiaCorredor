@@ -5,18 +5,18 @@ resumen: Salida natural del noroeste argentino (Salta) hacia el Pacífico. Alter
 paises: AR, CL
 puntos: salta-jujuy, norte-chile
 revisado: 2026-11-14
-borrador: true
+validacion: borrador
 ---
 
 ## Qué es
 
 Paso cordillerano entre la provincia de **Salta** (Argentina) y el norte de Chile. Es la alternativa a Jama para llegar a los puertos de Antofagasta.
 
-## Estado
+## Cronología
 
-- En junio de 2026 recuperó su **operatividad plena**, tras volver la atención presencial de Aduana, Policía de Investigaciones y servicio fitosanitario chilenos.
-- Del lado argentino **quedan tramos por pavimentar** en la Ruta Nacional 51, que lleva al paso.
+- **Junio de 2026:** recuperó la operatividad plena, tras volver la atención presencial de Aduana, Policía de Investigaciones y servicio fitosanitario chilenos.
 
+El estado actual, las restricciones y las incidencias están en «Datos del paso», con su fuente y su fecha.
 ## Antes de salir
 
 - Verifica el estado de la RN51 y del paso antes de elegir entre Sico y [Jama](../jama/).
@@ -25,5 +25,7 @@ Paso cordillerano entre la provincia de **Salta** (Argentina) y el norte de Chil
 
 ## Fuentes
 
+- [Migraciones Argentina – Pasos internacionales y horarios](https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales)
+- [Comisión Nacional de Fronteras – Alertas de pasos internacionales](https://www.argentina.gob.ar/jefatura/comision-nacional-de-fronteras/alertas-de-pasos-internacionales)
 - [Infraestructura Pública – El Paso de Sico recupera su operatividad plena](https://www.infraestructurapublica.cl/el-paso-de-sico-recupera-su-operatividad-plena-en-el-corredor-bioceanico-argentino-chileno/)
 - [Infraestructura Pública – El corredor avanza con obras en los cuatro países](https://www.infraestructurapublica.cl/corredor-bioceanico-vial-avanza-con-obras-en-los-cuatro-paises/)

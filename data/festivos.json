@@ -1,5 +1,5 @@
 {
-  "nota": "Festivos nacionales con su norma. 'por-confirmar': la fecha puede moverse por decreto o falta la publicación oficial del año. Revisar cada noviembre-diciembre.",
+  "nota": "Festivos nacionales con su norma. organismo: general (feriado nacional) | aduana | migraciones | sanitario | complejo. validacion por-verificar = la fecha puede moverse por decreto o falta la publicación oficial del año. publicado null: la fuente es una norma.",
   "actualizado": "2026-11-14",
   "desde": "2026-11-15",
   "hasta": "2027-12-31",
@@ -16,800 +16,1084 @@
       "fecha": "2026-11-15",
       "nombre": "Proclamación de la República",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2026-11-20",
       "nombre": "Día de Zumbi y de la Conciencia Negra",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 14.759/2023",
-        "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2026-11-23",
       "nombre": "Día de la Soberanía Nacional",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
       },
-      "nota": "Trasladado del viernes 20 (artículo 6 de la Ley 27.399)."
+      "nota": "Trasladado del viernes 20 (artículo 6 de la Ley 27.399).",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2026-12-07",
       "nombre": "Día no laborable con fines turísticos",
       "tipo": "no-laborable",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Resolución JGM 164/2025",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/norma-421799/texto"
+        "url": "https://www.argentina.gob.ar/normativa/nacional/norma-421799/texto",
+        "tipo": "oficial"
       },
-      "nota": "No laborable: en el sector privado decide el empleador."
+      "nota": "No laborable: en el sector privado decide el empleador.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2026-12-08",
       "nombre": "Inmaculada Concepción de María",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2026-12-08",
       "nombre": "Inmaculada Concepción",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2026-12-08",
       "nombre": "Virgen de Caacupé",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2026-12-25",
       "nombre": "Navidad",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2026-12-25",
       "nombre": "Navidad",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2026-12-25",
       "nombre": "Navidad",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2026-12-25",
       "nombre": "Navidad",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-01-01",
       "nombre": "Año Nuevo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-01-01",
       "nombre": "Año Nuevo (Confraternización Universal)",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-01-01",
       "nombre": "Año Nuevo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-01-01",
       "nombre": "Año Nuevo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-02-08",
       "nombre": "Carnaval",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-02-08",
       "nombre": "Carnaval",
       "tipo": "facultativo",
-      "estado": "por-confirmar",
       "fuente": {
         "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
-        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/"
+        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
+        "tipo": "otra"
       },
-      "nota": "Punto facultativo federal, no feriado nacional. Pendiente de la portaria federal de 2027."
+      "nota": "Punto facultativo federal, no feriado nacional. Pendiente de la portaria federal de 2027.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": null,
+      "validacion": "por-verificar"
     },
     {
       "pais": "AR",
       "fecha": "2027-02-09",
       "nombre": "Carnaval",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-02-09",
       "nombre": "Carnaval",
       "tipo": "facultativo",
-      "estado": "por-confirmar",
       "fuente": {
         "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
-        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/"
+        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
+        "tipo": "otra"
       },
-      "nota": "Punto facultativo federal, no feriado nacional. Pendiente de la portaria federal de 2027."
+      "nota": "Punto facultativo federal, no feriado nacional. Pendiente de la portaria federal de 2027.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": null,
+      "validacion": "por-verificar"
     },
     {
       "pais": "PY",
       "fecha": "2027-03-01",
       "nombre": "Día de los Héroes",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
       },
-      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto."
+      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-03-24",
       "nombre": "Día de la Memoria por la Verdad y la Justicia",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-03-25",
       "nombre": "Jueves Santo",
       "tipo": "no-laborable",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
       },
-      "nota": "No laborable: en el sector privado decide el empleador."
+      "nota": "No laborable: en el sector privado decide el empleador.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-03-25",
       "nombre": "Jueves Santo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-03-26",
       "nombre": "Viernes Santo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-03-26",
       "nombre": "Viernes de la Pasión",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
-        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/"
+        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
+        "tipo": "otra"
       },
-      "nota": "Incluido cada año en el calendario federal."
+      "nota": "Incluido cada año en el calendario federal.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-03-26",
       "nombre": "Viernes Santo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-03-26",
       "nombre": "Viernes Santo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-03-27",
       "nombre": "Sábado Santo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-04-02",
       "nombre": "Día del Veterano y de los Caídos en Malvinas",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-04-21",
       "nombre": "Tiradentes",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-05-01",
       "nombre": "Día del Trabajo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-05-01",
       "nombre": "Día del Trabajo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-05-01",
       "nombre": "Día del Trabajo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Dirección del Trabajo",
-        "url": "https://dt.gob.cl/portal/1626/w3-article-99612.html"
-      }
+        "url": "https://dt.gob.cl/portal/1626/w3-article-99612.html",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-05-01",
       "nombre": "Día del Trabajador",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-05-14",
       "nombre": "Independencia Nacional",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-05-15",
       "nombre": "Independencia Nacional",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-05-21",
       "nombre": "Glorias Navales",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-05-25",
       "nombre": "Revolución de Mayo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-05-27",
       "nombre": "Corpus Christi",
       "tipo": "facultativo",
-      "estado": "por-confirmar",
       "fuente": {
         "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
-        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/"
+        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
+        "tipo": "otra"
       },
-      "nota": "Punto facultativo federal. Pendiente de la portaria federal de 2027."
+      "nota": "Punto facultativo federal. Pendiente de la portaria federal de 2027.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": null,
+      "validacion": "por-verificar"
     },
     {
       "pais": "PY",
       "fecha": "2027-06-12",
       "nombre": "Paz del Chaco",
       "tipo": "feriado",
-      "estado": "por-confirmar",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
       },
-      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto."
+      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": null,
+      "validacion": "por-verificar"
     },
     {
       "pais": "AR",
       "fecha": "2027-06-20",
       "nombre": "Paso a la Inmortalidad de Manuel Belgrano",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-06-20",
       "nombre": "Jura de la Constitución Nacional",
       "tipo": "feriado",
-      "estado": "por-confirmar",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
       },
-      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto."
+      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": null,
+      "validacion": "por-verificar"
     },
     {
       "pais": "AR",
       "fecha": "2027-06-21",
       "nombre": "Paso a la Inmortalidad de Martín Miguel de Güemes",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
       },
-      "nota": "Trasladado del jueves 17 (artículo 6 de la Ley 27.399)."
+      "nota": "Trasladado del jueves 17 (artículo 6 de la Ley 27.399).",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-06-21",
       "nombre": "Día Nacional de los Pueblos Indígenas",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Biblioteca del Congreso Nacional – Legislación sobre feriados",
-        "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151"
+        "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151",
+        "tipo": "oficial"
       },
-      "nota": "Se celebra el día del solsticio de invierno."
+      "nota": "Se celebra el día del solsticio de invierno.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-06-28",
       "nombre": "San Pedro y San Pablo",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 19.668 (traslado a lunes)",
-        "url": "https://www.dt.gob.cl/legislacion/1624/w3-article-126661.html"
+        "url": "https://www.dt.gob.cl/legislacion/1624/w3-article-126661.html",
+        "tipo": "oficial"
       },
-      "nota": "Trasladado del martes 29 al lunes de esa semana."
+      "nota": "Trasladado del martes 29 al lunes de esa semana.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-07-09",
       "nombre": "Día de la Independencia",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-07-16",
       "nombre": "Virgen del Carmen",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Biblioteca del Congreso Nacional – Legislación sobre feriados",
-        "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151"
-      }
+        "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-08-15",
       "nombre": "Asunción de la Virgen",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-08-15",
       "nombre": "Fundación de Asunción",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-08-16",
       "nombre": "Paso a la Inmortalidad de José de San Martín",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
       },
-      "nota": "Trasladado del martes 17 (artículo 6 de la Ley 27.399)."
+      "nota": "Trasladado del martes 17 (artículo 6 de la Ley 27.399).",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-09-07",
       "nombre": "Independencia",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-09-17",
       "nombre": "Feriado de Fiestas Patrias",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 20.983",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=1098384"
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=1098384",
+        "tipo": "oficial"
       },
-      "nota": "El 18 y el 19 caen en sábado y domingo."
+      "nota": "El 18 y el 19 caen en sábado y domingo.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-09-18",
       "nombre": "Independencia Nacional",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-09-19",
       "nombre": "Glorias del Ejército",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-09-29",
       "nombre": "Batalla de Boquerón",
       "tipo": "feriado",
-      "estado": "por-confirmar",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
       },
-      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto."
+      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": null,
+      "validacion": "por-verificar"
     },
     {
       "pais": "AR",
       "fecha": "2027-10-11",
       "nombre": "Día del Respeto a la Diversidad Cultural",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
       },
-      "nota": "Trasladado del martes 12 (artículo 6 de la Ley 27.399)."
+      "nota": "Trasladado del martes 12 (artículo 6 de la Ley 27.399).",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-10-11",
       "nombre": "Encuentro de Dos Mundos",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 19.668 (traslado a lunes)",
-        "url": "https://www.dt.gob.cl/legislacion/1624/w3-article-126661.html"
+        "url": "https://www.dt.gob.cl/legislacion/1624/w3-article-126661.html",
+        "tipo": "oficial"
       },
-      "nota": "Trasladado del martes 12 al lunes de esa semana."
+      "nota": "Trasladado del martes 12 al lunes de esa semana.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-10-12",
       "nombre": "Nuestra Señora Aparecida",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
-        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/"
-      }
+        "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
+        "tipo": "otra"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-10-31",
       "nombre": "Iglesias Evangélicas y Protestantes",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Biblioteca del Congreso Nacional – Legislación sobre feriados",
-        "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151"
-      }
+        "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-11-01",
       "nombre": "Todos los Santos",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-11-02",
       "nombre": "Día de Difuntos",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-11-15",
       "nombre": "Proclamación de la República",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-11-20",
       "nombre": "Día de la Soberanía Nacional",
       "tipo": "feriado",
-      "estado": "por-confirmar",
       "fuente": {
         "nombre": "Decreto 614/2025",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/decreto-614-2025-416911/texto"
+        "url": "https://www.argentina.gob.ar/normativa/nacional/decreto-614-2025-416911/texto",
+        "tipo": "oficial"
       },
-      "nota": "Cae en sábado: el Gobierno puede trasladarlo al viernes 19 o al lunes 22."
+      "nota": "Cae en sábado: el Gobierno puede trasladarlo al viernes 19 o al lunes 22.",
+      "organismo": "general",
+      "publicado": null,
+      "verificado": null,
+      "validacion": "por-verificar"
     },
     {
       "pais": "BR",
       "fecha": "2027-11-20",
       "nombre": "Día de Zumbi y de la Conciencia Negra",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 14.759/2023",
-        "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-12-08",
       "nombre": "Inmaculada Concepción de María",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-12-08",
       "nombre": "Inmaculada Concepción",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-12-08",
       "nombre": "Virgen de Caacupé",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "AR",
       "fecha": "2027-12-25",
       "nombre": "Navidad",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 27.399",
-        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto"
-      }
+        "url": "https://www.argentina.gob.ar/normativa/nacional/ley-27399-281835/texto",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "BR",
       "fecha": "2027-12-25",
       "nombre": "Navidad",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Lei 662/1949 (redacción de la Lei 10.607/2002)",
-        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm"
-      }
+        "url": "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "CL",
       "fecha": "2027-12-25",
       "nombre": "Navidad",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 2.977",
-        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639"
-      }
+        "url": "https://www.bcn.cl/leychile/navegar?idNorma=23639",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     },
     {
       "pais": "PY",
       "fecha": "2027-12-25",
       "nombre": "Navidad",
       "tipo": "feriado",
-      "estado": "confirmado",
       "fuente": {
         "nombre": "Ley 7544/2025",
-        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025"
-      }
+        "url": "https://www.bacn.gov.py/leyes-paraguayas/12908/ley-n-7544-2025",
+        "tipo": "oficial"
+      },
+      "organismo": "general",
+      "publicado": null,
+      "verificado": "2026-11-14",
+      "validacion": "verificado"
     }
   ]
 }

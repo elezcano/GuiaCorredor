@@ -4,63 +4,62 @@ Todo se edita desde GitHub en el navegador: abre el archivo, pulsa el lápiz, ca
 
 ## Añadir una empresa al directorio
 
-1. Abre `data/directorio.json`.
-2. Copia un bloque `{ ... }` entero, pégalo antes del último `]` y separa con una coma.
-3. Cambia los datos. El `id` no puede repetirse.
-4. Para hacerla destacada (ha pagado): `"destacada": true`.
+Solo se publican empresas que han confirmado sus datos (por WhatsApp, email o llamada). Nunca empresas de ejemplo ni datos sin confirmar.
+
+1. Abre `data/directorio.json` (es una lista `[ ]`).
+2. Añade un bloque por empresa. El `id` no puede repetirse.
+3. Para hacerla destacada (ha pagado): `"destacada": true`.
 
 ```json
 {
-  "id": "transportes-ejemplo-loma-plata",
-  "nombre": "Transportes Ejemplo",
-  "categoria": "transportista",
+  "id": "nombre-empresa-ciudad",
+  "nombre": "Nombre de la empresa",
+  "categoria": "transitario",
   "pais": "PY",
   "ciudad": "Loma Plata",
-  "servicios": ["Granos", "Ganado"],
-  "descripcion": "Flota de 20 camiones, rutas Chaco – Salta.",
+  "servicios": ["Granos"],
+  "descripcion": "Lo que la empresa ha confirmado.",
   "destacada": false,
-  "puntos": ["carmelo-peralta", "mariscal-estigarribia"],
-  "contacto": { "email": "info@ejemplo.com", "whatsapp": "595981000000", "web": "" }
+  "puntos": ["mariscal-estigarribia"],
+  "contacto": { "email": "", "whatsapp": "", "web": "" },
+  "fuente": { "nombre": "Confirmado por la empresa", "url": "https://web-de-la-empresa", "tipo": "otra" },
+  "publicado": null,
+  "verificado": "AAAA-MM-DD",
+  "validacion": "verificado"
 }
 ```
 
-`puntos` son los lugares de la ruta donde da servicio. Es lo que hace que la empresa aparezca en el planificador, en las páginas de la guía y en la portada. Valores válidos: `campo-grande`, `porto-murtinho`, `carmelo-peralta`, `mariscal-estigarribia`, `pozo-hondo`, `salta-jujuy`, `norte-chile`, `puertos-chile`.
-
-Tipos válidos (`categoria`): `transitario`, `transportista`, `despachante`, `deposito`, `taller`, `seguro`, `servicios`.
+`puntos`: `campo-grande`, `porto-murtinho`, `carmelo-peralta`, `mariscal-estigarribia`, `pozo-hondo`, `salta-jujuy`, `norte-chile`, `puertos-chile`. Categorías: ver `data/categorias.json`. La confirmación caduca al año: vuelve a escribirles.
 
 ## Añadir o actualizar una página de la guía
 
 1. En `content/guia/pasos/` (o `tramos/`, `documentos/`) crea `nombre-del-paso.md`.
-2. Copia la cabecera de otra página y cámbiala.
-3. Escribe el contenido. Termina siempre con `## Fuentes` y los enlaces.
+2. Copia la cabecera de otra página. No pongas `estado:`: sale de los datos.
+3. Escribe el contenido. Termina con `## Fuentes` y los enlaces (mejor si hay alguno oficial).
 4. Al revisar una página, actualiza `revisado:` con la fecha del día.
-5. Cuando el despachante la haya validado, borra la línea `borrador: true`.
+5. Mientras no esté revisada: `validacion: borrador`. Cuando el despachante la haya validado: `validacion: verificado` y `verificado: AAAA-MM-DD`.
 
 ## Añadir una novedad
 
-Lo que hace que la web parezca viva. Abre `data/novedades.json` y añade un bloque al principio:
+Abre `data/novedades.json` y añade un bloque al principio:
 
 ```json
 {
-  "fecha": "2026-12-02",
+  "publicado": "2026-12-02",
   "tema": "Paso fronterizo",
-  "estado": "intermitente",
   "titulo": "Paso de Jama cerrado por nieve",
   "detalle": "Reapertura prevista cuando mejore el tiempo del lado chileno.",
   "guia": "pasos/jama",
   "paises": ["AR", "CL"],
-  "fuente": { "nombre": "Vialidad Chile", "url": "https://..." }
+  "fuente": { "nombre": "Vialidad Chile", "url": "https://...", "tipo": "oficial" },
+  "verificado": null,
+  "validacion": "por-verificar"
 }
 ```
 
-- `tema`: Obras, Paso fronterizo, Acuerdos, Aviso…
-- `estado` (opcional) colorea el punto de la línea de tiempo: `operativo`, `en-obras`, `intermitente`, `pendiente`.
-- `paises`: países afectados (`BR`, `PY`, `AR`, `CL`); sirven para el filtro por país de la página de novedades.
-- `guia` (opcional) la enlaza con su página y la muestra allí en "Últimos cambios".
-- **Sin fuente no se publica:** la revisión automática lo rechaza.
-- Si el cambio afecta al estado de un tramo, cambia también `data/rutas.json` (siguiente apartado).
-
-La revisión avisa si la última novedad tiene más de 30 días: una portada parada da mala imagen.
+- Las novedades **no** llevan estado. Si la noticia cambia el estado de un paso o un tramo, actualízalo en `data/pasos.json` o `data/rutas.json`, y si es una obra o un corte, añade la incidencia en `data/incidencias.json`.
+- `guia` la muestra en «Últimos cambios» de esa ficha.
+- A los 90 días pasa a «Histórico» y deja de salir en la portada.
 
 ## Cobrar la ficha destacada con PayPal
 
@@ -96,49 +95,55 @@ Se hace una vez y lleva unos 5 minutos:
 - Cada navegador cuenta una vez por paso y día. No es a prueba de alguien empeñado en falsear, pero la mediana aguanta reportes sueltos extremos.
 - GitHub desactiva las tareas programadas si el repositorio pasa 60 días sin cambios. Si los tiempos dejan de actualizarse, haz cualquier cambio (una novedad) o pulsa **Actions → Publicar web → Enable workflow**.
 
-## Datos operativos (sin tocar código)
+## Validación: un solo sistema para todo el portal
 
-Cada archivo de `data/` alimenta una sección. Todo registro lleva **fuente** (nombre y url) y **fecha**; `npm run check` no deja publicar sin ellas.
+Todo dato operativo lleva estos cuatro campos:
 
-| Archivo | Qué cambias | Cuándo |
+| Campo | Qué es |
+|---|---|
+| `fuente` | `{ "nombre", "url", "tipo" }`; tipo: `oficial`, `prensa` u `otra` |
+| `publicado` | Fecha (AAAA-MM-DD) en que la fuente publicó el dato. `null` si es una norma o no consta |
+| `verificado` | Fecha en que alguien del equipo lo comprobó contra la fuente. `null` si nadie |
+| `validacion` | `verificado`, `por-verificar` o `borrador` |
+
+**Regla:** un estado (operativo, en obras…) solo se muestra como confirmado si el dato está `verificado` **y** su ficha también. Si no, la web muestra «Por verificar» con el último dato, su fuente y su fecha. Una verificación caduca sola:
+
+| Tipo de dato | Caduca a los |
+|---|---|
+| Estado operativo de paso o tramo | 30 días |
+| Estado de obra o cierre | 120 días |
+| Incidencia | 60 días |
+| Horario | 180 días |
+| Ficha, empresa, enlace de organismo | 365 días |
+
+**Para marcar algo como verificado:** comprueba el dato en la fuente (mejor oficial), pon `"validacion": "verificado"` y `"verificado": "AAAA-MM-DD"` con la fecha de hoy. En una ficha Markdown, en la cabecera: `validacion: verificado` y `verificado: AAAA-MM-DD`.
+
+## Dónde está cada dato (sin duplicados)
+
+| Dato | Archivo | Aparece en |
 |---|---|---|
-| `pasos.json` | `estado.valor` (operativo, restricciones, cierre-programado, cerrado, en-obras, pendiente), `estado.texto`, `estado.fecha`, `estado.fuente`; horarios, restricciones, acceso | Cuando salga un parte oficial |
-| `incidencias.json` | Añade una entrada por obra, corte o restricción; pon `"estado": "resuelta"` cuando termine | Al conocer la novedad |
-| `festivos.json` | Añade el año siguiente y cambia `"por-confirmar"` a `"confirmado"` cuando se publique el decreto | Noviembre–diciembre |
-| `avisos.json` | Copia un aviso meteorológico oficial con `titulo`, `zona`, `vigenteHasta` (AAAA-MM-DD) y `fuente`. Desaparece solo al vencer | Solo si afecta a la ruta |
-| `organismos.json` | Corrige un enlace roto y actualiza `verificado` | Al detectarlo |
+| Estado de un paso | `data/pasos.json` → `estado` | Portada, mapa, Fronteras, ficha, planificador |
+| Horarios y horarios especiales | `data/pasos.json` → `horarios`, `horariosEspeciales` | Ficha del paso y calendario aduanero |
+| Estado y distancia de un tramo | `data/rutas.json` → `reporte`, `km`, `kmTipo` | Ficha del tramo y planificador |
+| Obras, cortes, restricciones | `data/incidencias.json` (con `tramos` y/o `paso`) | Avisos, ficha del tramo o paso, planificador, portada |
+| Noticias | `data/novedades.json` (con `guia`) | Novedades, portada (90 días) y ficha vinculada |
+| Festivos | `data/festivos.json` | Calendario, portada, planificador |
+| Organismos | `data/organismos.json` | Fichas, avisos, papeles |
+| Empresas | `data/directorio.json` (solo `validacion: verificado`) | Servicios, fichas, planificador |
 
-Reglas que aplica la web sola:
+Las fichas Markdown **no** llevan estado ni una sección «## Estado»: el estado se genera desde los datos.
 
-- Un estado «operativo» o «con restricciones» con más de **30 días** se muestra como «Por verificar» con su último dato. Uno de obra o cierre, a los **120 días**.
-- Lo que dejes vacío o en `null` se muestra como «Sin verificar». No pongas datos que no tengan fuente.
+- **Incidencia:** `tramos` = ids de `data/rutas.json` (`cg-pm`, `puente`, `cp-me`, `me-ph`, `pozo-hondo`, `andes`, `calama-puertos`). Si además lleva `paso`, solo se muestra en la variante de ruta que pasa por ese paso. Tipos: `obra`, `restriccion`, `corte`, `pendiente`, `peso`, `desvio`. Pon `"estado": "resuelta"` cuando termine.
+- **Distancia de un tramo:** `kmTipo: "fuente"` con `kmFuente`, o `kmTipo: "calculado"` con `kmNota` explicando la cuenta. Sin km, el planificador estima la línea recta y lo marca como «Estimado».
+- **Horario especial:** en `horariosEspeciales` con `desde`, `hasta`, `organismo` (`aduana`, `migraciones`, `sanitario`, `complejo`), `lado`, `texto` y los cuatro campos comunes.
+- **Avisos meteorológicos:** `data/avisos.json` con `titulo`, `zona`, `vigenteHasta` y los campos comunes. Desaparecen solos al vencer.
+- **Festivos:** añade el año siguiente cada noviembre; los traslados por decreto van con `validacion: por-verificar` hasta que se publiquen.
 
-Ejemplo de incidencia:
+## Comprobaciones
 
-```json
-{
-  "id": "rn52-corte-nieve",
-  "paises": ["AR"],
-  "ubicacion": "Purmamarca – Jama",
-  "tramo": "Ruta Nacional 52",
-  "tipo": "corte",
-  "estado": "activa",
-  "descripcion": "Cortada por nieve entre Susques y Jama.",
-  "inicio": "2027-06-10",
-  "finPrevista": null,
-  "impacto": "Sin paso para camiones hasta nuevo aviso.",
-  "paso": "jama",
-  "fuente": { "nombre": "Vialidad Nacional", "url": "https://…", "fecha": "2027-06-10" },
-  "actualizado": "2027-06-10"
-}
-```
-
-Tipos de incidencia: `obra`, `restriccion`, `corte`, `pendiente` (infraestructura sin habilitar), `peso`, `desvio`.
-
-## Cambiar el estado de un tramo o paso
-
-- **Pasos fronterizos**: solo en `data/pasos.json` (ver arriba). La ficha, el mapa, la portada y el planificador lo toman de ahí.
-- **Tramos de carretera**: en `data/rutas.json`, `"estado"` del tramo (`operativo`, `en-obras`, `intermitente` o `pendiente`), y el `estado:` de su página de guía si la tiene.
+- `npm run check`: no deja publicar si falta fuente, fecha o validación, o si un dato apunta a algo que no existe.
+- `npm run enlaces`: tras `npm run build`, comprueba que ningún enlace interno esté roto (también se ejecuta al publicar).
+- `npm run informe`: regenera `docs/informe-contenidos.md` con lo que falta, lo que está sin verificar y el tipo de fuentes de cada ficha.
 
 ## Si algo falla
 

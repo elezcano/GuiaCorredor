@@ -1,98 +1,311 @@
 {
-  "nota": "Ficha operativa de cada paso. 'estado' necesita fuente y fecha. Lo que no esté verificado se deja vacío y la web lo muestra como pendiente.",
+  "nota": "Ficha operativa de cada paso. Cada dato lleva fuente (nombre, url, tipo), publicado, verificado y validacion. Solo lo verificado se muestra como confirmado. horariosEspeciales: [{desde, hasta, organismo, lado, texto, fuente, publicado, verificado, validacion}].",
   "pasos": [
     {
       "id": "puente-bioceanica",
       "nombre": "Puente de la Bioceánica",
-      "lados": { "BR": "Porto Murtinho", "PY": "Carmelo Peralta" },
-      "ubicacion": { "texto": "Sobre el río Paraguay, entre Porto Murtinho (Mato Grosso do Sul) y Carmelo Peralta (Alto Paraguay).", "lat": -21.69, "lon": -57.90 },
+      "lados": {
+        "BR": "Porto Murtinho",
+        "PY": "Carmelo Peralta"
+      },
+      "ubicacion": {
+        "texto": "Sobre el río Paraguay, entre Porto Murtinho (Mato Grosso do Sul) y Carmelo Peralta (Alto Paraguay).",
+        "lat": -21.69,
+        "lon": -57.9
+      },
       "estado": {
         "valor": "en-obras",
         "texto": "No habilitado al tránsito. Trabajos de terminación en ambas márgenes; accesos previstos para febrero de 2027.",
-        "fecha": "2026-10-14",
-        "fuente": { "nombre": "Revista Plus", "url": "https://revistaplus.com.py/2026/10/14/el-puente-de-la-bioceanica-avanza-con-trabajos-en-ambas-margenes-del-rio-paraguay/" }
+        "fuente": {
+          "nombre": "Revista Plus",
+          "url": "https://revistaplus.com.py/2026/10/14/el-puente-de-la-bioceanica-avanza-con-trabajos-en-ambas-margenes-del-rio-paraguay/",
+          "tipo": "prensa"
+        },
+        "publicado": "2026-10-14",
+        "verificado": null,
+        "validacion": "por-verificar"
       },
       "horarios": [],
       "operaciones": null,
       "restricciones": [],
-      "organismos": ["br-receita", "py-dnit", "py-senave"],
-      "acceso": [{ "texto": "Del lado paraguayo conecta con la Ruta PY15 por el Chaco.", "fuente": { "nombre": "MOPC", "url": "https://mopc.gov.py/mopc-participara-en-reunion-clave-para-avanzar-con-el-puente-bioceanico-entre-paraguay-y-brasil/" } }],
+      "organismos": [
+        "br-receita",
+        "py-dnit",
+        "py-senave"
+      ],
+      "acceso": [
+        {
+          "texto": "Del lado paraguayo conecta con la Ruta PY15 por el Chaco.",
+          "fuente": {
+            "nombre": "MOPC",
+            "url": "https://mopc.gov.py/mopc-participara-en-reunion-clave-para-avanzar-con-el-puente-bioceanico-entre-paraguay-y-brasil/",
+            "tipo": "oficial"
+          },
+          "publicado": null,
+          "verificado": null,
+          "validacion": "por-verificar"
+        }
+      ],
       "servicios": [],
       "contactos": [],
-      "revisado": "2026-11-14"
+      "revisado": "2026-11-14",
+      "horariosEspeciales": []
     },
     {
       "id": "pozo-hondo",
       "nombre": "Pozo Hondo – Misión La Paz",
-      "lados": { "PY": "Pozo Hondo", "AR": "Misión La Paz" },
-      "ubicacion": { "texto": "Sobre el río Pilcomayo, entre Pozo Hondo (Boquerón) y Misión La Paz (Salta).", "lat": -22.37, "lon": -62.53 },
+      "lados": {
+        "PY": "Pozo Hondo",
+        "AR": "Misión La Paz"
+      },
+      "ubicacion": {
+        "texto": "Sobre el río Pilcomayo, entre Pozo Hondo (Boquerón) y Misión La Paz (Salta).",
+        "lat": -22.37,
+        "lon": -62.53
+      },
       "estado": {
         "valor": "pendiente",
         "texto": "Migraciones de Argentina lo lista como paso habilitado. No hemos confirmado las condiciones para carga pesada.",
-        "fecha": "2025-12-10",
-        "fuente": { "nombre": "Migraciones Argentina", "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales" }
+        "fuente": {
+          "nombre": "Migraciones Argentina",
+          "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales",
+          "tipo": "oficial"
+        },
+        "publicado": "2025-12-10",
+        "verificado": null,
+        "validacion": "por-verificar"
       },
       "horarios": [
-        { "lado": "AR", "texto": "8 a 20 h (oficina de Migraciones)", "fecha": "2025-12-10", "fuente": { "nombre": "Migraciones Argentina", "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales" } }
+        {
+          "lado": "AR",
+          "texto": "8 a 20 h (oficina de Migraciones)",
+          "fuente": {
+            "nombre": "Migraciones Argentina",
+            "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales",
+            "tipo": "oficial"
+          },
+          "publicado": "2025-12-10",
+          "verificado": null,
+          "validacion": "por-verificar",
+          "organismo": "migraciones"
+        }
       ],
       "operaciones": null,
       "restricciones": [],
-      "organismos": ["py-dnit", "ar-arca", "ar-migraciones", "ar-senasa"],
-      "acceso": [{ "texto": "Del lado paraguayo, la PY15 entre Mariscal Estigarribia y Pozo Hondo está en obras (Lote 3).", "fuente": { "nombre": "Última Hora", "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html" } }],
+      "organismos": [
+        "py-dnit",
+        "ar-arca",
+        "ar-migraciones",
+        "ar-senasa"
+      ],
+      "acceso": [
+        {
+          "texto": "Del lado paraguayo, la PY15 entre Mariscal Estigarribia y Pozo Hondo está en obras (Lote 3).",
+          "fuente": {
+            "nombre": "Última Hora",
+            "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html",
+            "tipo": "prensa"
+          },
+          "publicado": null,
+          "verificado": null,
+          "validacion": "por-verificar"
+        }
+      ],
       "servicios": [],
       "contactos": [],
-      "revisado": "2026-11-14"
+      "revisado": "2026-11-14",
+      "horariosEspeciales": []
     },
     {
       "id": "jama",
       "nombre": "Paso de Jama",
-      "lados": { "AR": "Jama (Jujuy)", "CL": "San Pedro de Atacama" },
-      "ubicacion": { "texto": "Cordillera de los Andes, a unos 4.200 m de altitud. RN52 (Argentina) y CH-27 (Chile).", "lat": -23.24, "lon": -67.03 },
+      "lados": {
+        "AR": "Jama (Jujuy)",
+        "CL": "San Pedro de Atacama"
+      },
+      "ubicacion": {
+        "texto": "Cordillera de los Andes, a unos 4.200 m de altitud. RN52 (Argentina) y CH-27 (Chile).",
+        "lat": -23.24,
+        "lon": -67.03
+      },
       "estado": {
         "valor": "operativo",
         "texto": "Habilitado para todo tipo de vehículos en ambos sentidos, con precaución por las condiciones climáticas.",
-        "fecha": "2026-11-07",
-        "fuente": { "nombre": "TodoJujuy (parte de Migraciones)", "url": "https://www.todojujuy.com/paso-jama-habilitado-aunque-advierten-las-condiciones-circular-n298530" }
+        "fuente": {
+          "nombre": "TodoJujuy (parte de Migraciones)",
+          "url": "https://www.todojujuy.com/paso-jama-habilitado-aunque-advierten-las-condiciones-circular-n298530",
+          "tipo": "prensa"
+        },
+        "publicado": "2026-11-07",
+        "verificado": null,
+        "validacion": "por-verificar"
       },
       "horarios": [
-        { "lado": "AR y CL", "texto": "8 a 20 h, según el parte del 7 de noviembre de 2026", "fecha": "2026-11-07", "fuente": { "nombre": "TodoJujuy (parte de Migraciones)", "url": "https://www.todojujuy.com/paso-jama-habilitado-aunque-advierten-las-condiciones-circular-n298530" } },
-        { "lado": "AR", "texto": "Migraciones publica 8 a 18 h en su listado oficial (página de diciembre de 2025)", "fecha": "2025-12-10", "fuente": { "nombre": "Migraciones Argentina", "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales" } }
+        {
+          "lado": "AR y CL",
+          "texto": "8 a 20 h, según el parte del 7 de noviembre de 2026",
+          "fuente": {
+            "nombre": "TodoJujuy (parte de Migraciones)",
+            "url": "https://www.todojujuy.com/paso-jama-habilitado-aunque-advierten-las-condiciones-circular-n298530",
+            "tipo": "prensa"
+          },
+          "publicado": "2026-11-07",
+          "verificado": null,
+          "validacion": "por-verificar",
+          "organismo": "complejo"
+        },
+        {
+          "lado": "AR",
+          "texto": "Migraciones publica 8 a 18 h en su listado oficial (página de diciembre de 2025)",
+          "fuente": {
+            "nombre": "Migraciones Argentina",
+            "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales",
+            "tipo": "oficial"
+          },
+          "publicado": "2025-12-10",
+          "verificado": null,
+          "validacion": "por-verificar",
+          "organismo": "migraciones"
+        }
       ],
       "operaciones": null,
       "restricciones": [
-        { "texto": "En temporada invernal se exige llevar cadenas en los pasos cordilleranos, aunque la calzada esté despejada.", "fecha": "2026-04-27", "fuente": { "nombre": "Comisión Nacional de Fronteras", "url": "https://www.argentina.gob.ar/jefatura/comision-nacional-de-fronteras/alertas-de-pasos-internacionales" } },
-        { "texto": "Cierres preventivos por clima, decididos por Chile en la ruta CH-27 (el último registrado, el 30 de octubre de 2026).", "fecha": "2026-10-30", "fuente": { "nombre": "TodoJujuy", "url": "https://www.todojujuy.com/paso-jama-chile-ordeno-un-nuevo-cierre-preventivo-las-12-n298182" } }
+        {
+          "texto": "En temporada invernal se exige llevar cadenas en los pasos cordilleranos, aunque la calzada esté despejada.",
+          "fuente": {
+            "nombre": "Comisión Nacional de Fronteras",
+            "url": "https://www.argentina.gob.ar/jefatura/comision-nacional-de-fronteras/alertas-de-pasos-internacionales",
+            "tipo": "oficial"
+          },
+          "publicado": "2026-04-27",
+          "verificado": null,
+          "validacion": "por-verificar"
+        },
+        {
+          "texto": "Cierres preventivos por clima, decididos por Chile en la ruta CH-27 (el último registrado, el 30 de octubre de 2026).",
+          "fuente": {
+            "nombre": "TodoJujuy",
+            "url": "https://www.todojujuy.com/paso-jama-chile-ordeno-un-nuevo-cierre-preventivo-las-12-n298182",
+            "tipo": "prensa"
+          },
+          "publicado": "2026-10-30",
+          "verificado": null,
+          "validacion": "por-verificar"
+        }
       ],
-      "organismos": ["ar-arca", "ar-migraciones", "ar-senasa", "cl-aduanas", "cl-sag"],
-      "acceso": [{ "texto": "RN52 por Purmamarca y Susques (Argentina); CH-27 hacia San Pedro de Atacama (Chile).", "fuente": { "nombre": "TodoJujuy", "url": "https://www.todojujuy.com/jujuy/paso-jama-abierto-ambos-sentidos-pero-piden-circular-precaucion-n293054" } }],
+      "organismos": [
+        "ar-arca",
+        "ar-migraciones",
+        "ar-senasa",
+        "cl-aduanas",
+        "cl-sag"
+      ],
+      "acceso": [
+        {
+          "texto": "RN52 por Purmamarca y Susques (Argentina); CH-27 hacia San Pedro de Atacama (Chile).",
+          "fuente": {
+            "nombre": "TodoJujuy",
+            "url": "https://www.todojujuy.com/jujuy/paso-jama-abierto-ambos-sentidos-pero-piden-circular-precaucion-n293054",
+            "tipo": "prensa"
+          },
+          "publicado": null,
+          "verificado": null,
+          "validacion": "por-verificar"
+        }
+      ],
       "servicios": [],
       "contactos": [],
-      "revisado": "2026-11-14"
+      "revisado": "2026-11-14",
+      "horariosEspeciales": []
     },
     {
       "id": "sico",
       "nombre": "Paso de Sico",
-      "lados": { "AR": "Sico (Salta)", "CL": "Región de Antofagasta" },
-      "ubicacion": { "texto": "Cordillera de los Andes. RN51 desde Salta (Argentina) y CH-23 (Chile).", "lat": -23.83, "lon": -67.27 },
+      "lados": {
+        "AR": "Sico (Salta)",
+        "CL": "Región de Antofagasta"
+      },
+      "ubicacion": {
+        "texto": "Cordillera de los Andes. RN51 desde Salta (Argentina) y CH-23 (Chile).",
+        "lat": -23.83,
+        "lon": -67.27
+      },
       "estado": {
         "valor": "operativo",
         "texto": "Recuperó la operatividad plena al volver la atención presencial de Aduana, PDI y SAG del lado chileno.",
-        "fecha": "2026-06-14",
-        "fuente": { "nombre": "Infraestructura Pública", "url": "https://www.infraestructurapublica.cl/el-paso-de-sico-recupera-su-operatividad-plena-en-el-corredor-bioceanico-argentino-chileno/" }
+        "fuente": {
+          "nombre": "Infraestructura Pública",
+          "url": "https://www.infraestructurapublica.cl/el-paso-de-sico-recupera-su-operatividad-plena-en-el-corredor-bioceanico-argentino-chileno/",
+          "tipo": "prensa"
+        },
+        "publicado": "2026-06-14",
+        "verificado": null,
+        "validacion": "por-verificar"
       },
       "horarios": [
-        { "lado": "AR", "texto": "8 a 20 h (oficina de Migraciones)", "fecha": "2025-12-10", "fuente": { "nombre": "Migraciones Argentina", "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales" } }
+        {
+          "lado": "AR",
+          "texto": "8 a 20 h (oficina de Migraciones)",
+          "fuente": {
+            "nombre": "Migraciones Argentina",
+            "url": "https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales",
+            "tipo": "oficial"
+          },
+          "publicado": "2025-12-10",
+          "verificado": null,
+          "validacion": "por-verificar",
+          "organismo": "migraciones"
+        }
       ],
       "operaciones": null,
       "restricciones": [
-        { "texto": "Quedan tramos sin pavimentar en la RN51 del lado argentino.", "fecha": "2026-11-14", "fuente": { "nombre": "Infraestructura Pública", "url": "https://www.infraestructurapublica.cl/corredor-bioceanico-vial-avanza-con-obras-en-los-cuatro-paises/" } },
-        { "texto": "En temporada invernal se exige llevar cadenas en los pasos cordilleranos.", "fecha": "2026-04-27", "fuente": { "nombre": "Comisión Nacional de Fronteras", "url": "https://www.argentina.gob.ar/jefatura/comision-nacional-de-fronteras/alertas-de-pasos-internacionales" } }
+        {
+          "texto": "Quedan tramos sin pavimentar en la RN51 del lado argentino.",
+          "fuente": {
+            "nombre": "Infraestructura Pública",
+            "url": "https://www.infraestructurapublica.cl/corredor-bioceanico-vial-avanza-con-obras-en-los-cuatro-paises/",
+            "tipo": "prensa"
+          },
+          "publicado": "2026-11-14",
+          "verificado": null,
+          "validacion": "por-verificar"
+        },
+        {
+          "texto": "En temporada invernal se exige llevar cadenas en los pasos cordilleranos.",
+          "fuente": {
+            "nombre": "Comisión Nacional de Fronteras",
+            "url": "https://www.argentina.gob.ar/jefatura/comision-nacional-de-fronteras/alertas-de-pasos-internacionales",
+            "tipo": "oficial"
+          },
+          "publicado": "2026-04-27",
+          "verificado": null,
+          "validacion": "por-verificar"
+        }
       ],
-      "organismos": ["ar-arca", "ar-migraciones", "ar-senasa", "cl-aduanas", "cl-sag"],
-      "acceso": [{ "texto": "RN51 desde Salta por San Antonio de los Cobres.", "fuente": { "nombre": "Infraestructura Pública", "url": "https://www.infraestructurapublica.cl/corredor-bioceanico-vial-avanza-con-obras-en-los-cuatro-paises/" } }],
+      "organismos": [
+        "ar-arca",
+        "ar-migraciones",
+        "ar-senasa",
+        "cl-aduanas",
+        "cl-sag"
+      ],
+      "acceso": [
+        {
+          "texto": "RN51 desde Salta por San Antonio de los Cobres.",
+          "fuente": {
+            "nombre": "Infraestructura Pública",
+            "url": "https://www.infraestructurapublica.cl/corredor-bioceanico-vial-avanza-con-obras-en-los-cuatro-paises/",
+            "tipo": "prensa"
+          },
+          "publicado": null,
+          "verificado": null,
+          "validacion": "por-verificar"
+        }
+      ],
       "servicios": [],
       "contactos": [],
-      "revisado": "2026-11-14"
+      "revisado": "2026-11-14",
+      "horariosEspeciales": []
     }
   ]
 }

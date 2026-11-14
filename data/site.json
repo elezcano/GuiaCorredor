@@ -5,10 +5,9 @@
   "url": "https://elezcano.github.io",
   "basePath": "/GuiaCorredor",
   "idioma": "es",
-  "mostrarEjemplos": true,
   "indexable": false,
   "contacto": {
-    "email": "contacto@example.com",
+    "email": "",
     "whatsapp": ""
   },
   "planes": [

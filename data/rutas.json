@@ -1,88 +1,128 @@
 {
-  "nota": "Distancias: solo se muestran las que tienen fuente. El resto queda 'por verificar' hasta que se confirmen. No inventar cifras.",
+  "nota": "Distancias: solo se muestran las que tienen fuente. El resto queda 'por verificar' hasta que se confirmen. No inventar cifras. Cada tramo tiene id. 'reporte' = estado del tramo con fuente, publicado, verificado y validacion (los tramos con paso toman el estado de data/pasos.json). kmTipo: fuente | calculado; sin km se estima en línea recta.",
   "nodos": [
     {
       "id": "campo-grande",
       "nombre": "Campo Grande",
-      "pais": "BR", "lat": -20.47, "lon": -54.62
+      "pais": "BR",
+      "lat": -20.47,
+      "lon": -54.62
     },
     {
       "id": "porto-murtinho",
       "nombre": "Porto Murtinho",
-      "pais": "BR", "lat": -21.7, "lon": -57.88
+      "pais": "BR",
+      "lat": -21.7,
+      "lon": -57.88
     },
     {
       "id": "carmelo-peralta",
       "nombre": "Carmelo Peralta",
-      "pais": "PY", "lat": -21.68, "lon": -57.92
+      "pais": "PY",
+      "lat": -21.68,
+      "lon": -57.92
     },
     {
       "id": "mariscal-estigarribia",
       "nombre": "Mariscal Estigarribia",
-      "pais": "PY", "lat": -22.03, "lon": -60.62
+      "pais": "PY",
+      "lat": -22.03,
+      "lon": -60.62
     },
     {
       "id": "pozo-hondo",
       "nombre": "Pozo Hondo",
-      "pais": "PY", "lat": -22.36, "lon": -62.55
+      "pais": "PY",
+      "lat": -22.36,
+      "lon": -62.55
     },
     {
       "id": "salta-jujuy",
       "nombre": "Salta / Jujuy",
-      "pais": "AR", "lat": -24.5, "lon": -65.35
+      "pais": "AR",
+      "lat": -24.5,
+      "lon": -65.35
     },
     {
       "id": "norte-chile",
       "nombre": "San Pedro de Atacama / Calama",
-      "pais": "CL", "lat": -22.7, "lon": -68.5
+      "pais": "CL",
+      "lat": -22.7,
+      "lon": -68.5
     },
     {
       "id": "puertos-chile",
       "nombre": "Antofagasta / Mejillones / Iquique",
-      "pais": "CL", "lat": -23.65, "lon": -70.4
+      "pais": "CL",
+      "lat": -23.65,
+      "lon": -70.4
     }
   ],
   "tramos": [
     {
+      "id": "cg-pm",
       "desde": "campo-grande",
       "hasta": "porto-murtinho",
       "km": null,
-      "estado": "operativo",
       "guia": null
     },
     {
+      "id": "puente",
       "desde": "porto-murtinho",
       "hasta": "carmelo-peralta",
       "km": 1.3,
-      "estado": "en-obras",
       "paso": {
         "id": "puente-bioceanica",
         "nombre": "Puente de la Bioceánica (BR–PY)",
         "guia": "pasos/carmelo-peralta-porto-murtinho"
       },
-      "nota": "Puente de 1.294 m. Unido físicamente en julio de 2026; accesos previstos para febrero de 2027."
+      "nota": "Puente de 1.294 m sobre el río Paraguay.",
+      "kmTipo": "fuente",
+      "kmFuente": {
+        "nombre": "ABC Color",
+        "url": "https://www.abc.com.py/nacionales/chaco/2026/07/13/puente-de-la-bioceanica-se-unira-esta-semana-cuando-se-habilitara/",
+        "tipo": "prensa"
+      }
     },
     {
+      "id": "cp-me",
       "desde": "carmelo-peralta",
       "hasta": "mariscal-estigarribia",
       "km": 307,
-      "estado": "operativo",
       "guia": "tramos/py15-chaco",
-      "nota": "Cifra derivada: 531 km de la PY15 menos los 224 km del tramo Mariscal Estigarribia–Pozo Hondo. Verificar."
+      "kmTipo": "calculado",
+      "kmNota": "531 km de la PY15 menos los 224 km del lote 3."
     },
     {
+      "id": "me-ph",
       "desde": "mariscal-estigarribia",
       "hasta": "pozo-hondo",
       "km": 224,
-      "estado": "en-obras",
       "guia": "tramos/py15-chaco",
-      "nota": "Tramo 3 de la PY15, culminación prevista para el primer semestre de 2027."
+      "kmTipo": "fuente",
+      "kmFuente": {
+        "nombre": "Última Hora",
+        "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html",
+        "tipo": "prensa"
+      },
+      "reporte": {
+        "valor": "en-obras",
+        "texto": "Pavimentación del lote 3 en ejecución.",
+        "fuente": {
+          "nombre": "Última Hora",
+          "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html",
+          "tipo": "prensa"
+        },
+        "publicado": "2026-10-24",
+        "verificado": null,
+        "validacion": "por-verificar"
+      }
     },
     {
+      "id": "pozo-hondo",
       "desde": "pozo-hondo",
       "hasta": "salta-jujuy",
       "km": null,
-      "estado": "pendiente",
       "paso": {
         "id": "pozo-hondo",
         "nombre": "Paso Pozo Hondo (PY–AR)",
@@ -90,10 +130,10 @@
       }
     },
     {
+      "id": "andes",
       "desde": "salta-jujuy",
       "hasta": "norte-chile",
       "km": null,
-      "estado": "intermitente",
       "paso": {
         "id": "jama",
         "nombre": "Paso de Jama (AR–CL)",
@@ -102,15 +142,14 @@
       "alternativa": {
         "id": "sico",
         "nombre": "Paso de Sico (AR–CL)",
-        "guia": "pasos/sico",
-        "estado": "operativo"
+        "guia": "pasos/sico"
       }
     },
     {
+      "id": "calama-puertos",
       "desde": "norte-chile",
       "hasta": "puertos-chile",
       "km": null,
-      "estado": "operativo",
       "guia": null
     }
   ],

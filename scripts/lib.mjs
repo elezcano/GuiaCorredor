@@ -25,7 +25,7 @@ export const SECCIONES = {
 
 export const PAISES = { BR: 'Brasil', PY: 'Paraguay', AR: 'Argentina', CL: 'Chile' };
 
-export const CAMPOS_OBLIGATORIOS = ['titulo', 'tipo', 'resumen', 'paises', 'estado', 'revisado'];
+export const CAMPOS_OBLIGATORIOS = ['titulo', 'tipo', 'resumen', 'paises', 'revisado', 'validacion'];
 
 /** Front matter mínimo: líneas "clave: valor" entre dos "---". */
 export function parseFrontMatter(src) {

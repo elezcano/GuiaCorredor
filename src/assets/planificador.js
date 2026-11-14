@@ -35,6 +35,19 @@
   const nombreCarga = () => datos.tiposCarga.find((c) => c.id === carga())?.nombre || '';
 
   const estado = (e) => `<span class="estado estado-${esc(e)}">${esc(datos.estados[e] || e)}</span>`;
+  const anioActual = new Date().toISOString().slice(0, 4);
+  const fechaCorta = (iso) =>
+    new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== anioActual ? { year: 'numeric' } : {}), timeZone: 'UTC' }).replace('.', '');
+  const TAGS = { calculado: 'Calculado', estimado: 'Estimado', verificado: 'Verificado', 'sin-verificar': 'Sin verificar', ruta: 'Dato de la ruta' };
+  const tag = (t) => `<span class="tag tag-${t}">${TAGS[t]}</span>`;
+  // Mismo criterio que el resto del portal: solo lo verificado se muestra como confirmado.
+  function vista(v) {
+    if (v?.confirmado) return `${estado(v.valor)}<span class="estado-fecha">Verificado el ${esc(fechaCorta(v.verificado))}</span>`;
+    if (!v?.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
+    const origen = v.fuente?.tipo ? `, ${datos.tiposFuente[v.fuente.tipo]}` : '';
+    const dato = v.ultimo === 'pendiente' ? 'Sin estado confirmado' : `Último dato: ${(datos.estados[v.ultimo] || v.ultimo).toLowerCase()}`;
+    return `${estado('pendiente')}<span class="estado-fecha">${esc(dato)}, ${v.publicado ? esc(fechaCorta(v.publicado)) : 'sin fecha'}${esc(origen)}</span>`;
+  }
   const enlace = (g, txt) => (g ? `<a href="${datos.base}/guia/${g}/">${esc(txt)}</a>` : esc(txt));
   const nodo = (id) => datos.nodos.find((n) => n.id === id);
 
@@ -45,7 +58,7 @@
       .slice(0, 3)
       .map(
         (e) => `<li class="mini${e.destacada ? ' mini-destacada' : ''}">
-          <span class="mini-texto"><strong>${esc(e.nombre)}</strong><span>${esc(e.cat)}${e.ejemplo ? ', ficha de ejemplo' : ''}</span></span>
+          <span class="mini-texto"><strong>${esc(e.nombre)}</strong><span>${esc(e.cat)}${''}</span></span>
           ${e.wa ? `<a class="btn btn-wa btn-pequeno" href="${esc(e.wa)}" rel="nofollow" aria-label="Escribir por WhatsApp a ${esc(e.nombre)}">${I_CHAT}</a>` : ''}
         </li>`
       )
@@ -55,26 +68,83 @@
     }</div>`;
   }
 
-  // Incidencias activas del paso.
-  function avisosPaso(t) {
-    return (datos.incidencias || [])
-      .filter((i) => i.paso === t.paso.id)
-      .map((i) => `<p class="it-aviso"><strong>${esc(i.tipo)}:</strong> ${esc(i.texto)}</p>`)
+  // Incidencias activas del tramo (las mismas que en Avisos y en la ficha del tramo).
+  const enlaceAviso = (i) => `<a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a>`;
+  function avisosTramo(op, t) {
+    return op
+      .incDe(t)
+      .map((i) => `<p class="it-aviso"><strong>${esc(i.tipo)}:</strong> ${esc(i.texto)} ${enlaceAviso(i)}</p>`)
       .join('');
   }
 
-  // Festivos de los próximos días en los países que cruza la ruta.
-  function festivosRuta(op) {
-    const paisesRuta = new Set(op.tramos.flatMap((t) => [nodo(t.de).pais, nodo(t.a).pais]));
+  const paisesDe = (op) => [...new Set(op.tramos.flatMap((t) => [nodo(t.de).pais, nodo(t.a).pais]))];
+  // Festivos de los próximos 21 días en los países que cruza la ruta.
+  function festivosLista(op) {
+    const ps = new Set(paisesDe(op));
     const hoy = new Date().toISOString().slice(0, 10);
     const limite = new Date(Date.now() + 21 * 864e5).toISOString().slice(0, 10);
-    const lista = (datos.festivos || []).filter((f) => paisesRuta.has(f.pais) && f.fecha >= hoy && f.fecha <= limite);
-    if (!lista.length) return '';
+    return (datos.festivos || []).filter((f) => ps.has(f.pais) && f.fecha >= hoy && f.fecha <= limite);
+  }
+
+  // Ficha de resultados: resumen de la opción con menos incidencias.
+  function resumen(ops, a, b) {
+    const op = ops.find((o) => o.recomendada);
+    const fila = (t, c) => `<div class="res-fila"><dt>${t}</dt><dd>${c}</dd></div>`;
+    const pasos = op.tramos.filter((t) => t.paso);
+    const conf = op.tramos.filter((t) => t.vista?.confirmado).length;
+    const obras = op.tramos.filter((t) => !t.vista?.confirmado && t.vista?.ultimo === 'en-obras').length;
+    const operativos = op.tramos.filter((t) => !t.vista?.confirmado && t.vista?.ultimo && t.vista.ultimo !== 'en-obras').length;
+    const sinDatos = op.tramos.filter((t) => !t.vista?.ultimo).length;
+    const docs = datos.documentosCruce.filter((d) => !d.cargas || d.cargas.includes(carga()));
+    const fest = festivosLista(op);
+    const alts = ops.filter((o) => o !== op);
     const fmt = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
-    return `<aside class="panel festivos-ruta" aria-labelledby="t-fest-ruta"><h3 id="t-fest-ruta">Festivos en tu ruta, próximos 21 días</h3>
-      <p class="nota">Comprueba la atención de aduanas y organismos en esas fechas.</p>
-      <ul>${lista.map((f) => `<li><strong>${esc(fmt(f.fecha))}</strong> <abbr class="pais" title="${esc(datos.paises[f.pais])}">${esc(f.pais)}</abbr> ${esc(f.nombre)}${f.porConfirmar ? ' (por confirmar)' : ''}</li>`).join('')}</ul>
-      <a class="enlace-mas" href="${esc(datos.calendario)}">Abrir el calendario</a></aside>`;
+    const distancia = op.sinKm
+      ? `<p>${op.conKm ? `${GC.km(op.km)} con fuente en ${op.conKm} de ${op.tramos.length} tramos ${tag('calculado')}` : 'Ningún tramo tiene distancia con fuente.'}</p>
+         <p>+ ${GC.km(Math.round(op.kmEstimado))} en línea recta para ${GC.plural(op.sinKm, 'tramo sin dato', 'tramos sin dato')} ${tag('estimado')}</p>
+         <p class="res-nota">Total orientativo: más de ${GC.km(Math.round(op.km + op.kmEstimado))}. Por carretera la distancia es mayor.</p>`
+      : `<p>${GC.km(op.km)} ${tag('calculado')}</p>`;
+    return `<section class="panel ficha-resultado" aria-labelledby="t-resumen">
+      <h3 id="t-resumen">Resumen del viaje</h3>
+      <p class="nota">${esc(op.nombre)}${ops.length > 1 ? ', la opción con menos incidencias registradas' : ''}.</p>
+      <dl class="res-datos">
+        ${fila('Origen y destino', `${esc(nodo(datos.nodos[a].id).nombre)} → ${esc(nodo(datos.nodos[b].id).nombre)} ${tag('ruta')}`)}
+        ${fila('Distancia', distancia)}
+        ${fila('Países', `${esc(paisesDe(op).map((p) => datos.paises[p]).join(' → '))} ${tag('ruta')}`)}
+        ${fila(
+          'Pasos fronterizos',
+          pasos.length
+            ? `<ul>${pasos.map((t) => `<li>${enlace(t.paso.guia, t.paso.nombre)} ${vista(t.vista)} ${tag(t.vista?.confirmado ? 'verificado' : 'sin-verificar')}</li>`).join('')}</ul>`
+            : 'Ninguno'
+        )}
+        ${fila(
+          'Tramos',
+          `${GC.plural(op.tramos.length, 'tramo', 'tramos')}: ${conf} confirmados, ${obras} en obras según el último dato, ${operativos} operativos según el último dato, ${sinDatos} sin datos ${tag(conf === op.tramos.length ? 'verificado' : 'sin-verificar')}`
+        )}
+        ${fila(
+          'Incidencias',
+          op.problemas.length
+            ? `<ul>${op.problemas.map((i) => `<li><strong>${esc(i.tipo)}</strong> · ${esc(i.ubicacion)}: ${esc(i.texto)} <span class="res-nota">${esc(i.fuente)}${i.publicado ? `, ${esc(fechaCorta(i.publicado))}` : ''}</span> ${tag(i.nivel === 'verificado' ? 'verificado' : 'sin-verificar')} ${enlaceAviso(i)}</li>`).join('')}</ul>`
+            : 'Ninguna registrada'
+        )}
+        ${fila(
+          'Festivos, próximos 21 días',
+          fest.length
+            ? `<ul>${fest.map((f) => `<li><strong>${esc(fmt(f.fecha))}</strong> ${esc(datos.paises[f.pais])}: ${esc(f.nombre)} ${tag(f.porConfirmar ? 'sin-verificar' : 'verificado')}</li>`).join('')}</ul><a class="enlace-mas" href="${esc(datos.calendario)}">Abrir el calendario aduanero</a>`
+            : `Ninguno en ${esc(paisesDe(op).map((p) => datos.paises[p]).join(', '))}. <a href="${esc(datos.calendario)}">Calendario aduanero</a>`
+        )}
+        ${fila('Documentación', op.fronteras.length ? `${GC.plural(docs.length, 'documento', 'documentos')} para ${esc(nombreCarga().toLowerCase())}. <a href="#papeles-${op.id}" data-abrir="det-${op.id}">Ver la lista</a>` : 'No cruza fronteras.')}
+        ${fila(
+          'Alternativas',
+          alts.length
+            ? `<ul>${alts
+                .map((o) => `<li>${esc(o.nombre)}: ${GC.plural(o.problemas.length, 'incidencia', 'incidencias')}, más de ${GC.km(Math.round(o.km + o.kmEstimado))} ${tag('estimado')} <button class="btn-texto" type="button" data-abrir="det-${o.id}">Ver opción</button></li>`)
+                .join('')}</ul>`
+            : 'No hay alternativas documentadas para este recorrido.'
+        )}
+      </dl>
+      <p class="res-leyenda"><b>Verificado:</b> comprobado con la fuente. <b>Sin verificar:</b> tomado de prensa o fuentes públicas. <b>Calculado:</b> suma de datos con fuente. <b>Estimado:</b> línea recta entre puntos aproximados.</p>
+    </section>`;
   }
 
   // Tiempo de cruce reportado en el sentido del viaje.
@@ -95,10 +165,14 @@
     const out = [parada(op.tramos[0].de)];
     op.tramos.forEach((t) => {
       out.push(`<li class="it-tramo tramo-${esc(t.estado)}"><span class="via" aria-hidden="true"></span><div class="contenido">
-        <div class="it-fila">${typeof t.km === 'number' ? `<span class="it-km">${GC.km(t.km)}</span>` : '<span class="it-km-falta">Distancia por verificar</span>'}${estado(t.estado)}</div>
+        <div class="it-fila">${
+          typeof t.km === 'number'
+            ? `<span class="it-km">${GC.km(t.km)}</span>${t.kmTipo === 'calculado' ? tag('calculado') : ''}`
+            : `<span class="it-km-falta">≈ ${GC.km(t.kmRecta || 0)} en línea recta</span>${tag('estimado')}`
+        }<span class="it-estado">${vista(t.vista)}</span></div>
         ${t.paso ? `<p class="it-frontera">Frontera: ${enlace(t.paso.guia, t.paso.nombre)}</p>` : ''}
         ${t.paso ? cruce(t) : ''}
-        ${t.paso ? avisosPaso(t) : ''}
+        ${avisosTramo(op, t)}
         ${t.guia ? `<p class="it-nota">${enlace(t.guia, 'Abrir el tramo en la guía')}</p>` : ''}
         ${t.nota ? `<p class="it-nota">${esc(t.nota)}</p>` : ''}
       </div></li>`);
@@ -110,7 +184,7 @@
   function papeles(op) {
     if (!op.fronteras.length) return `<aside class="panel papeles"><h3>Papeles</h3><p class="nota">Esta ruta no cruza ninguna frontera.</p></aside>`;
     const docs = datos.documentosCruce.filter((d) => !d.cargas || d.cargas.includes(carga()));
-    return `<aside class="panel papeles" aria-label="Papeles para cruzar">
+    return `<aside class="panel papeles" id="papeles-${op.id}" aria-label="Papeles para cruzar">
       <h3>Papeles para cruzar</h3>
       <p class="nota">${GC.plural(op.fronteras.length, 'frontera', 'fronteras')} con ${esc(nombreCarga().toLowerCase())}. Marca lo que ya tienes.</p>
       <ul>${docs.map((d) => `<li><label><input type="checkbox"><span>${esc(d.nombre)}</span></label></li>`).join('')}</ul>
@@ -119,20 +193,22 @@
     </aside>`;
   }
 
+  let ops_n = 1;
   function fila(op, k, abierta) {
     const det = `det-${op.id}`;
     const inc = op.problemas.length;
     return `<li class="opcion" data-sin-incidencias="${inc === 0}" data-recomendada="${!!op.recomendada}">
       <button class="opcion-fila" type="button" aria-expanded="${abierta}" aria-controls="${det}">
-        <span class="opcion-nombre"><strong>${esc(op.nombre)}${op.recomendada ? '<span class="etiqueta">Recomendada</span>' : ''}</strong><span>${esc(op.fronteras.join(', ') || 'Sin fronteras')}</span></span>
+        <span class="opcion-nombre"><strong>${esc(op.nombre)}${op.recomendada && ops_n > 1 ? '<span class="etiqueta">Menos incidencias</span>' : ''}</strong><span>${esc(op.fronteras.join(', ') || 'Sin fronteras')}</span></span>
         <span class="dato"><b>${op.fronteras.length}</b><span>${op.fronteras.length === 1 ? 'frontera' : 'fronteras'}</span></span>
-        <span class="dato"><b>${op.km ? GC.km(op.km) : '?'}</b><span>${op.sinKm ? `${op.sinKm === 1 ? 'falta 1 tramo' : `faltan ${op.sinKm} tramos`}` : 'distancia total'}</span></span>
+        <span class="dato"><b>${op.sinKm ? `≈ ${GC.km(Math.round(op.km + op.kmEstimado))}` : GC.km(op.km)}</b><span>${op.sinKm ? 'estimado, más por carretera' : 'calculado'}</span></span>
         <span class="dato ${inc ? 'dato-alerta' : 'dato-ok'}"><b>${inc}</b><span>${inc === 1 ? 'incidencia' : 'incidencias'}</span></span>
         <span class="chevron">${I_FLECHA}</span>
       </button>
       <div class="opcion-detalle" id="${det}"${abierta ? '' : ' hidden'}>
-        ${inc ? `<p class="alerta"><strong>${GC.plural(inc, 'tramo no está', 'tramos no están')} plenamente operativo${inc === 1 ? '' : 's'}.</strong> Revisa su estado antes de salir.</p>` : ''}
-        <div class="plan-viaje">${itinerario(op)}<div class="plan-lateral">${festivosRuta(op)}${papeles(op)}</div></div>
+        ${inc ? `<p class="alerta"><strong>${GC.plural(inc, 'incidencia registrada', 'incidencias registradas')} en esta ruta.</strong> Revisa los avisos antes de salir.</p>` : ''}
+        ${op.sinVerificar ? `<p class="aviso aviso-por-verificar"><span><strong>${GC.plural(op.sinVerificar, 'tramo sin verificar', 'tramos sin verificar')}.</strong> Su estado se muestra como «Por verificar» con el último dato conocido.</span></p>` : ''}
+        <div class="plan-viaje">${itinerario(op)}<div class="plan-lateral">${papeles(op)}</div></div>
       </div>
     </li>`;
   }
@@ -146,13 +222,14 @@
     }
     GC.guardarRuta(a, b, carga());
     const ops = GC.opciones(datos, a, b);
+    ops_n = ops.length;
     const url = location.href;
     const rec = ops.find((o) => o.recomendada);
     const texto = `Ruta ${datos.nodos[a].nombre} a ${datos.nodos[b].nombre} (${rec.nombre.toLowerCase()}): ${GC.plural(rec.fronteras.length, 'frontera', 'fronteras')}, ${GC.plural(
       rec.problemas.length,
-      'tramo con incidencias',
-      'tramos con incidencias'
-    )}. ${url}`;
+      'incidencia registrada',
+      'incidencias registradas'
+    )}. Estados sin verificar: confirma antes de salir. ${url}`;
     salida.innerHTML = `
       <div class="resultado-cabeza">
         <div><h2>${esc(datos.nodos[a].nombre)} a ${esc(datos.nodos[b].nombre)}</h2><p>${GC.plural(ops.length, 'opción', 'opciones')} de ruta para ${esc(nombreCarga().toLowerCase())}.</p></div>
@@ -165,11 +242,13 @@
         ops.length > 1
           ? `<div class="resultado-filtros"><div class="chips" role="group" aria-label="Filtrar opciones">
               <button class="chip" type="button" data-f="todas" aria-pressed="${filtro === 'todas'}">Todas</button>
-              <button class="chip" type="button" data-f="recomendada" aria-pressed="${filtro === 'recomendada'}">Recomendada</button>
+              <button class="chip" type="button" data-f="recomendada" aria-pressed="${filtro === 'recomendada'}">Menos incidencias</button>
               <button class="chip" type="button" data-f="sin" aria-pressed="${filtro === 'sin'}">Sin incidencias</button>
             </div></div>`
           : ''
       }
+      ${resumen(ops, a, b)}
+      <h3 class="titulo-opciones">${ops.length > 1 ? 'Opciones de ruta' : 'Itinerario'}</h3>
       <ul class="opciones">${ops.map((op, k) => fila(op, k, op.recomendada)).join('')}</ul>
       <p class="vacio" id="sin-opciones" hidden>Ninguna opción está libre de incidencias ahora mismo. <button class="btn-texto" type="button" data-f="todas">Ver todas</button></p>
       <p class="texto-suave nota-guardado">Guardamos esta búsqueda en este dispositivo para que la tengas al volver.</p>`;
@@ -203,6 +282,16 @@
       return;
     }
     if (e.target.closest('[data-imprimir]')) window.print();
+    const abrir = e.target.closest('[data-abrir]');
+    if (abrir) {
+      const det = document.getElementById(abrir.dataset.abrir);
+      if (det) {
+        det.hidden = false;
+        det.closest('.opcion').hidden = false;
+        det.previousElementSibling?.setAttribute('aria-expanded', 'true');
+        if (abrir.tagName === 'BUTTON') det.closest('.opcion').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      }
+    }
     const copiar = e.target.closest('#copiar');
     if (copiar) {
       navigator.clipboard?.writeText(location.href).then(
