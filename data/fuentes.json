@@ -10,6 +10,12 @@
       "tipo": "prensa"
     },
     {
+      "id": "abc-color-puente-recta-final",
+      "nombre": "ABC Color: Puente de la Bioceánica entra en la recta final (22/10/2026)",
+      "url": "https://www.abc.com.py/economia/2026/10/22/puente-de-la-bioceanica-entra-en-la-recta-final-con-us-103-millones-de-itaipu/",
+      "tipo": "prensa"
+    },
+    {
       "id": "biblioteca-del-congreso-nacional-legislacion-sob",
       "nombre": "Biblioteca del Congreso Nacional – Legislación sobre feriados",
       "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151",
@@ -44,6 +50,12 @@
       "nombre": "Geodatos: Carmelo Peralta",
       "url": "https://www.geodatos.net/en/coordinates/paraguay/carmelo-peralta",
       "tipo": "referencia"
+    },
+    {
+      "id": "infonegocios-accesos-puente",
+      "nombre": "InfoNegocios: Accesos paraguayos al Puente de la Bioceánica al 23 % (07/10/2026)",
+      "url": "https://infonegocios.com.py/default/accesos-paraguayos-al-puente-de-la-bioceanica-alcanzan-23-de-avance-y-apuntan-a-concluir-en-2027",
+      "tipo": "prensa"
     },
     {
       "id": "infraestructura-publica",
