@@ -271,12 +271,12 @@ th { font-weight: 700; background: #f3f5f2; }
 .plan-viaje { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 2.5rem; align-items: start; margin-top: 1.5rem; }
 
 .itinerario { list-style: none; margin: 0; padding: 0; }
-.itinerario li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 1rem; }
+.itinerario > li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 1rem; }
 .itinerario .via { position: relative; }
 .itinerario .it-parada .via::before { content: ""; position: absolute; left: 50%; top: 4px; width: 22px; height: 22px; transform: translateX(-50%); border-radius: 50%; background: #fff; border: 5px solid var(--asfalto); }
 .itinerario .it-parada .contenido { padding: 0.15rem 0 0.25rem; }
-.itinerario .it-parada strong { font-size: 1.25rem; }
-.itinerario .it-parada span { color: var(--tinta-2); margin-left: 0.4rem; }
+.itinerario .it-parada .contenido > div:first-child strong { font-size: 1.25rem; }
+.itinerario .it-parada .contenido > div:first-child span { color: var(--tinta-2); margin-left: 0.4rem; }
 .itinerario .it-tramo .via::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 14px; transform: translateX(-50%); background: var(--via); }
 .itinerario .it-tramo .via::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; transform: translateX(-50%); background: repeating-linear-gradient(180deg, var(--linea) 0 10px, transparent 10px 20px); }
 .itinerario .it-tramo .contenido { margin: 0.6rem 0 1rem; padding: 1rem 1.2rem; background: var(--papel); border: 1px solid var(--borde); border-radius: var(--radio); border-left: 5px solid var(--sin-dato); }
@@ -302,8 +302,9 @@ th { font-weight: 700; background: #f3f5f2; }
 .filtros { position: sticky; top: 1rem; display: grid; gap: 1.5rem; }
 .filtros fieldset { border: 0; padding: 0; margin: 0; }
 .filtros legend, .filtro-buscar > span { font-weight: 800; font-size: 0.9375rem; margin-bottom: 0.5rem; display: block; }
-.filtro-buscar input { width: 100%; font: inherit; padding: 0.7rem 0.85rem; border: 2px solid var(--borde); border-radius: var(--radio); background: var(--papel); }
-.filtro-buscar input:focus { border-color: var(--senal); outline: none; }
+.filtro-buscar input, .filtro-buscar select { width: 100%; font: inherit; padding: 0.7rem 0.85rem; border: 2px solid var(--borde); border-radius: var(--radio); background: var(--papel); }
+.filtro-buscar select { font-weight: 700; }
+.filtro-buscar input:focus, .filtro-buscar select:focus { border-color: var(--senal); outline: none; }
 .segmentos { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 .segmentos label { position: relative; }
 .segmentos input, .opcion input { position: absolute; opacity: 0; }
@@ -356,6 +357,66 @@ th { font-weight: 700; background: #f3f5f2; }
 .pie-nav a:hover { color: var(--linea); }
 .pie-aviso { grid-column: 1 / -1; margin: 0; padding-top: 1.25rem; border-top: 1px solid var(--asfalto-2); font-size: 0.875rem; }
 
+/* ---------- Empresas dentro de la ruta ---------- */
+.parada-empresas { margin-top: 0.15rem; font-size: 0.75rem; font-weight: 700; color: var(--linea); text-decoration: none; }
+.parada-empresas:hover { color: #fff; text-decoration: underline; }
+.minis { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.mini { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.55rem 0.7rem; background: #f3f5f2; border-radius: var(--radio); border-left: 4px solid transparent; }
+.mini-destacada { border-left-color: var(--linea); background: #fff8e1; }
+.mini-texto { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.mini-texto strong { font-size: 0.9375rem; }
+.mini-texto span { font-size: 0.8125rem; color: var(--tinta-2); }
+.mini-wa { flex: none; font-size: 0.8125rem; font-weight: 700; color: #fff; background: #1e9e52; padding: 0.35rem 0.6rem; border-radius: 6px; text-decoration: none; }
+.mini-wa:hover { background: #17803f; color: #fff; }
+.enlace-mas { display: inline-block; margin-top: 0.6rem; font-weight: 700; font-size: 0.9375rem; }
+.caja-zona h2 { font-size: 1.05rem; }
+.caja-zona .boton { margin-top: 0.9rem; }
+.it-ayuda { margin: 0.6rem 0 1rem; }
+.it-ayuda > p { font-size: 0.8125rem; font-weight: 700; color: var(--tinta-2); margin: 0 0 0.35rem; }
+.it-ayuda-vacia { font-size: 0.9rem; color: var(--tinta-2); }
+.empresa-puntos { font-size: 0.9375rem; margin: 0 0 0.6rem; }
+.empresa-puntos::before { content: ""; display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; border: 2.5px solid var(--asfalto); margin-right: 0.45rem; vertical-align: 0.05rem; }
+.guardado { margin-top: 1.5rem; }
+
+/* ---------- Tu ruta (panel personal en la portada) ---------- */
+#tu-ruta { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 1rem 2rem; background: var(--asfalto-2); border-left: 6px solid var(--linea); border-radius: var(--radio-senal); padding: 1.25rem 1.5rem; max-width: 980px; }
+#tu-ruta[hidden] { display: none; }
+.tu-ruta-cabeza p { margin: 0; color: #c7cdd2; font-weight: 600; font-size: 0.9375rem; }
+.tu-ruta-cabeza h2 { margin: 0.1rem 0 0; font-size: 1.6rem; color: #fff; }
+.tu-ruta-datos { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; color: #c7cdd2; font-size: 0.9375rem; }
+.tu-ruta-alerta strong { color: #ff9b8c; }
+.tu-ruta-ok strong { color: #5fd08f; }
+.tu-ruta-acciones { display: flex; flex-direction: column; align-items: stretch; gap: 0.4rem; }
+.boton-texto { font: inherit; font-weight: 600; font-size: 0.9375rem; background: none; border: 0; color: #e6e9ec; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0.3rem; }
+.boton-texto:hover { color: var(--linea); }
+#tu-ruta + .planificar { margin-top: 1rem; }
+.planificar[hidden] { display: none; }
+.ruta.con-ruta li { transition: opacity 0.2s; }
+.ruta.con-ruta li:not(.en-ruta) { opacity: 0.32; }
+.ruta.con-ruta .parada.en-ruta .punto { border-color: var(--linea); }
+
+/* ---------- Novedades (registro de cambios) ---------- */
+.novedades { list-style: none; margin: 0; padding: 0; position: relative; }
+.novedades::before { content: ""; position: absolute; left: 152px; top: 0.6rem; bottom: 0.6rem; width: 3px; background: var(--borde); border-radius: 2px; }
+.novedad { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 2.25rem; padding: 0.9rem 0; position: relative; }
+.novedad::before { content: ""; position: absolute; left: 146px; top: 1.35rem; width: 15px; height: 15px; border-radius: 50%; background: var(--fondo); border: 3px solid var(--sin-dato); }
+.novedad-operativo::before { border-color: var(--ok); background: var(--ok); }
+.novedad-en-obras::before { border-color: var(--obras); background: var(--obras); }
+.novedad-intermitente::before { border-color: var(--corte); background: var(--corte); }
+.novedad-cuando { display: flex; flex-direction: column; text-align: right; padding-top: 0.15rem; }
+.novedad-cuando time { font-weight: 800; }
+.novedad-tema { font-size: 0.875rem; color: var(--tinta-2); }
+.novedad-cuerpo { background: var(--papel); border: 1px solid var(--borde); border-radius: var(--radio); padding: 0.9rem 1.15rem; }
+.novedad-cuerpo h3 { margin-bottom: 0.3rem; }
+.novedad-cuerpo p { margin: 0 0 0.4rem; color: var(--tinta-2); }
+.novedad-pie { font-size: 0.875rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.novedad-pie a { font-weight: 600; }
+.cambios-pagina { margin-top: 2rem; }
+.novedades-compactas::before { left: 112px; }
+.novedades-compactas .novedad { grid-template-columns: 96px minmax(0, 1fr); }
+.novedades-compactas .novedad::before { left: 106px; }
+.novedades-compactas .novedad-cuerpo { background: #f6f7f5; }
+
 /* ---------- Impresión (lista de documentos) ---------- */
 @media print {
   .cabecera, .pie, .planificar, .hero, .lateral, .saltar, .no-imprimir { display: none !important; }
@@ -375,7 +436,7 @@ th { font-weight: 700; background: #f3f5f2; }
 @media (max-width: 760px) {
   body { font-size: 1rem; }
   .cabecera-inner { flex-wrap: wrap; gap: 0.75rem; }
-  .nav { width: 100%; margin: 0 -0.25rem; }
+  .nav { width: 100%; margin: 0 -0.25rem; flex-wrap: wrap; row-gap: 0.15rem; }
   .nav .nav-cta { display: none; }
   .hero-ruta .ruta { min-width: 0; }
   .nav a { padding: 0.45rem 0.65rem; white-space: nowrap; }
@@ -414,4 +475,12 @@ th { font-weight: 700; background: #f3f5f2; }
   .tipos .opcion { border: 1.5px solid var(--borde); border-radius: 999px; background: var(--papel); padding: 0.35rem 0.75rem; font-size: 0.875rem; gap: 0.4rem; }
   .tipos .opcion:has(input:checked) { border-color: var(--asfalto); }
   .resumen-viaje div { flex-basis: 100%; border-right: 0; border-bottom: 1px solid var(--asfalto-2); }
+  #tu-ruta { grid-template-columns: 1fr; gap: 0.75rem; padding: 1.1rem 1.2rem; }
+  .tu-ruta-acciones { flex-direction: row; align-items: center; flex-wrap: wrap; }
+  .novedades::before, .novedad::before { left: 6px; }
+  .novedades-compactas::before, .novedades-compactas .novedad::before { left: 6px; }
+  .novedad, .novedades-compactas .novedad { grid-template-columns: 1fr; gap: 0.35rem; padding-left: 2rem; }
+  .novedad::before { top: 1.1rem; left: 0; }
+  .novedad-cuando { text-align: left; flex-direction: row; gap: 0.6rem; align-items: baseline; }
+  .parada .texto .parada-empresas { margin-top: 0; }
 }

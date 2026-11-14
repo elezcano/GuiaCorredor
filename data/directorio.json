@@ -6,10 +6,22 @@
     "categoria": "transitario",
     "pais": "PY",
     "ciudad": "Asunción",
-    "servicios": ["Carga general", "Tránsito internacional", "Consolidación"],
+    "servicios": [
+      "Carga general",
+      "Tránsito internacional",
+      "Consolidación"
+    ],
     "descripcion": "Ficha de muestra para ver cómo se mostrará una empresa. Se borra antes de publicar.",
     "destacada": true,
-    "contacto": { "email": "", "whatsapp": "", "web": "" }
+    "contacto": {
+      "email": "",
+      "whatsapp": "",
+      "web": ""
+    },
+    "puntos": [
+      "carmelo-peralta",
+      "pozo-hondo"
+    ]
   },
   {
     "id": "ejemplo-transportista-campo-grande",
@@ -18,10 +30,21 @@
     "categoria": "transportista",
     "pais": "BR",
     "ciudad": "Campo Grande",
-    "servicios": ["Granos a granel", "Carga refrigerada"],
+    "servicios": [
+      "Granos a granel",
+      "Carga refrigerada"
+    ],
     "descripcion": "Ficha de muestra. Se borra antes de publicar.",
     "destacada": false,
-    "contacto": { "email": "", "whatsapp": "", "web": "" }
+    "contacto": {
+      "email": "",
+      "whatsapp": "",
+      "web": ""
+    },
+    "puntos": [
+      "campo-grande",
+      "porto-murtinho"
+    ]
   },
   {
     "id": "ejemplo-despachante-salta",
@@ -30,9 +53,21 @@
     "categoria": "despachante",
     "pais": "AR",
     "ciudad": "Salta",
-    "servicios": ["Despacho de tránsito", "MIC/DTA", "Asesoría"],
+    "servicios": [
+      "Despacho de tránsito",
+      "MIC/DTA",
+      "Asesoría"
+    ],
     "descripcion": "Ficha de muestra. Se borra antes de publicar.",
     "destacada": false,
-    "contacto": { "email": "", "whatsapp": "", "web": "" }
+    "contacto": {
+      "email": "",
+      "whatsapp": "",
+      "web": ""
+    },
+    "puntos": [
+      "salta-jujuy",
+      "pozo-hondo"
+    ]
   }
 ]

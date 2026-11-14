@@ -9,7 +9,8 @@ Web de referencia para mover carga por carretera por el **Corredor Bioceánico**
 | Es | No es |
 |---|---|
 | Una **guía** gratuita de pasos, tramos y papeles, con fuente y fecha en cada página | Un marketplace donde se negocian cargas |
-| Un **directorio** de empresas con ficha básica gratis y **ficha destacada de pago** | Un intermediario: no movemos dinero entre empresas |
+| Las **empresas en cada punto de la ruta** (planificador, guía y buscador), con ficha básica gratis y **ficha destacada de pago** (PayPal) | Un intermediario: no movemos dinero entre empresas |
+| Un **registro de novedades** con fecha y fuente, y **tu ruta** recordada en el navegador, sin registro | Una web con cuentas de usuario (eso es la fase 2) |
 | Un **planificador** de ruta: tramos, fronteras, estado y documentos | Un operador logístico |
 | *(Fase 2)* Un **generador de CRT y MIC/DTA** con pago por documento | |
 
@@ -22,7 +23,8 @@ Web **estática**: sin servidores ni base de datos. Se genera con un script de N
 ```
 content/guia/        Páginas de la guía en Markdown (pasos/, tramos/, documentos/)
 data/site.json       Nombre, contacto, planes y precios
-data/directorio.json Empresas del directorio
+data/directorio.json Empresas y puntos de la ruta donde dan servicio
+data/novedades.json  Registro de cambios del corredor (con fuente)
 data/categorias.json Tipos de empresa
 data/rutas.json      Nodos y tramos del corredor (planificador)
 src/assets/          Estilos y JavaScript del navegador
@@ -58,7 +60,7 @@ Cada cambio en `main` se revisa, se genera y se publica en GitHub Pages con GitH
 - [ ] Nombre definitivo, dominio, email y WhatsApp en `data/site.json`.
 - [ ] Borrar las fichas de ejemplo de `data/directorio.json`.
 - [ ] Revisión de las páginas de la guía por un despachante y quitar `borrador: true`.
-- [ ] Enlace de pago de la ficha destacada.
+- [ ] Enlace de suscripción de PayPal de la ficha destacada en `data/site.json` (ver `docs/como-editar.md`).
 - [ ] Textos legales (aviso legal, privacidad, condiciones).
 - [ ] `"indexable": true` en `data/site.json` (mientras sea `false`, Google no indexa la web).
 

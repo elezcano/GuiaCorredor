@@ -4,6 +4,7 @@ tipo: paso
 resumen: Principal paso entre Jujuy y el norte de Chile, a unos 4.200 m de altitud. En invierno funciona de forma intermitente por el clima.
 paises: AR, CL
 estado: intermitente
+puntos: salta-jujuy, norte-chile
 revisado: 2026-11-14
 borrador: true
 ---

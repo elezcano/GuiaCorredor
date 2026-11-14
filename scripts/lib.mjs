@@ -38,7 +38,7 @@ export function parseFrontMatter(src) {
     else if (v === 'false') v = false;
     meta[k] = v;
   }
-  if (typeof meta.paises === 'string') meta.paises = meta.paises.split(',').map((s) => s.trim()).filter(Boolean);
+  for (const k of ['paises', 'puntos']) if (typeof meta[k] === 'string') meta[k] = meta[k].split(',').map((s) => s.trim()).filter(Boolean);
   return { meta, body: m[2] };
 }
 

@@ -4,6 +4,7 @@ tipo: tramo
 resumen: Los 531 km del corredor en territorio paraguayo, de la frontera con Brasil a la frontera con Argentina.
 paises: PY
 estado: en-obras
+puntos: carmelo-peralta, mariscal-estigarribia, pozo-hondo
 revisado: 2026-11-14
 borrador: true
 ---
