@@ -2,7 +2,7 @@
 
 Web de referencia para mover carga por carretera por el **Corredor Bioceánico** (Brasil – Paraguay – Argentina – Chile): rutas, pasos fronterizos, documentos y empresas que dan servicio en el camino.
 
-> Este repositorio sustituye al antiguo proyecto *Red de Cargas* (marketplace de matching). El estado anterior está guardado en la etiqueta [`legacy-red-de-cargas`](../../tree/legacy-red-de-cargas).
+> Este repositorio sustituye al antiguo proyecto *Red de Cargas* (marketplace de matching). El estado anterior está guardado en la rama [`legacy-red-de-cargas`](../../tree/legacy-red-de-cargas).
 
 ## Qué es y qué no es
 
