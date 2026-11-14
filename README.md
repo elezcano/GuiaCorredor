@@ -4,6 +4,8 @@ Plataforma de información e inteligencia logística del **Corredor Bioceánico 
 
 Responde a preguntas operativas: qué pasos fronterizos usar y cómo están, qué organismos atienden y en qué horario, qué obras o restricciones afectan a la ruta, qué distancia hay entre localidades, qué empresas dan servicio en cada zona y qué papeles hacen falta.
 
+> **Estado: versión borrador (MVP).** Los datos se muestran «Por verificar» hasta que el responsable editorial los revise.
+
 > **Principio rector:** la fiabilidad tiene prioridad sobre la cantidad. Ningún dato se muestra como confirmado si no lo ha verificado una persona responsable.
 
 - Web: **https://elezcano.github.io/GuiaCorredor/**
@@ -26,6 +28,11 @@ Responde a preguntas operativas: qué pasos fronterizos usar y cómo están, qu�
 | 7 | La verificación humana corresponde a Ernesto (`responsable-editorial`). Nunca a la IA ni a terceros por defecto |
 | 8 | Contacto del proyecto: elezcanofm@gmail.com |
 | 9 | Prioridad: datos fronterizos, información aduanera y primeras empresas verificadas |
+| 10 | *(15/11)* Distancias: estimación provisional en línea recta donde no hay dato con fuente, indicando qué tramo exacto se estima, hasta tener distancias oficiales |
+| 11 | *(15/11)* Lo que no se pueda justificar con fuente se retira provisionalmente (Mejillones e Iquique del mapa) |
+| 12 | *(15/11)* Solicitudes de empresas a un formulario de Google con hoja privada (email mientras no esté configurado) |
+| 13 | *(15/11)* Cambios de formato de la API avisados (`indice.json`, [`docs/api-cambios.md`](docs/api-cambios.md)) y gestionados con registro de versiones y contrato; la versión anterior se mantiene 6 meses |
+| 14 | *(15/11)* `main` sin proteger mientras la web sea un borrador; se protegerá más adelante (#49) |
 
 ## Qué es y qué no es
 
@@ -67,6 +74,7 @@ data/                Datos (fuente de verdad)
 content/guia/        Fichas de la guía en Markdown
 scripts/
   validacion.mjs     Sistema único de validación (web, API y comprobaciones)
+  estimaciones.mjs   Estimaciones provisionales de distancia (web y API)
   datos.mjs          Carga única de datos: resuelve fuentes y coordenadas
   build.mjs          Genera la web y api/v1 en dist/
   api.mjs            Contrato de la exportación api/v1
@@ -87,12 +95,12 @@ Detalle en [`docs/politica-validacion.md`](docs/politica-validacion.md).
 - Estados: `borrador`, `por-verificar`, `verificado`. **Solo Ernesto verifica**; el registro lleva `verificacion { verificadoPor: "responsable-editorial", rol, fecha, alcance }`.
 - La IA nunca marca un dato como verificado. Toda automatización deja los datos en `por-verificar`.
 - Evidencia: `oficial`, `declaracion-empresa`, `tercero`, `calculo`, `estimacion`, `historico`. Una estimación no es un dato oficial; un dato histórico no es la situación actual.
-- La interfaz distingue verificado, por verificar, caducado, borrador y sin dato. No se estiman distancias sin fuente.
+- La interfaz distingue verificado, por verificar, caducado, borrador, estimación provisional y sin dato. Las distancias sin fuente se estiman provisionalmente en línea recta, siempre marcadas como tal.
 - Un festivo no implica cierre de aduana.
 
 ## Datos abiertos: api/v1
 
-`indice.json`, `pasos.json`, `tramos.json`, `rutas.json`, `incidencias.json`, `calendario.json`, `empresas.json`, `fuentes.json`, `organismos.json`. Cada registro trae la fuente resuelta, la evidencia, las fechas, la validación y el estado ya calculado con el mismo código que la web. Contrato, versionado y reglas de interpretación en [`docs/ia-dev.md`](docs/ia-dev.md).
+`indice.json`, `pasos.json`, `tramos.json`, `rutas.json`, `incidencias.json`, `calendario.json`, `empresas.json`, `fuentes.json`, `organismos.json`. Cada registro trae la fuente resuelta, la evidencia, las fechas, la validación y el estado ya calculado con el mismo código que la web. Contrato, versionado y reglas de interpretación en [`docs/ia-dev.md`](docs/ia-dev.md); cambios de formato en [`docs/api-cambios.md`](docs/api-cambios.md).
 
 ## Uso
 
@@ -130,6 +138,7 @@ Issues por fase: etiquetas [`P0`](../../issues?q=label%3AP0), [`P1`](../../issue
 ## Antes del lanzamiento
 
 - [x] Email de contacto del proyecto
+- [ ] Formulario de Google de solicitudes de empresas (enlace prellenado en `data/site.json`)
 - [x] Ninguna empresa ficticia en el directorio
 - [ ] Primeras empresas reales verificadas (#46)
 - [ ] Revisión de las fichas de la guía y verificación por el responsable editorial (#22)

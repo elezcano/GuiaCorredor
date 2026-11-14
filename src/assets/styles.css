@@ -880,6 +880,8 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .res-fila ul { list-style: none; padding: 0; display: grid; gap: 8px; }
 .res-fila li .estado-fecha { display: inline; margin-left: 4px; }
 .res-nota { color: var(--muted-foreground); font-size: 12px; line-height: 16px; }
+.res-lista { margin: 4px 0 8px; padding-left: 18px; font-size: 14px; }
+.it-estimacion { border-left: 2px dashed var(--border-strong); padding-left: 8px; }
 .res-leyenda { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
 .res-leyenda b { color: var(--foreground); font-weight: 600; }
 .titulo-opciones { margin-top: 32px; font-size: 20px; line-height: 28px; }
@@ -920,4 +922,5 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .sol-acepto { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
 .sol-acepto input { margin-top: 3px; }
 .sol-error { color: var(--danger, #b42318); font-weight: 600; margin: 0; }
+.sol-ok { color: var(--ok); font-weight: 600; margin: 0; }
 @media (max-width: 640px) { .sol-campos { grid-template-columns: minmax(0, 1fr); } }

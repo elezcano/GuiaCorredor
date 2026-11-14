@@ -87,22 +87,27 @@
         variantes[0].via = sinParentesis(t.paso.nombre);
         const alt = base.map((x, k) =>
           k === conAlternativa
-            ? { ...x, paso: { id: t.alternativa.id, nombre: t.alternativa.nombre, guia: t.alternativa.guia }, estado: t.alternativa.estado || x.estado, vista: t.alternativa.vista || x.vista, alternativa: null, nota: null }
+            ? { ...x, paso: { id: t.alternativa.id, nombre: t.alternativa.nombre, guia: t.alternativa.guia }, estado: t.alternativa.estado || x.estado, vista: t.alternativa.vista || x.vista, estimacion: t.alternativa.estimacion || null, alternativa: null, nota: null }
             : x
         );
         variantes.push({ tramos: alt, via: sinParentesis(t.alternativa.nombre) });
       }
-      // Sin estimaciones en línea recta: las coordenadas de nodos agrupados no sirven para medir (P0.2).
+      // Tramos sin km con fuente: estimación provisional calculada en el build (t.estimacion), marcada como tal.
       // Incidencias de un tramo: si la incidencia es de un paso, solo cuenta en la variante que pasa por él.
       const incDe = (t) => (datos.incidencias || []).filter((x) => (x.paso ? t.paso?.id === x.paso : (x.tramos || []).includes(t.id)));
       const ops = variantes.map((v, k) => {
         let km = 0;
         let sinKm = 0;
+        let kmEstimado = 0;
+        const estimados = [];
         const fronteras = [];
         const problemas = [];
         v.tramos.forEach((t) => {
           if (typeof t.km === 'number') km += t.km;
-          else sinKm++;
+          else {
+            sinKm++;
+            if (t.estimacion) (kmEstimado += t.estimacion.km), estimados.push(t);
+          }
           if (t.paso) fronteras.push(sinParentesis(t.paso.nombre));
           incDe(t).forEach((x) => problemas.includes(x) || problemas.push(x));
         });
@@ -113,6 +118,8 @@
           km,
           sinKm,
           conKm: v.tramos.length - sinKm,
+          kmEstimado,
+          estimados,
           tramos: v.tramos,
           incDe,
           problemas,

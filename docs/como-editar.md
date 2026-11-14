@@ -2,11 +2,23 @@
 
 Todo se edita desde GitHub en el navegador: abre el archivo, pulsa el lápiz, cambia y guarda ("Commit changes"). La web se regenera sola.
 
+## Formulario de Google de solicitudes
+
+Con el formulario de Google, las solicitudes de `/anunciate/` se guardan en una hoja de cálculo privada tuya, sin base de datos ni coste. Mientras no esté configurado, el formulario prepara un email.
+
+1. En [forms.google.com](https://forms.google.com), con tu cuenta, crea un formulario «Solicitudes de empresas – Guía del Corredor».
+2. Añade 15 preguntas de **respuesta corta** (todas opcionales; la web ya valida), en este orden: Tipo de solicitud, Nombre comercial, Razón social, País, Localidad, Tipo de empresa, Servicios, Puntos de la ruta, Cobertura, Persona de contacto, Email, Teléfono, Web, Referencias, Cambio solicitado.
+3. Pestaña *Respuestas* → *Vincular con Hojas de cálculo* → hoja nueva. La hoja es privada: no la publiques.
+4. Menú ⋮ → *Obtener enlace prellenado*. Escribe en cada pregunta su clave, en minúsculas y sin tildes: `tipo`, `nombre`, `razonsocial`, `pais`, `localidad`, `categoria`, `servicios`, `puntos`, `cobertura`, `persona`, `email`, `telefono`, `web`, `referencias`, `cambio`. Pulsa *Obtener enlace* y cópialo.
+5. Pega el enlace en `data/site.json` → `"solicitudes": { "enlacePrellenado": "…" }` (o pásamelo y lo pongo yo). `npm run check` comprueba que no falte ninguna clave.
+
+No hace falta compartir contraseñas ni dar acceso a tu cuenta: basta el enlace prellenado, que no da permisos sobre el formulario ni sobre la hoja.
+
 ## Solicitudes de empresas
 
-Las empresas piden el alta, una corrección o la retirada desde `/anunciate/`. El formulario no guarda nada: abre un email dirigido al contacto del proyecto (`contacto.email` en `data/site.json`) con asunto `[Solicitud de empresa] Alta: Nombre` y los datos en líneas `Campo: valor`.
+Las empresas piden el alta, una corrección o la retirada desde `/anunciate/`. Con el formulario de Google configurado, la solicitud llega a tu hoja privada; si no, se abre un email dirigido al contacto del proyecto (`contacto.email`) con asunto `[Solicitud de empresa] Alta: Nombre` y los datos en líneas `Campo: valor`.
 
-1. Al llegar el email, crea una tarjeta en Trello (tablero *Guía del Corredor Bioceánico*, lista de solicitudes) y pega el texto. **No** la subas al repositorio: es público y la solicitud aún no está revisada.
+1. Al llegar la solicitud (fila nueva en la hoja o email), crea una tarjeta en Trello (tablero *Guía del Corredor Bioceánico*, lista de solicitudes) y pega el texto. **No** la subas al repositorio: es público y la solicitud aún no está revisada.
 2. Revisa la empresa: existe, opera en el corredor, la sede y la cobertura cuadran, las referencias responden.
 3. Si se publica, añádela a `data/directorio.json` en una rama y abre un Pull Request con la etiqueta `revision-editorial`.
 4. Una retirada se atiende siempre: borra el registro y avisa a la empresa.
@@ -151,7 +163,7 @@ La política completa está en [`politica-validacion.md`](politica-validacion.md
 Las fichas Markdown **no** llevan estado ni una sección «## Estado»: el estado se genera desde los datos.
 
 - **Incidencia:** `tramos` = ids de `data/rutas.json` (`cg-pm`, `puente`, `cp-me`, `me-ph`, `pozo-hondo`, `andes`, `calama-puertos`). Si además lleva `paso`, solo se muestra en la variante de ruta que pasa por ese paso. Tipos: `obra`, `restriccion`, `corte`, `pendiente`, `peso`, `desvio`. Pon `"estado": "resuelta"` cuando termine.
-- **Distancia de un tramo:** `kmTipo: "fuente"` con `kmFuente`, o `kmTipo: "calculado"` con `kmNota` explicando la cuenta. Sin km, el planificador muestra «Distancia sin fuente»: no se estima.
+- **Distancia de un tramo:** `kmTipo: "fuente"` con `kmFuente`, o `kmTipo: "calculado"` con `kmNota` explicando la cuenta. Sin km, el planificador muestra una **estimación provisional** en línea recta (calculada en `scripts/estimaciones.mjs`), marcada como tal y con el tramo exacto que se estima. Se desactiva con `"estimaciones": { "provisionales": false }` en `data/site.json`.
 - **Horario especial:** en `horariosEspeciales` con `desde`, `hasta`, `organismo` (`aduana`, `migraciones`, `sanitario`, `complejo`), `lado`, `texto` y los cuatro campos comunes.
 - **Avisos meteorológicos:** `data/avisos.json` con `titulo`, `zona`, `vigenteHasta` y los campos comunes. Desaparecen solos al vencer.
 - **Festivos:** añade el año siguiente cada noviembre; los traslados por decreto van con `validacion: por-verificar` hasta que se publiquen.

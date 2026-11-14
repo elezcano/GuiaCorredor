@@ -46,8 +46,12 @@ Una ficha de la guía en `borrador` arrastra a sus datos: el estado de un paso s
 4. Toda automatización que incorpore datos los deja en `por-verificar`.
 5. Las solicitudes de empresas no se publican solas: se revisan y entran por Pull Request.
 6. Un festivo no implica cierre de aduana; las afectaciones deben venir del organismo.
-7. Sin fuente no hay dato: una distancia sin fuente se muestra como «sin dato», no se estima.
+7. Sin fuente no hay dato. **Excepción provisional (15/11/2026):** mientras el corredor no esté terminado y no haya distancias oficiales (P1.7), los tramos sin distancia con fuente muestran una estimación en línea recta con `evidencia: "estimacion"`, la etiqueta «Estimación provisional», qué tramo exacto se estima y entre qué puntos. Nunca se suma como dato oficial. Se desactiva en `data/site.json` → `estimaciones.provisionales`.
+
+## Estado del proyecto
+
+La web está en **versión borrador (MVP)**. Por decisión del responsable, la rama `main` no se protege todavía; se protegerá más adelante (P1.11, #49).
 
 ## Límite conocido
 
-El asistente trabaja con el acceso a GitHub de la cuenta del propietario, así que técnicamente podría poner la etiqueta. La regla 3 es un control de procedimiento: el asistente no pone esa etiqueta ni fusiona PR con verificaciones. Para que sea un control técnico hace falta proteger `main` y exigir la revisión del propietario (tarea P1.11, #49).
+El asistente trabaja con el acceso a GitHub de la cuenta del propietario, así que técnicamente podría poner la etiqueta. La regla 3 es un control de procedimiento: el asistente no pone esa etiqueta ni fusiona PR con verificaciones. Pasará a ser un control técnico cuando se proteja `main` con revisión obligatoria del propietario (P1.11, #49), aplazado mientras la web sea un borrador.
