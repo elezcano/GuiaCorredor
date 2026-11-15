@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/empresas.schema.json",
+  "title": "Directorio de empresas",
+  "description": "Solo empresas reales revisadas por el responsable editorial. La sede (pais, ciudad) es distinta de la cobertura (puntos, cobertura).",
+  "type": "object",
+  "required": [
+    "version",
+    "empresas"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "empresas": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "comun.schema.json#/$defs/registroConFuente"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "nombre",
+              "categoria",
+              "pais",
+              "ciudad",
+              "puntos",
+              "servicios",
+              "contacto"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "comun.schema.json#/$defs/id"
+              },
+              "nombre": {
+                "type": "string"
+              },
+              "razonSocial": {
+                "type": "string"
+              },
+              "categoria": {
+                "$ref": "comun.schema.json#/$defs/id"
+              },
+              "pais": {
+                "$ref": "comun.schema.json#/$defs/pais"
+              },
+              "ciudad": {
+                "type": "string"
+              },
+              "puntos": {
+                "type": "array",
+                "items": {
+                  "$ref": "comun.schema.json#/$defs/id"
+                },
+                "description": "Cobertura en los puntos de la ruta."
+              },
+              "cobertura": {
+                "type": "string"
+              },
+              "servicios": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "destacada": {
+                "type": "boolean"
+              },
+              "contacto": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "whatsapp": {
+                    "type": "string",
+                    "pattern": "^\\+[1-9]\\d{7,14}$"
+                  },
+                  "telefono": {
+                    "type": "string",
+                    "pattern": "^\\+[1-9]\\d{7,14}$"
+                  },
+                  "web": {
+                    "$ref": "comun.schema.json#/$defs/url"
+                  }
+                }
+              },
+              "valoracion": false,
+              "resenas": false,
+              "ejemplo": false
+            }
+          }
+        ]
+      }
+    }
+  }
+}

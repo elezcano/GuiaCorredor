@@ -1,112 +1,102 @@
 # ◆ Guía del Corredor Bioceánico
 
-Plataforma de información e inteligencia logística del **Corredor Bioceánico de Capricornio** (Brasil – Paraguay – Argentina – Chile), para transportistas, operadores logísticos, transitarios, importadores, exportadores y empresas de servicios.
+**Para qué sirve:** que un transportista, un despachante o una empresa que cotiza sepa en un minuto si puede cruzar el Corredor Bioceánico (Brasil – Paraguay – Argentina – Chile), por dónde, y con qué datos confirmados.
 
-Responde a preguntas operativas: qué pasos fronterizos usar y cómo están, qué organismos atienden y en qué horario, qué obras o restricciones afectan a la ruta, qué distancia hay entre localidades, qué empresas dan servicio en cada zona y qué papeles hacen falta.
+- 🌐 Web: **https://elezcano.github.io/GuiaCorredor/**
+- 📦 Datos abiertos: [`/api/v1/indice.json`](https://elezcano.github.io/GuiaCorredor/api/v1/indice.json)
+- ✉️ Contacto: elezcanofm@gmail.com · Responsable editorial y de verificación: **Ernesto**
 
-> **Estado: versión borrador (MVP).** Los datos se muestran «Por verificar» hasta que el responsable editorial los revise.
+> **Estado: borrador (MVP).** Regla de oro: **la fiabilidad va antes que la cantidad.** Nada sale como confirmado si Ernesto no lo ha verificado, y todo dato lleva su fuente y su fecha.
 
-> **Principio rector:** la fiabilidad tiene prioridad sobre la cantidad. Ningún dato se muestra como confirmado si no lo ha verificado una persona responsable.
+---
 
-- Web: **https://elezcano.github.io/GuiaCorredor/**
-- Datos abiertos: [`/api/v1/indice.json`](https://elezcano.github.io/GuiaCorredor/api/v1/indice.json)
-- Contacto del proyecto: elezcanofm@gmail.com
-- Responsable editorial y de verificación: Ernesto
+## Qué puedes hacer hoy en la web
 
-> Este repositorio sustituye al antiguo proyecto *Red de Cargas*; su estado anterior está en la rama [`legacy-red-de-cargas`](../../tree/legacy-red-de-cargas).
+| Necesito… | Dónde |
+|---|---|
+| Saber si un paso está abierto, ahora | Ficha del paso: **semáforo** (Abierto · Con restricciones · No habilitado · Sin confirmar), hora local de cada país y «abierto ahora / cierra en…» |
+| Saber de quién es el dato y de cuándo | Ficha del paso: **«Qué informa cada país»**, con organismo, fecha y hora, y aviso si el parte tiene más de 48 h |
+| Llamar a la frontera | Ficha del paso: **botón Llamar** con teléfonos de fuente oficial |
+| Saber qué controles pasa un camión | Ficha del paso: **controles para carga en orden** (integrado, migraciones, aduana, sanitario) |
+| Ver qué ha pasado en un paso | Ficha del paso: **novedades** en línea de tiempo |
+| Planificar una ruta y una fecha | **Planificador** y **informe de viaje** para enviar por WhatsApp, enlace o PDF |
+| Ver obras, cortes y festivos | Avisos y calendario aduanero |
+| Usar los datos en otro sistema | `api/v1` (JSON abierto, versionado) |
 
-## Decisiones aprobadas (14/11/2026)
+**Lo que no es:** un marketplace de cargas, un intermediario de pagos, un sitio de reseñas ni un seguimiento de camiones. Los avisos de cadenas y clima en tiempo real llegarán en otra fase (#69).
+
+---
+
+## Cómo trabajamos
+
+1. **Cada mejora es una historia de usuario** (issue en GitHub y tarjeta en Trello): «en curso» → «hecho».
+2. **Se desarrolla en una rama** y se abre una PR. Nada llega a la web sin que Ernesto lo pruebe y diga «publica».
+3. **Los datos nuevos entran «sin verificar».** Solo Ernesto los verifica, diciendo «confirmo …». La IA nunca marca un dato como verificado.
+4. **Antes de publicar, GitHub lo revisa todo solo:** datos y esquemas, coherencia web/API, enlaces, verificaciones nuevas (exigen la etiqueta `revision-editorial`) y **pruebas de navegador**. Si algo falla, no se publica.
+
+### Pruebas automáticas
+
+GitHub abre la web en un navegador real, a tamaño móvil y en tema claro y oscuro, y comprueba que funciona lo que ya funcionaba: portada, planificador, mapa, fichas de paso, informe de viaje y partes por organismo. Usa datos y reloj fijos, así que el resultado no cambia con los días ni al editar datos reales. Si una prueba falla, la PR sale en rojo y no se publica. Detalle en [`pruebas/LEEME.md`](pruebas/LEEME.md).
+
+---
+
+## Registro de avances
+
+Lo más reciente, arriba.
+
+| Fecha | Avance | Dónde |
+|---|---|---|
+| 15/11/2026 | **Pruebas automáticas en GitHub:** las pruebas de navegador se ejecutan en cada cambio y bloquean la publicación si algo falla | #50 |
+| 15/11/2026 | **Partes por organismo** con fecha, hora y aviso de antigüedad a partir de 48 h (se bajará a 24 h en mayo/junio de 2027) | #73 |
+| 15/11/2026 | **Los cuatro pasos con estado verificado.** Sico, habilitado con horario: abre a las 05:00, según Gendarmería. Aviso en la RN 51 | PR #72 |
+| 15/11/2026 | **Teléfonos verificados** de Jama, Sico y Pozo Hondo, con la etiqueta exacta de la web oficial | PR #71 |
+| 15/11/2026 | **Fichas de paso:** hora local y «abierto ahora», controles para carga, botón Llamar y novedades del paso | #65–#68 |
+| 15/11/2026 | **Informe de viaje** por ruta y fecha, para WhatsApp, enlace o PDF | #45 |
+| 15/11/2026 | **Semáforo operativo**, banderas, respuesta en una línea y mapa por tramos | — |
+| 15/11/2026 | **Puente de la Bioceánica, Pozo Hondo y Jama** verificados por Ernesto | — |
+| 15/11/2026 | **Formulario de Google** para solicitudes de empresas (hoja privada) | — |
+| 14/11/2026 | **P0 Fiabilidad:** verificación humana, fuentes, esquemas, calidad automática y `api/v1` | [informe](docs/informe-p0.md) |
+
+## Próximos pasos
+
+- **Vigilante de webs oficiales:** aviso automático cuando Gendarmería, Vialidad o Pasos Fronterizos publican un parte nuevo.
+- **Datos por verificar:** horario de Jama (8–20 h o 8–18 h), controles para carga, partes del lado chileno.
+- **Antes del lanzamiento:** primeras empresas reales (#46), revisión de la guía (#22), aviso legal (#48) y dominio (#16).
+
+Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=label%3AP1) · [P2](../../issues?q=label%3AP2) · [P3](../../issues?q=label%3AP3).
+
+---
+
+<details>
+<summary><strong>Decisiones aprobadas</strong></summary>
 
 | # | Decisión |
 |---|---|
 | 1 | Plan de la [auditoría](docs/auditoria-2026-11.md) aprobado, por fases P0 → P1 → P2 → P3 |
 | 2 | Arquitectura **estática** en GitHub Pages. Sin backend ni base de datos externa en esta fase |
 | 3 | Primero, modelo de datos normalizado y exportación JSON estable (`api/v1`) |
-| 4 | Claude, con conectores, es el entorno de trabajo asistido del equipo de desarrollo ([`docs/ia-dev.md`](docs/ia-dev.md)) |
+| 4 | Claude, con conectores, es el entorno de trabajo asistido del equipo ([`docs/ia-dev.md`](docs/ia-dev.md)) |
 | 5 | GitHub es la fuente de verdad del código y de los datos publicados |
-| 6 | Issues de GitHub y Trello (tablero *Guía del Corredor Bioceánico*) para tareas; Atlassian cuando esté conectado |
-| 7 | La verificación humana corresponde a Ernesto (`responsable-editorial`). Nunca a la IA ni a terceros por defecto |
+| 6 | Issues de GitHub y Trello (tablero *Guía del Corredor Bioceánico*) para tareas |
+| 7 | La verificación humana corresponde a Ernesto (`responsable-editorial`). Nunca a la IA |
 | 8 | Contacto del proyecto: elezcanofm@gmail.com |
 | 9 | Prioridad: datos fronterizos, información aduanera y primeras empresas verificadas |
-| 10 | *(15/11)* Distancias: estimación provisional en línea recta donde no hay dato con fuente, indicando qué tramo exacto se estima, hasta tener distancias oficiales |
-| 11 | *(15/11)* Lo que no se pueda justificar con fuente se retira provisionalmente (Mejillones e Iquique del mapa) |
-| 12 | *(15/11)* Solicitudes de empresas a un formulario de Google con hoja privada (email mientras no esté configurado) |
-| 13 | *(15/11)* Cambios de formato de la API avisados (`indice.json`, [`docs/api-cambios.md`](docs/api-cambios.md)) y gestionados con registro de versiones y contrato; la versión anterior se mantiene 6 meses |
-| 14 | *(15/11)* `main` sin proteger mientras la web sea un borrador; se protegerá más adelante (#49) |
-| 15 | *(15/11)* **Foco en la operatividad:** la situación operativa va primero en cada ficha y un estado verificado se muestra como confirmado aunque el texto de la guía siga en revisión |
-| 16 | *(15/11)* **Semáforo operativo** con icono, texto y color (Abierto, Con restricciones, No habilitado, Sin confirmar), respuesta en una línea arriba de cada ficha y mapa por tramos; legible en móvil al sol y de noche |
+| 10 | Distancias: estimación provisional en línea recta donde no hay dato con fuente, indicando el tramo exacto |
+| 11 | Lo que no se pueda justificar con fuente se retira provisionalmente |
+| 12 | Solicitudes de empresas a un formulario de Google con hoja privada |
+| 13 | Cambios de formato de la API avisados ([`docs/api-cambios.md`](docs/api-cambios.md)); la versión anterior se mantiene 6 meses |
+| 14 | `main` sin proteger mientras la web sea un borrador (#49) |
+| 15 | **Foco en la operatividad:** la situación operativa va primero en cada ficha |
+| 16 | **Semáforo operativo** con icono, texto y color; legible en móvil al sol y de noche |
+| 17 | Aviso de antigüedad de los partes a partir de 48 h; 24 h desde mayo/junio de 2027 |
+| 18 | Las pruebas de navegador se ejecutan en GitHub en cada cambio y bloquean la publicación si fallan |
 
-## Qué es y qué no es
+</details>
 
-| Es | No es |
-|---|---|
-| Una guía gratuita de pasos, tramos y papeles, con fuente, fecha y estado de verificación en cada dato | Un marketplace donde se negocian cargas |
-| Un **informe de viaje** por ruta y fecha de cruce, para enviar por WhatsApp, enlace o PDF (`/informe/`) |
-| Fichas de paso con **hora local y «abierto ahora»**, **controles para carga en orden**, **teléfonos con botón Llamar** y **novedades del paso** (#65–#68) | Un servicio de avisos de cadenas o clima en tiempo real (por ahora; #69, fase posterior) | Un sistema de reservas o seguimiento de camiones |
-| Un directorio de empresas reales revisadas, con ficha básica gratis y ficha destacada de pago | Un intermediario: no movemos dinero entre empresas |
-| Un planificador de ruta: tramos, fronteras, estado, incidencias, festivos y documentos | Un sitio de reseñas o rankings |
-| Una exportación de datos abierta (`api/v1`) que leen la web, Claude y otros sistemas | Una web con cuentas de usuario (fase posterior) |
+<details>
+<summary><strong>Para desarrolladores: uso, estructura y publicación</strong></summary>
 
-## Arquitectura
-
-```
-Fuentes oficiales / empresas / investigación
-        │
-        ▼
-Investigación asistida (Claude) ──► propuesta en una rama, datos «por verificar»
-        │
-        ▼
-Revisión y verificación de Ernesto (Pull Request, etiqueta revision-editorial)
-        │
-        ▼
-data/*.json ──► esquemas JSON + npm run check ──► GitHub Actions
-                                                    ├──► web HTML ──► GitHub Pages
-                                                    └──► api/v1 JSON ──► Claude y otros
-```
-
-```
-data/                Datos (fuente de verdad)
-  esquemas/          Esquemas JSON Schema Draft 2020-12 (validación con ajv)
-  fuentes.json       Registro único de fuentes; los datos las citan por id
-  pasos.json         Fichas operativas de pasos (estado, horarios por organismo, coordenadas)
-  rutas.json         Nodos (con coordenadas y fuente) y tramos (estado, distancia)
-  incidencias.json   Obras, restricciones, cortes
-  festivos.json      Calendario de festivos con su norma
-  organismos.json    Enlaces oficiales
-  directorio.json    Empresas revisadas (sede y cobertura separadas)
-  novedades.json, avisos.json, categorias.json, site.json
-content/guia/        Fichas de la guía en Markdown
-scripts/
-  validacion.mjs     Sistema único de validación (web, API y comprobaciones)
-  estimaciones.mjs   Estimaciones provisionales de distancia (web y API)
-  datos.mjs          Carga única de datos: resuelve fuentes y coordenadas
-  build.mjs          Genera la web y api/v1 en dist/
-  api.mjs            Contrato de la exportación api/v1
-  check.mjs          Esquemas + reglas de contenido y calidad
-  esquemas.mjs       Validación ajv
-  prueba-api.mjs     Coherencia web / API
-  verificaciones.mjs Exige revisión editorial a las verificaciones nuevas de un PR
-  enlaces.mjs        Enlaces internos · enlaces-externos.mjs: revisión semanal de URL
-  migraciones/       Migraciones de datos ejecutadas (registro)
-src/assets/          CSS y JavaScript del navegador
-docs/                Auditoría, política de validación, integración con Claude, cómo editar
-```
-
-## Política de validación (resumen)
-
-Detalle en [`docs/politica-validacion.md`](docs/politica-validacion.md).
-
-- Estados: `borrador`, `por-verificar`, `verificado`. **Solo Ernesto verifica**; el registro lleva `verificacion { verificadoPor: "responsable-editorial", rol, fecha, alcance }`.
-- La IA nunca marca un dato como verificado. Toda automatización deja los datos en `por-verificar`.
-- Evidencia: `oficial`, `declaracion-empresa`, `tercero`, `calculo`, `estimacion`, `historico`. Una estimación no es un dato oficial; un dato histórico no es la situación actual.
-- La interfaz distingue verificado, por verificar, caducado, borrador, estimación provisional y sin dato. Las distancias sin fuente se estiman provisionalmente en línea recta, siempre marcadas como tal.
-- Un festivo no implica cierre de aduana.
-
-## Datos abiertos: api/v1
-
-`indice.json`, `pasos.json`, `tramos.json`, `rutas.json`, `incidencias.json`, `calendario.json`, `empresas.json`, `fuentes.json`, `organismos.json`. Cada registro trae la fuente resuelta, la evidencia, las fechas, la validación y el estado ya calculado con el mismo código que la web. Contrato, versionado y reglas de interpretación en [`docs/ia-dev.md`](docs/ia-dev.md); cambios de formato en [`docs/api-cambios.md`](docs/api-cambios.md).
-
-## Uso
+### Uso
 
 Requisito: Node 20 o superior.
 
@@ -114,38 +104,59 @@ Requisito: Node 20 o superior.
 npm install              # una vez
 npm run check            # esquemas JSON + reglas de contenido y calidad
 npm run prueba           # genera la web y la API y comprueba coherencia y enlaces internos
+npm run pruebas          # pruebas de navegador (necesita Playwright, ver pruebas/LEEME.md)
 npm run dev              # genera y abre http://localhost:4321
 npm run verificaciones   # verificaciones nuevas respecto a main
 npm run enlaces-externos # comprueba las URL externas (informe, no bloquea)
 ```
 
-Cómo editar datos, añadir fuentes, verificar y tramitar solicitudes de empresas: [`docs/como-editar.md`](docs/como-editar.md).
+Cómo editar datos, añadir fuentes, verificar y tramitar solicitudes: [`docs/como-editar.md`](docs/como-editar.md).
 
-## Publicación
+### Estructura
 
-Cada cambio en `main` pasa por `check` → `build` → coherencia web/API → enlaces internos → despliegue en GitHub Pages (`.github/workflows/publicar.yml`; también cada 3 horas para recoger tiempos de cruce). En los Pull Requests se exige la etiqueta `revision-editorial` si hay verificaciones nuevas. Los lunes, `enlaces-externos.yml` revisa las URL externas y deja el resultado en un issue.
+```
+data/                Datos (fuente de verdad): pasos, rutas, incidencias, festivos, organismos,
+                     directorio, novedades, fuentes… y esquemas/ (JSON Schema 2020-12)
+content/guia/        Fichas de la guía en Markdown
+scripts/             build (web + api/v1), check, validación, API, estimaciones, enlaces…
+src/assets/          CSS y JavaScript del navegador
+pruebas/             Pruebas de navegador, con datos fijos en pruebas/datos/
+docs/                Auditoría, política de validación, Claude, cómo editar, cambios de la API
+```
 
-- Con dominio propio: poner el dominio en `url`, dejar `basePath` vacío y configurarlo en Settings → Pages → *Custom domain*. Coste: solo el dominio.
-- Para pausar la publicación: variable de repositorio `PUBLICAR` = `false`.
+### Flujo de datos
 
-## Estado del plan
+```
+Fuente oficial ──► propuesta en una rama («por verificar») ──► Ernesto verifica (PR + revision-editorial)
+      ──► data/*.json ──► GitHub Actions: check · build · API · enlaces · pruebas de navegador
+                              ├──► web ──► GitHub Pages
+                              └──► api/v1 ──► Claude y otros sistemas
+```
 
-| Fase | Qué | Estado |
-|---|---|---|
-| **P0** Fiabilidad | Verificación humana (#36), coordenadas con fuente (#37), modelo y esquemas (#38), calidad automática (#39), api/v1 y Claude (#40), contacto y solicitudes de empresas (#18) | Implementado; pendiente de revisión de Ernesto ([informe](docs/informe-p0.md)) |
-| **P1** Logística esencial | Informe de viaje (#45, hecho) · Fichas de paso: novedades, «abierto ahora», controles y contactos (#65–#68, hecho) · Partes por organismo con hora y aviso de antigüedad (#73, hecho) · Cadenas y clima (#69, P2) · Localidades separadas y rutas como grafo (#41), estado por dimensión (#42), fichas fronterizas (#43), incidencias completas y caducidad (#44), expediente de viaje (#45), distancias oficiales (#23), piloto de 2–3 empresas (#46), tiempos de cruce (#47), legal y privacidad (#48), analítica sin cookies (#19), flujo editorial por PR (#49), pruebas en el repositorio (#50) | Pendiente |
-| **P2** Mejoras operativas | Tiempos de conducción, filtros, capas del mapa, PWA, portugués (#20), avisos de estado (#25), SEO | Pendiente |
-| **P3** Avanzadas | Parámetros de vehículo, suscripciones, inglés, conectores a fuentes oficiales, CRT y MIC/DTA (#24), autoservicio (#26) | Cuando haya datos y uso real |
+### Política de validación
 
-Issues por fase: etiquetas [`P0`](../../issues?q=label%3AP0), [`P1`](../../issues?q=label%3AP1), [`P2`](../../issues?q=label%3AP2), [`P3`](../../issues?q=label%3AP3).
+Detalle en [`docs/politica-validacion.md`](docs/politica-validacion.md). Estados: `borrador`, `por-verificar`, `verificado`. Evidencia: `oficial`, `declaracion-empresa`, `tercero`, `calculo`, `estimacion`, `historico`. Un festivo no implica cierre de aduana.
+
+### API abierta
+
+`indice.json`, `pasos.json`, `tramos.json`, `rutas.json`, `incidencias.json`, `calendario.json`, `empresas.json`, `fuentes.json`, `organismos.json`. Contrato en [`docs/ia-dev.md`](docs/ia-dev.md); cambios en [`docs/api-cambios.md`](docs/api-cambios.md).
+
+### Publicación
+
+`.github/workflows/publicar.yml`: en cada cambio en `main` (y cada 3 horas, para los tiempos de cruce) se ejecutan los trabajos `construir` y `pruebas`, y solo si los dos pasan se publica en GitHub Pages. Para pausar la publicación: variable de repositorio `PUBLICAR` = `false`. Los lunes, `enlaces-externos.yml` revisa las URL externas.
+
+Este repositorio sustituye al antiguo *Red de Cargas* (rama [`legacy-red-de-cargas`](../../tree/legacy-red-de-cargas)).
+
+</details>
 
 ## Antes del lanzamiento
 
 - [x] Email de contacto del proyecto
-- [x] Formulario de Google de solicitudes de empresas (hoja privada en el Drive del proyecto)
+- [x] Formulario de Google de solicitudes de empresas
 - [x] Ninguna empresa ficticia en el directorio
+- [x] Pruebas automáticas antes de cada publicación (#50)
 - [ ] Primeras empresas reales verificadas (#46)
-- [ ] Revisión de las fichas de la guía y verificación por el responsable editorial (#22)
+- [ ] Revisión de las fichas de la guía (#22)
 - [ ] Enlace de suscripción de PayPal de la ficha destacada (#17)
 - [ ] Aviso legal y privacidad (#48)
 - [ ] Dominio (#16) e `"indexable": true` en `data/site.json`

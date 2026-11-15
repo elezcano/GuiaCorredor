@@ -1,0 +1,247 @@
+{
+  "$schema": "./esquemas/rutas.schema.json",
+  "version": "1.0.0",
+  "nota": "Distancias: solo se muestran las que tienen fuente. El resto queda 'por verificar' hasta que se confirmen. No inventar cifras. Cada tramo tiene id. 'reporte' = estado del tramo con fuente, publicado, verificado y validacion (los tramos con paso toman el estado de data/pasos.json). kmTipo: fuente | calculado; sin km se estima en línea recta.",
+  "nodos": [
+    {
+      "id": "campo-grande",
+      "nombre": "Campo Grande",
+      "pais": "BR",
+      "coordenadas": {
+        "lat": -20.48389,
+        "lon": -54.615,
+        "fuente": "wikipedia-en-campo-grande",
+        "evidencia": "tercero",
+        "precision": "localidad",
+        "consultado": "2026-11-14"
+      }
+    },
+    {
+      "id": "porto-murtinho",
+      "nombre": "Porto Murtinho",
+      "pais": "BR",
+      "coordenadas": {
+        "lat": -21.69889,
+        "lon": -57.88278,
+        "fuente": "wikipedia-en-porto-murtinho",
+        "evidencia": "tercero",
+        "precision": "localidad",
+        "consultado": "2026-11-14"
+      }
+    },
+    {
+      "id": "carmelo-peralta",
+      "nombre": "Carmelo Peralta",
+      "pais": "PY",
+      "coordenadas": {
+        "lat": -21.67985,
+        "lon": -57.90729,
+        "fuente": "geodatos-carmelo-peralta",
+        "evidencia": "tercero",
+        "precision": "localidad",
+        "consultado": "2026-11-14"
+      }
+    },
+    {
+      "id": "mariscal-estigarribia",
+      "nombre": "Mariscal Estigarribia",
+      "pais": "PY",
+      "coordenadas": {
+        "lat": -22.03333,
+        "lon": -60.63333,
+        "fuente": "wikipedia-en-mariscal-estigarribia",
+        "evidencia": "tercero",
+        "precision": "localidad",
+        "consultado": "2026-11-14"
+      }
+    },
+    {
+      "id": "pozo-hondo",
+      "nombre": "Pozo Hondo",
+      "pais": "PY",
+      "coordenadas": {
+        "lat": -22.37,
+        "lon": -62.52,
+        "fuente": "terralocate-pozo-hondo",
+        "evidencia": "tercero",
+        "precision": "localidad",
+        "consultado": "2026-11-14"
+      }
+    },
+    {
+      "id": "salta-jujuy",
+      "nombre": "Salta / Jujuy",
+      "pais": "AR",
+      "coordenadas": {
+        "lat": -24.783,
+        "lon": -65.417,
+        "fuente": "wikipedia-en-salta",
+        "evidencia": "tercero",
+        "precision": "referencia",
+        "consultado": "2026-11-14",
+        "nota": "Punto de referencia: ciudad de Salta. El nodo agrupa Salta y Jujuy hasta separarlos (P1.1)."
+      }
+    },
+    {
+      "id": "norte-chile",
+      "nombre": "San Pedro de Atacama / Calama",
+      "pais": "CL",
+      "coordenadas": {
+        "lat": -22.917,
+        "lon": -68.2,
+        "fuente": "wikipedia-en-san-pedro-de-atacama",
+        "evidencia": "tercero",
+        "precision": "referencia",
+        "consultado": "2026-11-14",
+        "nota": "Punto de referencia: San Pedro de Atacama. El nodo agrupa San Pedro de Atacama y Calama hasta separarlos (P1.1)."
+      }
+    },
+    {
+      "id": "puertos-chile",
+      "nombre": "Antofagasta / Mejillones / Iquique",
+      "pais": "CL",
+      "coordenadas": {
+        "lat": -23.65,
+        "lon": -70.4,
+        "fuente": "wikipedia-en-antofagasta",
+        "evidencia": "tercero",
+        "precision": "referencia",
+        "consultado": "2026-11-14",
+        "nota": "Punto de referencia: Antofagasta. El nodo agrupa Antofagasta, Mejillones e Iquique hasta separarlos (P1.1)."
+      }
+    }
+  ],
+  "tramos": [
+    {
+      "id": "cg-pm",
+      "desde": "campo-grande",
+      "hasta": "porto-murtinho",
+      "km": null,
+      "guia": null
+    },
+    {
+      "id": "puente",
+      "desde": "porto-murtinho",
+      "hasta": "carmelo-peralta",
+      "km": 1.3,
+      "paso": {
+        "id": "puente-bioceanica",
+        "nombre": "Puente de la Bioceánica (BR–PY)",
+        "guia": "pasos/carmelo-peralta-porto-murtinho"
+      },
+      "nota": "Puente de 1.294 m sobre el río Paraguay.",
+      "kmTipo": "fuente",
+      "kmFuente": "abc-color",
+      "kmEvidencia": "tercero"
+    },
+    {
+      "id": "cp-me",
+      "desde": "carmelo-peralta",
+      "hasta": "mariscal-estigarribia",
+      "km": 307,
+      "guia": "tramos/py15-chaco",
+      "kmTipo": "calculado",
+      "kmNota": "531 km de la PY15 menos los 224 km del lote 3.",
+      "kmEvidencia": "calculo"
+    },
+    {
+      "id": "me-ph",
+      "desde": "mariscal-estigarribia",
+      "hasta": "pozo-hondo",
+      "km": 224,
+      "guia": "tramos/py15-chaco",
+      "kmTipo": "fuente",
+      "kmFuente": "ultima-hora",
+      "reporte": {
+        "valor": "en-obras",
+        "texto": "Pavimentación del lote 3 en ejecución.",
+        "fuente": "ultima-hora",
+        "publicado": "2026-10-24",
+        "validacion": "por-verificar",
+        "actualizado": null,
+        "verificacion": null,
+        "evidencia": "tercero"
+      },
+      "kmEvidencia": "tercero"
+    },
+    {
+      "id": "pozo-hondo",
+      "desde": "pozo-hondo",
+      "hasta": "salta-jujuy",
+      "km": null,
+      "paso": {
+        "id": "pozo-hondo",
+        "nombre": "Paso Pozo Hondo (PY–AR)",
+        "guia": "pasos/pozo-hondo"
+      }
+    },
+    {
+      "id": "andes",
+      "desde": "salta-jujuy",
+      "hasta": "norte-chile",
+      "km": null,
+      "paso": {
+        "id": "jama",
+        "nombre": "Paso de Jama (AR–CL)",
+        "guia": "pasos/jama"
+      },
+      "alternativa": {
+        "id": "sico",
+        "nombre": "Paso de Sico (AR–CL)",
+        "guia": "pasos/sico"
+      }
+    },
+    {
+      "id": "calama-puertos",
+      "desde": "norte-chile",
+      "hasta": "puertos-chile",
+      "km": null,
+      "guia": null
+    }
+  ],
+  "documentosCruce": [
+    {
+      "id": "crt",
+      "nombre": "CRT — Conocimiento / Carta de Porte Internacional por Carretera"
+    },
+    {
+      "id": "mic-dta",
+      "nombre": "MIC/DTA — Manifiesto Internacional de Carga / Declaración de Tránsito Aduanero"
+    },
+    {
+      "id": "permiso",
+      "nombre": "Permiso de transporte internacional de la empresa y del vehículo"
+    },
+    {
+      "id": "seguro",
+      "nombre": "Seguro de responsabilidad civil para transporte internacional"
+    },
+    {
+      "id": "sanitario",
+      "nombre": "Certificados sanitarios o fitosanitarios, según la mercancía",
+      "cargas": [
+        "granel",
+        "refrigerada"
+      ]
+    }
+  ],
+  "avisoDocumentos": "Lista orientativa. Los requisitos exactos dependen de la mercancía y del país: confírmalos con tu despachante.",
+  "tiposCarga": [
+    {
+      "id": "general",
+      "nombre": "Carga general"
+    },
+    {
+      "id": "granel",
+      "nombre": "Granel"
+    },
+    {
+      "id": "refrigerada",
+      "nombre": "Refrigerada"
+    },
+    {
+      "id": "contenedor",
+      "nombre": "Contenedor"
+    }
+  ]
+}

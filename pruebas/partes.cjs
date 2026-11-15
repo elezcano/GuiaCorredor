@@ -1,12 +1,11 @@
+// Prueba de navegador. Se ejecuta con: npm run pruebas (ver pruebas/LEEME.md).
 // Pruebas HU-73: partes por organismo con hora y aviso de antigüedad. Reloj fijo: 15/11/2026 20:30 (Madrid).
-const { chromium } = require('playwright');
-const B = 'http://localhost:4321'; const f = []; const ok = (c, m) => c || f.push(m);
-const AHORA = new Date('2026-11-15T20:30:00+01:00');
+const { B, captura, lanzar, fin } = require('./comun.cjs');
+const f = []; const ok = (c, m) => c || f.push(m);
 (async () => {
-  const b = await chromium.launch();
+  const b = await lanzar();
   for (const [tema, sch] of [['claro', 'light'], ['oscuro', 'dark']]) {
     const p = await b.newPage({ viewport: { width: 360, height: 780 }, deviceScaleFactor: 2, colorScheme: sch });
-    await p.clock.setFixedTime(AHORA);
     const errs = []; p.on('pageerror', (e) => errs.push(e.message));
     await p.addInitScript((t) => { try { localStorage.setItem('tema', t); } catch {} }, tema);
     await p.goto(B + '/guia/pasos/sico/');
@@ -19,7 +18,7 @@ const AHORA = new Date('2026-11-15T20:30:00+01:00');
     ok((await p.textContent('.senal-pie .estado')).startsWith('Abierto'), 'C3 el semáforo no cambia');
     ok(await p.$$eval('.partes a[href]', (l) => l.length >= 2), 'C1 enlaces a la fuente');
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'C5 desborde ' + tema);
-    const box = await p.$('.partes'); await box.screenshot({ path: `/tmp/shots/partes-sico-${tema}.png` });
+    const box = await p.$('.partes'); await box.screenshot({ path: captura(`partes-sico-${tema}.png`) });
     await p.goto(B + '/guia/pasos/jama/');
     ok(/sin hora publicada/.test(await p.textContent('.partes')), 'Jama: parte sin hora');
     await p.goto(B + '/guia/pasos/carmelo-peralta-porto-murtinho/');
@@ -33,6 +32,6 @@ const AHORA = new Date('2026-11-15T20:30:00+01:00');
     ok(errs.length === 0, 'errores JS ' + errs);
     await p.close();
   }
-  console.log(f.length ? 'FALLOS:\n' + f.join('\n') : 'HU-73: sin fallos');
+  fin('Partes por organismo (HU-73)', f);
   await b.close();
 })();
