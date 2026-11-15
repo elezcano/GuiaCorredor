@@ -110,7 +110,34 @@
                         "sanitario",
                         "complejo"
                       ]
+                    },
+                    "apertura": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                    },
+                    "cierre": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                    },
+                    "zona": {
+                      "enum": [
+                        "America/Argentina/Jujuy",
+                        "America/Argentina/Salta",
+                        "America/Santiago",
+                        "America/Asuncion",
+                        "America/Campo_Grande"
+                      ]
                     }
+                  },
+                  "dependentRequired": {
+                    "apertura": [
+                      "cierre",
+                      "zona"
+                    ],
+                    "cierre": [
+                      "apertura",
+                      "zona"
+                    ]
                   }
                 }
               ]
@@ -187,15 +214,28 @@
                   "$ref": "comun.schema.json#/$defs/registroConFuente"
                 },
                 {
-                  "properties": {
-                    "texto": {
-                      "type": "string",
-                      "minLength": 3
-                    }
-                  },
                   "required": [
                     "texto"
-                  ]
+                  ],
+                  "properties": {
+                    "nombre": {
+                      "type": "string"
+                    },
+                    "lado": {
+                      "type": "string"
+                    },
+                    "texto": {
+                      "type": "string"
+                    },
+                    "telefono": {
+                      "type": "string",
+                      "pattern": "^\\+[1-9]\\d{7,14}$"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    }
+                  }
                 }
               ]
             }
@@ -236,6 +276,84 @@
           },
           "revisado": {
             "$ref": "comun.schema.json#/$defs/fecha"
+          },
+          "historial": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "fecha",
+                    "texto"
+                  ],
+                  "properties": {
+                    "fecha": {
+                      "$ref": "comun.schema.json#/$defs/fecha"
+                    },
+                    "valor": {
+                      "oneOf": [
+                        {
+                          "$ref": "comun.schema.json#/$defs/estado"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "texto": {
+                      "type": "string",
+                      "minLength": 3
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "controles": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "orden",
+                    "tipo",
+                    "lado",
+                    "texto"
+                  ],
+                  "properties": {
+                    "orden": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "tipo": {
+                      "enum": [
+                        "integrado",
+                        "migraciones",
+                        "aduana",
+                        "sanitario",
+                        "seguridad",
+                        "aviso"
+                      ]
+                    },
+                    "lado": {
+                      "type": "string"
+                    },
+                    "organismo": {
+                      "$ref": "comun.schema.json#/$defs/id"
+                    },
+                    "texto": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       }

@@ -41,7 +41,8 @@ Responde a preguntas operativas: qué pasos fronterizos usar y cómo están, qu�
 | Es | No es |
 |---|---|
 | Una guía gratuita de pasos, tramos y papeles, con fuente, fecha y estado de verificación en cada dato | Un marketplace donde se negocian cargas |
-| Un **informe de viaje** por ruta y fecha de cruce, para enviar por WhatsApp, enlace o PDF (`/informe/`) | Un sistema de reservas o seguimiento de camiones |
+| Un **informe de viaje** por ruta y fecha de cruce, para enviar por WhatsApp, enlace o PDF (`/informe/`) |
+| Fichas de paso con **hora local y «abierto ahora»**, **controles para carga en orden**, **teléfonos con botón Llamar** y **novedades del paso** (#65–#68) | Un servicio de avisos de cadenas o clima en tiempo real (por ahora; #69, fase posterior) | Un sistema de reservas o seguimiento de camiones |
 | Un directorio de empresas reales revisadas, con ficha básica gratis y ficha destacada de pago | Un intermediario: no movemos dinero entre empresas |
 | Un planificador de ruta: tramos, fronteras, estado, incidencias, festivos y documentos | Un sitio de reseñas o rankings |
 | Una exportación de datos abierta (`api/v1`) que leen la web, Claude y otros sistemas | Una web con cuentas de usuario (fase posterior) |
@@ -132,7 +133,7 @@ Cada cambio en `main` pasa por `check` → `build` → coherencia web/API → en
 | Fase | Qué | Estado |
 |---|---|---|
 | **P0** Fiabilidad | Verificación humana (#36), coordenadas con fuente (#37), modelo y esquemas (#38), calidad automática (#39), api/v1 y Claude (#40), contacto y solicitudes de empresas (#18) | Implementado; pendiente de revisión de Ernesto ([informe](docs/informe-p0.md)) |
-| **P1** Logística esencial | Informe de viaje (#45, hecho) · Localidades separadas y rutas como grafo (#41), estado por dimensión (#42), fichas fronterizas (#43), incidencias completas y caducidad (#44), expediente de viaje (#45), distancias oficiales (#23), piloto de 2–3 empresas (#46), tiempos de cruce (#47), legal y privacidad (#48), analítica sin cookies (#19), flujo editorial por PR (#49), pruebas en el repositorio (#50) | Pendiente |
+| **P1** Logística esencial | Informe de viaje (#45, hecho) · Fichas de paso: novedades, «abierto ahora», controles y contactos (#65–#68, en revisión) · Cadenas y clima (#69, P2) · Localidades separadas y rutas como grafo (#41), estado por dimensión (#42), fichas fronterizas (#43), incidencias completas y caducidad (#44), expediente de viaje (#45), distancias oficiales (#23), piloto de 2–3 empresas (#46), tiempos de cruce (#47), legal y privacidad (#48), analítica sin cookies (#19), flujo editorial por PR (#49), pruebas en el repositorio (#50) | Pendiente |
 | **P2** Mejoras operativas | Tiempos de conducción, filtros, capas del mapa, PWA, portugués (#20), avisos de estado (#25), SEO | Pendiente |
 | **P3** Avanzadas | Parámetros de vehículo, suscripciones, inglés, conectores a fuentes oficiales, CRT y MIC/DTA (#24), autoservicio (#26) | Cuando haya datos y uso real |
 

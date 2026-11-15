@@ -55,7 +55,32 @@
       "servicios": [],
       "contactos": [],
       "revisado": "2026-11-15",
-      "horariosEspeciales": []
+      "horariosEspeciales": [],
+      "historial": [
+        {
+          "fecha": "2026-07-16",
+          "valor": "en-obras",
+          "texto": "Se unen los dos extremos del puente sobre el río Paraguay. Sigue sin habilitar.",
+          "fuente": "abc-color-puente-union",
+          "publicado": "2026-07-16",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-22",
+          "valor": "en-obras",
+          "texto": "Terminaciones y ajustes estructurales en ambas márgenes; acceso paraguayo en obras.",
+          "fuente": "abc-color-puente-recta-final",
+          "publicado": "2026-10-22",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "controles": []
     },
     {
       "id": "pozo-hondo",
@@ -116,7 +141,10 @@
           "publicado": "2026-09-30",
           "actualizado": "2026-11-15",
           "validacion": "por-verificar",
-          "verificacion": null
+          "verificacion": null,
+          "apertura": "07:00",
+          "cierre": "20:00",
+          "zona": "America/Argentina/Salta"
         }
       ],
       "operaciones": null,
@@ -139,9 +167,97 @@
         }
       ],
       "servicios": [],
-      "contactos": [],
+      "contactos": [
+        {
+          "lado": "AR",
+          "nombre": "Paso Misión La Paz – Pozo Hondo (Ministerio de Seguridad de Argentina)",
+          "texto": "Contacto del paso en el lado argentino",
+          "telefono": "+543873460389",
+          "fuente": "ar-seguridad-paso-mision-la-paz",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
       "revisado": "2026-11-15",
-      "horariosEspeciales": []
+      "horariosEspeciales": [],
+      "historial": [
+        {
+          "fecha": "2026-04-27",
+          "valor": null,
+          "texto": "El MOPC anuncia un puente nuevo de 360 m para sustituir al de 1995, que limita el tránsito. En estudios, sin fecha de licitación.",
+          "fuente": "mopc-nuevo-puente-pozo-hondo",
+          "publicado": "2026-04-27",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-30",
+          "valor": "operativo",
+          "texto": "Habilitado de 7 a 20 h para vehículos y peatones (parte de Defensa Civil de Salta).",
+          "fuente": "saltazoom-pasos-30-09-2026",
+          "publicado": "2026-09-30",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "controles": [
+        {
+          "orden": 1,
+          "tipo": "migraciones",
+          "lado": "AR",
+          "texto": "Gendarmería Nacional hace el control migratorio, por funciones delegadas.",
+          "fuente": "salta-relaciones-internacionales-mision-la-paz",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 2,
+          "tipo": "aduana",
+          "lado": "AR",
+          "organismo": "ar-arca",
+          "texto": "Dirección General de Aduanas: todas las operatorias habilitadas.",
+          "fuente": "salta-relaciones-internacionales-mision-la-paz",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 3,
+          "tipo": "sanitario",
+          "lado": "AR",
+          "texto": "Control fito y zoosanitario a cargo de Gendarmería Nacional, por funciones delegadas.",
+          "fuente": "salta-relaciones-internacionales-mision-la-paz",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 4,
+          "tipo": "aviso",
+          "lado": "PY",
+          "texto": "Lado paraguayo: sin detalle de controles publicado. El puente actual limita el tránsito de carga.",
+          "fuente": "mopc-nuevo-puente-pozo-hondo",
+          "publicado": "2026-04-27",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ]
     },
     {
       "id": "jama",
@@ -190,7 +306,10 @@
           "organismo": "complejo",
           "actualizado": null,
           "verificacion": null,
-          "evidencia": "tercero"
+          "evidencia": "tercero",
+          "apertura": "08:00",
+          "cierre": "20:00",
+          "zona": "America/Argentina/Jujuy"
         },
         {
           "lado": "AR",
@@ -244,9 +363,136 @@
         }
       ],
       "servicios": [],
-      "contactos": [],
+      "contactos": [
+        {
+          "lado": "AR",
+          "nombre": "Paso Jama (Ministerio de Seguridad de Argentina)",
+          "texto": "Contacto del paso en el lado argentino",
+          "telefono": "+543884253630",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "lado": "CL",
+          "nombre": "Unidad de Pasos Fronterizos de Chile",
+          "texto": "Desde Chile, 101; desde el extranjero, este número",
+          "telefono": "+56229654000",
+          "fuente": "upf-chile-complejo-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
       "revisado": "2026-11-15",
-      "horariosEspeciales": []
+      "horariosEspeciales": [],
+      "historial": [
+        {
+          "fecha": "2026-09-20",
+          "valor": "cerrado",
+          "texto": "No habilitado: la CH-27 queda cortada por acumulación de nieve.",
+          "fuente": "24horas-pasos-el-loa-20-09-2026",
+          "publicado": "2026-09-20",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-11-07",
+          "valor": "operativo",
+          "texto": "Habilitado para todo tipo de vehículos, de 8 a 20 h, con precaución por clima.",
+          "fuente": "todojujuy-parte-de-migraciones",
+          "publicado": "2026-11-07",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "controles": [
+        {
+          "orden": 1,
+          "tipo": "integrado",
+          "lado": "AR y CL",
+          "texto": "Complejo integrado de cabecera única, en territorio argentino: los organismos de los dos países atienden uno al lado del otro.",
+          "fuente": "aduana-chile-complejo-integrado-jama",
+          "publicado": "2013-09-11",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 2,
+          "tipo": "migraciones",
+          "lado": "AR",
+          "organismo": "ar-migraciones",
+          "texto": "Control migratorio del chofer y acompañantes (Dirección Nacional de Migraciones).",
+          "fuente": "mininterior-paso-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 3,
+          "tipo": "aduana",
+          "lado": "AR",
+          "organismo": "ar-arca",
+          "texto": "Aduana argentina: manifiesto MIC/DTA y carta de porte CRT.",
+          "fuente": "mininterior-paso-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 4,
+          "tipo": "sanitario",
+          "lado": "AR",
+          "texto": "Control fito y zoosanitario a cargo de Gendarmería Nacional, por funciones delegadas.",
+          "fuente": "mininterior-paso-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 5,
+          "tipo": "aduana",
+          "lado": "CL",
+          "organismo": "cl-aduanas",
+          "texto": "Aduana de Chile en el mismo complejo.",
+          "fuente": "aduana-chile-complejo-integrado-jama",
+          "publicado": "2013-09-11",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 6,
+          "tipo": "sanitario",
+          "lado": "CL",
+          "organismo": "cl-sag",
+          "texto": "SAG: control agrícola y ganadero de ingreso a Chile.",
+          "fuente": "aduana-chile-complejo-integrado-jama",
+          "publicado": "2013-09-11",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ]
     },
     {
       "id": "sico",
@@ -282,6 +528,20 @@
         ]
       },
       "horarios": [
+        {
+          "lado": "AR y CL",
+          "organismo": "complejo",
+          "texto": "9 a 19 h (Ministerio de Seguridad de Argentina)",
+          "apertura": "09:00",
+          "cierre": "19:00",
+          "zona": "America/Argentina/Salta",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
         {
           "lado": "AR",
           "texto": "8 a 20 h (oficina de Migraciones)",
@@ -334,9 +594,110 @@
         }
       ],
       "servicios": [],
-      "contactos": [],
+      "contactos": [
+        {
+          "lado": "AR",
+          "nombre": "Paso Sico (Ministerio de Seguridad de Argentina)",
+          "texto": "Contacto del paso en el lado argentino",
+          "telefono": "+543874909040",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "lado": "CL",
+          "nombre": "Unidad de Pasos Fronterizos de Chile",
+          "texto": "Desde Chile, 101; desde el extranjero, este número",
+          "telefono": "+56229654000",
+          "fuente": "upf-chile-complejo-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
       "revisado": "2026-11-15",
-      "horariosEspeciales": []
+      "horariosEspeciales": [],
+      "historial": [
+        {
+          "fecha": "2026-07-11",
+          "valor": "operativo",
+          "texto": "Reabierto para cargas y particulares, todos los días de 9 a 19 h (Ministerio de Seguridad Nacional de Argentina).",
+          "fuente": "portalportuario-reapertura-sico",
+          "publicado": "2026-07-14",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-20",
+          "valor": "cerrado",
+          "texto": "No habilitado: la CH-23 queda cortada por acumulación de nieve.",
+          "fuente": "24horas-pasos-el-loa-20-09-2026",
+          "publicado": "2026-09-20",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "controles": [
+        {
+          "orden": 1,
+          "tipo": "integrado",
+          "lado": "AR y CL",
+          "texto": "Control integrado del Paso de Sico, con atención presencial de los organismos de frontera de Chile.",
+          "fuente": "salta-news-sico-control-integrado",
+          "publicado": "2026-06-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 2,
+          "tipo": "migraciones",
+          "lado": "AR",
+          "organismo": "ar-migraciones",
+          "texto": "Control migratorio del chofer.",
+          "fuente": "salta-news-sico-control-integrado",
+          "publicado": "2026-06-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 3,
+          "tipo": "aduana",
+          "lado": "AR y CL",
+          "texto": "Aduanas de los dos países: MIC/DTA y CRT.",
+          "fuente": "salta-news-sico-control-integrado",
+          "publicado": "2026-06-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 4,
+          "tipo": "sanitario",
+          "lado": "CL",
+          "organismo": "cl-sag",
+          "texto": "SAG: control agrícola y ganadero de ingreso a Chile.",
+          "fuente": "salta-news-sico-control-integrado",
+          "publicado": "2026-06-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ]
     }
   ]
 }

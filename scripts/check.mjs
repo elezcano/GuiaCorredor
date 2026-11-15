@@ -128,11 +128,17 @@ for (const f of fichas) {
     caducado(f.estado, tipoEstado(f.estado.valor), `${donde} (estado)`);
     if (f.estado.validacion !== 'verificado') avisos.push(`${donde}: estado sin verificar; se muestra «Por verificar» con el último dato.`);
   }
-  for (const k of ['horarios', 'restricciones', 'acceso', 'servicios', 'contactos', 'horariosEspeciales'])
+  for (const k of ['horarios', 'restricciones', 'acceso', 'servicios', 'contactos', 'horariosEspeciales', 'historial', 'controles'])
     for (const [i, h] of (f[k] || []).entries()) {
       registro(h, `${donde} ${k}[${i}]`, { permitePublicadoNulo: true });
       if (k === 'horariosEspeciales' && (!esFecha(h.desde) || !esFecha(h.hasta))) errores.push(`${donde} ${k}[${i}]: necesita desde y hasta.`);
+      if (k === 'historial' && esFecha(h.fecha) && h.fecha > HOY) errores.push(`${donde} historial[${i}]: fecha futura.`);
+      if (k === 'horarios' && h.apertura && h.cierre && h.apertura >= h.cierre) errores.push(`${donde} horarios[${i}]: la apertura debe ser anterior al cierre.`);
+      if (h.organismo && k === 'controles' && !idsOrg.has(h.organismo)) errores.push(`${donde} controles[${i}]: organismo desconocido "${h.organismo}".`);
+      if (k === 'contactos' && h.telefono && !/^\+[1-9]\d{7,14}$/.test(h.telefono)) errores.push(`${donde} contactos[${i}]: teléfono no internacional.`);
     }
+  const ordenes = (f.controles || []).map((c) => c.orden);
+  if (new Set(ordenes).size !== ordenes.length) errores.push(`${donde}: controles con orden repetido.`);
   for (const o of f.organismos || []) if (!idsOrg.has(o)) errores.push(`${donde}: cita el organismo desconocido "${o}".`);
   coordenadas(f.ubicacion?.coordenadas, donde, f.ubicacion?.coordenadasNota);
 }
