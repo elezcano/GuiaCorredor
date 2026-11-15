@@ -135,6 +135,7 @@ const nivelGuia = (p) => nivelFicha(`${p.seccion}/${p.slug}`);
 
 // ---------- iconos (trazo, 24×24) ----------
 const ICONOS = {
+  telefono: 'M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z',
   intercambiar: 'M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4',
   buscar: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
   sol: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
@@ -654,6 +655,67 @@ function coordenadasHTML(c, nota) {
 }
 
 /** Bloque de datos operativos de un paso, cada dato con su fuente. */
+// Zonas horarias de cada país del corredor (HU-66).
+const ZONAS = { AR: 'America/Argentina/Salta', CL: 'America/Santiago', PY: 'America/Asuncion', BR: 'America/Campo_Grande' };
+/** +543884253630 → +54 388 425 3630 (legible; el enlace usa el número completo). */
+const telLegible = (t) => {
+  // Prefijos de área conocidos (el más largo primero); si no se conoce, se deja el número sin agrupar.
+  const AREAS = { '54': ['3873', '387', '388', '11'], '56': ['2'], '595': ['21'], '55': ['67'] };
+  const cc = ['595', '54', '56', '55'].find((c) => t.startsWith('+' + c));
+  if (!cc) return t;
+  const resto = t.slice(cc.length + 1);
+  const area = AREAS[cc].find((a) => resto.startsWith(a));
+  if (!area) return `+${cc} ${resto}`;
+  const local = resto.slice(area.length);
+  const corte = local.length - 4;
+  return `+${cc} ${area} ${local.slice(0, corte)} ${local.slice(corte)}`;
+};
+const TIPO_CONTROL = { integrado: 'Control integrado', migraciones: 'Migraciones', aduana: 'Aduana', sanitario: 'Sanitario', seguridad: 'Seguridad', aviso: 'Aviso' };
+/** HU-66: hora local de cada lado y «abierto ahora». Lo calcula ahora.js en el navegador. */
+function ahoraHTML(p, op) {
+  const h = (p.horarios || []).find((x) => x.apertura && x.cierre && x.zona);
+  const datos = {
+    paises: Object.keys(p.lados).map((k) => ({ pais: k, nombre: PAISES[k], zona: ZONAS[k] })),
+    horario: h ? { apertura: h.apertura, cierre: h.cierre, zona: h.zona, verificado: h.validacion === 'verificado' && !!h.verificado } : null,
+    op,
+  };
+  return `<div class="ahora" data-ahora="${esc(JSON.stringify(datos))}">
+    <p class="ahora-relojes">${Object.keys(p.lados).map((k) => `<span class="ahora-reloj" data-pais="${k}">${bandera(k)} <span class="ahora-hora">--:--</span></span>`).join('')}</p>
+    <p class="ahora-estado" aria-live="polite"></p>
+  </div>`;
+}
+/** HU-65: novedades del paso, de la más reciente a la más antigua. */
+function novedadesPaso(p) {
+  const ruta = rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id)?.guia;
+  const items = [];
+  const e = estadoPaso(p.id);
+  items.push({ fecha: e.confirmado ? e.verificado : p.estado.publicado, op: e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar', valor: e.confirmado ? e.valor : null, texto: `Estado actual: ${p.estado.texto}`, fuente: p.estado.fuente, verificado: e.confirmado ? e.verificado : null, actual: true });
+  for (const h of p.historial || []) items.push({ fecha: h.fecha, op: h.valor ? operativaDe(h.valor, 'paso') : null, valor: h.valor, texto: h.texto, fuente: h.fuente, verificado: h.verificado });
+  const tramosPaso = rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id);
+  for (const i of incidenciasDe({ paso: p.id, tramos: tramosPaso })) if (i.publicado) items.push({ fecha: i.publicado, op: 'restricciones', valor: null, texto: `Aviso: ${i.descripcion}`, fuente: i.fuente, verificado: i.verificado });
+  for (const n of novedades.filter((n) => ruta && n.guia === ruta)) items.push({ fecha: n.publicado, op: null, texto: n.titulo, fuente: n.fuente, verificado: null });
+  const vistos = new Set();
+  const lista = items
+    .filter((x) => x.fecha)
+    .sort((x, y) => (y.fecha > x.fecha ? 1 : y.fecha < x.fecha ? -1 : Number(!!y.actual) - Number(!!x.actual)))
+    .filter((x) => {
+      const k = `${x.fecha}|${x.fuente?.url}|${x.texto.slice(0, 40)}`;
+      return vistos.has(k) ? false : vistos.add(k);
+    });
+  if (!lista.length) return '';
+  return `<section class="novedades-paso" aria-labelledby="t-novedades-paso">
+    <h3 id="t-novedades-paso">Novedades del paso</h3>
+    <ol class="linea-tiempo">${lista
+      .map(
+        (x) => `<li class="${x.op ? `op-${x.op}` : 'lt-noticia'}${x.actual ? ' lt-actual' : ''}">
+        <time datetime="${x.fecha}">${fecha(x.fecha)} <span class="edad">(${haceTiempo(x.fecha)})</span></time>
+        <p>${x.op ? `${estado(x.valor || (x.op === 'sin-confirmar' ? 'pendiente' : 'restricciones'))} ` : ''}${esc(x.texto)}</p>
+        <span class="dato-fuente">${x.verificado ? `Verificado el ${fecha(x.verificado)} · ` : 'Sin verificar · '}${fuenteEnlace(x.fuente)}</span>
+      </li>`
+      )
+      .join('')}</ol>
+  </section>`;
+}
 function fichaOperativa(p) {
   const e = estadoPaso(p.id);
   const fila = (titulo, contenido) => `<div class="dato-fila"><dt>${titulo}</dt><dd>${contenido}</dd></div>`;
@@ -682,6 +744,7 @@ function fichaOperativa(p) {
       ${prevision ? `<p class="respuesta-detalle">Previsión: ${esc(prevision)}</p>` : ''}
       ${hor ? `<p class="respuesta-detalle">Horario${hor.lado ? ` (${conBanderas(hor.lado)})` : ''}: ${esc(hor.texto)}${hor.validacion === 'verificado' ? '' : ' <span class="respuesta-meta">· sin verificar</span>'}</p>` : ''}
       <p class="respuesta-meta">${e.confirmado ? `Verificado el ${fecha(e.verificado)}` : `Sin verificar · fuente: ${fuenteEnlace(p.estado.fuente)}, ${fecha(p.estado.publicado)}`}</p>
+      ${ahoraHTML(p, op)}
     </div>
   </div>`;
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
@@ -698,9 +761,34 @@ function fichaOperativa(p) {
     ${fila('Acceso', lista(p.acceso, 'Sin verificar'))}
     ${fila('Organismos', orgs.length ? `<ul class="lista-enlaces">${orgs.map(enlaceOrganismo).join('')}</ul>` : '<span class="sin-dato">Sin verificar</span>')}
     ${fila('Servicios en el paso', lista(p.servicios, 'Sin verificar'))}
-    ${fila('Contactos oficiales', lista(p.contactos, 'Sin verificar'))}
+    ${fila(
+      'Contactos oficiales',
+      p.contactos?.length
+        ? `<ul class="contactos">${p.contactos
+            .map(
+              (c) => `<li>${c.lado ? conBanderas(c.lado) + ' ' : ''}<strong>${esc(c.nombre || c.texto)}</strong>${c.nombre && c.texto ? `<span class="dato-fuente">${esc(c.texto)}</span>` : ''}
+              <span class="contacto-acciones">${c.telefono ? `<a class="btn btn-borde btn-pequeno btn-llamar" href="tel:${esc(c.telefono)}">${icono('telefono')}Llamar ${esc(telLegible(c.telefono))}</a>` : ''}${c.email ? `<a class="btn btn-borde btn-pequeno" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''}</span>
+              <span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado)} ${fuenteEnlace(c.fuente)}</span></li>`
+            )
+            .join('')}</ul>`
+        : `<span class="sin-dato">Sin teléfono con fuente.</span> ${orgs.length ? 'Consulta la web oficial de cada organismo (arriba).' : ''}`
+    )}
+    ${fila(
+      'Controles para carga',
+      p.controles?.length
+        ? `<ol class="controles">${[...p.controles]
+            .sort((x, y) => x.orden - y.orden)
+            .map(
+              (c) => `<li><span class="control-tipo">${esc(TIPO_CONTROL[c.tipo] || c.tipo)}</span> ${c.lado ? conBanderas(c.lado) : ''} ${esc(c.texto)}${
+                c.organismo && organismoPorId[c.organismo] ? ` <a href="${esc(organismoPorId[c.organismo].url)}" rel="noopener">${esc(organismoPorId[c.organismo].nombre)}</a>` : ''
+              }<span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado)} ${fuenteEnlace(c.fuente)}${c.publicado ? `, ${fecha(c.publicado)}` : ''}</span></li>`
+            )
+            .join('')}</ol>`
+        : '<span class="sin-dato">Sin controles publicados: el paso no está habilitado o no hay fuente.</span>'
+    )}
     ${fila('Revisión', `Revisado el ${fecha(p.revisado)}`)}
   </dl>
+${novedadesPaso(p)}
 </section>`;
 }
 
@@ -970,7 +1058,7 @@ for (const p of guia) {
       titulo: p.meta.titulo,
       descripcion: p.meta.resumen,
       ruta: p.ruta,
-      scripts: cruce && envioCruce ? ['/assets/cruces.js'] : [],
+      scripts: [...(cruce && envioCruce ? ['/assets/cruces.js'] : []), ...(paso ? ['/assets/ahora.js'] : [])],
       cuerpo: `
 <div class="contenedor">
   <nav class="migas" aria-label="Estás en"><a href="${u('/guia/')}">Guía</a><span aria-hidden="true">/</span><span>${esc(SECCIONES[p.seccion] || p.seccion)}</span></nav>

@@ -1043,3 +1043,30 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
   .tabla-informe tr { break-inside: avoid; }
   @page { size: A4; margin: 14mm; }
 }
+
+/* ---------- Fichas de paso: hora local, controles, contactos y novedades (HU-65 a HU-68) ---------- */
+.ahora { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ahora-relojes { color: var(--foreground); display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 4px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.ahora-reloj { display: inline-flex; align-items: center; gap: 6px; }
+.ahora-reloj .pais-bandera { display: inline-block; }
+.ahora-estado { margin: 0; font-size: 16px; line-height: 24px; color: var(--foreground); }
+.controles { margin: 0; padding-left: 22px; display: grid; gap: 10px; }
+.control-tipo { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: var(--muted); color: var(--foreground); margin-right: 4px; }
+.controles .pais-bandera, .contactos .pais-bandera { display: inline-block; vertical-align: -2px; }
+.contactos { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.contacto-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 2px; }
+.btn-llamar { min-height: 44px; font-variant-numeric: tabular-nums; }
+.novedades-paso { margin-top: 20px; }
+.novedades-paso h3 { margin: 0 0 10px; }
+.linea-tiempo { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 3px solid var(--border-strong); display: grid; gap: 14px; }
+.linea-tiempo li { position: relative; }
+.linea-tiempo li::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--background); border: 3px solid var(--sin-dato); }
+.linea-tiempo li.op-abierto::before { border-color: var(--ok-dot); background: var(--ok-dot); }
+.linea-tiempo li.op-restricciones::before { border-color: var(--obras-dot); background: var(--obras-dot); }
+.linea-tiempo li.op-cerrado::before { border-color: var(--corte-dot); background: var(--corte-dot); }
+.linea-tiempo li.op-sin-confirmar::before { border-style: dashed; }
+.linea-tiempo li { color: var(--foreground); }
+.linea-tiempo time { display: block; font-size: 13px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.linea-tiempo p { margin: 2px 0; }
+.linea-tiempo .estado { font-size: 13px; margin-right: 4px; }
+.lt-actual time { font-weight: 700; color: var(--foreground); }

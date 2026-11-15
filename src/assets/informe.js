@@ -112,7 +112,14 @@
     .filter((t) => opDe(t) === 'sin-confirmar')
     .forEach((t) =>
       alertas.push(
-        `<li class="alerta-fila op-sin-confirmar">${datos.operativa['sin-confirmar'].icono}<span><strong>${esc(t.paso.nombre)}: sin confirmar.</strong> ${vistaTexto(t.vista)}. Confírmalo antes de salir.</span></li>`
+        `<li class="alerta-fila op-sin-confirmar">${datos.operativa['sin-confirmar'].icono}<span><strong>${esc(t.paso.nombre)}: sin confirmar.</strong> ${
+          t.vista?.ultimo && t.vista.ultimo !== 'pendiente'
+            ? vistaTexto(t.vista)
+            : (() => {
+                const e = datos.pasosInfo[t.paso.id]?.estado;
+                return e?.publicado ? `Último parte (${fechaCorta(e.publicado)}, <span class="edad${dias(e.publicado) > 30 ? ' edad-vieja' : ''}">${hace(e.publicado)}</span>): ${esc(e.texto)}` : 'Sin estado publicado';
+              })()
+        }. Confírmalo antes de salir.</span></li>`
       )
     );
 

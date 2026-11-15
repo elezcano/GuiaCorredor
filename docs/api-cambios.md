@@ -11,6 +11,7 @@ Registro para quien consume los datos (Claude incluido). La misma lista sale en 
 
 | Fecha | Versión | Tipo | Cambio |
 |---|---|---|---|
+| 15/11/2026 | 1.4.0 | Compatible | `pasos[]`: `historial` (novedades del paso con fecha y fuente), `controles` (en orden), horarios con `apertura`/`cierre`/`zona`, contactos con `telefono` E.164 |
 | 15/11/2026 | 1.3.0 | Compatible | Campo opcional `otrasFuentes`: fuentes adicionales que respaldan el dato, resueltas |
 | 15/11/2026 | 1.2.0 | Compatible | `mostrar.nivelMostrado` deja de rebajarse por el borrador del texto de la guía: un estado operativo verificado se muestra como confirmado |
 | 15/11/2026 | 1.1.0 | Compatible | Nuevo `tramos[].estimacion` y `tramos[].alternativa.estimacion`: estimación provisional en línea recta para tramos sin distancia con fuente (`evidencia: "estimacion"`). `indice.json` añade `estado`, `versionesDisponibles` y `avisos` |

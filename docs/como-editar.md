@@ -153,7 +153,10 @@ La política completa está en [`politica-validacion.md`](politica-validacion.md
 | Dato | Archivo | Aparece en |
 |---|---|---|
 | Estado de un paso | `data/pasos.json` → `estado` | Portada, mapa, Fronteras, ficha, planificador |
-| Horarios y horarios especiales | `data/pasos.json` → `horarios`, `horariosEspeciales` | Ficha del paso y calendario aduanero |
+| Horarios y horarios especiales | `data/pasos.json` → `horarios`, `horariosEspeciales` | Ficha del paso («abierto ahora») y calendario aduanero |
+| Novedades del paso | `data/pasos.json` → `historial` | Ficha del paso (línea de tiempo) y api/v1 |
+| Controles para carga | `data/pasos.json` → `controles` | Ficha del paso y api/v1 |
+| Teléfonos oficiales | `data/pasos.json` → `contactos[].telefono` | Ficha del paso (botón Llamar) y api/v1 |
 | Estado y distancia de un tramo | `data/rutas.json` → `reporte`, `km`, `kmTipo` | Ficha del tramo y planificador |
 | Obras, cortes, restricciones | `data/incidencias.json` (con `tramos` y/o `paso`) | Avisos, ficha del tramo o paso, planificador, portada |
 | Noticias | `data/novedades.json` (con `guia`) | Novedades, portada (90 días) y ficha vinculada |
@@ -168,6 +171,10 @@ Las fichas Markdown **no** llevan estado ni una sección «## Estado»: el estad
 - **Incidencia:** `tramos` = ids de `data/rutas.json` (`cg-pm`, `puente`, `cp-me`, `me-ph`, `pozo-hondo`, `andes`, `calama-puertos`). Si además lleva `paso`, solo se muestra en la variante de ruta que pasa por ese paso. Tipos: `obra`, `restriccion`, `corte`, `pendiente`, `peso`, `desvio`. Pon `"estado": "resuelta"` cuando termine.
 - **Distancia de un tramo:** `kmTipo: "fuente"` con `kmFuente`, o `kmTipo: "calculado"` con `kmNota` explicando la cuenta. Sin km, el planificador muestra una **estimación provisional** en línea recta (calculada en `scripts/estimaciones.mjs`), marcada como tal y con el tramo exacto que se estima. Se desactiva con `"estimaciones": { "provisionales": false }` en `data/site.json`.
 - **Horario especial:** en `horariosEspeciales` con `desde`, `hasta`, `organismo` (`aduana`, `migraciones`, `sanitario`, `complejo`), `lado`, `texto` y los cuatro campos comunes.
+- **Horario con «abierto ahora»:** añade a un horario `apertura` y `cierre` (`HH:MM`) y `zona` (`America/Argentina/Jujuy`, `America/Argentina/Salta`, `America/Santiago`, `America/Asuncion`, `America/Campo_Grande`). La ficha usa el primero que tenga los tres. Sin ellos, solo muestra la hora local.
+- **Novedades del paso:** en `historial`, una entrada por cambio con `fecha`, `valor` (estado del paso o `null` si es una noticia), `texto` y los campos comunes. La ficha las une con el estado actual, las incidencias del paso y las novedades de la guía, de la más reciente a la más antigua.
+- **Controles:** en `controles`, con `orden` (1, 2, 3… sin repetir), `tipo` (`integrado`, `migraciones`, `aduana`, `sanitario`, `seguridad`, `aviso`), `lado`, `organismo` (id de `data/organismos.json`, opcional), `texto` y los campos comunes.
+- **Teléfono:** `telefono` en formato internacional sin espacios (`+543884253630`) y con fuente que lo publique. Sin fuente, no se pone.
 - **Avisos meteorológicos:** `data/avisos.json` con `titulo`, `zona`, `vigenteHasta` y los campos comunes. Desaparecen solos al vencer.
 - **Festivos:** añade el año siguiente cada noviembre; los traslados por decreto van con `validacion: por-verificar` hasta que se publiquen.
 

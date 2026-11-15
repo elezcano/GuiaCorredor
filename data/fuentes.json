@@ -28,6 +28,36 @@
       "tipo": "prensa"
     },
     {
+      "id": "abc-color-puente-union",
+      "nombre": "ABC Color: se concretó la unión del Puente de la Bioceánica (16/07/2026)",
+      "url": "https://www.abc.com.py/nacionales/chaco/2026/07/16/puente-de-la-bioceanica-se-concreto-anoche-la-union-de-paraguay-y-brasil-por-territorio-chaqueno/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "aduana-chile-complejo-integrado-jama",
+      "nombre": "Aduanas de Chile: el complejo integrado de Jama comienza a operar (2013)",
+      "url": "https://www.aduana.cl/complejo-integrado-en-paso-fronterizo-jama-comenzo-sus-operaciones/aduana/2013-09-11/125005.html",
+      "tipo": "oficial"
+    },
+    {
+      "id": "ar-seguridad-paso-jama",
+      "nombre": "Ministerio de Seguridad (Argentina): Paso Jama",
+      "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/19/Jama",
+      "tipo": "oficial"
+    },
+    {
+      "id": "ar-seguridad-paso-mision-la-paz",
+      "nombre": "Ministerio de Seguridad (Argentina): Paso Misión La Paz – Pozo Hondo",
+      "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/72/Misi%C3%B3n-La-Paz-Pozo-Hondo",
+      "tipo": "oficial"
+    },
+    {
+      "id": "ar-seguridad-paso-sico",
+      "nombre": "Ministerio de Seguridad (Argentina): Paso Sico",
+      "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/20/Sico",
+      "tipo": "oficial"
+    },
+    {
       "id": "biblioteca-del-congreso-nacional-legislacion-sob",
       "nombre": "Biblioteca del Congreso Nacional – Legislación sobre feriados",
       "url": "https://www.bcn.cl/leychile/Consulta/listado_n_sel?agr=2&sub=1151",
@@ -136,6 +166,12 @@
       "tipo": "oficial"
     },
     {
+      "id": "mininterior-paso-jama",
+      "nombre": "Ministerio del Interior (Argentina): Paso Internacional Jama",
+      "url": "https://www.mininterior.gov.ar/fronteras/paso-83.php",
+      "tipo": "oficial"
+    },
+    {
       "id": "mopc",
       "nombre": "MOPC",
       "url": "https://mopc.gov.py/mopc-participara-en-reunion-clave-para-avanzar-con-el-puente-bioceanico-entre-paraguay-y-brasil/",
@@ -178,6 +214,18 @@
       "tipo": "prensa"
     },
     {
+      "id": "salta-news-sico-control-integrado",
+      "nombre": "Salta News: el Control Integrado de Sico vuelve a operar (15/06/2026)",
+      "url": "https://www.saltanews.com.ar/el-paso-de-sico-vuelve-a-operar-a-pleno-y-fortalece-la-conexion-de-salta-con-el-pacifico/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "salta-relaciones-internacionales-mision-la-paz",
+      "nombre": "Gobierno de Salta, Relaciones Internacionales: Misión La Paz – Pozo Hondo",
+      "url": "http://internacionalsalta.gob.ar/index.php/gestion/pasosfronterizos/pfparaguay/misionlapaz",
+      "tipo": "oficial"
+    },
+    {
       "id": "saltazoom-pasos-30-09-2026",
       "nombre": "Salta Zoom: Pasos fronterizos, parte de Defensa Civil (30/09/2026)",
       "url": "https://saltazoom.com.ar/pasos-fronterizos-miercoles-horarios-clima/",
@@ -217,6 +265,12 @@
       "id": "upf-chile-canal",
       "nombre": "Unidad de Pasos Fronterizos (Ministerio del Interior de Chile): canal de WhatsApp y cuenta @UPFronterizos",
       "url": "https://www.whatsapp.com/channel/0029VaEOckE3LdQRRRmLea3w",
+      "tipo": "oficial"
+    },
+    {
+      "id": "upf-chile-complejo-jama",
+      "nombre": "Pasos Fronterizos (Gobierno de Chile): Complejo Jama",
+      "url": "https://www.pasosfronterizos.gov.cl/complejos-fronterizos/antofagasta/paso-jama/",
       "tipo": "oficial"
     },
     {
