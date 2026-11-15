@@ -354,6 +354,53 @@
                 }
               ]
             }
+          },
+          "partes": {
+            "type": "array",
+            "description": "Parte de cada organismo, con fecha (publicado) y hora local del país (HU-73).",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "lado",
+                    "emisor",
+                    "texto",
+                    "publicado"
+                  ],
+                  "properties": {
+                    "lado": {
+                      "$ref": "comun.schema.json#/$defs/pais"
+                    },
+                    "emisor": {
+                      "type": "string"
+                    },
+                    "organismo": {
+                      "$ref": "comun.schema.json#/$defs/id"
+                    },
+                    "valor": {
+                      "oneOf": [
+                        {
+                          "$ref": "comun.schema.json#/$defs/estado"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "texto": {
+                      "type": "string"
+                    },
+                    "hora": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       }

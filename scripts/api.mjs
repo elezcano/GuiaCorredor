@@ -5,7 +5,7 @@
 // y api/v1 se sigue publicando durante la transición (6 meses, docs/ia-dev.md).
 import { CADUCIDAD, EVIDENCIAS, NIVELES, VERIFICADORES, tipoEstado } from './validacion.mjs';
 
-export const API_VERSION = '1.4.0';
+export const API_VERSION = '1.5.0';
 
 /**
  * Registro de versiones publicadas. Gestión interna del formato:
@@ -19,6 +19,7 @@ export const API_VERSIONES = {
 };
 /** Avisos para consumidores (los más recientes primero). */
 export const AVISOS_API = [
+  { fecha: '2026-11-15', version: '1.5.0', tipo: 'compatible', texto: 'pasos[]: nuevo partes (parte de cada organismo por país, con publicado y hora local).' },
   { fecha: '2026-11-15', version: '1.4.0', tipo: 'compatible', texto: 'pasos[]: nuevos historial y controles; horarios con apertura, cierre y zona; contactos con telefono (E.164).' },
   { fecha: '2026-11-15', version: '1.3.0', tipo: 'compatible', texto: 'Campo opcional otrasFuentes (fuentes resueltas que respaldan el dato además de la principal).' },
   { fecha: '2026-11-15', version: '1.2.0', tipo: 'compatible', texto: 'mostrar.nivelMostrado ya no se rebaja por el borrador de la ficha de la guía: un estado operativo verificado se muestra como confirmado.' },
@@ -65,6 +66,7 @@ export function generarApi(ctx) {
     servicios: (p.servicios || []).map((h) => pv(h, 'ficha')),
     contactos: (p.contactos || []).map((h) => pv(h, 'ficha')),
     controles: (p.controles || []).map((h) => pv(h, 'ficha')).sort((a, b) => a.orden - b.orden),
+    partes: (p.partes || []).map((h) => pv(h, h.valor ? tipoEstado(h.valor) : 'incidencia')).sort((a, b) => ((b.publicado + (b.hora || '')) > (a.publicado + (a.hora || '')) ? 1 : -1)),
     historial: (p.historial || []).map((h) => pv(h, h.valor ? tipoEstado(h.valor) : 'incidencia')).sort((a, b) => (a.fecha < b.fecha ? 1 : -1)),
     organismos: p.organismos,
     revisado: p.revisado,
