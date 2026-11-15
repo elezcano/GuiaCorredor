@@ -134,6 +134,35 @@
         "fecha": "2026-11-15",
         "alcance": "Ernesto confirmó el 15/11/2026 la limitación del puente actual y que el nuevo está en estudios sin fecha de licitación (MOPC)."
       }
+    },
+    {
+      "id": "rn51-badenes-maquinas",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 51, San Antonio de los Cobres – Paso de Sico",
+      "tramo": "RN 51 (Salta)",
+      "tipo": "obra",
+      "estado": "activa",
+      "descripcion": "Vialidad Nacional informa: transitar con precaución, máquinas trabajando en badenes con material.",
+      "inicio": null,
+      "finPrevista": "Sin fecha publicada",
+      "impacto": "Precaución; sin corte informado.",
+      "tramos": [
+        "andes"
+      ],
+      "paso": "sico",
+      "fuente": "ar-seguridad-paso-sico",
+      "publicado": "2026-11-12",
+      "actualizado": "2026-11-15",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-15",
+        "alcance": "Ernesto confirmó el 15/11/2026 el aviso de Vialidad Nacional (12/11/2026, 08:30) publicado en la página oficial del paso."
+      }
     }
   ]
 }

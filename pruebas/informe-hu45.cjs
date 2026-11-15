@@ -22,7 +22,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   ok(/Puente de la Bioce[aá]nica.*no habilitado/i.test(txt), 'E3 no destaca el puente no habilitado');
   ok(txt.includes('No hay alternativa registrada'), 'E3 no dice que no hay alternativa');
   const ps = await ctx.newPage(); await ps.goto(B + '/informe/?desde=0&hasta=7&carga=granel&fecha=2026-12-08&op=alternativa');
-  ok(/Sico.*sin confirmar\..*(hace|Último dato)/i.test(await ps.textContent('.informe')), 'E3 no muestra antigüedad del paso sin confirmar (Sico)'); await ps.close();
+  ok(/RN 51/.test(await ps.textContent('.informe')) && !/Sico.*sin confirmar/i.test(await ps.textContent('.informe')), 'E3 alternativa por Sico: falta el aviso de la RN 51 o sigue sin confirmar'); await ps.close();
   // Regla 3: distancias no sumadas como oficiales
   ok(txt.includes('No se suman como distancia oficial') && txt.includes('Estimación provisional'), 'Regla 3 distancias');
   // E4: enlace

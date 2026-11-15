@@ -529,16 +529,20 @@
         }
       },
       "estado": {
-        "valor": "pendiente",
-        "texto": "Reabierto el 11–14/07/2026 para cargas y particulares, todos los días de 9 a 19 h (Ministerio de Seguridad Nacional de Argentina). Cerrado por nieve en la CH-23 el 20/09/2026. Sin parte más reciente encontrado.",
-        "fuente": "portalportuario-reapertura-sico",
-        "publicado": "2026-07-14",
-        "validacion": "por-verificar",
+        "valor": "operativo",
+        "texto": "Habilitado con horario: el 15/11/2026 Gendarmería lo daba «Cerrado» fuera de horario e indicaba que abre a las 05:00 (hora de Argentina). RN 51 con precaución por máquinas en badenes (Vialidad Nacional, 12/11/2026).",
+        "fuente": "ar-seguridad-paso-sico",
+        "publicado": "2026-11-15",
+        "validacion": "verificado",
         "actualizado": "2026-11-15",
-        "verificacion": null,
-        "evidencia": "tercero",
+        "verificacion": {
+          "verificadoPor": "responsable-editorial",
+          "rol": "responsable-editorial",
+          "fecha": "2026-11-15",
+          "alcance": "Ernesto confirmó el 15/11/2026, tras ver la página del Ministerio de Seguridad (parte de Gendarmería del 15/11 a las 09:50), que Sico está habilitado: figura «Cerrado» solo por estar fuera de horario y abre a las 05:00."
+        },
+        "evidencia": "oficial",
         "otrasFuentes": [
-          "24horas-pasos-el-loa-20-09-2026",
           "upf-chile-canal"
         ]
       },
@@ -546,16 +550,18 @@
         {
           "lado": "AR y CL",
           "organismo": "complejo",
-          "texto": "9 a 19 h (Ministerio de Seguridad de Argentina)",
-          "apertura": "09:00",
-          "cierre": "19:00",
-          "zona": "America/Argentina/Salta",
+          "texto": "Abre a las 05:00 (hora de Argentina), según el parte de Gendarmería del 15/11/2026. Hora de cierre sin publicar en la fuente oficial.",
           "fuente": "ar-seguridad-paso-sico",
-          "publicado": null,
+          "publicado": "2026-11-15",
           "actualizado": "2026-11-15",
           "evidencia": "oficial",
-          "validacion": "por-verificar",
-          "verificacion": null
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que la página oficial indica apertura a las 05:00 y no publica hora de cierre; se retira el horario anterior de 9 a 19 h."
+          }
         },
         {
           "lado": "AR",
@@ -669,6 +675,22 @@
           "evidencia": "tercero",
           "validacion": "por-verificar",
           "verificacion": null
+        },
+        {
+          "fecha": "2026-11-15",
+          "valor": "operativo",
+          "texto": "Gendarmería: habilitado con horario; fuera de horario figura cerrado y abre a las 05:00.",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Confirmado por Ernesto el 15/11/2026 con la página del Ministerio de Seguridad."
+          }
         }
       ],
       "controles": [
