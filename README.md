@@ -32,7 +32,8 @@
 1. **Cada mejora es una historia de usuario** (issue en GitHub y tarjeta en Trello): «en curso» → «hecho».
 2. **Se desarrolla en una rama** y se abre una PR. Nada llega a la web sin que Ernesto lo pruebe y diga «publica».
 3. **Los datos nuevos entran «sin verificar».** Solo Ernesto los verifica, diciendo «confirmo …». La IA nunca marca un dato como verificado.
-4. **Antes de publicar, GitHub lo revisa todo solo:** datos y esquemas, coherencia web/API, enlaces, verificaciones nuevas (exigen la etiqueta `revision-editorial`) y **pruebas de navegador**. Si algo falla, no se publica.
+4. **El vigilante avisa por correo** cuando Gendarmería o Vialidad publican un parte más nuevo que el cargado. Ernesto lo mira y dice «confirmo …».
+5. **Antes de publicar, GitHub lo revisa todo solo:** datos y esquemas, coherencia web/API, enlaces, verificaciones nuevas (exigen la etiqueta `revision-editorial`) y **pruebas de navegador**. Si algo falla, no se publica.
 
 ### Pruebas automáticas
 
@@ -46,6 +47,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 15/11/2026 | **Vigilante de webs oficiales:** cada 3 horas revisa Gendarmería y Vialidad y avisa por correo si hay un parte más nuevo que el cargado | #77 |
 | 15/11/2026 | **Pruebas automáticas en GitHub:** las pruebas de navegador se ejecutan en cada cambio y bloquean la publicación si algo falla | #50 |
 | 15/11/2026 | **Partes por organismo** con fecha, hora y aviso de antigüedad a partir de 48 h (se bajará a 24 h en mayo/junio de 2027) | #73 |
 | 15/11/2026 | **Los cuatro pasos con estado verificado.** Sico, habilitado con horario: abre a las 05:00, según Gendarmería. Aviso en la RN 51 | PR #72 |
@@ -59,7 +61,7 @@ Lo más reciente, arriba.
 
 ## Próximos pasos
 
-- **Vigilante de webs oficiales:** aviso automático cuando Gendarmería, Vialidad o Pasos Fronterizos publican un parte nuevo.
+- **Avisos al móvil:** si el correo del vigilante no basta, añadir Telegram.
 - **Datos por verificar:** horario de Jama (8–20 h o 8–18 h), controles para carga, partes del lado chileno.
 - **Antes del lanzamiento:** primeras empresas reales (#46), revisión de la guía (#22), aviso legal (#48) y dominio (#16).
 
@@ -90,6 +92,7 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 16 | **Semáforo operativo** con icono, texto y color; legible en móvil al sol y de noche |
 | 17 | Aviso de antigüedad de los partes a partir de 48 h; 24 h desde mayo/junio de 2027 |
 | 18 | Las pruebas de navegador se ejecutan en GitHub en cada cambio y bloquean la publicación si fallan |
+| 19 | Avisos del vigilante por correo (incidencia de GitHub asignada a Ernesto); WhatsApp, más adelante y solo por vía oficial |
 
 </details>
 
@@ -143,7 +146,7 @@ Detalle en [`docs/politica-validacion.md`](docs/politica-validacion.md). Estados
 
 ### Publicación
 
-`.github/workflows/publicar.yml`: en cada cambio en `main` (y cada 3 horas, para los tiempos de cruce) se ejecutan los trabajos `construir` y `pruebas`, y solo si los dos pasan se publica en GitHub Pages. Para pausar la publicación: variable de repositorio `PUBLICAR` = `false`. Los lunes, `enlaces-externos.yml` revisa las URL externas.
+`.github/workflows/publicar.yml`: en cada cambio en `main` (y cada 3 horas, para los tiempos de cruce) se ejecutan los trabajos `construir` y `pruebas`, y solo si los dos pasan se publica en GitHub Pages. Para pausar la publicación: variable de repositorio `PUBLICAR` = `false`. `vigilante.yml` revisa las webs oficiales cada 3 horas (prueba manual: Actions → *Vigilante de webs oficiales* → *Run workflow* con «prueba»). Los lunes, `enlaces-externos.yml` revisa las URL externas.
 
 Este repositorio sustituye al antiguo *Red de Cargas* (rama [`legacy-red-de-cargas`](../../tree/legacy-red-de-cargas)).
 

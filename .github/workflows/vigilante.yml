@@ -1,0 +1,51 @@
+# Vigilante de webs oficiales (scripts/vigilante.mjs): avisa por correo, con una incidencia asignada al
+# responsable editorial, cuando Gendarmería o Vialidad publican un parte más reciente que el cargado.
+# No cambia datos ni publica nada.
+name: Vigilante de webs oficiales
+
+on:
+  # Cada 3 horas, de 06 a 21 h de Argentina (09 a 00 UTC).
+  schedule:
+    - cron: '23 9-23/3 * * *'
+  workflow_dispatch:
+    inputs:
+      prueba:
+        description: 'Abrir una incidencia de prueba para comprobar el correo'
+        type: boolean
+        default: false
+  # En una PR que toque el vigilante: comprueba el lector. Con la etiqueta «prueba-vigilante», además abre una incidencia de prueba.
+  pull_request:
+    types: [opened, synchronize, labeled]
+    paths: ['scripts/vigilante.mjs', '.github/workflows/vigilante.yml']
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: vigilante-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Comprobar el lector
+        run: node scripts/vigilante.mjs --autoprueba
+      - name: Prueba de aviso por correo
+        if: (github.event_name == 'workflow_dispatch' && inputs.prueba) || (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'prueba-vigilante')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/vigilante.mjs --github --prueba
+      - name: Vigilar
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.prueba)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/vigilante.mjs --github
+      - name: Leer sin avisar (PR)
+        if: github.event_name == 'pull_request'
+        run: node scripts/vigilante.mjs
