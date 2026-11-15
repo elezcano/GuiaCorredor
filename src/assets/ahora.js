@@ -29,7 +29,7 @@
     const c = minutos(d.horario.cierre);
     const nota = d.horario.verificado ? '' : ' (según el horario publicado, sin verificar)';
     const pref = d.op === 'sin-confirmar' ? 'Estado sin confirmar. ' : '';
-    if (ahora >= a && ahora < c) salida.innerHTML = `${pref}<strong>Abierto ahora</strong> · cierra a las ${d.horario.cierre}, en ${dur(c - ahora)}${nota}.`;
+    if (ahora >= a && ahora < c) salida.innerHTML = `${pref}<strong>Abierta ahora</strong> · cierra a las ${d.horario.cierre}, en ${dur(c - ahora)}${nota}.`;
     else if (ahora < a) salida.innerHTML = `${pref}<strong>Cerrado ahora</strong> · abre a las ${d.horario.apertura}, en ${dur(a - ahora)}${nota}.`;
     else salida.innerHTML = `${pref}<strong>Cerrado ahora</strong> · abre mañana a las ${d.horario.apertura}${nota}.`;
   }
