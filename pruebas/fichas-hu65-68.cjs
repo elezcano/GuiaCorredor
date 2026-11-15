@@ -22,7 +22,7 @@ const B = 'http://localhost:4321'; const f = []; const ok = (c, m) => c || f.pus
     ok((await p.textContent('.ahora-estado')).includes('No habilitado'), 'HU-66 puente no habilitado');
     ok((await p.textContent('.ficha-operativa')).includes('Sin teléfono con fuente'), 'HU-68 sin teléfono puente');
     await p.goto(B + '/guia/pasos/sico/');
-    ok((await p.textContent('.ahora-estado')).includes('sin verificar'), 'HU-66 Sico horario sin verificar');
+    ok((await p.textContent('.ahora-estado')).includes('Sin horario con hora de apertura y cierre'), 'HU-66 Sico sin hora de cierre no debe calcular abierto/cerrado');
     ok(errs.length === 0, 'errores JS ' + errs);
     await p.close();
   }
