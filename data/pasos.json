@@ -170,15 +170,20 @@
       "contactos": [
         {
           "lado": "AR",
-          "nombre": "Paso Misión La Paz – Pozo Hondo (Ministerio de Seguridad de Argentina)",
-          "texto": "Contacto del paso en el lado argentino",
+          "nombre": "Ministerio de Seguridad de Argentina",
+          "texto": "Contacto publicado por el Ministerio de Seguridad en la página del paso, sin indicar de qué organismo es.",
           "telefono": "+543873460389",
           "fuente": "ar-seguridad-paso-mision-la-paz",
           "publicado": null,
           "actualizado": "2026-11-15",
           "evidencia": "oficial",
-          "validacion": "por-verificar",
-          "verificacion": null
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +543873460389 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página."
+          }
         }
       ],
       "revisado": "2026-11-15",
@@ -366,15 +371,20 @@
       "contactos": [
         {
           "lado": "AR",
-          "nombre": "Paso Jama (Ministerio de Seguridad de Argentina)",
-          "texto": "Contacto del paso en el lado argentino",
+          "nombre": "Ministerio de Seguridad de Argentina",
+          "texto": "Contacto publicado junto al aviso de Vialidad Nacional sobre la RN 52 (Susques – límite con Chile); no es el teléfono del complejo fronterizo.",
           "telefono": "+543884253630",
           "fuente": "ar-seguridad-paso-jama",
           "publicado": null,
           "actualizado": "2026-11-15",
           "evidencia": "oficial",
-          "validacion": "por-verificar",
-          "verificacion": null
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +543884253630 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página."
+          }
         },
         {
           "lado": "CL",
@@ -385,8 +395,13 @@
           "publicado": null,
           "actualizado": "2026-11-15",
           "evidencia": "oficial",
-          "validacion": "por-verificar",
-          "verificacion": null
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +56229654000 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página."
+          }
         }
       ],
       "revisado": "2026-11-15",
@@ -597,15 +612,20 @@
       "contactos": [
         {
           "lado": "AR",
-          "nombre": "Paso Sico (Ministerio de Seguridad de Argentina)",
-          "texto": "Contacto del paso en el lado argentino",
+          "nombre": "Ministerio de Seguridad de Argentina",
+          "texto": "Contacto publicado junto al aviso de Vialidad Nacional sobre la RN 51; no es el teléfono del complejo fronterizo.",
           "telefono": "+543874909040",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": null,
           "actualizado": "2026-11-15",
           "evidencia": "oficial",
-          "validacion": "por-verificar",
-          "verificacion": null
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +543874909040 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página."
+          }
         },
         {
           "lado": "CL",
@@ -616,8 +636,13 @@
           "publicado": null,
           "actualizado": "2026-11-15",
           "evidencia": "oficial",
-          "validacion": "por-verificar",
-          "verificacion": null
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +56229654000 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página. Es la línea general de la Unidad de Pasos Fronterizos de Chile, común a todos los pasos; se cita la página de Jama."
+          }
         }
       ],
       "revisado": "2026-11-15",
