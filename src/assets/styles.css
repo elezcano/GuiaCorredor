@@ -235,7 +235,7 @@ main { padding-bottom: 64px; }
 .estado-pendiente { color: var(--sin-dato); }
 .estado-pendiente::before { background: transparent; box-shadow: inset 0 0 0 2px var(--sin-dato); }
 .pais { display: inline-flex; align-items: center; height: 20px; padding: 0 4px; border-radius: 4px; border: 1px solid currentColor; font-size: 12px; line-height: 16px; font-weight: 600; }
-.paises { display: inline-flex; gap: 4px; }
+.paises { display: inline-flex; gap: 4px; align-items: center; }
 
 /* ---------- Buscador de rutas (patrón buscador de vuelos) ---------- */
 .portada-hero { padding-top: 48px; padding-bottom: 8px; }
@@ -674,6 +674,11 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .fila-fest time { font-weight: 600; font-variant-numeric: tabular-nums; }
 .fila-fest time span { display: block; font-size: 12px; line-height: 16px; font-weight: 500; color: var(--muted-foreground); text-transform: capitalize; }
 .fila-fest .pais { margin-top: 2px; }
+.historia-cara { gap: 3px; }
+.historia-cara .pais-bandera svg { width: 24px; height: 16px; }
+td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: inline-block; vertical-align: -2px; }
+.pais-bandera { padding: 0; border: 0; height: auto; line-height: 0; }
+.pais-bandera svg { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(127, 127, 127, 0.45); }
 .lista-inc li { display: grid; gap: 4px; padding: 12px 0; border-top: 1px solid var(--border); font-size: 14px; line-height: 20px; }
 .lista-inc li:first-child { border-top: 0; padding-top: 0; }
 .lista-inc li > span:last-child { color: var(--muted-foreground); }
