@@ -164,13 +164,16 @@
       },
       "estado": {
         "valor": "operativo",
-        "texto": "Habilitado para todo tipo de vehículos en ambos sentidos, con precaución por las condiciones climáticas.",
-        "fuente": "todojujuy-parte-de-migraciones",
-        "publicado": "2026-11-07",
+        "texto": "Habilitado en ambos sentidos para todo tránsito, de 8 a 20 h (hora de Argentina y Chile). RN 52 transitable; la CH-27 chilena, con precaución. Cierres por nieve o viento frecuentes en invierno.",
+        "fuente": "el-tribuno-jujuy-jama-15-11-2026",
+        "publicado": "2026-11-15",
         "validacion": "por-verificar",
-        "actualizado": null,
+        "actualizado": "2026-11-15",
         "verificacion": null,
-        "evidencia": "tercero"
+        "evidencia": "tercero",
+        "otrasFuentes": [
+          "upf-chile-canal"
+        ]
       },
       "horarios": [
         {
@@ -237,7 +240,7 @@
       ],
       "servicios": [],
       "contactos": [],
-      "revisado": "2026-11-14",
+      "revisado": "2026-11-15",
       "horariosEspeciales": []
     },
     {
@@ -260,14 +263,18 @@
         }
       },
       "estado": {
-        "valor": "operativo",
-        "texto": "Recuperó la operatividad plena al volver la atención presencial de Aduana, PDI y SAG del lado chileno.",
-        "fuente": "infraestructura-publica",
-        "publicado": "2026-06-14",
+        "valor": "pendiente",
+        "texto": "Reabierto el 11–14/07/2026 para cargas y particulares, todos los días de 9 a 19 h (Ministerio de Seguridad Nacional de Argentina). Cerrado por nieve en la CH-23 el 20/09/2026. Sin parte más reciente encontrado.",
+        "fuente": "portalportuario-reapertura-sico",
+        "publicado": "2026-07-14",
         "validacion": "por-verificar",
-        "actualizado": null,
+        "actualizado": "2026-11-15",
         "verificacion": null,
-        "evidencia": "tercero"
+        "evidencia": "tercero",
+        "otrasFuentes": [
+          "24horas-pasos-el-loa-20-09-2026",
+          "upf-chile-canal"
+        ]
       },
       "horarios": [
         {
@@ -323,7 +330,7 @@
       ],
       "servicios": [],
       "contactos": [],
-      "revisado": "2026-11-14",
+      "revisado": "2026-11-15",
       "horariosEspeciales": []
     }
   ]

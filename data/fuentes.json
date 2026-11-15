@@ -4,6 +4,12 @@
   "nota": "Registro único de fuentes. Los datos citan la fuente por su id. tipo: oficial (organismo público o norma) | prensa | referencia (enciclopedias, gazetteers, cartografía) | empresa (lo declara la propia empresa) | otra.",
   "fuentes": [
     {
+      "id": "24horas-pasos-el-loa-20-09-2026",
+      "nombre": "24 Horas: estado de los pasos de El Loa (20/09/2026)",
+      "url": "https://www.24horas.cl/regiones/zona-norte/antofagasta/estado-de-los-pasos-fronterizos-en-el-loa-ollague-tres-pasos-cerrados",
+      "tipo": "prensa"
+    },
+    {
       "id": "5dias-puente-entrega-febrero-2027",
       "nombre": "5Días: entrevista al Ing. Félix Zelaya (MOPC) — entrega en febrero de 2027",
       "url": "https://5dias.com.py/article/puente-biocenico-completa-su-unin-y-su-entrega-se-dara-en-febrero-de-2027",
@@ -44,6 +50,12 @@
       "nombre": "Dirección del Trabajo",
       "url": "https://dt.gob.cl/portal/1626/w3-article-99612.html",
       "tipo": "oficial"
+    },
+    {
+      "id": "el-tribuno-jujuy-jama-15-11-2026",
+      "nombre": "El Tribuno de Jujuy: parte de Seguridad Vial de Jujuy y Migraciones (15/11/2026)",
+      "url": "https://eltribunodejujuy.com/informacion-general/2026-11-15-9-20-0-paso-de-jama-habilitado-y-rutas-con-precaucion",
+      "tipo": "prensa"
     },
     {
       "id": "emol",
@@ -142,6 +154,12 @@
       "tipo": "oficial"
     },
     {
+      "id": "portalportuario-reapertura-sico",
+      "nombre": "PortalPortuario: reapertura de Sico, comunicado del Ministerio de Seguridad Nacional (14/07/2026)",
+      "url": "https://portalportuario.cl/anuncian-reapertura-del-paso-internacional-de-sico-que-conecta-las-zonas-norte-de-chile-y-argentina/",
+      "tipo": "prensa"
+    },
+    {
       "id": "portaria-mgi-11-460-2025-calendario-federal-2026",
       "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
       "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
@@ -194,6 +212,12 @@
       "nombre": "Última Hora",
       "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html",
       "tipo": "prensa"
+    },
+    {
+      "id": "upf-chile-canal",
+      "nombre": "Unidad de Pasos Fronterizos (Ministerio del Interior de Chile): canal de WhatsApp y cuenta @UPFronterizos",
+      "url": "https://www.whatsapp.com/channel/0029VaEOckE3LdQRRRmLea3w",
+      "tipo": "oficial"
     },
     {
       "id": "wikipedia-en-antofagasta",
