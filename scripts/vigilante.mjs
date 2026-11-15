@@ -136,7 +136,7 @@ async function abrirOCompletar(titulo, cuerpo, linea) {
   console.log(`Comentario añadido en #${ya.number}.`);
 }
 
-const PIE = '\n\n---\nAviso automático del vigilante (`scripts/vigilante.mjs`). No cambia datos: mira el parte y, si procede, dile a Claude «confirmo …» para cargarlo. Cierra la incidencia cuando esté revisado.';
+const PIE = '\n\n---\nAviso automático del vigilante (`scripts/vigilante.mjs`). No cambia datos: mira el parte y, si procede, dile a Claude «confirmo …» para cargarlo. Claude la cierra cuando el parte esté revisado.';
 
 async function principal() {
   if (args.has('--autoprueba')) return autoprueba();

@@ -32,7 +32,7 @@
 1. **Cada mejora es una historia de usuario** (issue en GitHub y tarjeta en Trello): «en curso» → «hecho».
 2. **Se desarrolla en una rama** y se abre una PR. Nada llega a la web sin que Ernesto lo pruebe y diga «publica».
 3. **Los datos nuevos entran «sin verificar».** Solo Ernesto los verifica, diciendo «confirmo …». La IA nunca marca un dato como verificado.
-4. **El vigilante avisa por correo** cuando Gendarmería o Vialidad publican un parte más nuevo que el cargado. Ernesto lo mira y dice «confirmo …».
+4. **El vigilante avisa por correo** cuando Gendarmería o Vialidad publican un parte más nuevo que el cargado. Ernesto lo mira y dice «confirmo …»; Claude carga el parte y **cierra siempre la incidencia** del vigilante con lo que se hizo.
 5. **Antes de publicar, GitHub lo revisa todo solo:** datos y esquemas, coherencia web/API, enlaces, verificaciones nuevas (exigen la etiqueta `revision-editorial`) y **pruebas de navegador**. Si algo falla, no se publica.
 
 ### Pruebas automáticas
