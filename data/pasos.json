@@ -507,6 +507,25 @@
           "validacion": "por-verificar",
           "verificacion": null
         }
+      ],
+      "partes": [
+        {
+          "lado": "AR",
+          "emisor": "Seguridad Vial de Jujuy y Migraciones (vía El Tribuno de Jujuy)",
+          "valor": "operativo",
+          "texto": "Habilitado en ambos sentidos para todo tránsito, de 8 a 20 h (hora de Argentina y Chile). RN 52 transitable; la CH-27 chilena, con precaución. Cierres por nieve o viento frecuentes en invierno.",
+          "fuente": "el-tribuno-jujuy-jama-15-11-2026",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026, tras revisar El Tribuno de Jujuy, que Jama está habilitado en ambos sentidos para todo tránsito de 8 a 20 h, con la CH-27 transitable con precaución."
+          }
+        }
       ]
     },
     {
@@ -743,6 +762,45 @@
           "evidencia": "tercero",
           "validacion": "por-verificar",
           "verificacion": null
+        }
+      ],
+      "partes": [
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Habilitado con horario. Figuraba «Cerrado» por estar fuera de horario; abre a las 05:00.",
+          "hora": "09:50",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 el parte de Gendarmería (09:50) en la página del Ministerio de Seguridad."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "RN 51, San Antonio de los Cobres – Paso de Sico: transitar con precaución, máquinas trabajando en badenes con material.",
+          "hora": "08:30",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-12",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 el aviso de Vialidad Nacional (12/11, 08:30) en la página del Ministerio de Seguridad."
+          }
         }
       ]
     }

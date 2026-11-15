@@ -45,5 +45,9 @@
   },
   "solicitudes": {
     "enlacePrellenado": "https://docs.google.com/forms/d/e/1FAIpQLScgXG99uam2-Grpk2SYjhtfuV83ccFEAbArfkpUUI4JsaJppg/viewform?usp=pp_url&entry.1255883272=tipo&entry.448162807=nombre&entry.1968944158=razonsocial&entry.1804617035=pais&entry.1451998506=localidad&entry.1748333152=categoria&entry.221834179=servicios&entry.439954182=puntos&entry.2019229882=cobertura&entry.1942973470=persona&entry.1061762802=email&entry.2083910659=telefono&entry.1382411993=web&entry.1620073363=referencias&entry.1512003458=cambio"
+  },
+  "partes": {
+    "umbralHoras": 48,
+    "nota": "Antigüedad a partir de la cual un parte sale con aviso. Decisión de Ernesto: en mayo/junio de 2027 (invierno austral) bajar a 24."
   }
 }

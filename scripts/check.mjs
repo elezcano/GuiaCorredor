@@ -128,13 +128,16 @@ for (const f of fichas) {
     caducado(f.estado, tipoEstado(f.estado.valor), `${donde} (estado)`);
     if (f.estado.validacion !== 'verificado') avisos.push(`${donde}: estado sin verificar; se muestra «Por verificar» con el último dato.`);
   }
-  for (const k of ['horarios', 'restricciones', 'acceso', 'servicios', 'contactos', 'horariosEspeciales', 'historial', 'controles'])
+  for (const k of ['horarios', 'restricciones', 'acceso', 'servicios', 'contactos', 'horariosEspeciales', 'historial', 'controles', 'partes'])
     for (const [i, h] of (f[k] || []).entries()) {
       registro(h, `${donde} ${k}[${i}]`, { permitePublicadoNulo: true });
       if (k === 'horariosEspeciales' && (!esFecha(h.desde) || !esFecha(h.hasta))) errores.push(`${donde} ${k}[${i}]: necesita desde y hasta.`);
       if (k === 'historial' && esFecha(h.fecha) && h.fecha > HOY) errores.push(`${donde} historial[${i}]: fecha futura.`);
       if (k === 'horarios' && h.apertura && h.cierre && h.apertura >= h.cierre) errores.push(`${donde} horarios[${i}]: la apertura debe ser anterior al cierre.`);
       if (h.organismo && k === 'controles' && !idsOrg.has(h.organismo)) errores.push(`${donde} controles[${i}]: organismo desconocido "${h.organismo}".`);
+      if (k === 'partes' && h.lado && !(h.lado in (f.lados || {}))) errores.push(`${donde} partes[${i}]: el lado ${h.lado} no es de este paso.`);
+      if (k === 'partes' && h.hora && !/^([01]\d|2[0-3]):[0-5]\d$/.test(h.hora)) errores.push(`${donde} partes[${i}]: hora no válida (HH:MM).`);
+      if (k === 'partes' && h.organismo && !idsOrg.has(h.organismo)) errores.push(`${donde} partes[${i}]: organismo desconocido "${h.organismo}".`);
       if (k === 'contactos' && h.telefono && !/^\+[1-9]\d{7,14}$/.test(h.telefono)) errores.push(`${donde} contactos[${i}]: teléfono no internacional.`);
     }
   const ordenes = (f.controles || []).map((c) => c.orden);

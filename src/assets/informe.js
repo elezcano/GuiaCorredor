@@ -155,6 +155,7 @@
     const p = datos.pasosInfo[t.paso.id];
     anotar(p?.estado.fuente);
     (p?.horarios || []).forEach((h) => anotar(h.fuente));
+    (p?.partes || []).forEach((h) => anotar(h.fuente));
   });
   op.problemas.forEach((i) => anotar(datos.incidenciasInfo[i.id]?.fuente));
   festivosDia.forEach((f) => anotar(f.fuente));
@@ -164,7 +165,10 @@
     const lineas = [
       `Informe de viaje · ${datos.nodos[a].nombre} → ${datos.nodos[b].nombre}`,
       `Cruce: ${fechaCorta(fecha)} · ${carga.nombre}`,
-      ...pasos.map((t) => `• ${t.paso.nombre.replace(/\s*\(.*\)$/, '')}: ${textoOp(t)}${t.vista?.confirmado ? ` (verif. ${fechaCorta(t.vista.verificado)})` : ''}`),
+      ...pasos.map((t) => {
+        const ult = datos.pasosInfo[t.paso.id]?.partes?.[0];
+        return `• ${t.paso.nombre.replace(/\s*\(.*\)$/, '')}: ${textoOp(t)}${t.vista?.confirmado ? ` (verif. ${fechaCorta(t.vista.verificado)})` : ''}${ult ? ` · parte ${fechaCorta(ult.publicado)}${ult.hora ? ' ' + ult.hora : ''}` : ''}`;
+      }),
       ...festivosDia.map((f) => `• Festivo ${PAISES[f.pais]}: ${f.nombre}`),
       op.problemas.length ? `• ${GC.plural(op.problemas.length, 'aviso activo', 'avisos activos')}` : '',
       'Confirmar antes de salir.',
@@ -185,12 +189,35 @@
     </tr>`;
   };
 
+  // HU-73: partes por país con antigüedad y aviso a partir del umbral.
+  const horasDesde = (ts) => (Date.now() - new Date(ts).getTime()) / 36e5;
+  const edadParte = (h) => (h < 1 ? 'hace menos de 1 h' : h < 48 ? `hace ${Math.floor(h)} h` : `hace ${Math.floor(h / 24)} días`);
+  const partesPaso = (p) =>
+    p.partes || p.lados
+      ? `<h4>Qué informa cada país</h4><ul class="inf-partes">${(p.lados || [])
+          .map((k) => {
+            const del = (p.partes || []).filter((x) => x.lado === k);
+            if (!del.length) return `<li><strong>${esc(PAISES[k])}:</strong> <span class="sin-dato">sin parte cargado.</span></li>`;
+            return del
+              .map((x) => {
+                const h = horasDesde(x.ts);
+                const viejo = h >= (datos.umbralPartesH || 48);
+                return `<li${viejo ? ' class="parte-vieja"' : ''}><strong>${esc(PAISES[k])} · ${esc(x.emisor)}</strong> (${esc(fechaCorta(x.publicado))}${x.hora ? `, ${x.hora} h` : ''}, ${edadParte(Math.max(h, 0))}): ${esc(x.texto)} <span class="texto-suave">— ${x.verificado ? `verificado el ${fechaCorta(x.verificado)}` : 'sin verificar'}, ${fuente(x.fuente)}</span>${
+                  viejo ? `<br><strong class="parte-aviso">Este parte tiene ${h >= 48 ? Math.floor(h / 24) + ' días' : Math.floor(h) + ' h'}: confírmalo antes de salir.</strong>` : ''
+                }</li>`;
+              })
+              .join('');
+          })
+          .join('')}</ul>`
+      : '';
   const horariosPaso = (t) => {
     const p = datos.pasosInfo[t.paso.id];
     if (!p) return '';
     const esp = especialesDia(t.paso.id);
     return `<div class="inf-bloque-paso">
       <h3>${esc(p.nombre)}</h3>
+      ${partesPaso(p)}
+      <h4>Horarios</h4>
       ${
         p.horarios.length
           ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado || 'General')}${h.organismo && h.organismo !== 'general' ? ` · ${esc(h.organismo)}` : ''}:</strong> ${esc(h.texto)} <span class="texto-suave">— ${h.verificado ? `verificado el ${fechaCorta(h.verificado)}` : 'sin verificar'}, ${fuente(h.fuente)}</span></li>`).join('')}</ul>`

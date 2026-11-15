@@ -1070,3 +1070,20 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .linea-tiempo p { margin: 2px 0; }
 .linea-tiempo .estado { font-size: 13px; margin-right: 4px; }
 .lt-actual time { font-weight: 700; color: var(--foreground); }
+
+/* ---------- Partes por organismo (HU-73) ---------- */
+.partes { margin: 16px 0 8px; }
+.partes h3 { margin: 0 0 10px; }
+.partes-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.partes-lado { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.partes-lado h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 16px; }
+.partes-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.parte p { margin: 4px 0; }
+.parte-emisor { display: block; font-weight: 700; }
+.parte-cuando { display: block; font-size: 14px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.parte .estado { font-size: 13px; margin-right: 4px; }
+.parte-vieja { border-left: 4px solid var(--obras-dot); padding-left: 10px; }
+.parte-aviso { font-weight: 700; color: var(--foreground); background: color-mix(in srgb, var(--obras-dot) 22%, transparent); border-radius: 8px; padding: 6px 10px; }
+.inf-bloque-paso h4 { margin: 12px 0 4px; font-size: 15px; }
+.inf-partes { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+.inf-partes .parte-vieja { border-left: 4px solid var(--obras-dot); padding-left: 8px; list-style: none; margin-left: -18px; }

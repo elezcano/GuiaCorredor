@@ -671,6 +671,39 @@ const telLegible = (t) => {
   return `+${cc} ${area} ${local.slice(0, corte)} ${local.slice(corte)}`;
 };
 const TIPO_CONTROL = { integrado: 'Control integrado', migraciones: 'Migraciones', aduana: 'Aduana', sanitario: 'Sanitario', seguridad: 'Seguridad', aviso: 'Aviso' };
+/** HU-73: instante del parte con el desfase horario del país (hora local; sin hora, mediodía). */
+const UMBRAL_PARTES_H = site.partes?.umbralHoras ?? 48;
+const desfase = (zona, dia) => {
+  const v = new Intl.DateTimeFormat('en-US', { timeZone: zona, timeZoneName: 'longOffset' }).formatToParts(new Date(`${dia}T12:00:00Z`)).find((x) => x.type === 'timeZoneName').value;
+  return v === 'GMT' ? '+00:00' : v.slice(3);
+};
+const instanteParte = (x) => `${x.publicado}T${x.hora || '12:00'}:00${desfase(ZONAS[x.lado] || 'UTC', x.publicado)}`;
+/** HU-73: lo que informa cada organismo, por país, con fecha, hora y fuente. */
+function partesHTML(p, op) {
+  const partes = p.partes || [];
+  if (!partes.length && op === 'cerrado') return '';
+  const porLado = Object.keys(p.lados).map((k) => {
+    const del = partes.filter((x) => x.lado === k).sort((a, b) => (instanteParte(b) > instanteParte(a) ? 1 : -1));
+    const items = del.length
+      ? del
+          .map(
+            (x) => `<li class="parte" data-ts="${instanteParte(x)}">
+          <span class="parte-emisor">${esc(x.emisor)}</span>
+          <span class="parte-cuando"><time datetime="${instanteParte(x)}">${fecha(x.publicado)}${x.hora ? `, ${x.hora} h` : ''}</time>${x.hora ? '' : ' <span class="texto-suave">(sin hora publicada)</span>'}</span>
+          <p>${x.valor ? `${estado(x.valor)} ` : ''}${esc(x.texto)}</p>
+          <p class="parte-aviso" hidden></p>
+          <span class="dato-fuente">${validacionHTML(nivelReg(x, 'estado-operativo'), x.verificado)} ${fuenteEnlace(x.fuente)}</span>
+        </li>`
+          )
+          .join('')
+      : `<li class="parte parte-vacio"><span class="sin-dato">Sin parte cargado de ${esc(PAISES[k])}.</span></li>`;
+    return `<div class="partes-lado"><h4>${bandera(k)} ${esc(PAISES[k])}</h4><ul class="partes-lista">${items}</ul></div>`;
+  });
+  return `<section class="partes" aria-labelledby="t-partes" data-umbral="${UMBRAL_PARTES_H}">
+    <h3 id="t-partes">Qué informa cada país</h3>
+    <div class="partes-grid">${porLado.join('')}</div>
+  </section>`;
+}
 /** HU-66: hora local de cada lado y «abierto ahora». Lo calcula ahora.js en el navegador. */
 function ahoraHTML(p, op) {
   const h = (p.horarios || []).find((x) => x.apertura && x.cierre && x.zona);
@@ -749,6 +782,7 @@ function fichaOperativa(p) {
   </div>`;
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
   ${respuesta}
+  ${partesHTML(p, op)}
   <div class="ficha-cabeza"><h2 id="t-ficha">Situación operativa</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
   <dl class="datos">
     ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
@@ -926,6 +960,7 @@ ${seccion({
   const reg = (x) => ({ texto: x.texto, lado: x.lado || '', organismo: x.organismo || '', fuente: fuenteMin(x.fuente), publicado: x.publicado || null, verificado: x.verificado || null });
   const extra = {
     generadoDatos: HOY,
+    umbralPartesH: UMBRAL_PARTES_H,
     festivosTodos: festivos.map((f) => ({ pais: f.pais, fecha: f.fecha, nombre: f.nombre, tipo: f.tipo, organismo: f.organismo, verificado: f.verificado || null, fuente: fuenteMin(f.fuente) })),
     pasosInfo: Object.fromEntries(
       fichaPasos.map((p) => [
@@ -935,6 +970,8 @@ ${seccion({
           estado: { texto: p.estado.texto, fuente: fuenteMin(p.estado.fuente), publicado: p.estado.publicado },
           horarios: (p.horarios || []).map(reg),
           especiales: (p.horariosEspeciales || []).map((h) => ({ ...reg(h), desde: h.desde, hasta: h.hasta })),
+          lados: Object.keys(p.lados),
+          partes: (p.partes || []).map((x) => ({ ...reg(x), emisor: x.emisor, valor: x.valor || null, hora: x.hora || null, ts: instanteParte(x) })).sort((a, b) => (b.ts > a.ts ? 1 : -1)),
           guia: rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id)?.guia || null,
         },
       ])

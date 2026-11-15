@@ -36,3 +36,27 @@
   pintar();
   setInterval(pintar, 60000);
 })();
+
+// HU-73: antigüedad de cada parte y aviso a partir del umbral (data/site.json → partes.umbralHoras).
+(function () {
+  const caja = document.querySelector('.partes[data-umbral]');
+  if (!caja) return;
+  const umbral = Number(caja.dataset.umbral) || 48;
+  const edad = (h) => (h < 1 ? 'hace menos de 1 h' : h < 48 ? `hace ${Math.floor(h)} h` : `hace ${Math.floor(h / 24)} días`);
+  function pintar() {
+    caja.querySelectorAll('.parte[data-ts]').forEach((li) => {
+      const h = (Date.now() - new Date(li.dataset.ts).getTime()) / 36e5;
+      const t = li.querySelector('time');
+      let e = li.querySelector('.parte-edad');
+      if (!e) (e = document.createElement('span')), (e.className = 'parte-edad'), t.after(e);
+      e.textContent = ` (${edad(Math.max(h, 0))})`;
+      const av = li.querySelector('.parte-aviso');
+      const viejo = h >= umbral;
+      li.classList.toggle('parte-vieja', viejo);
+      av.hidden = !viejo;
+      if (viejo) av.textContent = `Este parte tiene ${h >= 48 ? Math.floor(h / 24) + ' días' : Math.floor(h) + ' h'}: confírmalo antes de salir.`;
+    });
+  }
+  pintar();
+  setInterval(pintar, 60000);
+})();
