@@ -13,13 +13,13 @@
       "tramo": "Puente de la Bioceánica (río Paraguay)",
       "tipo": "pendiente",
       "estado": "activa",
-      "descripcion": "Puente unido físicamente el 16/07/2026. Siguen las terminaciones en ambas márgenes y el acceso paraguayo (23 % de avance a octubre de 2026).",
+      "descripcion": "Puente unido físicamente el 16/07/2026. A 22/10/2026 seguían los ajustes estructurales y las terminaciones en ambas márgenes, y el acceso paraguayo de 3,8 km hasta la PY15.",
       "inicio": null,
-      "finPrevista": "Acceso paraguayo previsto para el primer trimestre de 2027 (MOPC); sin fecha de habilitación",
+      "finPrevista": "El MOPC prevé puente y acceso en condiciones de operar hacia febrero de 2027 (primer trimestre); sin fecha oficial de habilitación",
       "impacto": "No habilitado al tránsito: no se puede cruzar por el puente.",
       "paso": "puente-bioceanica",
-      "fuente": "infonegocios-accesos-puente",
-      "publicado": "2026-10-07",
+      "fuente": "abc-color-puente-recta-final",
+      "publicado": "2026-10-22",
       "validacion": "verificado",
       "tramos": [
         "puente"
@@ -31,7 +31,10 @@
         "fecha": "2026-11-15",
         "alcance": "Ernesto confirmó el 15/11/2026 que el puente sigue en terminaciones y que el acceso paraguayo se prevé para el primer trimestre de 2027 (MOPC)."
       },
-      "evidencia": "tercero"
+      "evidencia": "tercero",
+      "otrasFuentes": [
+        "5dias-puente-entrega-febrero-2027"
+      ]
     },
     {
       "id": "py15-lote3",

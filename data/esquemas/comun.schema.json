@@ -130,7 +130,14 @@
             }
           }
         },
-        "verificado": false
+        "verificado": false,
+        "otrasFuentes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/id"
+          },
+          "description": "Fuentes que respaldan o amplían el dato, además de la principal."
+        }
       },
       "if": {
         "properties": {

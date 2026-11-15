@@ -171,6 +171,7 @@ const fechaCorta = (iso) => {
   return isNaN(d) ? esc(iso) : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', ...(conAnio ? { year: 'numeric' } : {}), timeZone: 'UTC' }).replace('.', '');
 };
 const diaSemana = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
+const otras = (r) => (r?.otrasFuentes?.length ? ` · También: ${r.otrasFuentes.map((f) => fuenteEnlace(f)).join(', ')}` : '');
 const fuenteEnlace = (f) => (f?.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.nombre)}</a>` : esc(f?.nombre || ''));
 const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', referencia: 'obra de referencia', empresa: 'declaración de la empresa', otra: 'otra fuente' };
 /** Insignia de validación (texto + icono, no solo color). */
@@ -618,13 +619,13 @@ function fichaOperativa(p) {
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
   <div class="ficha-cabeza"><h2 id="t-ficha">Situación operativa</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
   <dl class="datos">
-    ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}</span>`)}
+    ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
     ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
     ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">${coordenadasHTML(p.ubicacion.coordenadas, p.ubicacion.coordenadasNota)}</span>`)}
     ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado)}:</strong> ${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
     ${fila('Operaciones habilitadas', p.operaciones ? conFuente(p.operaciones) : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
     ${fila('Transporte pesado', lista(p.restricciones, 'Sin restricciones verificadas'))}
-    ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado)} ${fuenteEnlace(i.fuente)} · <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
+    ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado)} ${fuenteEnlace(i.fuente)}${otras(i)} · <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
     ${fila('Acceso', lista(p.acceso, 'Sin verificar'))}
     ${fila('Organismos', orgs.length ? `<ul class="lista-enlaces">${orgs.map(enlaceOrganismo).join('')}</ul>` : '<span class="sin-dato">Sin verificar</span>')}
     ${fila('Servicios en el paso', lista(p.servicios, 'Sin verificar'))}
@@ -1158,7 +1159,7 @@ ${seccion({
     <div><dt>Inicio</dt><dd>${i.inicio ? fecha(i.inicio) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
     <div><dt>Fin previsto</dt><dd>${i.finPrevista ? esc(i.finPrevista) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
     <div class="inc-impacto"><dt>Transporte pesado</dt><dd>${i.impacto ? esc(i.impacto) : '<span class="sin-dato">Sin datos verificados</span>'}</dd></div>
-    <div><dt>Fuente</dt><dd>${fuenteEnlace(i.fuente)} (${TIPO_FUENTE[i.fuente.tipo] || 'fuente'})${i.publicado ? `, ${fecha(i.publicado)}` : ', sin fecha'}</dd></div>
+    <div><dt>Fuente</dt><dd>${fuenteEnlace(i.fuente)} (${TIPO_FUENTE[i.fuente.tipo] || 'fuente'})${i.publicado ? `, ${fecha(i.publicado)}` : ', sin fecha'}${otras(i)}</dd></div>
     <div><dt>Tramos afectados</dt><dd>${(i.tramos || [])
       .map((id) => tramoPorId[id])
       .filter(Boolean)
