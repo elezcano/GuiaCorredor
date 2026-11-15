@@ -158,7 +158,20 @@ const icono = (n, clase = 'icono') =>
 
 // ---------- piezas comunes ----------
 const estado = (e) => `<span class="estado estado-${esc(e)}">${esc(ESTADOS[e] || e)}</span>`;
-const paises = (ps = []) => `<span class="paises">${ps.map((p) => `<abbr class="pais" title="${esc(PAISES[p] || p)}">${esc(p)}</abbr>`).join('')}</span>`;
+// Banderas en SVG (los emojis de bandera no se ven en Windows: salen como «PY»). Accesibles con aria-label.
+const BANDERAS = {
+  AR: '<rect width="30" height="20" fill="#74ACDF"/><rect y="6.67" width="30" height="6.67" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#F6B40E"/>',
+  BR: '<rect width="30" height="20" fill="#009C3B"/><path d="M15 2.5 27 10 15 17.5 3 10z" fill="#FFDF00"/><circle cx="15" cy="10" r="4" fill="#002776"/>',
+  CL: '<rect width="30" height="20" fill="#fff"/><rect y="10" width="30" height="10" fill="#D52B1E"/><rect width="10" height="10" fill="#0039A6"/><path d="m5 2.4 1.1 3.3h3.4l-2.8 2 1.1 3.3L5 9l-2.8 2 1.1-3.3-2.8-2h3.4z" fill="#fff" transform="translate(0 -.4) scale(1) "/>',
+  PY: '<rect width="30" height="20" fill="#fff"/><rect width="30" height="6.67" fill="#D52B1E"/><rect y="13.33" width="30" height="6.67" fill="#0038A8"/><circle cx="15" cy="10" r="2.3" fill="none" stroke="#1d6b2f" stroke-width=".9"/>',
+};
+const bandera = (p) =>
+  BANDERAS[p]
+    ? `<span class="pais pais-bandera" role="img" aria-label="${esc(PAISES[p] || p)}" title="${esc(PAISES[p] || p)}"><svg viewBox="0 0 30 20" width="21" height="14" aria-hidden="true" focusable="false">${BANDERAS[p]}</svg></span>`
+    : `<abbr class="pais" title="${esc(PAISES[p] || p)}">${esc(p)}</abbr>`;
+/** Sustituye los códigos de país de un texto (AR, BR, CL, PY) por su bandera accesible. */
+const conBanderas = (txt = '') => esc(txt).replace(/\b(AR|BR|CL|PY)\b/g, (c) => bandera(c));
+const paises = (ps = []) => `<span class="paises">${ps.map((p) => bandera(p)).join('')}</span>`;
 const fecha = (iso) => {
   const d = new Date(iso + 'T12:00:00Z');
   return isNaN(d) ? esc(iso) : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -464,11 +477,11 @@ function panelCruce(paso) {
 /** Fila de festivo: fecha, país, nombre y si está por confirmar. */
 const filaFestivo = (f) => `<li class="fila-fest">
   <time datetime="${esc(f.fecha)}"><span>${esc(diaSemana(f.fecha))}</span>${esc(fechaCorta(f.fecha))}</time>
-  <abbr class="pais" title="${esc(PAISES[f.pais])}">${esc(f.pais)}</abbr>
+  ${bandera(f.pais)}
   <span class="fest-nombre">${esc(f.nombre)}${f.tipo !== 'feriado' ? `<span class="etiqueta-suave">${esc(TIPOS_FESTIVO[f.tipo])}</span>` : ''}${f.validacion !== 'verificado' ? '<span class="etiqueta-suave">Por confirmar</span>' : ''}</span>
 </li>`;
 
-const enlaceOrganismo = (o) => `<li><abbr class="pais" title="${esc(PAISES[o.pais])}">${esc(o.pais)}</abbr><a href="${esc(o.url)}" rel="noopener">${esc(o.nombre)}</a></li>`;
+const enlaceOrganismo = (o) => `<li>${bandera(o.pais)}<a href="${esc(o.url)}" rel="noopener">${esc(o.nombre)}</a></li>`;
 
 /** Portada: festivos, obras y meteorología en tres paneles. */
 function tablero() {
@@ -620,9 +633,9 @@ function fichaOperativa(p) {
   <div class="ficha-cabeza"><h2 id="t-ficha">Situación operativa</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
   <dl class="datos">
     ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
-    ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
+    ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
     ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">${coordenadasHTML(p.ubicacion.coordenadas, p.ubicacion.coordenadasNota)}</span>`)}
-    ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado)}:</strong> ${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
+    ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li><strong>${conBanderas(h.lado)}:</strong> ${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
     ${fila('Operaciones habilitadas', p.operaciones ? conFuente(p.operaciones) : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
     ${fila('Transporte pesado', lista(p.restricciones, 'Sin restricciones verificadas'))}
     ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado)} ${fuenteEnlace(i.fuente)}${otras(i)} · <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
@@ -675,11 +688,11 @@ const pasosHistoria = [];
 rutas.tramos.forEach((t) => {
   const a = rutas.nodos.find((n) => n.id === t.desde);
   const b = rutas.nodos.find((n) => n.id === t.hasta);
-  if (t.paso) pasosHistoria.push({ id: t.paso.id, nombre: t.paso.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, '').replace('Puente de la ', 'Puente '), guia: t.paso.guia, estado: t.estado, cara: `${a.pais}–${b.pais}` });
-  if (t.alternativa) pasosHistoria.push({ id: t.alternativa.id, nombre: t.alternativa.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, ''), guia: t.alternativa.guia, estado: t.alternativa.estado || t.estado, cara: `${a.pais}–${b.pais}` });
+  if (t.paso) pasosHistoria.push({ id: t.paso.id, nombre: t.paso.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, '').replace('Puente de la ', 'Puente '), guia: t.paso.guia, estado: t.estado, cara: [a.pais, b.pais] });
+  if (t.alternativa) pasosHistoria.push({ id: t.alternativa.id, nombre: t.alternativa.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, ''), guia: t.alternativa.guia, estado: t.alternativa.estado || t.estado, cara: [a.pais, b.pais] });
 });
 const historia = (h) => {
-  const contenido = `<span class="historia-anillo"><span class="historia-cara">${esc(h.cara)}</span></span><span class="historia-nombre">${esc(h.nombre)}</span>${estadoPasoHTML(h.id, { corto: true })}${cruceCorto(h.id)}`;
+  const contenido = `<span class="historia-anillo"><span class="historia-cara" role="img" aria-label="${esc(h.cara.map((c) => PAISES[c]).join(' – '))}">${h.cara.map((c) => bandera(c).replace(/ role="img" aria-label="[^"]*"/, '')).join('')}</span></span><span class="historia-nombre">${esc(h.nombre)}</span>${estadoPasoHTML(h.id, { corto: true })}${cruceCorto(h.id)}`;
   return `<li>${h.guia ? `<a class="historia historia-${esc(h.estado)}" href="${u(`/guia/${h.guia}/`)}">${contenido}</a>` : `<div class="historia historia-${esc(h.estado)}">${contenido}</div>`}</li>`;
 };
 
@@ -1109,11 +1122,11 @@ add(
     return `<li class="paso-tarjeta">
   <div class="paso-tarjeta-cabeza">
     <h2><a href="${href}">${esc(p.nombre)}</a></h2>
-    <p>${Object.entries(p.lados).map(([k, v]) => `${esc(v)} (${esc(k)})`).join(' – ')}</p>
+    <p>${Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(v)}`).join(' – ')}</p>
   </div>
   <div class="paso-tarjeta-estado">${estadoPasoHTML(p.id)}</div>
   <dl class="paso-tarjeta-datos">
-    <div><dt>Horario</dt><dd>${h ? `${esc(h.texto)}${h.lado ? ` <span class="dato-fuente">${esc(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin verificar</span>'}</dd></div>
+    <div><dt>Horario</dt><dd>${h ? `${esc(h.texto)}${h.lado ? ` <span class="dato-fuente">${conBanderas(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin verificar</span>'}</dd></div>
     <div><dt>Tiempo de cruce</dt><dd>${cruceCorto(p.id).replace(/<[^>]+>/g, '').replace('Cruce ', '') || '<span class="sin-dato">Sin datos suficientes</span>'}</dd></div>
     <div><dt>Incidencias</dt><dd>${inc ? plural(inc, 'activa', 'activas') : 'Ninguna'}</dd></div>
   </dl>
@@ -1268,7 +1281,7 @@ ${seccion({
     especial ? ` data-desde="${esc(h.desde)}" data-hasta="${esc(h.hasta)}"` : ''
   }>
     <th scope="row"><a href="${u(`/guia/${guiaDePaso[p.id]}/`)}">${esc(p.nombre)}</a></th>
-    <td data-l="Lado">${esc(h.lado || '')}</td>
+    <td data-l="Lado">${conBanderas(h.lado || '')}</td>
     <td data-l="Organismo">${esc(ORGANISMOS_CAL[h.organismo] || h.organismo || '')}</td>
     <td data-l="Horario">${especial ? `<strong>${fecha(h.desde)} – ${fecha(h.hasta)}:</strong> ` : ''}${esc(h.texto)}</td>
     <td data-l="Fuente">${fuenteEnlace(h.fuente)}${h.publicado ? `, ${fechaCorta(h.publicado)}` : ''}<br>${validacionHTML(nivelReg(h, 'horario'), h.verificado)}</td>
