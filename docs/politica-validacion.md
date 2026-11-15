@@ -27,6 +27,19 @@ Sin `verificacion` válida, el sistema trata el registro como `por-verificar` au
 
 **Foco en la operatividad (decisión del 15/11/2026).** Quien consulta la web quiere saber si puede transportar por ese paso o tramo, para cotizar, planificar o informar. Por eso cada dato operativo (estado, horarios, incidencias) se confirma con **su propia** verificación, y la situación operativa va lo primero en cada ficha. Que el texto explicativo de la guía siga en revisión se avisa aparte y no oculta un estado verificado.
 
+## Semáforo operativo
+
+Lo que ve el usuario en cada paso o tramo, siempre con icono y texto además del color:
+
+| Semáforo | Cuándo |
+|---|---|
+| Abierto (verde) | Estado verificado `operativo` |
+| Con restricciones (ámbar) | Verificado `restricciones`, `intermitente` o `cierre-programado`; en un tramo de carretera, también `en-obras` (se circula con obras) |
+| No habilitado (rojo) | Verificado `cerrado`; en un paso, también `en-obras` (no se puede cruzar) |
+| Sin confirmar (gris, trazo discontinuo) | Todo lo no verificado. Se muestra el último dato publicado con su fecha y cuánto hace; si tiene más de 30 días, se resalta |
+
+La regla está en `scripts/lib.mjs` (`operativaDe`) y el planificador usa la misma.
+
 ## Tipos de evidencia (`evidencia`)
 
 | Valor | Uso |

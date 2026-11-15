@@ -929,3 +929,65 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .sol-error { color: var(--danger, #b42318); font-weight: 600; margin: 0; }
 .sol-ok { color: var(--ok); font-weight: 600; margin: 0; }
 @media (max-width: 640px) { .sol-campos { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Semáforo operativo (15/11/2026) ----------
+   Cuatro estados con icono + texto + color. Pensado para leer al sol (contraste alto, trazo grueso)
+   y de noche (tema oscuro con colores propios). Nunca depende solo del color. */
+.estado { gap: 6px; font-weight: 600; }
+.estado::before { display: none; }
+.estado svg { flex: none; width: 16px; height: 16px; }
+.estado-detalle { font-weight: 500; color: var(--muted-foreground); }
+.op-abierto { color: var(--ok); }
+.op-restricciones { color: var(--obras); }
+.op-cerrado { color: var(--corte); }
+.op-sin-confirmar { color: var(--sin-dato); }
+.historia .estado svg { width: 14px; height: 14px; }
+.edad { white-space: nowrap; }
+.edad-vieja { color: var(--obras); font-weight: 700; }
+.edad-vieja::before { content: "⚠\FE0E "; }
+
+/* Anillos de la portada: sólido si está confirmado; discontinuo y gris si no. */
+.historia-op-abierto .historia-anillo { background: var(--ok-dot); }
+.historia-op-restricciones .historia-anillo { background: var(--obras-dot); }
+.historia-op-cerrado .historia-anillo { background: var(--corte-dot); }
+.historia-op-sin-confirmar .historia-anillo { background: repeating-conic-gradient(var(--sin-dato) 0 7deg, transparent 7deg 12deg); }
+
+/* Recorrido y planificador */
+.tramo-op-abierto .via::after { background: var(--ok-dot); }
+.tramo-op-restricciones .via::after { background: var(--obras-dot); }
+.tramo-op-cerrado .via::after { background: var(--corte-dot); }
+.tramo-op-sin-confirmar .via::after { background: repeating-linear-gradient(90deg, var(--sin-dato) 0 6px, transparent 6px 10px); }
+.it-tramo.tramo-op-abierto .contenido { border-left-color: var(--ok-dot); }
+.it-tramo.tramo-op-restricciones .contenido { border-left-color: var(--obras-dot); }
+.it-tramo.tramo-op-cerrado .contenido { border-left-color: var(--corte-dot); }
+.it-tramo.tramo-op-sin-confirmar .contenido { border-left-color: var(--border-strong); border-left-style: dashed; }
+
+/* Respuesta grande de la ficha */
+.respuesta { display: grid; grid-template-columns: auto 1fr; gap: 12px 14px; align-items: start; padding: 16px 18px; margin: 0 0 20px; border-radius: var(--radius-lg); border: 2px solid currentColor; background: var(--card); }
+.respuesta > svg { width: 32px; height: 32px; }
+.respuesta .pais-bandera { display: inline-block; vertical-align: -2px; }
+.respuesta-titulo { margin: 0; font-size: 22px; line-height: 28px; font-weight: 800; }
+.respuesta-detalle { margin: 4px 0 0; font-size: 16px; line-height: 24px; color: var(--foreground); }
+.respuesta-meta { margin: 6px 0 0; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.respuesta.op-sin-confirmar { border-style: dashed; }
+@media (max-width: 640px) { .respuesta-titulo { font-size: 20px; } .respuesta > svg { width: 28px; height: 28px; } }
+
+/* Mapa por tramos: color = semáforo; línea continua = distancia con fuente; discontinua = estimada;
+   hueca (con relleno del fondo) = estado sin confirmar. */
+.m-tramo { fill: none; stroke-width: 7; stroke-linejoin: round; stroke-linecap: round; }
+.m-tramo.m-alt { stroke-width: 4; }
+.m-tramo-hueco { fill: none; stroke: var(--background); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.m-tramo-hueco.m-alt { stroke-width: 1.5; }
+.m-estimado { stroke-dasharray: 12 8; }
+.m-op-abierto { stroke: var(--ok-dot); }
+.m-op-restricciones { stroke: var(--obras-dot); }
+.m-op-cerrado { stroke: var(--corte-dot); }
+.m-op-sin-confirmar { stroke: var(--sin-dato); }
+.m-paso.m-pasoop-abierto { fill: var(--ok-dot); }
+.m-paso.m-pasoop-restricciones { fill: var(--obras-dot); }
+.m-paso.m-pasoop-cerrado { fill: var(--corte-dot); }
+.m-paso.m-pasoop-sin-confirmar { fill: var(--background); stroke: var(--sin-dato); stroke-width: 2.5; stroke-dasharray: 3 2; }
+.ley-tramo { width: 28px; height: 0; border-top: 6px solid var(--sin-dato); border-radius: 3px; }
+.ley-tramo.ley-estimado { border-top-style: dashed; }
+.ley-tramo.ley-hueco { height: 6px; border: 2px solid var(--sin-dato); border-radius: 4px; }
+.ley-color { width: 14px; height: 14px; border-radius: 3px; }

@@ -34,7 +34,14 @@
   const carga = () => form.querySelector('input[name="carga"]:checked')?.value || 'general';
   const nombreCarga = () => datos.tiposCarga.find((c) => c.id === carga())?.nombre || '';
 
-  const estado = (e) => `<span class="estado estado-${esc(e)}">${esc(datos.estados[e] || e)}</span>`;
+  // Semáforo operativo: mismo criterio que scripts/lib.mjs (operativaDe).
+  const operativaDe = (valor, tipo = 'paso') =>
+    valor === 'operativo' ? 'abierto' : ['restricciones', 'intermitente', 'cierre-programado'].includes(valor) ? 'restricciones' : valor === 'cerrado' ? 'cerrado' : valor === 'en-obras' ? (tipo === 'paso' ? 'cerrado' : 'restricciones') : 'sin-confirmar';
+  const estado = (e, op = operativaDe(e)) => {
+    const o = datos.operativa[op];
+    const det = datos.estados[e] && !['pendiente', 'operativo', 'restricciones'].includes(e) && datos.estados[e] !== o.texto ? `<span class="estado-detalle">· ${esc(datos.estados[e])}</span>` : '';
+    return `<span class="estado estado-${esc(e)} op-${op}">${o.icono}<span class="estado-texto">${esc(o.texto)}</span>${det}</span>`;
+  };
   const anioActual = new Date().toISOString().slice(0, 4);
   const fechaCorta = (iso) =>
     new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== anioActual ? { year: 'numeric' } : {}), timeZone: 'UTC' }).replace('.', '');
@@ -42,7 +49,7 @@
   const tag = (t) => `<span class="tag tag-${t}">${TAGS[t]}</span>`;
   // Mismo criterio que el resto del portal: solo lo verificado se muestra como confirmado.
   function vista(v) {
-    if (v?.confirmado) return `${estado(v.valor)}<span class="estado-fecha">Verificado el ${esc(fechaCorta(v.verificado))}</span>`;
+    if (v?.confirmado) return `${estado(v.valor, v.op)}<span class="estado-fecha">Verificado el ${esc(fechaCorta(v.verificado))}</span>`;
     if (!v?.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
     const origen = v.fuente?.tipo ? `, ${datos.tiposFuente[v.fuente.tipo]}` : '';
     const dato = v.ultimo === 'pendiente' ? 'Sin estado confirmado' : `Último dato: ${(datos.estados[v.ultimo] || v.ultimo).toLowerCase()}`;
@@ -168,7 +175,7 @@
     };
     const out = [parada(op.tramos[0].de)];
     op.tramos.forEach((t) => {
-      out.push(`<li class="it-tramo tramo-${esc(t.estado)}"><span class="via" aria-hidden="true"></span><div class="contenido">
+      out.push(`<li class="it-tramo tramo-${esc(t.estado)} tramo-op-${esc(t.vista?.op || "sin-confirmar")}"><span class="via" aria-hidden="true"></span><div class="contenido">
         <div class="it-fila">${
           typeof t.km === 'number'
             ? `<span class="it-km">${GC.km(t.km)}</span>${t.kmTipo === 'calculado' ? tag('calculado') : ''}`
