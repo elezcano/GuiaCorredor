@@ -25,7 +25,7 @@ Un registro `verificado` necesita `verificacion`:
 
 Sin `verificacion` válida, el sistema trata el registro como `por-verificar` aunque diga `verificado`, y `npm run check` falla. La verificación caduca según el tipo de dato (30 días un estado operativo, 120 una obra, 60 una incidencia, 180 un horario, 365 una ficha, empresa u organismo); después se muestra «Verificación caducada».
 
-Una ficha de la guía en `borrador` arrastra a sus datos: el estado de un paso solo se confirma si el dato **y** su ficha están verificados.
+**Foco en la operatividad (decisión del 15/11/2026).** Quien consulta la web quiere saber si puede transportar por ese paso o tramo, para cotizar, planificar o informar. Por eso cada dato operativo (estado, horarios, incidencias) se confirma con **su propia** verificación, y la situación operativa va lo primero en cada ficha. Que el texto explicativo de la guía siga en revisión se avisa aparte y no oculta un estado verificado.
 
 ## Tipos de evidencia (`evidencia`)
 

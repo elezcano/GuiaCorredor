@@ -39,7 +39,7 @@ Cada archivo: `{ api: "v1", version, generado, recurso, registros: [...] }`.
 Cada registro conserva: identificador, `fuente` **resuelta** (`{ id, nombre, url, tipo }`), `evidencia`, `publicado`, `actualizado`, `validacion`, `verificacion` (responsable y fecha, si existe), `vigencia` cuando corresponde, y además el `nivel` calculado (`verificado`, `por-verificar`, `caducado`, `borrador`) y `caducaEl`. Los estados llevan `mostrar`:
 
 ```json
-"mostrar": { "valor": "pendiente", "ultimoReportado": "operativo", "confirmado": false, "nivelMostrado": "borrador", "texto": "Habilitado para todo tipo de vehículos…" }
+"mostrar": { "valor": "pendiente", "ultimoReportado": "operativo", "confirmado": false, "nivelMostrado": "por-verificar", "texto": "Habilitado para todo tipo de vehículos…" }
 ```
 
 ### Versionado

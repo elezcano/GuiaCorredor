@@ -5,7 +5,7 @@
 // y api/v1 se sigue publicando durante la transición (6 meses, docs/ia-dev.md).
 import { CADUCIDAD, EVIDENCIAS, NIVELES, VERIFICADORES, tipoEstado } from './validacion.mjs';
 
-export const API_VERSION = '1.1.0';
+export const API_VERSION = '1.2.0';
 
 /**
  * Registro de versiones publicadas. Gestión interna del formato:
@@ -19,6 +19,7 @@ export const API_VERSIONES = {
 };
 /** Avisos para consumidores (los más recientes primero). */
 export const AVISOS_API = [
+  { fecha: '2026-11-15', version: '1.2.0', tipo: 'compatible', texto: 'mostrar.nivelMostrado ya no se rebaja por el borrador de la ficha de la guía: un estado operativo verificado se muestra como confirmado.' },
   { fecha: '2026-11-15', version: '1.1.0', tipo: 'compatible', texto: 'Nuevo campo tramos[].estimacion y alternativa.estimacion: estimación provisional en línea recta (evidencia "estimacion").' },
   { fecha: '2026-11-15', version: '1.0.0', tipo: 'inicial', texto: 'Primera versión de api/v1.' },
 ];
@@ -131,7 +132,7 @@ export function generarApi(ctx) {
     contrato: 'https://github.com/elezcano/GuiaCorredor/blob/main/docs/ia-dev.md',
     reglas: [
       'Solo nivel "verificado" significa que el responsable editorial revisó el dato y su evidencia.',
-      'mostrar.nivelMostrado combina el nivel del dato y el de su ficha de la guía (una ficha en borrador arrastra a sus datos). mostrar.confirmado = false: el valor que se muestra es "pendiente" (Por verificar); ultimoReportado es el último dato publicado por la fuente, sin confirmar.',
+      'mostrar.nivelMostrado es el nivel del propio dato operativo (el borrador del texto de la guía no lo rebaja). mostrar.confirmado = false: el valor que se muestra es "pendiente" (Por verificar); ultimoReportado es el último dato publicado por la fuente, sin confirmar.',
       'evidencia "estimacion" o "calculo" nunca es un dato oficial; "historico" nunca es la situación actual.',
       'distancia.km null = no hay distancia con fuente. Si hay "estimacion", es provisional, en línea recta y sin verificar: decirlo siempre así y nunca sumarla como dato oficial.',
       'Un festivo no implica cierre de aduana.',
