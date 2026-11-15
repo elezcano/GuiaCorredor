@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES } from './lib.mjs';
+import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES, OPERATIVA, operativaDe } from './lib.mjs';
 import { nivel, peor, estadoMostrable, NIVELES, diasEntre, registroGuia, EVIDENCIAS } from './validacion.mjs';
 import { cargar } from './datos.mjs';
 import { generarApi } from './api.mjs';
@@ -64,9 +64,11 @@ aplicarEstimaciones(rutas, fichaPasos, site.estimaciones?.provisionales !== fals
 rutas.tramos.forEach((t) => {
   t.vista = estadoTramo(t);
   t.estado = t.vista.valor;
+  t.op = t.vista.op = operativaDe(t.estado, t.paso ? 'paso' : 'tramo');
   if (t.alternativa?.id) {
     t.alternativa.vista = estadoPaso(t.alternativa.id);
     t.alternativa.estado = t.alternativa.vista.valor;
+    t.alternativa.op = t.alternativa.vista.op = operativaDe(t.alternativa.estado, 'paso');
   }
 });
 const tramoPorId = Object.fromEntries(rutas.tramos.map((t) => [t.id, t]));
@@ -157,7 +159,22 @@ const icono = (n, clase = 'icono') =>
   `<svg class="${clase}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICONOS[n]}"/></svg>`;
 
 // ---------- piezas comunes ----------
-const estado = (e) => `<span class="estado estado-${esc(e)}">${esc(ESTADOS[e] || e)}</span>`;
+/** Chip del semáforo operativo: icono + texto (+ detalle del estado si aporta). */
+const estado = (e, tipo = 'paso') => {
+  const op = operativaDe(e, tipo);
+  const det = ESTADOS[e] && !['pendiente', 'operativo', 'restricciones'].includes(e) && ESTADOS[e] !== OPERATIVA[op].texto ? `<span class="estado-detalle">· ${esc(ESTADOS[e])}</span>` : '';
+  return `<span class="estado estado-${esc(e)} op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${esc(OPERATIVA[op].texto)}</span>${det}</span>`;
+};
+/** «hace 8 días», «hace 5 meses». */
+const haceTiempo = (iso) => {
+  const d = diasDesde(iso);
+  if (!Number.isFinite(d)) return '';
+  if (d <= 0) return 'hoy';
+  if (d === 1) return 'ayer';
+  if (d < 31) return `hace ${d} días`;
+  const m = Math.round(d / 30.4);
+  return m < 12 ? `hace ${m === 1 ? 'un mes' : `${m} meses`}` : `hace ${Math.round(d / 365) === 1 ? 'un año' : `${Math.round(d / 365)} años`}`;
+};
 // Banderas en SVG (los emojis de bandera no se ven en Windows: salen como «PY»). Accesibles con aria-label.
 const BANDERAS = {
   AR: '<rect width="30" height="20" fill="#74ACDF"/><rect y="6.67" width="30" height="6.67" fill="#fff"/><circle cx="15" cy="10" r="2.2" fill="#F6B40E"/>',
@@ -193,10 +210,12 @@ function validacionHTML(n, verificado) {
   return `<span class="val val-${esc(n)}">${esc(txt)}</span>`;
 }
 /** Estado operativo + línea de contexto: confirmado, o "Por verificar" con el último dato. */
-function vistaHTML(v, { corto = false } = {}) {
-  if (v.confirmado) return `${estado(v.valor)}<span class="estado-fecha">Verificado ${corto ? '' : 'el '}${corto ? fechaCorta(v.verificado) : fecha(v.verificado)}</span>`;
+function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
+  if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha">Verificado ${corto ? '' : 'el '}${corto ? fechaCorta(v.verificado) : fecha(v.verificado)}</span>`;
   if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
-  const cuando = v.publicado ? (corto ? fechaCorta(v.publicado) : fecha(v.publicado)) : 'sin fecha';
+  const dias = diasDesde(v.publicado);
+  const viejo = dias > 30; // un parte operativo de más de un mes ya no sirve para decidir
+  const cuando = v.publicado ? `${corto ? fechaCorta(v.publicado) : fecha(v.publicado)} <span class="edad${viejo ? ' edad-vieja' : ''}">(${haceTiempo(v.publicado)})</span>` : 'sin fecha';
   const origen = !corto && v.fuente?.tipo ? `, ${TIPO_FUENTE[v.fuente.tipo]}` : '';
   const dato = v.ultimo === 'pendiente' ? 'sin estado confirmado' : `último dato: ${esc((ESTADOS[v.ultimo] || v.ultimo).toLowerCase())}`;
   return `${estado('pendiente')}<span class="estado-fecha">${dato[0].toUpperCase() + dato.slice(1)}, ${cuando}${origen}</span>`;
@@ -321,10 +340,10 @@ function rutaHTML() {
     if (!t) return;
     const enlace = t.paso?.guia || t.guia;
     const etiqueta = t.paso ? `${rutas.nodos[i].pais}–${rutas.nodos[i + 1].pais}` : km(t.km);
-    const contenido = `<span class="tramo-estado">${estado(t.estado)}</span>${
+    const contenido = `<span class="tramo-estado">${estado(t.estado, t.paso ? 'paso' : 'tramo')}</span>${
       etiqueta ? `<span class="tramo-etiqueta">${t.paso ? '<span class="frontera">Frontera</span>' : ''}${esc(etiqueta)}</span>` : ''
     }`;
-    items.push(`<li class="tramo tramo-${esc(t.estado)}${t.paso ? ' tramo-frontera' : ''}" data-i="${i}"><span class="via" aria-hidden="true"></span>
+    items.push(`<li class="tramo tramo-${esc(t.estado)} tramo-op-${t.op}${t.paso ? ' tramo-frontera' : ''}" data-i="${i}"><span class="via" aria-hidden="true"></span>
       ${enlace ? `<a class="texto" href="${u(`/guia/${enlace}/`)}">${contenido}</a>` : `<span class="texto">${contenido}</span>`}</li>`);
   });
   return `<div class="carretera-marco"><ol class="ruta" id="ruta-corredor" aria-label="Recorrido del corredor de este a oeste">${items.join('')}</ol></div>`;
@@ -398,6 +417,7 @@ const datosRutas = (extra = {}) =>
     avisoDocumentos: rutas.avisoDocumentos,
     tiposCarga: rutas.tiposCarga,
     estados: ESTADOS,
+    operativa: OPERATIVA,
     paises: PAISES,
     base: B,
     cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, sentidos: SENTIDOS, dias: DIAS },
@@ -535,8 +555,17 @@ function mapaHTML() {
     return id === 'pozo-hondo' ? n['pozo-hondo'] : { lat: (a.lat + b.lat) / 2, lon: (a.lon + b.lon) / 2, esquematica: true };
   };
   const linea = (pts) => pts.map((o) => `${X(o.lon)},${Y(o.lat)}`).join(' ');
-  const principal = [n['campo-grande'], n['porto-murtinho'], n['mariscal-estigarribia'], n['pozo-hondo'], n['salta-jujuy'], loc('jama'), n['norte-chile'], n['puertos-chile']];
-  const alterno = [n['salta-jujuy'], loc('sico'), n['norte-chile']];
+  // Cada tramo con su estado: color = semáforo; discontinua = distancia estimada; hueca = sin confirmar.
+  const segmento = (t, alt = false) => {
+    const via = alt ? t.alternativa : t.paso;
+    const pts = [n[t.desde], ...(via ? [loc(via.id)] : []), n[t.hasta]];
+    const v = alt ? t.alternativa.vista : t.vista;
+    const op = v?.confirmado ? (alt ? t.alternativa.op : t.op) : 'sin-confirmar';
+    const cls = `m-tramo m-op-${op}${typeof t.km === 'number' ? '' : ' m-estimado'}${alt ? ' m-alt' : ''}`;
+    const titulo = `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}${via ? ` por ${via.nombre}` : ''}: ${OPERATIVA[op].texto}${typeof t.km === 'number' ? '' : ', distancia estimada'}`;
+    return `<g><title>${esc(titulo)}</title><polyline class="${cls}" points="${linea(pts)}"/>${op === 'sin-confirmar' ? `<polyline class="m-tramo-hueco${alt ? ' m-alt' : ''}${typeof t.km === 'number' ? '' : ' m-estimado'}" points="${linea(pts)}"/>` : ''}</g>`;
+  };
+  const tramosMapa = [...rutas.tramos.filter((t) => t.alternativa).map((t) => segmento(t, true)), ...rutas.tramos.map((t) => segmento(t))].join('');
   // Solo puertos con coordenadas con fuente (Mejillones e Iquique, pendientes de P1.1).
   const puertos = [{ nombre: 'Antofagasta', lat: n['puertos-chile'].lat, lon: n['puertos-chile'].lon, dx: 10, dy: 18 }];
   const costa = [[-70.15, -19.3], [-70.15, -20.2], [-70.25, -21], [-70.2, -21.6], [-70.3, -22.3], [-70.5, -23], [-70.6, -23.5], [-70.45, -24], [-70.55, -25.6]];
@@ -564,11 +593,12 @@ function mapaHTML() {
       const [dx, dy, a = 'start'] = posPaso[p.id] || [12, 4];
       const ruta = rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id);
       const href = ruta?.guia ? u(`/guia/${ruta.guia}/`) : u('/pasos/');
-      return `<a href="${href}" aria-label="${esc(p.nombre)}, ${esc(ESTADOS[e.valor])}. Abrir la ficha"><rect class="m-paso m-${esc(e.valor)}" x="${x - 7}" y="${y - 7}" width="14" height="14" transform="rotate(45 ${x} ${y})"/>${etiqueta(
+      const opP = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
+      return `<a href="${href}" aria-label="${esc(p.nombre)}: ${esc(OPERATIVA[opP].texto)}. Abrir la ficha"><rect class="m-paso m-${esc(e.valor)} m-pasoop-${opP}" x="${x - 7}" y="${y - 7}" width="14" height="14" transform="rotate(45 ${x} ${y})"/>${etiqueta(
         x + dx,
         y + dy,
         p.nombre,
-        ESTADOS[e.valor],
+        OPERATIVA[opP].texto,
         a
       )}</a>`;
     })
@@ -594,16 +624,19 @@ function mapaHTML() {
       <polygon class="m-oceano" points="${oceano}"/>
       <text class="m-mar" x="${X(-72.1)}" y="${Y(-24.9)}">Océano Pacífico</text>
       ${paisesM.map(([t, la, lo]) => `<text class="m-pais" x="${X(lo)}" y="${Y(la)}" text-anchor="middle">${t}</text>`).join('')}
-      <polyline class="m-ruta" points="${linea(principal)}"/>
-      <polyline class="m-alterna" points="${linea(alterno)}"/>
+      ${tramosMapa}
       ${ciudades}${pts}${pasos}
     </svg>
   </div>
   <figcaption>
     <ul class="mapa-leyenda">
-      <li><span class="ley-ruta"></span>Ruta principal</li>
-      <li><span class="ley-alterna"></span>Alternativa por Sico</li>
-      <li><span class="ley-paso"></span>Paso fronterizo (en color solo si su estado está verificado)</li>
+      <li><span class="ley-color op-abierto" style="background:var(--ok-dot)"></span>Abierto</li>
+      <li><span class="ley-color" style="background:var(--obras-dot)"></span>Con restricciones</li>
+      <li><span class="ley-color" style="background:var(--corte-dot)"></span>No habilitado</li>
+      <li><span class="ley-tramo ley-hueco"></span>Sin confirmar</li>
+      <li><span class="ley-tramo"></span>Distancia con fuente</li>
+      <li><span class="ley-tramo ley-estimado"></span>Distancia estimada</li>
+      <li><span class="ley-paso"></span>Paso fronterizo (línea fina: alternativa por Sico)</li>
       <li><span class="ley-ciudad"></span>Ciudad</li>
       <li><span class="ley-puerto"></span>Puerto</li>
     </ul>
@@ -629,7 +662,30 @@ function fichaOperativa(p) {
   const lista = (xs, vacio, tipo) => (xs?.length ? `<ul>${xs.map((x) => `<li>${conFuente(x, tipo)}</li>`).join('')}</ul>` : `<span class="sin-dato">${vacio}</span>`);
   const orgs = (p.organismos || []).map((id) => organismoPorId[id]).filter(Boolean);
   const inc = incidenciasDe({ paso: p.id, tramos: rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id) });
+  // Respuesta en una línea: lo que mira quien va a transportar o cotizar.
+  const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
+  const detalleEstado = e.confirmado && ESTADOS[e.valor] && ESTADOS[e.valor] !== OPERATIVA[op].texto && e.valor !== 'operativo' ? ` · ${ESTADOS[e.valor]}` : '';
+  const primeraFrase = (t = '') => (t.match(/^[^.]+\./)?.[0] || t);
+  const prevision = inc.find((i) => i.finPrevista)?.finPrevista;
+  const hor = p.horarios?.[0];
+  const respuesta = `<div class="respuesta op-${op}" role="status" aria-live="polite">
+    ${OPERATIVA[op].icono}
+    <div>
+      <p class="respuesta-titulo">${esc(OPERATIVA[op].texto + detalleEstado)}</p>
+      <p class="respuesta-detalle">${
+        e.confirmado
+          ? esc(primeraFrase(p.estado.texto))
+          : e.ultimo && e.ultimo !== 'pendiente'
+            ? `Último dato publicado: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${esc(haceTiempo(p.estado.publicado))}. Confírmalo antes de salir.`
+            : 'No hay un estado confirmado. Consulta el parte oficial antes de salir.'
+      }</p>
+      ${prevision ? `<p class="respuesta-detalle">Previsión: ${esc(prevision)}</p>` : ''}
+      ${hor ? `<p class="respuesta-detalle">Horario${hor.lado ? ` (${conBanderas(hor.lado)})` : ''}: ${esc(hor.texto)}${hor.validacion === 'verificado' ? '' : ' <span class="respuesta-meta">· sin verificar</span>'}</p>` : ''}
+      <p class="respuesta-meta">${e.confirmado ? `Verificado el ${fecha(e.verificado)}` : `Sin verificar · fuente: ${fuenteEnlace(p.estado.fuente)}, ${fecha(p.estado.publicado)}`}</p>
+    </div>
+  </div>`;
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
+  ${respuesta}
   <div class="ficha-cabeza"><h2 id="t-ficha">Situación operativa</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
   <dl class="datos">
     ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
@@ -688,12 +744,12 @@ const pasosHistoria = [];
 rutas.tramos.forEach((t) => {
   const a = rutas.nodos.find((n) => n.id === t.desde);
   const b = rutas.nodos.find((n) => n.id === t.hasta);
-  if (t.paso) pasosHistoria.push({ id: t.paso.id, nombre: t.paso.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, '').replace('Puente de la ', 'Puente '), guia: t.paso.guia, estado: t.estado, cara: [a.pais, b.pais] });
-  if (t.alternativa) pasosHistoria.push({ id: t.alternativa.id, nombre: t.alternativa.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, ''), guia: t.alternativa.guia, estado: t.alternativa.estado || t.estado, cara: [a.pais, b.pais] });
+  if (t.paso) pasosHistoria.push({ id: t.paso.id, nombre: t.paso.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, '').replace('Puente de la ', 'Puente '), guia: t.paso.guia, estado: t.estado, op: t.op, cara: [a.pais, b.pais] });
+  if (t.alternativa) pasosHistoria.push({ id: t.alternativa.id, nombre: t.alternativa.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, ''), guia: t.alternativa.guia, estado: t.alternativa.estado || t.estado, op: t.alternativa.op || t.op, cara: [a.pais, b.pais] });
 });
 const historia = (h) => {
   const contenido = `<span class="historia-anillo"><span class="historia-cara" role="img" aria-label="${esc(h.cara.map((c) => PAISES[c]).join(' – '))}">${h.cara.map((c) => bandera(c).replace(/ role="img" aria-label="[^"]*"/, '')).join('')}</span></span><span class="historia-nombre">${esc(h.nombre)}</span>${estadoPasoHTML(h.id, { corto: true })}${cruceCorto(h.id)}`;
-  return `<li>${h.guia ? `<a class="historia historia-${esc(h.estado)}" href="${u(`/guia/${h.guia}/`)}">${contenido}</a>` : `<div class="historia historia-${esc(h.estado)}">${contenido}</div>`}</li>`;
+  return `<li>${h.guia ? `<a class="historia historia-${esc(h.estado)} historia-op-${h.op}" href="${u(`/guia/${h.guia}/`)}">${contenido}</a>` : `<div class="historia historia-${esc(h.estado)} historia-op-${h.op}">${contenido}</div>`}</li>`;
 };
 
 // Inicio
@@ -1143,12 +1199,12 @@ add(
 <div class="contenedor">
   <header class="cabeza-pagina"><h1>Pasos fronterizos</h1><p>Estado, horarios y organismos de cada frontera del corredor. Cada dato lleva su fuente y su fecha.</p></header>
   <ul class="pasos-lista">${fichaPasos.map(tarjeta).join('')}</ul>
-  <p class="nota-guardado">Un estado de más de 30 días se muestra como «Por verificar» con su último dato.</p>
+  <p class="nota-guardado">Solo se muestra como confirmado lo que ha verificado el responsable editorial. Lo demás sale «Sin confirmar» con su último dato, su fecha y cuánto hace.</p>
 </div>
 ${seccion({
   titulo: 'Recorrido',
   contexto: 'Cada tramo con su estado. Las empresas aparecen en el punto donde trabajan.',
-  cuerpo: `${rutaHTML()}<ul class="leyenda" aria-label="Leyenda de estados">${['operativo', 'en-obras', 'pendiente'].map((k) => `<li>${estado(k)}</li>`).join('')}</ul>`,
+  cuerpo: `${rutaHTML()}<ul class="leyenda" aria-label="Leyenda de estados">${['operativo', 'restricciones', 'cerrado', 'pendiente'].map((k) => `<li>${estado(k)}</li>`).join('')}</ul>`,
 })}
 ${seccion({
   titulo: 'Partes oficiales',
