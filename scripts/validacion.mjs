@@ -97,6 +97,7 @@ export function erroresRegistro(r, donde, { exigeFuente = true, permitePublicado
   const e = [];
   if (exigeFuente && !r.fuente) e.push(`${donde}: falta "fuente".`);
   if (r.fuente && fuentes && !fuentes.has(r.fuente)) e.push(`${donde}: la fuente "${r.fuente}" no está en data/fuentes.json.`);
+  for (const f of r.otrasFuentes || []) if (fuentes && !fuentes.has(f)) e.push(`${donde}: otrasFuentes cita "${f}", que no está en data/fuentes.json.`);
   if (!EVIDENCIAS[r.evidencia]) e.push(`${donde}: "evidencia" debe ser ${Object.keys(EVIDENCIAS).join(', ')}.`);
   if (!('publicado' in r)) e.push(`${donde}: falta "publicado".`);
   else if (r.publicado !== null && !esFecha(r.publicado)) e.push(`${donde}: "publicado" debe ser AAAA-MM-DD o null.`);

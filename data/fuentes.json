@@ -4,6 +4,12 @@
   "nota": "Registro único de fuentes. Los datos citan la fuente por su id. tipo: oficial (organismo público o norma) | prensa | referencia (enciclopedias, gazetteers, cartografía) | empresa (lo declara la propia empresa) | otra.",
   "fuentes": [
     {
+      "id": "5dias-puente-entrega-febrero-2027",
+      "nombre": "5Días: entrevista al Ing. Félix Zelaya (MOPC) — entrega en febrero de 2027",
+      "url": "https://5dias.com.py/article/puente-biocenico-completa-su-unin-y-su-entrega-se-dara-en-febrero-de-2027",
+      "tipo": "prensa"
+    },
+    {
       "id": "abc-color",
       "nombre": "ABC Color",
       "url": "https://www.abc.com.py/nacionales/chaco/2026/07/13/puente-de-la-bioceanica-se-unira-esta-semana-cuando-se-habilitara/",
@@ -50,12 +56,6 @@
       "nombre": "Geodatos: Carmelo Peralta",
       "url": "https://www.geodatos.net/en/coordinates/paraguay/carmelo-peralta",
       "tipo": "referencia"
-    },
-    {
-      "id": "infonegocios-accesos-puente",
-      "nombre": "InfoNegocios: Accesos paraguayos al Puente de la Bioceánica al 23 % (07/10/2026)",
-      "url": "https://infonegocios.com.py/default/accesos-paraguayos-al-puente-de-la-bioceanica-alcanzan-23-de-avance-y-apuntan-a-concluir-en-2027",
-      "tipo": "prensa"
     },
     {
       "id": "infraestructura-publica",

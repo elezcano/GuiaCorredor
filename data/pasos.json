@@ -17,7 +17,7 @@
       },
       "estado": {
         "valor": "en-obras",
-        "texto": "No habilitado al tránsito. El puente está unido desde el 16/07/2026 y sigue en terminaciones en ambas márgenes; el MOPC prevé terminar el acceso paraguayo en el primer trimestre de 2027. Sin fecha oficial de habilitación.",
+        "texto": "No habilitado al tránsito. El puente está unido desde el 16/07/2026 y sigue en terminaciones en ambas márgenes; el MOPC prevé puente y acceso listos para operar hacia febrero de 2027. Sin fecha oficial de habilitación.",
         "fuente": "abc-color-puente-recta-final",
         "publicado": "2026-10-22",
         "validacion": "verificado",
@@ -28,7 +28,10 @@
           "fecha": "2026-11-15",
           "alcance": "Ernesto confirmó el 15/11/2026 que el puente sigue en obras y no está habilitado al tránsito, según ABC Color, la web del MOPC y prensa paraguaya (sin noticias de habilitación)."
         },
-        "evidencia": "tercero"
+        "evidencia": "tercero",
+        "otrasFuentes": [
+          "5dias-puente-entrega-febrero-2027"
+        ]
       },
       "horarios": [],
       "operaciones": null,

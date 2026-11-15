@@ -129,6 +129,7 @@ La política completa está en [`politica-validacion.md`](politica-validacion.md
 | Campo | Qué es |
 |---|---|
 | `fuente` | id de `data/fuentes.json` (nombre, url y tipo están allí, una sola vez) |
+| `otrasFuentes` | Opcional: ids de otras fuentes que respaldan el dato (se muestran como «También: …») |
 | `evidencia` | `oficial`, `declaracion-empresa`, `tercero`, `calculo`, `estimacion` o `historico` |
 | `publicado` | Fecha (AAAA-MM-DD) en que la fuente publicó el dato. `null` si es una norma o no consta |
 | `actualizado` | Última vez que se comprobó contra la fuente (lo puede hacer el asistente) |

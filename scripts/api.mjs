@@ -5,7 +5,7 @@
 // y api/v1 se sigue publicando durante la transición (6 meses, docs/ia-dev.md).
 import { CADUCIDAD, EVIDENCIAS, NIVELES, VERIFICADORES, tipoEstado } from './validacion.mjs';
 
-export const API_VERSION = '1.2.0';
+export const API_VERSION = '1.3.0';
 
 /**
  * Registro de versiones publicadas. Gestión interna del formato:
@@ -19,6 +19,7 @@ export const API_VERSIONES = {
 };
 /** Avisos para consumidores (los más recientes primero). */
 export const AVISOS_API = [
+  { fecha: '2026-11-15', version: '1.3.0', tipo: 'compatible', texto: 'Campo opcional otrasFuentes (fuentes resueltas que respaldan el dato además de la principal).' },
   { fecha: '2026-11-15', version: '1.2.0', tipo: 'compatible', texto: 'mostrar.nivelMostrado ya no se rebaja por el borrador de la ficha de la guía: un estado operativo verificado se muestra como confirmado.' },
   { fecha: '2026-11-15', version: '1.1.0', tipo: 'compatible', texto: 'Nuevo campo tramos[].estimacion y alternativa.estimacion: estimación provisional en línea recta (evidencia "estimacion").' },
   { fecha: '2026-11-15', version: '1.0.0', tipo: 'inicial', texto: 'Primera versión de api/v1.' },

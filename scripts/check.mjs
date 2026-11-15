@@ -224,6 +224,7 @@ if (site.contacto.whatsapp && !E164.test(site.contacto.whatsapp.replace(/[\s-]/g
 // Fuentes: ids únicos, URL repetida, fuentes sin uso.
 {
   const usadas = new Set(JSON.stringify(C).match(/"(?:fuente|kmFuente)":"([a-z0-9-]+)"/g)?.map((x) => x.split('"')[3]));
+  JSON.stringify(C, (k, v) => (k === 'otrasFuentes' && Array.isArray(v) && v.forEach((id) => usadas.add(id)), v));
   const urls = new Map();
   for (const f of C.fuentes.fuentes) {
     if (urls.has(f.url)) errores.push(`fuentes: "${f.id}" y "${urls.get(f.url)}" tienen la misma url.`);

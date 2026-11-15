@@ -29,6 +29,7 @@ export function cargar() {
   const resolver = (o) => {
     if (Array.isArray(o)) return o.forEach(resolver);
     if (!o || typeof o !== 'object') return;
+    if (Array.isArray(o.otrasFuentes)) o.otrasFuentes = o.otrasFuentes.map((id) => (typeof id === 'string' ? fuentes.get(id) || { id, nombre: id, url: '', tipo: 'otra' } : id));
     for (const k of ['fuente', 'kmFuente']) if (typeof o[k] === 'string') o[k] = fuentes.get(o[k]) || { id: o[k], nombre: o[k], url: '', tipo: 'otra' };
     if ('validacion' in o) o.verificado = fechaVerificacion(o);
     if ('coordenadas' in o) {
