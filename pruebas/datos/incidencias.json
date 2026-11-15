@@ -1,0 +1,168 @@
+{
+  "$schema": "./esquemas/incidencias.schema.json",
+  "version": "1.0.0",
+  "nota": "Obras, restricciones y cortes. tramos = ids de data/rutas.json (la incidencia aparece en Avisos, en las fichas de esos tramos y en el planificador); paso = id de data/pasos.json. estado: activa | resuelta. Campos comunes: fuente, publicado, verificado, validacion.",
+  "incidencias": [
+    {
+      "id": "puente-terminacion",
+      "paises": [
+        "BR",
+        "PY"
+      ],
+      "ubicacion": "Porto Murtinho – Carmelo Peralta",
+      "tramo": "Puente de la Bioceánica (río Paraguay)",
+      "tipo": "pendiente",
+      "estado": "activa",
+      "descripcion": "Puente unido físicamente el 16/07/2026. A 22/10/2026 seguían los ajustes estructurales y las terminaciones en ambas márgenes, y el acceso paraguayo de 3,8 km hasta la PY15.",
+      "inicio": null,
+      "finPrevista": "El MOPC prevé puente y acceso en condiciones de operar hacia febrero de 2027 (primer trimestre); sin fecha oficial de habilitación",
+      "impacto": "No habilitado al tránsito: no se puede cruzar por el puente.",
+      "paso": "puente-bioceanica",
+      "fuente": "abc-color-puente-recta-final",
+      "publicado": "2026-10-22",
+      "validacion": "verificado",
+      "tramos": [
+        "puente"
+      ],
+      "actualizado": "2026-11-15",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-15",
+        "alcance": "Ernesto confirmó el 15/11/2026 que el puente sigue en terminaciones y que el acceso paraguayo se prevé para el primer trimestre de 2027 (MOPC)."
+      },
+      "evidencia": "tercero",
+      "otrasFuentes": [
+        "5dias-puente-entrega-febrero-2027"
+      ]
+    },
+    {
+      "id": "py15-lote3",
+      "paises": [
+        "PY"
+      ],
+      "ubicacion": "Mariscal Estigarribia – Pozo Hondo",
+      "tramo": "Ruta PY15, lote 3 (224 km)",
+      "tipo": "obra",
+      "estado": "activa",
+      "descripcion": "Pavimentación en ejecución, con un 40,5 % de avance.",
+      "inicio": null,
+      "finPrevista": "Primer semestre de 2027",
+      "impacto": null,
+      "fuente": "ultima-hora",
+      "publicado": "2026-10-24",
+      "validacion": "por-verificar",
+      "tramos": [
+        "me-ph"
+      ],
+      "actualizado": null,
+      "verificacion": null,
+      "evidencia": "tercero"
+    },
+    {
+      "id": "rn51-sico",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "Salta – Paso de Sico",
+      "tramo": "Ruta Nacional 51",
+      "tipo": "restriccion",
+      "estado": "activa",
+      "descripcion": "Quedan tramos sin pavimentar en la RN51 del lado argentino.",
+      "inicio": null,
+      "finPrevista": null,
+      "impacto": "Calzada sin pavimentar en parte del recorrido hacia Sico.",
+      "paso": "sico",
+      "fuente": "infraestructura-publica-2",
+      "publicado": null,
+      "validacion": "por-verificar",
+      "tramos": [
+        "andes"
+      ],
+      "actualizado": null,
+      "verificacion": null,
+      "evidencia": "tercero"
+    },
+    {
+      "id": "jama-cierres-clima",
+      "paises": [
+        "AR",
+        "CL"
+      ],
+      "ubicacion": "Paso de Jama – ruta CH-27",
+      "tramo": "CH-27 hacia San Pedro de Atacama",
+      "tipo": "corte",
+      "estado": "activa",
+      "descripcion": "Chile ordena cierres preventivos de la CH-27 cuando el clima empeora. El último fue el 30 de octubre de 2026; el 7 de noviembre el paso estaba habilitado.",
+      "inicio": "2026-10-30",
+      "finPrevista": null,
+      "impacto": "El paso puede cerrarse con pocas horas de aviso. Ten prevista la alternativa por Sico.",
+      "paso": "jama",
+      "fuente": "todojujuy",
+      "publicado": "2026-10-30",
+      "validacion": "por-verificar",
+      "tramos": [
+        "andes"
+      ],
+      "actualizado": null,
+      "verificacion": null,
+      "evidencia": "tercero"
+    },
+    {
+      "id": "pozo-hondo-puente-limitado",
+      "paises": [
+        "PY",
+        "AR"
+      ],
+      "ubicacion": "Pozo Hondo – Misión La Paz",
+      "tramo": "Puente sobre el río Pilcomayo",
+      "tipo": "restriccion",
+      "estado": "activa",
+      "descripcion": "El puente actual, de 1995, limita el tránsito y la operatividad del paso, según el MOPC. Se estudia un puente nuevo de 360 m financiado por Paraguay; aún sin fecha de licitación.",
+      "inicio": null,
+      "finPrevista": "Sin fecha: puente nuevo en estudios",
+      "impacto": "Carga pesada no confirmada por este paso.",
+      "paso": "pozo-hondo",
+      "fuente": "mopc-nuevo-puente-pozo-hondo",
+      "publicado": "2026-04-27",
+      "actualizado": "2026-11-15",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-15",
+        "alcance": "Ernesto confirmó el 15/11/2026 la limitación del puente actual y que el nuevo está en estudios sin fecha de licitación (MOPC)."
+      }
+    },
+    {
+      "id": "rn51-badenes-maquinas",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 51, San Antonio de los Cobres – Paso de Sico",
+      "tramo": "RN 51 (Salta)",
+      "tipo": "obra",
+      "estado": "activa",
+      "descripcion": "Vialidad Nacional informa: transitar con precaución, máquinas trabajando en badenes con material.",
+      "inicio": null,
+      "finPrevista": "Sin fecha publicada",
+      "impacto": "Precaución; sin corte informado.",
+      "tramos": [
+        "andes"
+      ],
+      "paso": "sico",
+      "fuente": "ar-seguridad-paso-sico",
+      "publicado": "2026-11-12",
+      "actualizado": "2026-11-15",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-15",
+        "alcance": "Ernesto confirmó el 15/11/2026 el aviso de Vialidad Nacional (12/11/2026, 08:30) publicado en la página oficial del paso."
+      }
+    }
+  ]
+}

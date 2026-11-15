@@ -1,0 +1,764 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/api-v1.schema.json",
+  "title": "Contrato de la exportación api/v1",
+  "description": "Contrato de prueba: si la salida deja de cumplirlo, el cambio es incompatible y requiere api/v2 (docs/ia-dev.md).",
+  "$defs": {
+    "indice": {
+      "type": "object",
+      "required": [
+        "api",
+        "version",
+        "generado",
+        "estado",
+        "versionesDisponibles",
+        "avisos",
+        "reglas",
+        "recursos"
+      ],
+      "properties": {
+        "estado": {
+          "enum": [
+            "estable",
+            "obsoleta"
+          ]
+        },
+        "recursos": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "recurso",
+              "url",
+              "registros"
+            ]
+          }
+        }
+      }
+    },
+    "pasos": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "api",
+            "version",
+            "generado",
+            "recurso",
+            "registros"
+          ],
+          "properties": {
+            "api": {
+              "const": "v1"
+            },
+            "version": {
+              "$ref": "comun.schema.json#/$defs/version"
+            },
+            "recurso": {
+              "const": "pasos"
+            }
+          }
+        },
+        {
+          "properties": {
+            "registros": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "nombre",
+                  "ubicacion",
+                  "estado",
+                  "horarios",
+                  "organismos"
+                ],
+                "properties": {
+                  "estado": {
+                    "allOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "evidencia",
+                          "publicado",
+                          "actualizado",
+                          "validacion",
+                          "verificacion",
+                          "nivel"
+                        ],
+                        "properties": {
+                          "fuente": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "required": [
+                              "id",
+                              "nombre",
+                              "url",
+                              "tipo"
+                            ],
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "nombre": {
+                                "type": "string"
+                              },
+                              "url": {
+                                "type": "string"
+                              },
+                              "tipo": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "evidencia": {
+                            "$ref": "comun.schema.json#/$defs/evidencia"
+                          },
+                          "validacion": {
+                            "$ref": "comun.schema.json#/$defs/validacion"
+                          },
+                          "verificacion": {
+                            "$ref": "comun.schema.json#/$defs/verificacion"
+                          },
+                          "nivel": {
+                            "enum": [
+                              "verificado",
+                              "por-verificar",
+                              "caducado",
+                              "borrador"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "required": [
+                          "valor",
+                          "mostrar"
+                        ],
+                        "properties": {
+                          "mostrar": {
+                            "type": "object",
+                            "required": [
+                              "valor",
+                              "ultimoReportado",
+                              "confirmado",
+                              "nivelMostrado"
+                            ],
+                            "properties": {
+                              "confirmado": {
+                                "type": "boolean"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "horarios": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "evidencia",
+                        "publicado",
+                        "actualizado",
+                        "validacion",
+                        "verificacion",
+                        "nivel"
+                      ],
+                      "properties": {
+                        "fuente": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "required": [
+                            "id",
+                            "nombre",
+                            "url",
+                            "tipo"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "nombre": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            },
+                            "tipo": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "evidencia": {
+                          "$ref": "comun.schema.json#/$defs/evidencia"
+                        },
+                        "validacion": {
+                          "$ref": "comun.schema.json#/$defs/validacion"
+                        },
+                        "verificacion": {
+                          "$ref": "comun.schema.json#/$defs/verificacion"
+                        },
+                        "nivel": {
+                          "enum": [
+                            "verificado",
+                            "por-verificar",
+                            "caducado",
+                            "borrador"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tramos": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "api",
+            "version",
+            "generado",
+            "recurso",
+            "registros"
+          ],
+          "properties": {
+            "api": {
+              "const": "v1"
+            },
+            "version": {
+              "$ref": "comun.schema.json#/$defs/version"
+            },
+            "recurso": {
+              "const": "tramos"
+            }
+          }
+        },
+        {
+          "properties": {
+            "registros": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "desde",
+                  "hasta",
+                  "distancia",
+                  "estimacion",
+                  "estado",
+                  "incidencias"
+                ],
+                "properties": {
+                  "distancia": {
+                    "type": "object",
+                    "required": [
+                      "km",
+                      "evidencia",
+                      "fuente"
+                    ]
+                  },
+                  "estimacion": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "required": [
+                      "km",
+                      "evidencia",
+                      "metodo",
+                      "puntos",
+                      "aviso"
+                    ],
+                    "properties": {
+                      "km": {
+                        "type": "number"
+                      },
+                      "evidencia": {
+                        "const": "estimacion"
+                      }
+                    }
+                  },
+                  "estado": {
+                    "type": "object",
+                    "required": [
+                      "mostrar"
+                    ],
+                    "properties": {
+                      "mostrar": {
+                        "type": "object",
+                        "required": [
+                          "valor",
+                          "ultimoReportado",
+                          "confirmado",
+                          "nivelMostrado"
+                        ],
+                        "properties": {
+                          "confirmado": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "rutas": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "api",
+            "version",
+            "generado",
+            "recurso",
+            "registros"
+          ],
+          "properties": {
+            "api": {
+              "const": "v1"
+            },
+            "version": {
+              "$ref": "comun.schema.json#/$defs/version"
+            },
+            "recurso": {
+              "const": "rutas"
+            }
+          }
+        },
+        {
+          "required": [
+            "nodos"
+          ],
+          "properties": {
+            "registros": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "nodos",
+                  "tramos",
+                  "pasos"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "incidencias": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "api",
+            "version",
+            "generado",
+            "recurso",
+            "registros"
+          ],
+          "properties": {
+            "api": {
+              "const": "v1"
+            },
+            "version": {
+              "$ref": "comun.schema.json#/$defs/version"
+            },
+            "recurso": {
+              "const": "incidencias"
+            }
+          }
+        },
+        {
+          "properties": {
+            "registros": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "evidencia",
+                      "publicado",
+                      "actualizado",
+                      "validacion",
+                      "verificacion",
+                      "nivel"
+                    ],
+                    "properties": {
+                      "fuente": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "required": [
+                          "id",
+                          "nombre",
+                          "url",
+                          "tipo"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "nombre": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "tipo": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "evidencia": {
+                        "$ref": "comun.schema.json#/$defs/evidencia"
+                      },
+                      "validacion": {
+                        "$ref": "comun.schema.json#/$defs/validacion"
+                      },
+                      "verificacion": {
+                        "$ref": "comun.schema.json#/$defs/verificacion"
+                      },
+                      "nivel": {
+                        "enum": [
+                          "verificado",
+                          "por-verificar",
+                          "caducado",
+                          "borrador"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "id",
+                      "tipo",
+                      "estado",
+                      "descripcion"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "calendario": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "api",
+            "version",
+            "generado",
+            "recurso",
+            "registros"
+          ],
+          "properties": {
+            "api": {
+              "const": "v1"
+            },
+            "version": {
+              "$ref": "comun.schema.json#/$defs/version"
+            },
+            "recurso": {
+              "const": "calendario"
+            }
+          }
+        },
+        {
+          "properties": {
+            "registros": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "festivos",
+                  "horariosPorPaso",
+                  "regla"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "empresas": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "api",
+            "version",
+            "generado",
+            "recurso",
+            "registros"
+          ],
+          "properties": {
+            "api": {
+              "const": "v1"
+            },
+            "version": {
+              "$ref": "comun.schema.json#/$defs/version"
+            },
+            "recurso": {
+              "const": "empresas"
+            }
+          }
+        },
+        {
+          "properties": {
+            "registros": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "evidencia",
+                      "publicado",
+                      "actualizado",
+                      "validacion",
+                      "verificacion",
+                      "nivel"
+                    ],
+                    "properties": {
+                      "fuente": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "required": [
+                          "id",
+                          "nombre",
+                          "url",
+                          "tipo"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "nombre": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "tipo": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "evidencia": {
+                        "$ref": "comun.schema.json#/$defs/evidencia"
+                      },
+                      "validacion": {
+                        "$ref": "comun.schema.json#/$defs/validacion"
+                      },
+                      "verificacion": {
+                        "$ref": "comun.schema.json#/$defs/verificacion"
+                      },
+                      "nivel": {
+                        "enum": [
+                          "verificado",
+                          "por-verificar",
+                          "caducado",
+                          "borrador"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "id",
+                      "nombre",
+                      "sede",
+                      "cobertura"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "fuentes": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "api",
+            "version",
+            "generado",
+            "recurso",
+            "registros"
+          ],
+          "properties": {
+            "api": {
+              "const": "v1"
+            },
+            "version": {
+              "$ref": "comun.schema.json#/$defs/version"
+            },
+            "recurso": {
+              "const": "fuentes"
+            }
+          }
+        },
+        {
+          "properties": {
+            "registros": {
+              "type": "array",
+              "items": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "required": [
+                  "id",
+                  "nombre",
+                  "url",
+                  "tipo"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "nombre": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "tipo": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "organismos": {
+      "allOf": [
+        {
+          "type": "object",
+          "required": [
+            "api",
+            "version",
+            "generado",
+            "recurso",
+            "registros"
+          ],
+          "properties": {
+            "api": {
+              "const": "v1"
+            },
+            "version": {
+              "$ref": "comun.schema.json#/$defs/version"
+            },
+            "recurso": {
+              "const": "organismos"
+            }
+          }
+        },
+        {
+          "properties": {
+            "registros": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "evidencia",
+                      "publicado",
+                      "actualizado",
+                      "validacion",
+                      "verificacion",
+                      "nivel"
+                    ],
+                    "properties": {
+                      "fuente": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "required": [
+                          "id",
+                          "nombre",
+                          "url",
+                          "tipo"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "nombre": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "tipo": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "evidencia": {
+                        "$ref": "comun.schema.json#/$defs/evidencia"
+                      },
+                      "validacion": {
+                        "$ref": "comun.schema.json#/$defs/validacion"
+                      },
+                      "verificacion": {
+                        "$ref": "comun.schema.json#/$defs/verificacion"
+                      },
+                      "nivel": {
+                        "enum": [
+                          "verificado",
+                          "por-verificar",
+                          "caducado",
+                          "borrador"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "required": [
+                      "id",
+                      "pais",
+                      "url"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

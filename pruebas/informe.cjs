@@ -1,10 +1,9 @@
-// Uso: node scripts/serve.mjs (tras el build con BASE_PATH=/) y, con Playwright instalado, node pruebas/informe-hu45.cjs. Pasa a CI en P1.12 (#50).
+// Prueba de navegador. Se ejecuta con: npm run pruebas (ver pruebas/LEEME.md).
 // Pruebas de aceptación HU-45 (7 escenarios)
-const { chromium } = require('playwright');
-const B = 'http://localhost:4321';
+const { B, captura, lanzar, fin } = require('./comun.cjs');
 const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
 (async () => {
-  const b = await chromium.launch();
+  const b = await lanzar();
   const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, permissions: ['clipboard-read', 'clipboard-write'] });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   // E1: generar desde el planificador
@@ -40,7 +39,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   // E6: PDF
   await p.emulateMedia({ media: 'print' });
   ok(!(await p.isVisible('.informe-acciones')) && !(await p.isVisible('.cabecera')), 'E6 menús visibles al imprimir');
-  await p.pdf({ path: '/tmp/shots/informe.pdf', format: 'A4' });
+  await p.pdf({ path: captura('informe.pdf'), format: 'A4' });
   await p.emulateMedia({ media: 'screen' });
   // E7: móvil 360, claro y oscuro, sin desbordes; teclado
   for (const tema of ['claro', 'oscuro']) {
@@ -48,13 +47,13 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
     await m.addInitScript((t) => { try { localStorage.setItem('tema', t); } catch {} }, tema);
     await m.goto(enlace);
     ok(!(await m.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'E7 desborde en móvil ' + tema);
-    await m.screenshot({ path: `/tmp/shots/inf-movil-${tema}.png`, fullPage: true });
+    await m.screenshot({ path: captura(`inf-movil-${tema}.png`), fullPage: true });
     await m.close();
   }
   await p.keyboard.press('Tab');
   ok(await p.evaluate(() => !!document.activeElement && document.activeElement !== document.body), 'E7 sin foco por teclado');
   ok(errs.length === 0, 'errores JS: ' + errs.join(' | '));
-  await p.screenshot({ path: '/tmp/shots/inf-escritorio.png', fullPage: true });
-  console.log(fallos.length ? 'FALLOS:\n' + fallos.join('\n') : 'HU-45: 7 escenarios sin fallos');
+  await p.screenshot({ path: captura('inf-escritorio.png'), fullPage: true });
+  fin('Informe de viaje (HU-45)', fallos);
   await b.close();
 })();

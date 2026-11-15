@@ -1,0 +1,808 @@
+{
+  "$schema": "./esquemas/pasos.schema.json",
+  "version": "1.0.0",
+  "nota": "Ficha operativa de cada paso. Cada dato lleva fuente (nombre, url, tipo), publicado, verificado y validacion. Solo lo verificado se muestra como confirmado. horariosEspeciales: [{desde, hasta, organismo, lado, texto, fuente, publicado, verificado, validacion}].",
+  "pasos": [
+    {
+      "id": "puente-bioceanica",
+      "nombre": "Puente de la Bioceánica",
+      "lados": {
+        "BR": "Porto Murtinho",
+        "PY": "Carmelo Peralta"
+      },
+      "ubicacion": {
+        "texto": "Sobre el río Paraguay, entre Porto Murtinho (Mato Grosso do Sul) y Carmelo Peralta (Alto Paraguay).",
+        "coordenadas": null,
+        "coordenadasNota": "Sin coordenadas con fuente; el mapa dibuja el paso entre sus dos localidades."
+      },
+      "estado": {
+        "valor": "en-obras",
+        "texto": "No habilitado al tránsito. El puente está unido desde el 16/07/2026 y sigue en terminaciones en ambas márgenes; el MOPC prevé puente y acceso listos para operar hacia febrero de 2027. Sin fecha oficial de habilitación.",
+        "fuente": "abc-color-puente-recta-final",
+        "publicado": "2026-10-22",
+        "validacion": "verificado",
+        "actualizado": "2026-11-15",
+        "verificacion": {
+          "verificadoPor": "responsable-editorial",
+          "rol": "responsable-editorial",
+          "fecha": "2026-11-15",
+          "alcance": "Ernesto confirmó el 15/11/2026 que el puente sigue en obras y no está habilitado al tránsito, según ABC Color, la web del MOPC y prensa paraguaya (sin noticias de habilitación)."
+        },
+        "evidencia": "tercero",
+        "otrasFuentes": [
+          "5dias-puente-entrega-febrero-2027"
+        ]
+      },
+      "horarios": [],
+      "operaciones": null,
+      "restricciones": [],
+      "organismos": [
+        "br-receita",
+        "py-dnit",
+        "py-senave"
+      ],
+      "acceso": [
+        {
+          "texto": "Del lado paraguayo conecta con la Ruta PY15 por el Chaco.",
+          "fuente": "mopc",
+          "publicado": null,
+          "validacion": "por-verificar",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "oficial"
+        }
+      ],
+      "servicios": [],
+      "contactos": [],
+      "revisado": "2026-11-15",
+      "horariosEspeciales": [],
+      "historial": [
+        {
+          "fecha": "2026-07-16",
+          "valor": "en-obras",
+          "texto": "Se unen los dos extremos del puente sobre el río Paraguay. Sigue sin habilitar.",
+          "fuente": "abc-color-puente-union",
+          "publicado": "2026-07-16",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-22",
+          "valor": "en-obras",
+          "texto": "Terminaciones y ajustes estructurales en ambas márgenes; acceso paraguayo en obras.",
+          "fuente": "abc-color-puente-recta-final",
+          "publicado": "2026-10-22",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "controles": []
+    },
+    {
+      "id": "pozo-hondo",
+      "nombre": "Pozo Hondo – Misión La Paz",
+      "lados": {
+        "PY": "Pozo Hondo",
+        "AR": "Misión La Paz"
+      },
+      "ubicacion": {
+        "texto": "Sobre el río Pilcomayo, entre Pozo Hondo (Boquerón) y Misión La Paz (Salta).",
+        "coordenadas": null,
+        "coordenadasNota": "Sin coordenadas propias del paso; el mapa usa la localidad de Pozo Hondo."
+      },
+      "estado": {
+        "valor": "restricciones",
+        "texto": "Habilitado para personas y vehículos de 7 a 20 h según el parte de Defensa Civil de Salta. El puente actual, de 1995, limita el tránsito: el paso de carga pesada no está confirmado. Hay un puente nuevo en estudio, sin fecha de licitación.",
+        "fuente": "saltazoom-pasos-30-09-2026",
+        "publicado": "2026-09-30",
+        "validacion": "verificado",
+        "actualizado": "2026-11-15",
+        "verificacion": {
+          "verificadoPor": "responsable-editorial",
+          "rol": "responsable-editorial",
+          "fecha": "2026-11-15",
+          "alcance": "Ernesto confirmó el 15/11/2026: paso abierto a personas y vehículos (7–20 h, Defensa Civil de Salta), puente de 1995 limitante y carga pesada sin confirmar."
+        },
+        "evidencia": "tercero"
+      },
+      "horarios": [
+        {
+          "lado": "AR",
+          "texto": "8 a 20 h (oficina de Migraciones)",
+          "fuente": "migraciones-argentina",
+          "publicado": "2025-12-10",
+          "validacion": "por-verificar",
+          "organismo": "migraciones",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "oficial"
+        },
+        {
+          "lado": "PY",
+          "organismo": "migraciones",
+          "texto": "Lunes a domingo; el listado oficial muestra 7 a 20 h y, en otra línea, 7 a 19 h (por confirmar)",
+          "fuente": "migraciones-paraguay-puestos",
+          "evidencia": "oficial",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "lado": "AR",
+          "organismo": "complejo",
+          "texto": "7 a 20 h, vehículos y peatones (parte de Defensa Civil de Salta del 30/09/2026)",
+          "fuente": "saltazoom-pasos-30-09-2026",
+          "evidencia": "tercero",
+          "publicado": "2026-09-30",
+          "actualizado": "2026-11-15",
+          "validacion": "por-verificar",
+          "verificacion": null,
+          "apertura": "07:00",
+          "cierre": "20:00",
+          "zona": "America/Argentina/Salta"
+        }
+      ],
+      "operaciones": null,
+      "restricciones": [],
+      "organismos": [
+        "py-dnit",
+        "ar-arca",
+        "ar-migraciones",
+        "ar-senasa"
+      ],
+      "acceso": [
+        {
+          "texto": "Del lado paraguayo, la PY15 entre Mariscal Estigarribia y Pozo Hondo está en obras (Lote 3).",
+          "fuente": "ultima-hora",
+          "publicado": null,
+          "validacion": "por-verificar",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "tercero"
+        }
+      ],
+      "servicios": [],
+      "contactos": [
+        {
+          "lado": "AR",
+          "nombre": "Ministerio de Seguridad de Argentina",
+          "texto": "Contacto publicado por el Ministerio de Seguridad en la página del paso, sin indicar de qué organismo es.",
+          "telefono": "+543873460389",
+          "fuente": "ar-seguridad-paso-mision-la-paz",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +543873460389 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página."
+          }
+        }
+      ],
+      "revisado": "2026-11-15",
+      "horariosEspeciales": [],
+      "historial": [
+        {
+          "fecha": "2026-04-27",
+          "valor": null,
+          "texto": "El MOPC anuncia un puente nuevo de 360 m para sustituir al de 1995, que limita el tránsito. En estudios, sin fecha de licitación.",
+          "fuente": "mopc-nuevo-puente-pozo-hondo",
+          "publicado": "2026-04-27",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-30",
+          "valor": "operativo",
+          "texto": "Habilitado de 7 a 20 h para vehículos y peatones (parte de Defensa Civil de Salta).",
+          "fuente": "saltazoom-pasos-30-09-2026",
+          "publicado": "2026-09-30",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "controles": [
+        {
+          "orden": 1,
+          "tipo": "migraciones",
+          "lado": "AR",
+          "texto": "Gendarmería Nacional hace el control migratorio, por funciones delegadas.",
+          "fuente": "salta-relaciones-internacionales-mision-la-paz",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 2,
+          "tipo": "aduana",
+          "lado": "AR",
+          "organismo": "ar-arca",
+          "texto": "Dirección General de Aduanas: todas las operatorias habilitadas.",
+          "fuente": "salta-relaciones-internacionales-mision-la-paz",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 3,
+          "tipo": "sanitario",
+          "lado": "AR",
+          "texto": "Control fito y zoosanitario a cargo de Gendarmería Nacional, por funciones delegadas.",
+          "fuente": "salta-relaciones-internacionales-mision-la-paz",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 4,
+          "tipo": "aviso",
+          "lado": "PY",
+          "texto": "Lado paraguayo: sin detalle de controles publicado. El puente actual limita el tránsito de carga.",
+          "fuente": "mopc-nuevo-puente-pozo-hondo",
+          "publicado": "2026-04-27",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ]
+    },
+    {
+      "id": "jama",
+      "nombre": "Paso de Jama",
+      "lados": {
+        "AR": "Jama (Jujuy)",
+        "CL": "San Pedro de Atacama"
+      },
+      "ubicacion": {
+        "texto": "Cordillera de los Andes, a unos 4.200 m de altitud. RN52 (Argentina) y CH-27 (Chile).",
+        "coordenadas": {
+          "lat": -23.2375,
+          "lon": -67.07639,
+          "fuente": "wikipedia-en-paso-de-jama",
+          "evidencia": "tercero",
+          "precision": "paso",
+          "consultado": "2026-11-14",
+          "nota": "Límite internacional. El complejo argentino está unos 5 km al este."
+        }
+      },
+      "estado": {
+        "valor": "operativo",
+        "texto": "Habilitado en ambos sentidos para todo tránsito, de 8 a 20 h (hora de Argentina y Chile). RN 52 transitable; la CH-27 chilena, con precaución. Cierres por nieve o viento frecuentes en invierno.",
+        "fuente": "el-tribuno-jujuy-jama-15-11-2026",
+        "publicado": "2026-11-15",
+        "validacion": "verificado",
+        "actualizado": "2026-11-15",
+        "verificacion": {
+          "verificadoPor": "responsable-editorial",
+          "rol": "responsable-editorial",
+          "fecha": "2026-11-15",
+          "alcance": "Ernesto confirmó el 15/11/2026, tras revisar El Tribuno de Jujuy, que Jama está habilitado en ambos sentidos para todo tránsito de 8 a 20 h, con la CH-27 transitable con precaución."
+        },
+        "evidencia": "tercero",
+        "otrasFuentes": [
+          "upf-chile-canal"
+        ]
+      },
+      "horarios": [
+        {
+          "lado": "AR y CL",
+          "texto": "8 a 20 h, según el parte del 7 de noviembre de 2026",
+          "fuente": "todojujuy-parte-de-migraciones",
+          "publicado": "2026-11-07",
+          "validacion": "por-verificar",
+          "organismo": "complejo",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "tercero",
+          "apertura": "08:00",
+          "cierre": "20:00",
+          "zona": "America/Argentina/Jujuy"
+        },
+        {
+          "lado": "AR",
+          "texto": "Migraciones publica 8 a 18 h en su listado oficial (página de diciembre de 2025)",
+          "fuente": "migraciones-argentina",
+          "publicado": "2025-12-10",
+          "validacion": "por-verificar",
+          "organismo": "migraciones",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "oficial"
+        }
+      ],
+      "operaciones": null,
+      "restricciones": [
+        {
+          "texto": "En temporada invernal se exige llevar cadenas en los pasos cordilleranos, aunque la calzada esté despejada.",
+          "fuente": "comision-nacional-de-fronteras",
+          "publicado": "2026-04-27",
+          "validacion": "por-verificar",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "oficial"
+        },
+        {
+          "texto": "Cierres preventivos por clima, decididos por Chile en la ruta CH-27 (el último registrado, el 30 de octubre de 2026).",
+          "fuente": "todojujuy",
+          "publicado": "2026-10-30",
+          "validacion": "por-verificar",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "tercero"
+        }
+      ],
+      "organismos": [
+        "ar-arca",
+        "ar-migraciones",
+        "ar-senasa",
+        "cl-aduanas",
+        "cl-sag"
+      ],
+      "acceso": [
+        {
+          "texto": "RN52 por Purmamarca y Susques (Argentina); CH-27 hacia San Pedro de Atacama (Chile).",
+          "fuente": "todojujuy-2",
+          "publicado": null,
+          "validacion": "por-verificar",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "tercero"
+        }
+      ],
+      "servicios": [],
+      "contactos": [
+        {
+          "lado": "AR",
+          "nombre": "Ministerio de Seguridad de Argentina",
+          "texto": "Contacto publicado junto al aviso de Vialidad Nacional sobre la RN 52 (Susques – límite con Chile); no es el teléfono del complejo fronterizo.",
+          "telefono": "+543884253630",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +543884253630 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página."
+          }
+        },
+        {
+          "lado": "CL",
+          "nombre": "Unidad de Pasos Fronterizos de Chile",
+          "texto": "Desde Chile, 101; desde el extranjero, este número",
+          "telefono": "+56229654000",
+          "fuente": "upf-chile-complejo-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +56229654000 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página."
+          }
+        }
+      ],
+      "revisado": "2026-11-15",
+      "horariosEspeciales": [],
+      "historial": [
+        {
+          "fecha": "2026-09-20",
+          "valor": "cerrado",
+          "texto": "No habilitado: la CH-27 queda cortada por acumulación de nieve.",
+          "fuente": "24horas-pasos-el-loa-20-09-2026",
+          "publicado": "2026-09-20",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-11-07",
+          "valor": "operativo",
+          "texto": "Habilitado para todo tipo de vehículos, de 8 a 20 h, con precaución por clima.",
+          "fuente": "todojujuy-parte-de-migraciones",
+          "publicado": "2026-11-07",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "controles": [
+        {
+          "orden": 1,
+          "tipo": "integrado",
+          "lado": "AR y CL",
+          "texto": "Complejo integrado de cabecera única, en territorio argentino: los organismos de los dos países atienden uno al lado del otro.",
+          "fuente": "aduana-chile-complejo-integrado-jama",
+          "publicado": "2013-09-11",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 2,
+          "tipo": "migraciones",
+          "lado": "AR",
+          "organismo": "ar-migraciones",
+          "texto": "Control migratorio del chofer y acompañantes (Dirección Nacional de Migraciones).",
+          "fuente": "mininterior-paso-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 3,
+          "tipo": "aduana",
+          "lado": "AR",
+          "organismo": "ar-arca",
+          "texto": "Aduana argentina: manifiesto MIC/DTA y carta de porte CRT.",
+          "fuente": "mininterior-paso-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 4,
+          "tipo": "sanitario",
+          "lado": "AR",
+          "texto": "Control fito y zoosanitario a cargo de Gendarmería Nacional, por funciones delegadas.",
+          "fuente": "mininterior-paso-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 5,
+          "tipo": "aduana",
+          "lado": "CL",
+          "organismo": "cl-aduanas",
+          "texto": "Aduana de Chile en el mismo complejo.",
+          "fuente": "aduana-chile-complejo-integrado-jama",
+          "publicado": "2013-09-11",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 6,
+          "tipo": "sanitario",
+          "lado": "CL",
+          "organismo": "cl-sag",
+          "texto": "SAG: control agrícola y ganadero de ingreso a Chile.",
+          "fuente": "aduana-chile-complejo-integrado-jama",
+          "publicado": "2013-09-11",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "partes": [
+        {
+          "lado": "AR",
+          "emisor": "Seguridad Vial de Jujuy y Migraciones (vía El Tribuno de Jujuy)",
+          "valor": "operativo",
+          "texto": "Habilitado en ambos sentidos para todo tránsito, de 8 a 20 h (hora de Argentina y Chile). RN 52 transitable; la CH-27 chilena, con precaución. Cierres por nieve o viento frecuentes en invierno.",
+          "fuente": "el-tribuno-jujuy-jama-15-11-2026",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026, tras revisar El Tribuno de Jujuy, que Jama está habilitado en ambos sentidos para todo tránsito de 8 a 20 h, con la CH-27 transitable con precaución."
+          }
+        }
+      ]
+    },
+    {
+      "id": "sico",
+      "nombre": "Paso de Sico",
+      "lados": {
+        "AR": "Sico (Salta)",
+        "CL": "Región de Antofagasta"
+      },
+      "ubicacion": {
+        "texto": "Cordillera de los Andes. RN51 desde Salta (Argentina) y CH-23 (Chile).",
+        "coordenadas": {
+          "lat": -23.833,
+          "lon": -67.25,
+          "fuente": "wikipedia-en-sico-pass",
+          "evidencia": "tercero",
+          "precision": "paso",
+          "consultado": "2026-11-14",
+          "nota": "Límite internacional."
+        }
+      },
+      "estado": {
+        "valor": "operativo",
+        "texto": "Habilitado con horario: el 15/11/2026 Gendarmería lo daba «Cerrado» fuera de horario e indicaba que abre a las 05:00 (hora de Argentina). RN 51 con precaución por máquinas en badenes (Vialidad Nacional, 12/11/2026).",
+        "fuente": "ar-seguridad-paso-sico",
+        "publicado": "2026-11-15",
+        "validacion": "verificado",
+        "actualizado": "2026-11-15",
+        "verificacion": {
+          "verificadoPor": "responsable-editorial",
+          "rol": "responsable-editorial",
+          "fecha": "2026-11-15",
+          "alcance": "Ernesto confirmó el 15/11/2026, tras ver la página del Ministerio de Seguridad (parte de Gendarmería del 15/11 a las 09:50), que Sico está habilitado: figura «Cerrado» solo por estar fuera de horario y abre a las 05:00."
+        },
+        "evidencia": "oficial",
+        "otrasFuentes": [
+          "upf-chile-canal"
+        ]
+      },
+      "horarios": [
+        {
+          "lado": "AR y CL",
+          "organismo": "complejo",
+          "texto": "Abre a las 05:00 (hora de Argentina), según el parte de Gendarmería del 15/11/2026. Hora de cierre sin publicar en la fuente oficial.",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que la página oficial indica apertura a las 05:00 y no publica hora de cierre; se retira el horario anterior de 9 a 19 h."
+          }
+        },
+        {
+          "lado": "AR",
+          "texto": "8 a 20 h (oficina de Migraciones)",
+          "fuente": "migraciones-argentina",
+          "publicado": "2025-12-10",
+          "validacion": "por-verificar",
+          "organismo": "migraciones",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "oficial"
+        }
+      ],
+      "operaciones": null,
+      "restricciones": [
+        {
+          "texto": "Quedan tramos sin pavimentar en la RN51 del lado argentino.",
+          "fuente": "infraestructura-publica-2",
+          "publicado": "2026-11-14",
+          "validacion": "por-verificar",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "tercero"
+        },
+        {
+          "texto": "En temporada invernal se exige llevar cadenas en los pasos cordilleranos.",
+          "fuente": "comision-nacional-de-fronteras",
+          "publicado": "2026-04-27",
+          "validacion": "por-verificar",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "oficial"
+        }
+      ],
+      "organismos": [
+        "ar-arca",
+        "ar-migraciones",
+        "ar-senasa",
+        "cl-aduanas",
+        "cl-sag"
+      ],
+      "acceso": [
+        {
+          "texto": "RN51 desde Salta por San Antonio de los Cobres.",
+          "fuente": "infraestructura-publica-2",
+          "publicado": null,
+          "validacion": "por-verificar",
+          "actualizado": null,
+          "verificacion": null,
+          "evidencia": "tercero"
+        }
+      ],
+      "servicios": [],
+      "contactos": [
+        {
+          "lado": "AR",
+          "nombre": "Ministerio de Seguridad de Argentina",
+          "texto": "Contacto publicado junto al aviso de Vialidad Nacional sobre la RN 51; no es el teléfono del complejo fronterizo.",
+          "telefono": "+543874909040",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +543874909040 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página."
+          }
+        },
+        {
+          "lado": "CL",
+          "nombre": "Unidad de Pasos Fronterizos de Chile",
+          "texto": "Desde Chile, 101; desde el extranjero, este número",
+          "telefono": "+56229654000",
+          "fuente": "upf-chile-complejo-jama",
+          "publicado": null,
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 que el número +56229654000 coincide con el publicado en la fuente oficial y que la etiqueta refleja lo que dice esa página. Es la línea general de la Unidad de Pasos Fronterizos de Chile, común a todos los pasos; se cita la página de Jama."
+          }
+        }
+      ],
+      "revisado": "2026-11-15",
+      "horariosEspeciales": [],
+      "historial": [
+        {
+          "fecha": "2026-07-11",
+          "valor": "operativo",
+          "texto": "Reabierto para cargas y particulares, todos los días de 9 a 19 h (Ministerio de Seguridad Nacional de Argentina).",
+          "fuente": "portalportuario-reapertura-sico",
+          "publicado": "2026-07-14",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-20",
+          "valor": "cerrado",
+          "texto": "No habilitado: la CH-23 queda cortada por acumulación de nieve.",
+          "fuente": "24horas-pasos-el-loa-20-09-2026",
+          "publicado": "2026-09-20",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-11-15",
+          "valor": "operativo",
+          "texto": "Gendarmería: habilitado con horario; fuera de horario figura cerrado y abre a las 05:00.",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Confirmado por Ernesto el 15/11/2026 con la página del Ministerio de Seguridad."
+          }
+        }
+      ],
+      "controles": [
+        {
+          "orden": 1,
+          "tipo": "integrado",
+          "lado": "AR y CL",
+          "texto": "Control integrado del Paso de Sico, con atención presencial de los organismos de frontera de Chile.",
+          "fuente": "salta-news-sico-control-integrado",
+          "publicado": "2026-06-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 2,
+          "tipo": "migraciones",
+          "lado": "AR",
+          "organismo": "ar-migraciones",
+          "texto": "Control migratorio del chofer.",
+          "fuente": "salta-news-sico-control-integrado",
+          "publicado": "2026-06-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 3,
+          "tipo": "aduana",
+          "lado": "AR y CL",
+          "texto": "Aduanas de los dos países: MIC/DTA y CRT.",
+          "fuente": "salta-news-sico-control-integrado",
+          "publicado": "2026-06-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "orden": 4,
+          "tipo": "sanitario",
+          "lado": "CL",
+          "organismo": "cl-sag",
+          "texto": "SAG: control agrícola y ganadero de ingreso a Chile.",
+          "fuente": "salta-news-sico-control-integrado",
+          "publicado": "2026-06-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        }
+      ],
+      "partes": [
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Habilitado con horario. Figuraba «Cerrado» por estar fuera de horario; abre a las 05:00.",
+          "hora": "09:50",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 el parte de Gendarmería (09:50) en la página del Ministerio de Seguridad."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "RN 51, San Antonio de los Cobres – Paso de Sico: transitar con precaución, máquinas trabajando en badenes con material.",
+          "hora": "08:30",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-12",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 el aviso de Vialidad Nacional (12/11, 08:30) en la página del Ministerio de Seguridad."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,9 @@
+// Prueba de navegador. Se ejecuta con: npm run pruebas (ver pruebas/LEEME.md).
 // Pruebas HU-65 a HU-68
-const { chromium } = require('playwright');
-const B = 'http://localhost:4321'; const f = []; const ok = (c, m) => c || f.push(m);
+const { B, captura, lanzar, fin } = require('./comun.cjs');
+const f = []; const ok = (c, m) => c || f.push(m);
 (async () => {
-  const b = await chromium.launch();
+  const b = await lanzar();
   for (const [tema, sch] of [['claro', 'light'], ['oscuro', 'dark']]) {
     const p = await b.newPage({ viewport: { width: 360, height: 780 }, deviceScaleFactor: 2, colorScheme: sch });
     const errs = []; p.on('pageerror', (e) => errs.push(e.message));
@@ -17,7 +18,7 @@ const B = 'http://localhost:4321'; const f = []; const ok = (c, m) => c || f.pus
     ok((await p.$$('.controles li')).length === 6, 'HU-67 controles Jama');
     ok((await p.getAttribute('.btn-llamar', 'href')) === 'tel:+543884253630', 'HU-68 tel Jama');
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'desborde ' + tema);
-    await p.screenshot({ path: `/tmp/shots/jama-plus-${tema}.png`, fullPage: true });
+    await p.screenshot({ path: captura(`jama-plus-${tema}.png`), fullPage: true });
     await p.goto(B + '/guia/pasos/carmelo-peralta-porto-murtinho/');
     ok((await p.textContent('.ahora-estado')).includes('No habilitado'), 'HU-66 puente no habilitado');
     ok((await p.textContent('.ficha-operativa')).includes('Sin teléfono con fuente'), 'HU-68 sin teléfono puente');
@@ -26,6 +27,6 @@ const B = 'http://localhost:4321'; const f = []; const ok = (c, m) => c || f.pus
     ok(errs.length === 0, 'errores JS ' + errs);
     await p.close();
   }
-  console.log(f.length ? 'FALLOS:\n' + f.join('\n') : 'HU-65..68 sin fallos');
+  fin('Fichas de paso (HU-65 a HU-68)', f);
   await b.close();
 })();

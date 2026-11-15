@@ -57,9 +57,35 @@ jobs:
         with:
           path: dist
 
+  # Pruebas de navegador (pruebas/LEEME.md): abren la web en Chromium a tamaño móvil, en tema claro y
+  # oscuro, con datos y reloj fijos. Si alguna falla, no se publica.
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - name: Instalar Playwright y Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Ejecutar pruebas de navegador
+        run: npm run pruebas
+        env:
+          SALIDA: ${{ runner.temp }}/capturas
+      - name: Guardar capturas si algo falla
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capturas-pruebas
+          path: ${{ runner.temp }}/capturas
+          retention-days: 7
+
   publicar:
     if: github.ref == 'refs/heads/main' && vars.PUBLICAR != 'false'
-    needs: construir
+    needs: [construir, pruebas]
     runs-on: ubuntu-latest
     concurrency:
       group: pages

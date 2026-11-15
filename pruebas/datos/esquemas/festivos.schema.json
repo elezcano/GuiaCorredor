@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/festivos.schema.json",
+  "title": "Calendario de festivos",
+  "type": "object",
+  "required": [
+    "version",
+    "desde",
+    "hasta",
+    "festivos"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "actualizado": {
+      "$ref": "comun.schema.json#/$defs/fecha"
+    },
+    "desde": {
+      "$ref": "comun.schema.json#/$defs/fecha"
+    },
+    "hasta": {
+      "$ref": "comun.schema.json#/$defs/fecha"
+    },
+    "pendiente": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "festivos": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "comun.schema.json#/$defs/registroConFuente"
+          },
+          {
+            "type": "object",
+            "required": [
+              "pais",
+              "fecha",
+              "nombre",
+              "tipo",
+              "organismo"
+            ],
+            "properties": {
+              "pais": {
+                "$ref": "comun.schema.json#/$defs/pais"
+              },
+              "fecha": {
+                "$ref": "comun.schema.json#/$defs/fecha"
+              },
+              "nombre": {
+                "type": "string"
+              },
+              "tipo": {
+                "enum": [
+                  "feriado",
+                  "no-laborable",
+                  "facultativo"
+                ]
+              },
+              "organismo": {
+                "enum": [
+                  "general",
+                  "aduana",
+                  "migraciones",
+                  "sanitario",
+                  "complejo"
+                ]
+              },
+              "nota": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

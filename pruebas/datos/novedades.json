@@ -1,0 +1,85 @@
+{
+  "$schema": "./esquemas/novedades.schema.json",
+  "version": "1.0.0",
+  "novedades": [
+    {
+      "publicado": "2026-11-05",
+      "tema": "Acuerdos",
+      "titulo": "Chile y Brasil se reúnen para acelerar la puesta en marcha del corredor",
+      "detalle": "Reunión de ministros centrada en el comercio con Asia-Pacífico. Paso de Jama como una de las principales puertas de entrada a Chile.",
+      "guia": "pasos/jama",
+      "paises": [
+        "CL",
+        "BR"
+      ],
+      "fuente": "emol",
+      "validacion": "por-verificar",
+      "actualizado": null,
+      "verificacion": null,
+      "evidencia": "tercero"
+    },
+    {
+      "publicado": "2026-10-24",
+      "tema": "Obras",
+      "titulo": "PY15: el Lote 3 (Mariscal Estigarribia – Pozo Hondo) llega al 40,5 % de avance",
+      "detalle": "Tramo estratégico de la ruta en el Chaco paraguayo.",
+      "guia": "tramos/py15-chaco",
+      "paises": [
+        "PY"
+      ],
+      "fuente": "ultima-hora",
+      "validacion": "por-verificar",
+      "actualizado": null,
+      "verificacion": null,
+      "evidencia": "tercero"
+    },
+    {
+      "publicado": "2026-10-14",
+      "tema": "Obras",
+      "titulo": "Puente de la Bioceánica: trabajos de terminación en ambas márgenes",
+      "detalle": "Siguen los ajustes estructurales y las terminaciones. Su utilidad dependerá también de las conexiones viales.",
+      "guia": "pasos/carmelo-peralta-porto-murtinho",
+      "paises": [
+        "PY",
+        "BR"
+      ],
+      "fuente": "revista-plus",
+      "validacion": "por-verificar",
+      "actualizado": null,
+      "verificacion": null,
+      "evidencia": "tercero"
+    },
+    {
+      "publicado": "2026-07-15",
+      "tema": "Obras",
+      "titulo": "Se unen las dos mitades del puente Carmelo Peralta – Porto Murtinho",
+      "detalle": "No supone todavía la habilitación del paso: faltan pavimentación, terminaciones y accesos (previstos para febrero de 2027).",
+      "guia": "pasos/carmelo-peralta-porto-murtinho",
+      "paises": [
+        "PY",
+        "BR"
+      ],
+      "fuente": "mopc-2",
+      "validacion": "por-verificar",
+      "actualizado": null,
+      "verificacion": null,
+      "evidencia": "oficial"
+    },
+    {
+      "publicado": "2026-06-14",
+      "tema": "Paso fronterizo",
+      "titulo": "El Paso de Sico recupera su operatividad plena",
+      "detalle": "Vuelve la atención presencial de Aduana, PDI y servicio fitosanitario chilenos. Jama, en cambio, funciona de forma intermitente por el clima.",
+      "guia": "pasos/sico",
+      "paises": [
+        "AR",
+        "CL"
+      ],
+      "fuente": "infraestructura-publica",
+      "validacion": "por-verificar",
+      "actualizado": null,
+      "verificacion": null,
+      "evidencia": "tercero"
+    }
+  ]
+}

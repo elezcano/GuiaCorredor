@@ -45,7 +45,7 @@ const empresasEn = (ids = []) => empresas.filter((e) => (e.puntos || []).some((p
 const novedades = D.novedades.sort((a, b) => b.publicado.localeCompare(a.publicado));
 
 // ---------- datos operativos ----------
-const HOY = new Date().toISOString().slice(0, 10);
+const HOY = process.env.FECHA_HOY || new Date().toISOString().slice(0, 10);
 const diasDesde = (iso) => (iso ? Math.floor((Date.parse(HOY) - Date.parse(iso)) / 864e5) : Infinity);
 const fichaPasos = D.pasos;
 const fichaPaso = Object.fromEntries(fichaPasos.map((p) => [p.id, p]));

@@ -1,0 +1,409 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/pasos.schema.json",
+  "title": "Fichas operativas de pasos fronterizos",
+  "type": "object",
+  "required": [
+    "version",
+    "pasos"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "comun.schema.json#/$defs/version"
+    },
+    "nota": {
+      "type": "string"
+    },
+    "pasos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "nombre",
+          "lados",
+          "ubicacion",
+          "estado",
+          "horarios",
+          "organismos",
+          "revisado"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "comun.schema.json#/$defs/id"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "lados": {
+            "type": "object",
+            "propertyNames": {
+              "$ref": "comun.schema.json#/$defs/pais"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "ubicacion": {
+            "type": "object",
+            "required": [
+              "texto",
+              "coordenadas"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "texto": {
+                "type": "string"
+              },
+              "coordenadas": {
+                "$ref": "comun.schema.json#/$defs/coordenadas"
+              },
+              "coordenadasNota": {
+                "type": "string"
+              }
+            }
+          },
+          "estado": {
+            "allOf": [
+              {
+                "$ref": "comun.schema.json#/$defs/registroConFuente"
+              },
+              {
+                "required": [
+                  "valor",
+                  "texto"
+                ],
+                "properties": {
+                  "valor": {
+                    "$ref": "comun.schema.json#/$defs/estado"
+                  },
+                  "texto": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "horarios": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "lado",
+                    "texto",
+                    "organismo"
+                  ],
+                  "properties": {
+                    "organismo": {
+                      "enum": [
+                        "general",
+                        "aduana",
+                        "migraciones",
+                        "sanitario",
+                        "complejo"
+                      ]
+                    },
+                    "apertura": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                    },
+                    "cierre": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                    },
+                    "zona": {
+                      "enum": [
+                        "America/Argentina/Jujuy",
+                        "America/Argentina/Salta",
+                        "America/Santiago",
+                        "America/Asuncion",
+                        "America/Campo_Grande"
+                      ]
+                    }
+                  },
+                  "dependentRequired": {
+                    "apertura": [
+                      "cierre",
+                      "zona"
+                    ],
+                    "cierre": [
+                      "apertura",
+                      "zona"
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "restricciones": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "properties": {
+                    "texto": {
+                      "type": "string",
+                      "minLength": 3
+                    }
+                  },
+                  "required": [
+                    "texto"
+                  ]
+                }
+              ]
+            }
+          },
+          "acceso": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "properties": {
+                    "texto": {
+                      "type": "string",
+                      "minLength": 3
+                    }
+                  },
+                  "required": [
+                    "texto"
+                  ]
+                }
+              ]
+            }
+          },
+          "servicios": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "properties": {
+                    "texto": {
+                      "type": "string",
+                      "minLength": 3
+                    }
+                  },
+                  "required": [
+                    "texto"
+                  ]
+                }
+              ]
+            }
+          },
+          "contactos": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "texto"
+                  ],
+                  "properties": {
+                    "nombre": {
+                      "type": "string"
+                    },
+                    "lado": {
+                      "type": "string"
+                    },
+                    "texto": {
+                      "type": "string"
+                    },
+                    "telefono": {
+                      "type": "string",
+                      "pattern": "^\\+[1-9]\\d{7,14}$"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "horariosEspeciales": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "desde",
+                    "hasta",
+                    "organismo",
+                    "lado",
+                    "texto"
+                  ],
+                  "properties": {
+                    "desde": {
+                      "$ref": "comun.schema.json#/$defs/fecha"
+                    },
+                    "hasta": {
+                      "$ref": "comun.schema.json#/$defs/fecha"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "operaciones": {},
+          "organismos": {
+            "type": "array",
+            "items": {
+              "$ref": "comun.schema.json#/$defs/id"
+            }
+          },
+          "revisado": {
+            "$ref": "comun.schema.json#/$defs/fecha"
+          },
+          "historial": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "fecha",
+                    "texto"
+                  ],
+                  "properties": {
+                    "fecha": {
+                      "$ref": "comun.schema.json#/$defs/fecha"
+                    },
+                    "valor": {
+                      "oneOf": [
+                        {
+                          "$ref": "comun.schema.json#/$defs/estado"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "texto": {
+                      "type": "string",
+                      "minLength": 3
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "controles": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "orden",
+                    "tipo",
+                    "lado",
+                    "texto"
+                  ],
+                  "properties": {
+                    "orden": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "tipo": {
+                      "enum": [
+                        "integrado",
+                        "migraciones",
+                        "aduana",
+                        "sanitario",
+                        "seguridad",
+                        "aviso"
+                      ]
+                    },
+                    "lado": {
+                      "type": "string"
+                    },
+                    "organismo": {
+                      "$ref": "comun.schema.json#/$defs/id"
+                    },
+                    "texto": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "partes": {
+            "type": "array",
+            "description": "Parte de cada organismo, con fecha (publicado) y hora local del país (HU-73).",
+            "items": {
+              "allOf": [
+                {
+                  "$ref": "comun.schema.json#/$defs/registroConFuente"
+                },
+                {
+                  "required": [
+                    "lado",
+                    "emisor",
+                    "texto",
+                    "publicado"
+                  ],
+                  "properties": {
+                    "lado": {
+                      "$ref": "comun.schema.json#/$defs/pais"
+                    },
+                    "emisor": {
+                      "type": "string"
+                    },
+                    "organismo": {
+                      "$ref": "comun.schema.json#/$defs/id"
+                    },
+                    "valor": {
+                      "oneOf": [
+                        {
+                          "$ref": "comun.schema.json#/$defs/estado"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "texto": {
+                      "type": "string"
+                    },
+                    "hora": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
