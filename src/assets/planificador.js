@@ -262,6 +262,12 @@
           : ''
       }
       ${resumen(ops, a, b)}
+      <form class="informe-lanzar panel" id="lanzar-informe" aria-labelledby="t-informe">
+        <div><h3 id="t-informe">Informe de viaje</h3><p class="nota">Estado de cada paso y tramo, horarios, festivos de ese día, avisos, papeles y fuentes, en una página para enviar o imprimir.</p></div>
+        <label class="campo-fecha"><span>Fecha prevista de cruce</span><input type="date" name="fecha" required value="${new Date().toISOString().slice(0, 10)}" min="${new Date().toISOString().slice(0, 10)}"></label>
+        ${ops.length > 1 ? `<label class="campo-fecha"><span>Opción</span><select name="op">${ops.map((o) => `<option value="${o.id}"${o.recomendada ? ' selected' : ''}>${esc(o.nombre)}</option>`).join('')}</select></label>` : ''}
+        <button class="btn btn-principal" type="submit">Generar informe</button>
+      </form>
       <h3 class="titulo-opciones">${ops.length > 1 ? 'Opciones de ruta' : 'Itinerario'}</h3>
       <ul class="opciones">${ops.map((op, k) => fila(op, k, op.recomendada)).join('')}</ul>
       <p class="vacio" id="sin-opciones" hidden>Ninguna opción está libre de incidencias ahora mismo. <button class="btn-texto" type="button" data-f="todas">Ver todas</button></p>
@@ -326,6 +332,20 @@
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     actualizar();
+  });
+  // Informe de viaje (HU-45)
+  salida.addEventListener('submit', (e) => {
+    if (e.target.id !== 'lanzar-informe') return;
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const u = new URL(`${datos.base}/informe/`, location.origin);
+    u.searchParams.set('desde', origen.value);
+    u.searchParams.set('hasta', destino.value);
+    u.searchParams.set('carga', carga());
+    u.searchParams.set('fecha', f.get('fecha'));
+    const recomendada = GC.opciones(datos, Number(origen.value), Number(destino.value)).find((o) => o.recomendada);
+    u.searchParams.set('op', f.get('op') || recomendada.id);
+    location.href = u.toString();
   });
   form.addEventListener('change', actualizar);
   pintar();

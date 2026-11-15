@@ -991,3 +991,55 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .ley-tramo.ley-estimado { border-top-style: dashed; }
 .ley-tramo.ley-hueco { height: 6px; border: 2px solid var(--sin-dato); border-radius: 4px; }
 .ley-color { width: 14px; height: 14px; border-radius: 3px; }
+
+/* ---------- Informe de viaje (HU-45) ---------- */
+.informe-lanzar { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px 16px; align-items: end; margin: 16px 0 24px; }
+.informe-lanzar h3 { margin: 0 0 4px; }
+.informe-lanzar .nota { margin: 0; }
+.campo-fecha { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
+.campo-fecha input, .campo-fecha select, .informe-fecha input, .informe-fecha select { font: inherit; font-size: 16px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--input); border-radius: var(--radius); background: var(--background); color: var(--foreground); }
+@media (max-width: 760px) { .informe-lanzar { grid-template-columns: 1fr; } }
+.informe-pagina { padding-top: 24px; padding-bottom: 48px; }
+.informe { max-width: 900px; }
+.informe-marca { margin: 0 0 4px; font-size: 14px; font-weight: 600; color: var(--muted-foreground); }
+.informe h1 { margin: 0 0 12px; font-size: clamp(26px, 5vw, 36px); line-height: 1.15; }
+.informe-datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px 16px; margin: 0 0 16px; }
+.informe-datos dt { font-size: 13px; color: var(--muted-foreground); }
+.informe-datos dd { margin: 0; font-weight: 600; }
+.informe-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.informe-acciones .btn { min-height: 44px; }
+.informe-fecha { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: end; margin: 0 0 20px; }
+.informe-fecha label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted-foreground); }
+.informe-seccion { margin: 28px 0 0; }
+.informe-seccion h2 { font-size: 20px; line-height: 28px; margin: 0 0 10px; }
+.informe-seccion h3 { font-size: 16px; margin: 12px 0 6px; }
+.alertas { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.alerta-fila { display: grid; grid-template-columns: 20px 1fr; gap: 10px; align-items: start; padding: 12px 14px; border-radius: var(--radius); border: 2px solid currentColor; background: var(--card); }
+.alerta-fila > span { color: var(--foreground); }
+.alerta-fila svg { width: 20px; height: 20px; margin-top: 2px; }
+.alerta-fila.op-sin-confirmar { border-style: dashed; }
+.tabla-informe { width: 100%; border-collapse: collapse; }
+.tabla-informe th, .tabla-informe td { text-align: left; vertical-align: top; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+.tabla-informe tbody th { font-weight: 600; }
+.inf-paso { display: block; font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
+.informe-lista { padding-left: 20px; display: grid; gap: 6px; }
+.informe-check { list-style: "☐  "; }
+.inf-especial { padding: 8px 12px; border-left: 4px solid var(--obras-dot); background: var(--aviso-bg); }
+.aviso-cambio { border-left: 4px solid var(--corte-dot); }
+.informe-pie { margin-top: 32px; padding-top: 16px; border-top: 2px solid var(--border-strong); font-size: 14px; }
+@media (max-width: 640px) {
+  .tabla-informe thead { display: none; }
+  .tabla-informe tr { display: block; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .tabla-informe th, .tabla-informe td { display: block; border: 0; padding: 4px 0; }
+  .tabla-informe td::before { content: attr(data-l); display: block; font-size: 12px; color: var(--muted-foreground); }
+}
+@media print {
+  .informe-pagina { padding: 0; }
+  .informe { max-width: none; font-size: 11pt; color: #000; }
+  .informe a { color: #000; text-decoration: underline; }
+  .informe .estado, .informe .op-abierto, .informe .op-restricciones, .informe .op-cerrado, .informe .op-sin-confirmar { color: #000 !important; }
+  .alerta-fila, .inf-especial { background: none; break-inside: avoid; }
+  .informe-seccion { break-inside: avoid-page; }
+  .tabla-informe tr { break-inside: avoid; }
+  @page { size: A4; margin: 14mm; }
+}

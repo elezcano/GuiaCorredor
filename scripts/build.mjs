@@ -832,6 +832,44 @@ ${seccion({
   );
 }
 
+// Informe de viaje (HU-45): se genera en el navegador con los mismos datos que el planificador.
+{
+  const fuenteMin = (f) => (f ? { nombre: f.nombre, url: f.url, tipo: f.tipo } : null);
+  const reg = (x) => ({ texto: x.texto, lado: x.lado || '', organismo: x.organismo || '', fuente: fuenteMin(x.fuente), publicado: x.publicado || null, verificado: x.verificado || null });
+  const extra = {
+    generadoDatos: HOY,
+    festivosTodos: festivos.map((f) => ({ pais: f.pais, fecha: f.fecha, nombre: f.nombre, tipo: f.tipo, organismo: f.organismo, verificado: f.verificado || null, fuente: fuenteMin(f.fuente) })),
+    pasosInfo: Object.fromEntries(
+      fichaPasos.map((p) => [
+        p.id,
+        {
+          nombre: p.nombre,
+          estado: { texto: p.estado.texto, fuente: fuenteMin(p.estado.fuente), publicado: p.estado.publicado },
+          horarios: (p.horarios || []).map(reg),
+          especiales: (p.horariosEspeciales || []).map((h) => ({ ...reg(h), desde: h.desde, hasta: h.hasta })),
+          guia: rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id)?.guia || null,
+        },
+      ])
+    ),
+    incidenciasInfo: Object.fromEntries(activas.map((i) => [i.id, { finPrevista: i.finPrevista || null, fuente: fuenteMin(i.fuente), verificado: i.verificado || null }])),
+  };
+  add(
+    '/informe/',
+    layout({
+      titulo: 'Informe de viaje',
+      descripcion: 'Informe de una ruta del Corredor Bioceánico para una fecha de cruce: estado de cada paso y tramo, horarios, festivos, avisos, papeles y fuentes.',
+      ruta: '/informe/',
+      scripts: ['/assets/informe.js'],
+      datos: datosRutas(extra),
+      cuerpo: `
+<div class="contenedor informe-pagina">
+  <div id="informe" aria-live="polite"><p class="texto-suave">Preparando el informe…</p></div>
+  <noscript><p class="aviso">Activa JavaScript para ver el informe.</p></noscript>
+</div>`,
+    })
+  );
+}
+
 // Novedades
 {
   const paisesN = [...new Set(novedades.flatMap((n) => n.paises || []))];
