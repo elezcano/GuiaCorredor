@@ -19,7 +19,7 @@
 | Llamar a la frontera | Ficha del paso: **botón Llamar** con teléfonos de fuente oficial |
 | Saber qué controles pasa un camión | Ficha del paso: **controles para carga en orden** (integrado, migraciones, aduana, sanitario) |
 | Ver qué ha pasado en un paso | Ficha del paso: **novedades** en línea de tiempo |
-| Planificar una ruta y una fecha | **Planificador** y **informe de viaje** para enviar por WhatsApp, enlace o PDF |
+| Planificar una ruta y una fecha | **Planificador** y **informe de viaje** para enviar por WhatsApp, enlace o PDF, o como **resumen en una página** para quien cotiza |
 | Ver obras, cortes y festivos | Avisos y calendario aduanero |
 | Usar los datos en otro sistema | `api/v1` (JSON abierto, versionado) |
 
@@ -47,6 +47,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 15/11/2026 | **Informe resumido en una página:** estado y último parte de cada paso, lo importante, avisos, distancia y papeles en una hoja A4 | #80 |
 | 15/11/2026 | **Vigilante de webs oficiales:** cada 3 horas revisa Gendarmería y Vialidad y avisa por correo si hay un parte más nuevo que el cargado | #77 |
 | 15/11/2026 | **Pruebas automáticas en GitHub:** las pruebas de navegador se ejecutan en cada cambio y bloquean la publicación si algo falla | #50 |
 | 15/11/2026 | **Partes por organismo** con fecha, hora y aviso de antigüedad a partir de 48 h (se bajará a 24 h en mayo/junio de 2027) | #73 |
