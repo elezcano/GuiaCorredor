@@ -167,9 +167,14 @@
         "texto": "Habilitado en ambos sentidos para todo tránsito, de 8 a 20 h (hora de Argentina y Chile). RN 52 transitable; la CH-27 chilena, con precaución. Cierres por nieve o viento frecuentes en invierno.",
         "fuente": "el-tribuno-jujuy-jama-15-11-2026",
         "publicado": "2026-11-15",
-        "validacion": "por-verificar",
+        "validacion": "verificado",
         "actualizado": "2026-11-15",
-        "verificacion": null,
+        "verificacion": {
+          "verificadoPor": "responsable-editorial",
+          "rol": "responsable-editorial",
+          "fecha": "2026-11-15",
+          "alcance": "Ernesto confirmó el 15/11/2026, tras revisar El Tribuno de Jujuy, que Jama está habilitado en ambos sentidos para todo tránsito de 8 a 20 h, con la CH-27 transitable con precaución."
+        },
         "evidencia": "tercero",
         "otrasFuentes": [
           "upf-chile-canal"
