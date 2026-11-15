@@ -7,6 +7,9 @@
   const datos = JSON.parse(document.getElementById('datos-rutas').textContent);
   const salida = document.getElementById('informe');
   const params = new URLSearchParams(location.search);
+  const enResumen = params.get('formato') === 'resumen';
+  const raiz = document.documentElement;
+  raiz.classList.toggle('modo-resumen', enResumen);
   const max = datos.nodos.length - 1;
   const entero = (k, def) => {
     const v = Number(params.get(k));
@@ -233,6 +236,48 @@
     </div>`;
   };
 
+  // HU-80: resumen en una página (para imprimir o enviar a quien cotiza).
+  const resumenUrl = (() => {
+    const u = new URL(enlaceCompartir);
+    u.searchParams.set('formato', 'resumen');
+    return u.toString();
+  })();
+  const completoUrl = (() => {
+    const u = new URL(enlaceCompartir);
+    u.searchParams.delete('formato');
+    return u.toString();
+  })();
+  const ultimoParte = (p) => {
+    const x = p?.partes?.[0];
+    if (!x) return '<span class="sin-dato">Sin parte cargado</span>';
+    const h = horasDesde(x.ts);
+    const viejo = h >= (datos.umbralPartesH || 48);
+    return `${esc(x.emisor)}, ${esc(fechaCorta(x.publicado))}${x.hora ? ` ${x.hora} h` : ''} (${edadParte(Math.max(h, 0))})${viejo ? ' <strong class="parte-aviso">· parte antiguo: confírmalo</strong>' : ''}`;
+  };
+  const filaResumenPaso = (t) => {
+    const p = datos.pasosInfo[t.paso.id];
+    const h = p?.horarios?.[0];
+    return `<tr><th scope="row">${esc(t.paso.nombre)}</th><td>${chip(opDe(t), t.vista?.confirmado ? t.vista.valor : null)}<span class="estado-fecha">${t.vista?.confirmado ? `verif. ${esc(fechaCorta(t.vista.verificado))}` : 'sin verificar'}</span></td><td>${ultimoParte(p)}</td><td>${h ? esc(h.texto) : '<span class="sin-dato">Sin horario con fuente</span>'}</td></tr>`;
+  };
+  const tramosSin = op.tramos.filter((t) => !t.paso && opDe(t) === 'sin-confirmar').length;
+  const MAX_AVISOS = 5;
+  const resumenHTML = `<section class="informe-resumen" aria-labelledby="inf-resumen">
+      <h2 id="inf-resumen">Resumen</h2>
+      ${pasos.length ? `<table class="tabla-resumen"><thead><tr><th scope="col">Paso</th><th scope="col">Estado</th><th scope="col">Último parte</th><th scope="col">Horario</th></tr></thead><tbody>${pasos.map(filaResumenPaso).join('')}</tbody></table>` : '<p>Ruta sin pasos de frontera.</p>'}
+      <h3>Lo importante</h3>
+      ${alertas.length ? `<ul class="alertas">${alertas.join('')}</ul>` : '<p>No hay pasos cerrados, festivos ni pasos sin confirmar en la fecha del cruce.</p>'}
+      ${tramosSin ? `<p>${GC.plural(tramosSin, 'tramo de carretera sin estado confirmado', 'tramos de carretera sin estado confirmado')}.</p>` : ''}
+      <h3>Avisos activos</h3>
+      ${
+        op.problemas.length
+          ? `<ul class="resumen-lista">${op.problemas.slice(0, MAX_AVISOS).map((i) => `<li><strong>${esc(i.tipo)} · ${esc(i.ubicacion)}</strong>${datos.incidenciasInfo[i.id]?.verificado ? '' : ' (sin verificar)'}</li>`).join('')}${op.problemas.length > MAX_AVISOS ? `<li>y ${op.problemas.length - MAX_AVISOS} más en el informe completo</li>` : ''}</ul>`
+          : '<p>Ninguno.</p>'
+      }
+      <p><strong>Distancia:</strong> ${conFuente.length ? `${GC.km(Math.round(op.km * 10) / 10)} con fuente` : 'sin distancia con fuente'}${op.estimados.length ? `; ≈ ${GC.km(op.kmEstimado)} más en estimación provisional, sin verificar` : ''}.</p>
+      ${pasos.length ? `<p><strong>Papeles (${esc(carga.nombre.toLowerCase())}):</strong> ${docs.map((d) => esc(d.nombre.split(' — ')[0])).join(' · ')}.</p>` : ''}
+      <p class="resumen-enlace"><strong>Informe completo, con horarios, fuentes y detalle de tramos:</strong> <a href="${esc(completoUrl)}">${esc(completoUrl)}</a></p>
+    </section>`;
+
   salida.innerHTML = `
   <article class="informe" aria-labelledby="inf-titulo">
     <header class="informe-cabeza">
@@ -250,6 +295,8 @@
       <button class="btn btn-borde" type="button" id="inf-copiar">${I_ENLACE}<span>Copiar enlace</span></button>
       <a class="btn btn-wa" href="https://wa.me/?text=${encodeURIComponent(resumenWA)}" rel="noopener">${I_CHAT}Enviar por WhatsApp</a>
       <button class="btn btn-principal" type="button" id="inf-pdf">${I_PDF}Descargar PDF</button>
+      <button class="btn btn-borde" type="button" id="inf-resumen-pdf">${I_PDF}Resumen en 1 página</button>
+      <a class="btn btn-texto" id="inf-ver" href="${esc(enResumen ? completoUrl : resumenUrl)}">${enResumen ? 'Ver informe completo' : 'Ver resumen'}</a>
       <a class="btn btn-texto" href="${datos.base}/planificador/?desde=${a}&hasta=${b}&carga=${encodeURIComponent(carga.id)}">Cambiar ruta</a>
     </div>
     <form class="informe-fecha no-imprimir" id="inf-fecha">
@@ -259,6 +306,8 @@
     </form>
 
     ${cambio ? `<p class="aviso aviso-cambio" role="alert"><strong>La situación ha cambiado desde que se generó este informe (${esc(genTexto)}).</strong> Lo que ves abajo son los datos actuales.</p>` : ''}
+
+    ${resumenHTML}
 
     <section class="informe-seccion" aria-labelledby="inf-alertas">
       <h2 id="inf-alertas">Lo importante</h2>
@@ -328,7 +377,16 @@
       () => (s.textContent = 'No se pudo copiar')
     );
   });
-  document.getElementById('inf-pdf').addEventListener('click', () => window.print());
+  document.getElementById('inf-pdf').addEventListener('click', () => {
+    raiz.classList.remove('modo-resumen');
+    window.print();
+    if (enResumen) raiz.classList.add('modo-resumen');
+  });
+  document.getElementById('inf-resumen-pdf').addEventListener('click', () => {
+    raiz.classList.add('modo-resumen');
+    window.print();
+    if (!enResumen) raiz.classList.remove('modo-resumen');
+  });
   document.getElementById('inf-fecha').addEventListener('submit', (e) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);

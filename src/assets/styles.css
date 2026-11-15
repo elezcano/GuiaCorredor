@@ -1087,3 +1087,40 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .inf-bloque-paso h4 { margin: 12px 0 4px; font-size: 15px; }
 .inf-partes { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
 .inf-partes .parte-vieja { border-left: 4px solid var(--obras-dot); padding-left: 8px; list-style: none; margin-left: -18px; }
+
+/* ---------- Informe de viaje: resumen en una página (HU-80) ---------- */
+.informe-resumen { display: none; }
+.modo-resumen .informe-resumen { display: block; }
+.modo-resumen .informe > .informe-seccion { display: none; }
+.informe-resumen h3 { margin: 16px 0 6px; font-size: 17px; }
+.tabla-resumen { width: 100%; border-collapse: collapse; font-size: 15px; }
+.tabla-resumen th, .tabla-resumen td { text-align: left; vertical-align: top; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+.tabla-resumen thead th { font-size: 13px; color: var(--muted-foreground); }
+.tabla-resumen .estado-fecha { display: block; font-size: 13px; color: var(--muted-foreground); }
+.resumen-lista { margin: 0; padding-left: 20px; }
+.resumen-enlace { overflow-wrap: anywhere; font-size: 14px; }
+@media (max-width: 640px) {
+  .tabla-resumen thead { display: none; }
+  .tabla-resumen tr { display: block; border-bottom: 1px solid var(--border); padding: 6px 0; }
+  .tabla-resumen th, .tabla-resumen td { display: block; border: 0; padding: 3px 0; }
+}
+@media print {
+  .modo-resumen .informe { font-size: 9.5pt; line-height: 1.35; }
+  .modo-resumen .informe-cabeza h1 { font-size: 15pt; margin: 2px 0 4px; }
+  .modo-resumen .informe-datos { margin: 0 0 4px; }
+  .modo-resumen .informe-resumen h2 { font-size: 12pt; margin: 6px 0 4px; }
+  .modo-resumen .informe-resumen h3 { font-size: 10.5pt; margin: 8px 0 3px; }
+  .modo-resumen .informe-resumen p, .modo-resumen .informe-resumen ul { margin: 3px 0; }
+  .modo-resumen .tabla-resumen { font-size: 9pt; line-height: 1.25; }
+  .modo-resumen .tabla-resumen th[scope=row] { width: 22%; }
+  .modo-resumen .informe-datos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 12px; }
+  .modo-resumen .informe-datos dd { margin: 0; }
+  .modo-resumen .alerta-fila { line-height: 1.25; }
+  .modo-resumen .informe-pie p { margin: 2px 0; }
+  .modo-resumen .tabla-resumen th, .modo-resumen .tabla-resumen td { padding: 3px 4px; border-bottom: 0.5pt solid #999; }
+  .modo-resumen .alertas { gap: 2px; }
+  .modo-resumen .alerta-fila { padding: 2px 0; }
+  .modo-resumen .alerta-fila svg { width: 14px; height: 14px; }
+  .modo-resumen .informe-pie { font-size: 8.5pt; margin-top: 6px; }
+  .modo-resumen .resumen-enlace { font-size: 8.5pt; }
+}
