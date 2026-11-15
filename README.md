@@ -33,6 +33,7 @@ Responde a preguntas operativas: qué pasos fronterizos usar y cómo están, qu�
 | 12 | *(15/11)* Solicitudes de empresas a un formulario de Google con hoja privada (email mientras no esté configurado) |
 | 13 | *(15/11)* Cambios de formato de la API avisados (`indice.json`, [`docs/api-cambios.md`](docs/api-cambios.md)) y gestionados con registro de versiones y contrato; la versión anterior se mantiene 6 meses |
 | 14 | *(15/11)* `main` sin proteger mientras la web sea un borrador; se protegerá más adelante (#49) |
+| 15 | *(15/11)* **Foco en la operatividad:** la situación operativa va primero en cada ficha y un estado verificado se muestra como confirmado aunque el texto de la guía siga en revisión |
 
 ## Qué es y qué no es
 

@@ -55,8 +55,10 @@ const registroFicha = registroGuia;
 const nivelFicha = (ruta) => (metaGuia[ruta] ? nivel(registroFicha(metaGuia[ruta]), 'ficha', HOY) : null);
 const guiaDePaso = Object.fromEntries(rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).filter(Boolean).map((q) => [q.id, q.guia]));
 /** Estado mostrable de un paso: combina la validación del dato y la de su ficha. */
-const estadoPaso = (id) => estadoMostrable(fichaPaso[id]?.estado, HOY, nivelFicha(guiaDePaso[id]));
-const estadoTramo = (t) => (t.paso?.id ? estadoPaso(t.paso.id) : estadoMostrable(t.reporte, HOY, t.guia ? nivelFicha(t.guia) : null));
+// Decisión del 15/11/2026: lo que importa es la operatividad. El estado de un paso o tramo se confirma
+// por su propia verificación; que el texto de la ficha de la guía esté en revisión no lo oculta.
+const estadoPaso = (id) => estadoMostrable(fichaPaso[id]?.estado, HOY);
+const estadoTramo = (t) => (t.paso?.id ? estadoPaso(t.paso.id) : estadoMostrable(t.reporte, HOY));
 // Estimaciones provisionales de distancia (solo tramos sin km con fuente).
 aplicarEstimaciones(rutas, fichaPasos, site.estimaciones?.provisionales !== false);
 rutas.tramos.forEach((t) => {
@@ -614,7 +616,7 @@ function fichaOperativa(p) {
   const orgs = (p.organismos || []).map((id) => organismoPorId[id]).filter(Boolean);
   const inc = incidenciasDe({ paso: p.id, tramos: rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id) });
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
-  <div class="ficha-cabeza"><h2 id="t-ficha">Datos del paso</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
+  <div class="ficha-cabeza"><h2 id="t-ficha">Situación operativa</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
   <dl class="datos">
     ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}</span>`)}
     ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
@@ -635,8 +637,8 @@ function fichaOperativa(p) {
 /** Aviso de ficha según su nivel de validación (mismo sistema que los estados). */
 function avisoValidacion(n, verificado) {
   const t = {
-    borrador: '<strong>Borrador.</strong> Contenido pendiente de revisión. Los estados se muestran como «Por verificar» y no deben usarse como referencia para viajar.',
-    'por-verificar': '<strong>Sin verificar.</strong> Datos tomados de fuentes públicas que nadie del equipo ha confirmado todavía con el organismo.',
+    borrador: '<strong>Texto de la guía en revisión.</strong> La situación operativa de arriba indica en cada dato si está verificado o solo publicado por su fuente, con la fecha.',
+    'por-verificar': '<strong>Texto de la guía sin revisar.</strong> La situación operativa de arriba indica en cada dato si está verificado o solo publicado por su fuente, con la fecha.',
     caducado: `<strong>Verificación caducada.</strong> Se comprobó el ${fecha(verificado)}. Confírmalo antes de viajar.`,
   }[n];
   return t ? `<p class="aviso aviso-${esc(n)}"><span>${t}</span></p>` : '';
@@ -868,12 +870,12 @@ for (const p of guia) {
     <h1 class="senal-titulo">${esc(p.meta.titulo)}</h1>
     <span class="senal-pie">${vistaGuia(p) ? estado(estadoGuia(p)) : ''}${paises(p.meta.paises)}</span>
   </header>
-  <p class="paso-meta">${validacionHTML(nivelGuia(p), p.meta.verificado)}<span>Revisado el ${fecha(p.meta.revisado)}</span>${nov.length ? `<span>Última noticia ${tiempo(nov[0].publicado)}</span>` : ''}</p>
-  ${avisoValidacion(nivelGuia(p), p.meta.verificado)}
+  <p class="paso-meta"><span>Texto de la guía: ${esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase())}</span><span>Revisado el ${fecha(p.meta.revisado)}</span>${nov.length ? `<span>Última noticia ${tiempo(nov[0].publicado)}</span>` : ''}</p>
   <div class="paso-cuerpo">
     <article class="articulo">
-      <p class="resumen">${esc(p.meta.resumen)}</p>
       ${paso && fichaPaso[paso.id] ? fichaOperativa(fichaPaso[paso.id]) : bloqueTramos(`${p.seccion}/${p.slug}`)}
+      ${avisoValidacion(nivelGuia(p), p.meta.verificado)}
+      <p class="resumen">${esc(p.meta.resumen)}</p>
       ${p.html}
       ${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}
     </article>

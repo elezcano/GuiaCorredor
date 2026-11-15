@@ -73,7 +73,7 @@ for (const p of guia) {
   if (p.meta.borrador) errores.push(`${p.archivo}: usa "validacion: borrador" en lugar de "borrador: true".`);
   if (p.meta.validacion && !['verificado', 'por-verificar', 'borrador'].includes(p.meta.validacion)) errores.push(`${p.archivo}: validacion no válida "${p.meta.validacion}".`);
   if (p.meta.validacion === 'verificado' && (!esFecha(p.meta.verificado) || !VERIFICADORES[p.meta.verificadoPor])) errores.push(`${p.archivo}: marcada como verificada sin "verificado: AAAA-MM-DD" y "verificadoPor: responsable-editorial".`);
-  if (p.meta.validacion === 'borrador') avisos.push(`${p.archivo}: borrador; sus estados se muestran como «Por verificar».`);
+  if (p.meta.validacion === 'borrador') avisos.push(`${p.archivo}: texto en borrador (no afecta a los estados operativos, que se confirman con su propia verificación).`);
   if (/^## Estado\b/m.test(p.body)) avisos.push(`${p.archivo}: tiene una sección "## Estado" escrita a mano; el estado ya se genera desde los datos.`);
   if (!SECCIONES[p.seccion]) errores.push(`${p.archivo}: carpeta "${p.seccion}" no reconocida.`);
   if (!/## Fuentes/.test(p.body) && p.seccion !== 'documentos') errores.push(`${p.archivo}: falta la sección "## Fuentes".`);
