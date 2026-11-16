@@ -135,16 +135,24 @@
         {
           "lado": "AR",
           "organismo": "complejo",
-          "texto": "7 a 20 h, vehículos y peatones (parte de Defensa Civil de Salta del 30/09/2026)",
-          "fuente": "saltazoom-pasos-30-09-2026",
-          "evidencia": "tercero",
-          "publicado": "2026-09-30",
-          "actualizado": "2026-11-15",
-          "validacion": "por-verificar",
-          "verificacion": null,
+          "texto": "07:00 a 20:00 (hora de Argentina), según Gendarmería (parte del 14/11/2026, 09:30).",
           "apertura": "07:00",
           "cierre": "20:00",
-          "zona": "America/Argentina/Salta"
+          "zona": "America/Argentina/Salta",
+          "otrasFuentes": [
+            "saltazoom-pasos-30-09-2026"
+          ],
+          "fuente": "ar-seguridad-paso-mision-la-paz",
+          "publicado": "2026-11-14",
+          "actualizado": "2026-11-16",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-16",
+            "alcance": "Ernesto confirmó el 16/11/2026 el horario 07:00–20:00 en la página del Ministerio de Seguridad."
+          }
         }
       ],
       "operaciones": null,
@@ -262,6 +270,27 @@
           "validacion": "por-verificar",
           "verificacion": null
         }
+      ],
+      "partes": [
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Horario 07:00–20:00. Consultado por Ernesto el 16/11/2026 a las 14:32 (hora de Argentina).",
+          "hora": "09:30",
+          "fuente": "ar-seguridad-paso-mision-la-paz",
+          "publicado": "2026-11-14",
+          "actualizado": "2026-11-16",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-16",
+            "alcance": "Ernesto confirmó el 16/11/2026 el parte de Gendarmería (14/11, 09:30) con captura de la página oficial."
+          }
+        }
       ]
     },
     {
@@ -285,36 +314,42 @@
       },
       "estado": {
         "valor": "operativo",
-        "texto": "Habilitado en ambos sentidos para todo tránsito, de 8 a 20 h (hora de Argentina y Chile). RN 52 transitable; la CH-27 chilena, con precaución. Cierres por nieve o viento frecuentes en invierno.",
-        "fuente": "el-tribuno-jujuy-jama-15-11-2026",
+        "texto": "Habilitado de 09:00 a 19:15 (hora de Argentina), según Gendarmería (parte del 15/11/2026, 20:03). Vialidad Nacional publica un aviso en la RN 52 (tramo Susques – límite con Chile) sin más detalle. Cierres por nieve posibles en invierno.",
+        "fuente": "ar-seguridad-paso-jama",
         "publicado": "2026-11-15",
         "validacion": "verificado",
-        "actualizado": "2026-11-15",
+        "actualizado": "2026-11-16",
         "verificacion": {
           "verificadoPor": "responsable-editorial",
           "rol": "responsable-editorial",
-          "fecha": "2026-11-15",
-          "alcance": "Ernesto confirmó el 15/11/2026, tras revisar El Tribuno de Jujuy, que Jama está habilitado en ambos sentidos para todo tránsito de 8 a 20 h, con la CH-27 transitable con precaución."
+          "fecha": "2026-11-16",
+          "alcance": "Ernesto confirmó el 16/11/2026, con captura de la página del Ministerio de Seguridad, que Jama está abierto con horario 09:00–19:15."
         },
-        "evidencia": "tercero",
+        "evidencia": "oficial",
         "otrasFuentes": [
+          "el-tribuno-jujuy-jama-15-11-2026",
           "upf-chile-canal"
         ]
       },
       "horarios": [
         {
           "lado": "AR y CL",
-          "texto": "8 a 20 h, según el parte del 7 de noviembre de 2026",
-          "fuente": "todojujuy-parte-de-migraciones",
-          "publicado": "2026-11-07",
-          "validacion": "por-verificar",
           "organismo": "complejo",
-          "actualizado": null,
-          "verificacion": null,
-          "evidencia": "tercero",
-          "apertura": "08:00",
-          "cierre": "20:00",
-          "zona": "America/Argentina/Jujuy"
+          "texto": "09:00 a 19:15 (hora de Argentina), según Gendarmería (parte del 15/11/2026, 20:03). Sustituye al 8–20 h del parte de prensa del 7/11.",
+          "apertura": "09:00",
+          "cierre": "19:15",
+          "zona": "America/Argentina/Jujuy",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-16",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-16",
+            "alcance": "Ernesto confirmó el 16/11/2026 el horario 09:00–19:15 en la página del Ministerio de Seguridad."
+          }
         },
         {
           "lado": "AR",
@@ -428,6 +463,38 @@
           "evidencia": "tercero",
           "validacion": "por-verificar",
           "verificacion": null
+        },
+        {
+          "fecha": "2026-11-15",
+          "valor": "operativo",
+          "texto": "Parte de Seguridad Vial de Jujuy y Migraciones (vía El Tribuno de Jujuy): habilitado de 8 a 20 h.",
+          "fuente": "el-tribuno-jujuy-jama-15-11-2026",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-16",
+          "evidencia": "tercero",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026, tras revisar El Tribuno de Jujuy, que Jama está habilitado en ambos sentidos para todo tránsito de 8 a 20 h, con la CH-27 transitable con precaución."
+          }
+        },
+        {
+          "fecha": "2026-11-16",
+          "valor": "operativo",
+          "texto": "Gendarmería: habilitado con horario de 09:00 a 19:15.",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-16",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-16",
+            "alcance": "Confirmado por Ernesto el 16/11/2026."
+          }
         }
       ],
       "controles": [
@@ -511,19 +578,39 @@
       "partes": [
         {
           "lado": "AR",
-          "emisor": "Seguridad Vial de Jujuy y Migraciones (vía El Tribuno de Jujuy)",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
           "valor": "operativo",
-          "texto": "Habilitado en ambos sentidos para todo tránsito, de 8 a 20 h (hora de Argentina y Chile). RN 52 transitable; la CH-27 chilena, con precaución. Cierres por nieve o viento frecuentes en invierno.",
-          "fuente": "el-tribuno-jujuy-jama-15-11-2026",
+          "texto": "Horario 09:00–19:15. Consultado por Ernesto el 16/11/2026 a las 14:32 (hora de Argentina).",
+          "hora": "20:03",
+          "fuente": "ar-seguridad-paso-jama",
           "publicado": "2026-11-15",
-          "actualizado": "2026-11-15",
-          "evidencia": "tercero",
+          "actualizado": "2026-11-16",
+          "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
-            "fecha": "2026-11-15",
-            "alcance": "Ernesto confirmó el 15/11/2026, tras revisar El Tribuno de Jujuy, que Jama está habilitado en ambos sentidos para todo tránsito de 8 a 20 h, con la CH-27 transitable con precaución."
+            "fecha": "2026-11-16",
+            "alcance": "Ernesto confirmó el 16/11/2026 el parte de Gendarmería (15/11, 20:03) con captura de la página oficial."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "Aviso en la RN 52, tramo Susques – límite con Chile. La web oficial no da más detalle.",
+          "hora": "09:00",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-12",
+          "actualizado": "2026-11-16",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-16",
+            "alcance": "Ernesto confirmó el 16/11/2026 el aviso de Vialidad (12/11, 09:00) tal como aparece en la página oficial."
           }
         }
       ]
@@ -549,16 +636,16 @@
       },
       "estado": {
         "valor": "operativo",
-        "texto": "Habilitado con horario: el 15/11/2026 Gendarmería lo daba «Cerrado» fuera de horario e indicaba que abre a las 05:00 (hora de Argentina). RN 51 con precaución por máquinas en badenes (Vialidad Nacional, 12/11/2026).",
+        "texto": "Habilitado de 09:00 a 19:00 (hora de Argentina), según Gendarmería (parte del 15/11/2026, 20:08). RN 51 con precaución por máquinas en badenes (Vialidad Nacional, 12/11/2026).",
         "fuente": "ar-seguridad-paso-sico",
         "publicado": "2026-11-15",
         "validacion": "verificado",
-        "actualizado": "2026-11-15",
+        "actualizado": "2026-11-16",
         "verificacion": {
           "verificadoPor": "responsable-editorial",
           "rol": "responsable-editorial",
-          "fecha": "2026-11-15",
-          "alcance": "Ernesto confirmó el 15/11/2026, tras ver la página del Ministerio de Seguridad (parte de Gendarmería del 15/11 a las 09:50), que Sico está habilitado: figura «Cerrado» solo por estar fuera de horario y abre a las 05:00."
+          "fecha": "2026-11-16",
+          "alcance": "Ernesto confirmó el 16/11/2026, con captura de la página del Ministerio de Seguridad, que Sico está abierto con horario 09:00–19:00. Corrige la apertura a las 05:00 publicada el 15/11 por error: la cuenta atrás de esa web usa la hora del dispositivo (España)."
         },
         "evidencia": "oficial",
         "otrasFuentes": [
@@ -569,17 +656,20 @@
         {
           "lado": "AR y CL",
           "organismo": "complejo",
-          "texto": "Abre a las 05:00 (hora de Argentina), según el parte de Gendarmería del 15/11/2026. Hora de cierre sin publicar en la fuente oficial.",
+          "texto": "09:00 a 19:00 (hora de Argentina), según Gendarmería (parte del 15/11/2026, 20:08).",
+          "apertura": "09:00",
+          "cierre": "19:00",
+          "zona": "America/Argentina/Salta",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-15",
-          "actualizado": "2026-11-15",
+          "actualizado": "2026-11-16",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
-            "fecha": "2026-11-15",
-            "alcance": "Ernesto confirmó el 15/11/2026 que la página oficial indica apertura a las 05:00 y no publica hora de cierre; se retira el horario anterior de 9 a 19 h."
+            "fecha": "2026-11-16",
+            "alcance": "Ernesto confirmó el 16/11/2026 el horario 09:00–19:00 en la página del Ministerio de Seguridad."
           }
         },
         {
@@ -698,10 +788,10 @@
         {
           "fecha": "2026-11-15",
           "valor": "operativo",
-          "texto": "Gendarmería: habilitado con horario; fuera de horario figura cerrado y abre a las 05:00.",
+          "texto": "Gendarmería: habilitado con horario de 09:00 a 19:00.",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-15",
-          "actualizado": "2026-11-15",
+          "actualizado": "2026-11-16",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
@@ -709,6 +799,22 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-15",
             "alcance": "Confirmado por Ernesto el 15/11/2026 con la página del Ministerio de Seguridad."
+          }
+        },
+        {
+          "fecha": "2026-11-16",
+          "valor": "operativo",
+          "texto": "Corrección de la Guía: el horario es de 09:00 a 19:00. El 15/11 se publicó por error apertura a las 05:00 (la cuenta atrás de la web oficial usa la hora del dispositivo).",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-15",
+          "actualizado": "2026-11-16",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-16",
+            "alcance": "Corrección confirmada por Ernesto el 16/11/2026."
           }
         }
       ],
@@ -770,18 +876,18 @@
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
           "valor": "operativo",
-          "texto": "Habilitado con horario. Figuraba «Cerrado» por estar fuera de horario; abre a las 05:00.",
-          "hora": "09:50",
+          "texto": "Horario 09:00–19:00. Consultado por Ernesto el 16/11/2026 a las 14:32 (hora de Argentina).",
+          "hora": "20:08",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-15",
-          "actualizado": "2026-11-15",
+          "actualizado": "2026-11-16",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
-            "fecha": "2026-11-15",
-            "alcance": "Ernesto confirmó el 15/11/2026 el parte de Gendarmería (09:50) en la página del Ministerio de Seguridad."
+            "fecha": "2026-11-16",
+            "alcance": "Ernesto confirmó el 16/11/2026 el parte de Gendarmería (15/11, 20:08) con captura de la página oficial."
           }
         },
         {
