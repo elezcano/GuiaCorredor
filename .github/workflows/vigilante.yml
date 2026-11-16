@@ -4,9 +4,11 @@
 name: Vigilante de webs oficiales
 
 on:
-  # Cada 3 horas, de 06 a 21 h de Argentina (09 a 00 UTC).
+  # Cada hora, de 06 a 21 h de Argentina (09 a 00 UTC). GitHub retrasa o se salta a menudo las tareas
+  # programadas; pasar cada hora asegura varias pasadas al día. No genera más correos: como mucho una
+  # incidencia por paso y día, y solo si hay un parte más nuevo que el cargado.
   schedule:
-    - cron: '23 9-23/3 * * *'
+    - cron: '17 0,9-23 * * *'
   workflow_dispatch:
     inputs:
       prueba:
