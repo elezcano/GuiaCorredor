@@ -23,7 +23,8 @@
     "node": ">=20"
   },
   "optionalDependencies": {
-    "@fontsource-variable/overpass": "^5.0.0"
+    "@fontsource-variable/overpass": "^5.0.0",
+    "maplibre-gl": "^5.0.0"
   },
   "devDependencies": {
     "ajv": "^8.17.1"

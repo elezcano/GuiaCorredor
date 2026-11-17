@@ -26,6 +26,14 @@ if (process.env.SITE_URL) site.url = process.env.SITE_URL;
 if (process.env.BASE_PATH) site.basePath = process.env.BASE_PATH === '/' ? '' : process.env.BASE_PATH;
 const B = (site.basePath || '').replace(/\/$/, '');
 const u = (p) => `${B}${p}`;
+const hayMapLibre = (() => {
+  try {
+    createRequire(import.meta.url).resolve('maplibre-gl/package.json');
+    return true;
+  } catch {
+    return false;
+  }
+})();
 const hayFuente = (() => {
   try {
     createRequire(import.meta.url).resolve('@fontsource-variable/overpass/package.json');
@@ -245,7 +253,7 @@ const marca = `<span class="placa"><span class="placa-l1">Guía del</span><span 
 
 const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema');if(t==='oscuro'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.tema='oscuro'}catch(e){}</script>`;
 
-function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '' }) {
+function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', estilos = [] }) {
   const t = titulo ? `${titulo} | ${site.nombre}` : site.nombreCompleto;
   const canon = `${site.url.replace(/\/$/, '')}${u(ruta)}`;
   const secciones = [
@@ -276,7 +284,7 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '' })
 <meta name="theme-color" content="#0e1012" media="(prefers-color-scheme: dark)">
 ${temaInicial}
 ${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2')}" as="font" type="font/woff2" crossorigin>` : ''}
-<link rel="stylesheet" href="${u('/assets/styles.css')}">
+<link rel="stylesheet" href="${u('/assets/styles.css')}">${estilos.map((e) => `\n<link rel="stylesheet" href="${u(e)}">`).join('')}
 </head>
 <body>
 <a class="saltar" href="#contenido">Ir al contenido</a>
@@ -306,6 +314,7 @@ ${cuerpo}
       <a href="${u('/directorio/')}">Servicios</a>
       <a href="${u('/novedades/')}">Novedades</a>
       <a href="${u('/guia/')}">Todas las fichas</a>
+      <a href="${u('/mapa/')}">Mapa interactivo</a>
       <a href="${u('/anunciate/')}">Anunciar mi empresa</a>
       <a href="${u('/sobre/')}">Cómo trabajamos la información</a>
       ${site.contacto.email ? `<a href="mailto:${esc(site.contacto.email)}">Escríbenos</a>` : ''}
@@ -1015,6 +1024,7 @@ ${seccion({
 ${seccion({
   titulo: 'Mapa del corredor',
   contexto: 'Ciudades, pasos fronterizos y puertos. Toca un punto para abrir su ficha.',
+  enlace: ['/mapa/', 'Abrir el mapa interactivo'],
   cuerpo: mapaHTML(),
 })}
 ${seccion({
@@ -1191,6 +1201,99 @@ ${seccion({
     </table>
   </div>
   <div class="vacio" data-vacio hidden><p>No hay páginas con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>
+</div>`,
+    })
+  );
+}
+
+// HU-115: mapa interactivo con MapLibre y teselas de OpenFreeMap (datos de OpenStreetMap).
+// Las capas salen de los mismos datos que el resto de la web. Sin MapLibre o sin WebGL, se ve el esquema SVG.
+{
+  const n = Object.fromEntries(rutas.nodos.map((x) => [x.id, x]));
+  const posPaso = (id) => {
+    const c = fichaPaso[id]?.ubicacion?.coordenadas;
+    if (c?.lat != null) return { lon: c.lon, lat: c.lat, esquematica: false };
+    const t = rutas.tramos.find((x) => x.paso?.id === id || x.alternativa?.id === id);
+    if (id === 'pozo-hondo' && n['pozo-hondo']) return { lon: n['pozo-hondo'].lon, lat: n['pozo-hondo'].lat, esquematica: true };
+    const a = n[t.desde], b = n[t.hasta];
+    return { lon: (a.lon + b.lon) / 2, lat: (a.lat + b.lat) / 2, esquematica: true };
+  };
+  // Trazados calculados con OpenStreetMap (scripts/trazados.mjs), si los hay. Si no, línea recta entre puntos.
+  const trazados = (() => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'trazados.json'), 'utf8'));
+    } catch {
+      return null;
+    }
+  })();
+  const lineas = [];
+  for (const t of rutas.tramos) {
+    for (const alt of [false, true]) {
+      const via = alt ? t.alternativa : t.paso;
+      if (alt && !via) continue;
+      const v = alt ? t.alternativa.vista : t.vista;
+      const op = v?.confirmado ? (alt ? t.alternativa.op : t.op) : 'sin-confirmar';
+      const clave = `${t.id}${via ? `@${via.id}` : ''}`;
+      const calc = trazados?.tramos?.[clave];
+      const pts = calc?.geometria || [n[t.desde], ...(via ? [posPaso(via.id)] : []), n[t.hasta]].map((o) => [o.lon, o.lat]);
+      lineas.push({
+        id: clave,
+        nombre: `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}${via ? ` por ${via.nombre}` : ''}`,
+        op,
+        estado: OPERATIVA[op].texto,
+        km: typeof t.km === 'number' ? t.km : null,
+        kmCalculado: calc?.km ?? null,
+        trazado: calc ? 'calculado' : 'recta',
+        alt,
+        url: via?.guia ? u(`/guia/${via.guia}/`) : t.guia ? u(`/guia/${t.guia}/`) : null,
+        coords: pts,
+      });
+    }
+  }
+  const puntos = [
+    ...rutas.nodos.map((x) => ({ id: x.id, nombre: x.nombre, pais: PAISES[x.pais], tipo: x.id === 'puertos-chile' ? 'puerto' : 'ciudad', lon: x.lon, lat: x.lat, url: u(`/directorio/?punto=${x.id}`) })),
+    ...fichaPasos.map((p) => {
+      const e = estadoPaso(p.id);
+      const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
+      const g = posPaso(p.id);
+      const r = rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id);
+      return { id: p.id, nombre: p.nombre, tipo: 'paso', op, estado: OPERATIVA[op].texto + (e.confirmado ? ` · verificado el ${fechaCorta(e.verificado)}` : ' · sin confirmar'), lon: g.lon, lat: g.lat, esquematica: g.esquematica, url: r?.guia ? u(`/guia/${r.guia}/`) : null };
+    }),
+  ];
+  const datosMapa = { puntos, lineas, colores: { abierto: '#1f9d55', restricciones: '#e8a317', cerrado: '#d64545', 'sin-confirmar': '#8a939b' } };
+  const filas = lineas
+    .map((l) => `<tr><th scope="row">${l.url ? `<a href="${esc(l.url)}">${esc(l.nombre)}</a>` : esc(l.nombre)}</th><td>${estado(l.op === 'sin-confirmar' ? 'pendiente' : l.op === 'abierto' ? 'operativo' : l.op === 'cerrado' ? 'cerrado' : 'restricciones')}</td><td>${l.km != null ? `${GCkm(l.km)} <span class="texto-suave">con fuente</span>` : l.kmCalculado != null ? `${GCkm(l.kmCalculado)} <span class="texto-suave">calculado con OpenStreetMap</span>` : '<span class="sin-dato">km por cargar</span>'}</td></tr>`)
+    .join('');
+  add(
+    '/mapa/',
+    layout({
+      titulo: 'Mapa del corredor',
+      descripcion: 'Mapa interactivo del Corredor Bioceánico con el estado de cada tramo y paso fronterizo.',
+      ruta: '/mapa/',
+      estilos: hayMapLibre ? ['/assets/vendor/maplibre-gl.css'] : [],
+      scripts: hayMapLibre ? ['/assets/vendor/maplibre-gl.js', '/assets/mapa.js'] : [],
+      datos: `<script type="application/json" id="datos-mapa">${JSON.stringify(datosMapa).replace(/</g, '\\u003c')}</script>`,
+      cuerpo: `
+<div class="contenedor">
+  <header class="cabeza-pagina"><h1>Mapa del corredor</h1><p>Estado de hoy de cada tramo y paso. Toca un paso para abrir su ficha.</p></header>
+  <div class="mapa-vivo-marco">
+    <div id="mapa-vivo" class="mapa-vivo" hidden role="region" aria-label="Mapa interactivo del corredor. La misma información está en la tabla de abajo."></div>
+    <div class="mapa-respaldo">${mapaHTML()}</div>
+  </div>
+  <ul class="mapa-leyenda" aria-label="Leyenda">
+    <li><span class="ley-color" style="background:#1f9d55"></span>Abierto</li>
+    <li><span class="ley-color" style="background:#e8a317"></span>Con restricciones</li>
+    <li><span class="ley-color" style="background:#d64545"></span>No habilitado</li>
+    <li><span class="ley-color" style="background:#8a939b"></span>Sin confirmar</li>
+    <li><span class="ley-linea"></span>Trazado por carretera (OpenStreetMap)</li>
+    <li><span class="ley-linea ley-linea-recta"></span>Línea recta: trazado pendiente</li>
+  </ul>
+  <h2>Tramos</h2>
+  <div class="tabla-scroll"><table class="tabla-tramos">
+    <thead><tr><th scope="col">Tramo</th><th scope="col">Estado</th><th scope="col">Distancia</th></tr></thead>
+    <tbody>${filas}</tbody>
+  </table></div>
+  <p class="dato-fuente">Mapa base: © OpenStreetMap y sus colaboradores, teselas de OpenFreeMap. Las distancias «calculadas con OpenStreetMap» son un cálculo de ruta por carretera, no un dato oficial.</p>
 </div>`,
     })
   );
@@ -1818,6 +1921,16 @@ for (const { ruta, html } of paginas.filter((p) => !p.archivo)) {
 }
 fs.cpSync(path.join(ROOT, 'src', 'assets'), path.join(DIST, 'assets'), { recursive: true });
 for (const { ruta, html } of paginas.filter((p) => p.archivo)) fs.writeFileSync(path.join(DIST, ruta), html);
+
+// HU-115: MapLibre GL (código abierto) alojado en la propia web. Opcional: si no está instalado,
+// la página del mapa muestra el esquema SVG de siempre.
+try {
+  const dirML = path.join(path.dirname(require.resolve('maplibre-gl/package.json')), 'dist');
+  fs.mkdirSync(path.join(DIST, 'assets', 'vendor'), { recursive: true });
+  for (const f of ['maplibre-gl.js', 'maplibre-gl.css']) fs.copyFileSync(path.join(dirML, f), path.join(DIST, 'assets', 'vendor', f));
+} catch {
+  console.warn('Aviso: no está instalado maplibre-gl; el mapa interactivo usará el esquema SVG.');
+}
 
 // Tipografía Overpass alojada en la propia web (opcional: si no está instalada, se usa la de sustitución).
 try {
