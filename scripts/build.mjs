@@ -711,6 +711,7 @@ function ahoraHTML(p, op) {
     paises: Object.keys(p.lados).map((k) => ({ pais: k, nombre: PAISES[k], zona: ZONAS[k] })),
     horario: h ? { apertura: h.apertura, cierre: h.cierre, zona: h.zona, verificado: h.validacion === 'verificado' && !!h.verificado } : null,
     op,
+    soloCarga: p.estado.afecta === 'carga',
   };
   return `<div class="ahora" data-ahora="${esc(JSON.stringify(datos))}">
     <p class="ahora-relojes">${Object.keys(p.lados).map((k) => `<span class="ahora-reloj" data-pais="${k}">${bandera(k)} <span class="ahora-hora">--:--</span></span>`).join('')}</p>
@@ -759,7 +760,8 @@ function fichaOperativa(p) {
   const inc = incidenciasDe({ paso: p.id, tramos: rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id) });
   // Respuesta en una línea: lo que mira quien va a transportar o cotizar.
   const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
-  const detalleEstado = e.confirmado && ESTADOS[e.valor] && ESTADOS[e.valor] !== OPERATIVA[op].texto && e.valor !== 'operativo' ? ` · ${ESTADOS[e.valor]}` : '';
+  const soloCarga = e.confirmado && p.estado.afecta === 'carga' && op !== 'abierto';
+  const detalleEstado = soloCarga ? ' para carga · turismo con atención normal' : e.confirmado && ESTADOS[e.valor] && ESTADOS[e.valor] !== OPERATIVA[op].texto && e.valor !== 'operativo' ? ` · ${ESTADOS[e.valor]}` : '';
   const primeraFrase = (t = '') => (t.match(/^[^.]+\./)?.[0] || t);
   const prevision = inc.find((i) => i.finPrevista)?.finPrevista;
   const hor = p.horarios?.[0];

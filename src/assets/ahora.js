@@ -16,8 +16,13 @@
       const r = el.querySelector(`.ahora-reloj[data-pais="${p.pais}"] .ahora-hora`);
       if (r) r.textContent = `${hora(p.zona)} en ${p.nombre}`;
     });
+    const habitual = d.horario ? ` (${d.horario.apertura}–${d.horario.cierre}, hora de Argentina)` : '';
     if (d.op === 'cerrado') {
-      salida.textContent = 'No habilitado: el horario no aplica.';
+      salida.innerHTML = d.soloCarga
+        ? `<strong>No habilitado para carga.</strong> Un camión no puede cruzar aunque sea dentro del horario habitual${habitual}, hasta un nuevo parte oficial.`
+        : d.horario
+          ? `<strong>No habilitado.</strong> No se puede cruzar aunque sea dentro del horario habitual${habitual}, hasta un nuevo parte oficial.`
+          : '<strong>No habilitado.</strong> No se puede cruzar hasta que se habilite oficialmente.';
       return;
     }
     if (!d.horario) {
