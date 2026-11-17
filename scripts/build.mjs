@@ -831,7 +831,7 @@ function fichaOperativa(p, guiaPag) {
   const frases = (p.estado.texto || '').match(/[^.]+(\.|$)/g)?.map((x) => x.trim()).filter(Boolean) || [];
   const resto = frases.slice(1).join(' ');
   const prevision = inc.find((i) => i.finPrevista)?.finPrevista;
-  const respuesta = `<div class="respuesta op-${op}" role="status" aria-live="polite">
+  const respuesta = `<div class="respuesta op-${op}" data-estado="${esc(e.confirmado ? e.valor : 'pendiente')}" role="status" aria-live="polite">
     ${OPERATIVA[op].icono}
     <div>
       <p class="respuesta-titulo">${esc(OPERATIVA[op].texto + detalleEstado)}</p>
