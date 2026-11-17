@@ -197,9 +197,9 @@
     },
     {
       "id": "portaria-mgi-11-460-2025-calendario-federal-2026",
-      "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
-      "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
-      "tipo": "otra"
+      "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026, Diário Oficial da União)",
+      "url": "https://www.in.gov.br/web/dou/-/portaria-mgi-n-11.460-de-29-de-dezembro-de-2025-678388627",
+      "tipo": "oficial"
     },
     {
       "id": "resolucion-jgm-164-2025",
@@ -320,6 +320,12 @@
       "nombre": "Wikipedia (en): Sico Pass",
       "url": "https://en.wikipedia.org/wiki/Sico_Pass",
       "tipo": "referencia"
+    },
+    {
+      "id": "lei-6-802-1980",
+      "nombre": "Lei 6.802/1980 (12 de octubre, Nossa Senhora Aparecida)",
+      "url": "https://www.planalto.gov.br/ccivil_03/LEIS/L6802.htm",
+      "tipo": "oficial"
     },
     {
       "id": "saltanews-jama-sico-22-08-2026",

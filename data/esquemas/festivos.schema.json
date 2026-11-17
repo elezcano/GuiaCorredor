@@ -79,6 +79,10 @@
               },
               "nota": {
                 "type": "string"
+              },
+              "trasladable": {
+                "type": "boolean",
+                "description": "El Poder Ejecutivo puede trasladarlo por decreto (p. ej. al lunes anterior o siguiente)."
               }
             }
           }
