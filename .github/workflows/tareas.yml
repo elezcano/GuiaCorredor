@@ -1,0 +1,30 @@
+# Tareas del día (scripts/tareas.mjs): cada día abre la incidencia «Tareas del día · AAAA-MM-DD»
+# asignada al responsable editorial (le llega por correo) y cierra la del día anterior.
+name: Tareas del día
+
+on:
+  # 13:07 UTC = 14:07 en España (invierno) = 10:07 en Argentina: ya están los partes de la mañana.
+  schedule:
+    - cron: '7 13 * * *'
+  workflow_dispatch:
+  # En una PR que toque las tareas: con la etiqueta «prueba-tareas» abre la lista de hoy.
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  tareas:
+    if: github.event_name != 'pull_request' || github.event.label.name == 'prueba-tareas'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Abrir la lista de hoy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/tareas.mjs --github

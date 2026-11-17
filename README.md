@@ -33,8 +33,9 @@
 1. **Cada mejora es una historia de usuario** (issue en GitHub y tarjeta en Trello): «en curso» → «hecho».
 2. **Se desarrolla en una rama** y se abre una PR. Nada llega a la web sin que Ernesto lo pruebe y diga «publica».
 3. **Los datos nuevos entran «sin verificar».** Solo Ernesto los verifica, diciendo «confirmo …». La IA nunca marca un dato como verificado.
-4. **El vigilante avisa por correo** cuando Gendarmería o Vialidad publican un parte más nuevo que el cargado. Ernesto lo mira y dice «confirmo …»; Claude carga el parte y **cierra siempre la incidencia** del vigilante con lo que se hizo.
-5. **Antes de publicar, GitHub lo revisa todo solo:** datos y esquemas, coherencia web/API, enlaces, verificaciones nuevas (exigen la etiqueta `revision-editorial`) y **pruebas de navegador**. Si algo falla, no se publica.
+4. **Cada día llega por correo «Tareas del día»**: avisos del vigilante, partes caducados y datos por verificar, numerados. Ernesto responde en el chat («confirmo 1, 3 y 5»).
+5. **El vigilante avisa por correo** cuando Gendarmería o Vialidad publican un parte más nuevo que el cargado. Ernesto lo mira y dice «confirmo …»; Claude carga el parte y **cierra siempre la incidencia** del vigilante con lo que se hizo.
+6. **Antes de publicar, GitHub lo revisa todo solo:** datos y esquemas, coherencia web/API, enlaces, verificaciones nuevas (exigen la etiqueta `revision-editorial`) y **pruebas de navegador**. Si algo falla, no se publica.
 
 ### Pruebas automáticas
 
@@ -48,14 +49,17 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
-| 17/11/2026 | **Fiabilidad de cada paso:** días no habilitado, sin paso para carga, con restricciones, habilitado y sin datos en 30 y 90 días, solo con partes verificados (en revisión) | #97 |
+| 17/11/2026 | **Tareas del día por correo** para el responsable editorial | #99 |
+| 17/11/2026 | **Fiabilidad de cada paso:** días no habilitado, sin paso para carga, con restricciones, habilitado y sin datos en 30 y 90 días, solo con partes verificados. El relleno de agosto a noviembre espera la confirmación de Ernesto | #97 |
+| 17/11/2026 | **Feriados verificados:** Paraguay 2027 (con los trasladables marcados), Argentina, Chile y Brasil, comprobados contra sus leyes | PR #103, #104 |
+| 17/11/2026 | **Jama sin paso para carga por viento** (UPF Chile, 16/11): primer parte del lado chileno y texto claro de «no habilitado para carga» | PR #93, #94 |
 | 17/11/2026 | **Vigilante con horario:** solo avisa dentro del horario de cada paso (hora de Argentina), y cada correo lleva la hora de Argentina y de España | — |
 | 16/11/2026 | **Primeros avisos del vigilante atendidos:** partes de Gendarmería y Vialidad en Jama, Sico y Pozo Hondo; horario de Sico corregido (09:00–19:00) y de Jama aclarado (09:00–19:15). El vigilante pasa a revisar cada hora | #86 |
 | 15/11/2026 | **Informe resumido en una página:** estado y último parte de cada paso, lo importante, avisos, distancia y papeles en una hoja A4 | #80 |
 | 15/11/2026 | **Vigilante de webs oficiales:** cada hora revisa Gendarmería y Vialidad y avisa por correo si hay un parte más nuevo que el cargado | #77 |
 | 15/11/2026 | **Pruebas automáticas en GitHub:** las pruebas de navegador se ejecutan en cada cambio y bloquean la publicación si algo falla | #50 |
 | 15/11/2026 | **Partes por organismo** con fecha, hora y aviso de antigüedad a partir de 48 h (se bajará a 24 h en mayo/junio de 2027) | #73 |
-| 15/11/2026 | **Los cuatro pasos con estado verificado.** Sico, habilitado con horario: abre a las 05:00, según Gendarmería. Aviso en la RN 51 | PR #72 |
+| 15/11/2026 | **Los cuatro pasos con estado verificado.** Sico, habilitado con horario (corregido el 16/11 a 09:00–19:00). Aviso en la RN 51 | PR #72 |
 | 15/11/2026 | **Teléfonos verificados** de Jama, Sico y Pozo Hondo, con la etiqueta exacta de la web oficial | PR #71 |
 | 15/11/2026 | **Fichas de paso:** hora local y «abierto ahora», controles para carga, botón Llamar y novedades del paso | #65–#68 |
 | 15/11/2026 | **Informe de viaje** por ruta y fecha, para WhatsApp, enlace o PDF | #45 |
@@ -98,6 +102,8 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 17 | Aviso de antigüedad de los partes a partir de 48 h; 24 h desde mayo/junio de 2027 |
 | 18 | Las pruebas de navegador se ejecutan en GitHub en cada cambio y bloquean la publicación si fallan |
 | 19 | Avisos del vigilante por correo (incidencia de GitHub asignada a Ernesto); WhatsApp, más adelante y solo por vía oficial |
+| 20 | Los datos oficiales leídos automáticamente se publican con su propia etiqueta («dato oficial leído automáticamente»); el semáforo y las fuentes de prensa siguen necesitando verificación humana (#100) |
+| 21 | Cada día, a las 14:07 de España, Ernesto recibe por correo la lista «Tareas del día» (#99) |
 
 </details>
 
