@@ -398,6 +398,64 @@
         "fecha": "2026-11-17",
         "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 51, San Antonio De Los Cobres - Paso De Sico (Salta): RN 51 (San Antonio De Los Cobres - Paso De Sico): Transitar con precaución maquinas trabjando en badenes con material.."
       }
+    },
+    {
+      "id": "mop-16990-192",
+      "paises": [
+        "CL"
+      ],
+      "ubicacion": "Ruta 1 (km 192–267), Cruce Ruta 5 (Las Breas) - Taltal - Río Loa - Iquique, Sector: Antofagasta - Río Loa",
+      "tramo": "Ruta 1 (km 192–267)",
+      "tipo": "corte",
+      "estado": "activa",
+      "gravedad": "ambar",
+      "descripcion": "Ruta 1 (km 192–267): Tránsito no operativo. Rodados material en ruta 1 sector km 199 a km 267. Registrado por Vialidad el 14/08/2026. Sin novedades de Vialidad desde el 26/08/2026: puede estar ya resuelto, confírmalo antes de salir.",
+      "inicio": "2026-08-14",
+      "tramos": [
+        "calama-iquique"
+      ],
+      "fuente": "cl-vialidad-siemop",
+      "publicado": "2026-08-26",
+      "horaFuente": "2026-08-26T11:03:58.000Z",
+      "impacto": "Sin confirmar: el último registro de Vialidad es antiguo.",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:41 (hora de Argentina): Ruta 1 (km 192–267), Cruce Ruta 5 (Las Breas) - Taltal - Río Loa - Iquique, Sector: Antofagasta - Río Loa: Ruta 1 (km 192–267): Tránsito no operativo. Rodados material en ruta 1 sector km 199 a km 267. Registrado por Vialidad el 14/08/2026. Sin novedades de Vialidad desde el 26/08/2026: puede estar ya resuelto, confírmalo antes de salir.."
+      }
+    },
+    {
+      "id": "mop-17013-39",
+      "paises": [
+        "CL"
+      ],
+      "ubicacion": "Ruta 16 (km 39–46.741), Humberstone - Iquique",
+      "tramo": "Ruta 16 (km 39–46.741)",
+      "tipo": "corte",
+      "estado": "activa",
+      "gravedad": "ambar",
+      "descripcion": "Ruta 16 (km 39–46.741): Tránsito no operativo. Desplazamiento de material granular hacia la ruta producto de llovizna y temporal. Registrado por Vialidad el 14/08/2026. Sin novedades de Vialidad desde el 02/09/2026: puede estar ya resuelto, confírmalo antes de salir.",
+      "inicio": "2026-08-14",
+      "tramos": [
+        "calama-iquique"
+      ],
+      "fuente": "cl-vialidad-siemop",
+      "publicado": "2026-09-02",
+      "horaFuente": "2026-09-02T16:45:10.000Z",
+      "impacto": "Sin confirmar: el último registro de Vialidad es antiguo.",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:41 (hora de Argentina): Ruta 16 (km 39–46.741), Humberstone - Iquique: Ruta 16 (km 39–46.741): Tránsito no operativo. Desplazamiento de material granular hacia la ruta producto de llovizna y temporal. Registrado por Vialidad el 14/08/2026. Sin novedades de Vialidad desde el 02/09/2026: puede estar ya resuelto, confírmalo antes de salir.."
+      }
     }
   ]
 }
