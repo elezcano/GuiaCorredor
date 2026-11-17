@@ -6,19 +6,33 @@ jobs:
   captura:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      - run: sudo apt-get install -y -q poppler-utils >/dev/null
       - run: |
-          cat > /tmp/d.mjs <<'JS'
-          import fs from 'node:fs';
-          const m = await import(process.cwd() + '/scripts/carreteras.mjs');
-          const T = JSON.parse(fs.readFileSync('data/trazados.json')).tramos;
-          const q = `https://rest-sit.mop.gob.cl/arcgis/rest/services/VIALIDAD/Emergencias_Vialidad/MapServer/0/query?where=${encodeURIComponent("REGION IN ('01','02')")}&outFields=*&returnGeometry=true&outSR=4326&f=json`;
-          const d = await (await fetch(q, { headers: { 'User-Agent': 'GuiaCorredor-vigilante (+https://elezcano.github.io/GuiaCorredor/)' } })).json();
-          console.log('features', d.features?.length);
-          for (const f of d.features) { const a = f.attributes, g = f.geometry; console.log(JSON.stringify(a.ROL), m.esRutaNacional(a.ROL), g?.x, g?.y, Object.entries(T).map(([k, t]) => [k, m.kmALinea([g.x, g.y], t.geometria).toFixed(1)]).sort((x, y) => x[1] - y[1])[0]); }
-          console.log('leerCL', m.leerCL(d, T).length);
-          JS
-          node /tmp/d.mjs
+          cat > /tmp/d.py <<'PY'
+          import re, urllib.request, subprocess, html
+          UA={'User-Agent':'Mozilla/5.0'}
+          def get(u): return urllib.request.urlopen(urllib.request.Request(u,headers=UA),timeout=60).read()
+          def listar(fid):
+              h=get(f'https://drive.google.com/embeddedfolderview?id={fid}').decode('utf-8','ignore')
+              items=re.findall(r'<a href="([^"]+)"[^>]*>.*?<div class="flip-entry-title">([^<]+)</div>.*?<div class="flip-entry-last-modified"><div>([^<]*)</div>',h,re.S)
+              return [(html.unescape(u),html.unescape(t),m) for u,t,m in items]
+          raiz=listar('16y2lx1eoOwn532O1F0j-g0Ye7YZj0dWD')
+          for x in raiz: print('RAIZ',x)
+          nov=[u for u,t,m in raiz if 'NOVIEMBRE' in t.upper()]
+          fid=re.search(r'folders/([\w-]+)',nov[0]).group(1) if nov else '1ZgmBceMvSZ9TDlJfiVsN40ED73jWj25o'
+          arch=listar(fid)
+          for x in arch: print('NOV',x)
+          ult=arch[-1] if arch else None
+          ids=[re.search(r'/d/([\w-]+)',u).group(1) for u,t,m in arch if re.search(r'/d/([\w-]+)',u)]
+          for i,(u,t,m) in enumerate(arch[:2]):
+              fi=re.search(r'/d/([\w-]+)',u)
+              if not fi: continue
+              open('/tmp/p.pdf','wb').write(get(f'https://drive.google.com/uc?export=download&id={fi.group(1)}'))
+              print('=== PDF',t, subprocess.run(['pdfinfo','/tmp/p.pdf'],capture_output=True,text=True).stdout[:400])
+              txt=subprocess.run(['pdftotext','-layout','/tmp/p.pdf','-'],capture_output=True,text=True).stdout
+              print('CHARS',len(txt)); print(txt[:4000])
+              for k in ['PY15','PY 15','PY-15','Mariscal','Pozo Hondo','Carmelo','Transchaco','PY09','Loma Plata']:
+                  j=txt.find(k)
+                  if j>=0: print('---',k,':',txt[max(0,j-300):j+400].replace('\n',' | '))
+          PY
+          python3 /tmp/d.py
