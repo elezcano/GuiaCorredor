@@ -19,6 +19,8 @@ jobs:
           console.log('scripts', srcs.length);
           for (const s of srcs) { try { const t = await (await fetch(s, { headers: H })).text(); if (/sheets\.googleapis|17Aqjq|tablavisible/.test(t)) { const i = t.search(/sheets\.googleapis|17Aqjq|tablavisible/); console.log('ENCONTRADO en', s, '\n', t.slice(Math.max(0, i - 600), i + 400)); } } catch (e) {} }
           const i2 = pag.search(/tablavisible|17Aqjq|data-sheet|spreadsheet/i); console.log('en html:', i2, i2 > 0 ? pag.slice(i2 - 400, i2 + 300) : '');
+          const ic = pag.search(/idSpread/); console.log('CONFIG', pag.slice(ic - 300, ic + 300));
+          const po = await (await fetch('https://www.argentina.gob.ar/profiles/argentinagobar/themes/contrib/poncho/js/poncho.min.js', { headers: H })).text(); const ig = po.indexOf('class GapiSheetData'); console.log('GAPI', po.slice(ig, ig + 900));
           const dset = [...pag.matchAll(/data-[a-z-]*(?:sheet|tabla|key|id)[a-z-]*="[^"]*"/gi)].map((x) => x[0]).slice(0, 20); console.log('data-*', dset);
           const j = await (await fetch('https://sheets.googleapis.com/v4/spreadsheets/17AqjqeNvM4nG6cOUsUFKFaKXMiNmztYfzHIxeM9FcXk/values/tablavisible?key=AIzaSyCq2wEEKL9-6RmX-TkW23qJsrmnFHFf5tY&alt=json', { headers: { Referer: 'https://www.argentina.gob.ar/' } })).json();
           j.values = j.values.filter((r, k) => k < 2 || ['Jujuy', 'Salta', 'Formosa'].includes(r[0]));
@@ -28,7 +30,7 @@ jobs:
           console.log('REGIONES', JSON.stringify(reg.features?.map((f) => f.attributes.REGION) || reg.error));
           const out = {};
           for (const l of [0, 1, 2]) {
-            const q = await (await fetch(`${base}/${l}/query?where=${encodeURIComponent("UPPER(REGION) LIKE '%ANTOFAGASTA%'")}&outFields=*&returnGeometry=false&f=json`)).json();
+            const q = await (await fetch(`${base}/${l}/query?where=${encodeURIComponent("REGION='02'")}&outFields=*&returnGeometry=false&f=json`)).json();
             out[l] = q; console.log(`capa ${l}: ${q.features?.length ?? JSON.stringify(q.error)}`);
             for (const f of (q.features || []).slice(0, 40)) { const a = f.attributes; console.log(`  [${a.ESTADO}] ${a.CAMINO} | ${a.NOMBRE_CAMINO} | rol ${a.ROL} | km ${a.KM_INICIO_SEGMENTO}-${a.KM_FIN_SEGMENTO} | tránsito ${a.TRANSITO} | restr ${a.RESTRICCION} | ${a.NIVEL_DE_GRAVEDAD} | ${a.OPERATIVIDAD} | ${a.TIPO} | ${new Date(a.FECHA_EMERGENCIA || a.FECHA || 0).toISOString().slice(0, 10)} | edit ${new Date(a.last_edited_date || 0).toISOString().slice(0, 16)} | ${(a.RESUMEN_EMERGENCIA || a.RESUMEN || '').slice(0, 120)}`); }
           }
