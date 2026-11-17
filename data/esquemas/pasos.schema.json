@@ -83,6 +83,13 @@
                   },
                   "texto": {
                     "type": "string"
+                  },
+                  "afecta": {
+                    "enum": [
+                      "todo",
+                      "carga"
+                    ],
+                    "description": "A quién afecta un estado cerrado o con restricciones: a todo el tránsito (por defecto) o solo al transporte de carga."
                   }
                 }
               }

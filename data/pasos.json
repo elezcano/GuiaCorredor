@@ -329,7 +329,8 @@
         "otrasFuentes": [
           "ar-seguridad-paso-jama",
           "el-tribuno-jujuy-jama-15-11-2026"
-        ]
+        ],
+        "afecta": "carga"
       },
       "horarios": [
         {
