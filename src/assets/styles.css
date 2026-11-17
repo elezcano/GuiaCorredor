@@ -1236,3 +1236,17 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .parte-quien { flex: 1 1 60%; }
 .parte-linea .estado-detalle { display: none; }
 @media (max-width: 640px) { .ficha-operativa .respuesta { padding: 14px; } }
+
+/* ---------- HU-115: mapa interactivo ---------- */
+.mapa-vivo-marco { margin: 16px 0; }
+.mapa-vivo { width: 100%; height: min(70vh, 640px); min-height: 380px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.mapa-vivo .maplibregl-popup-content { font-family: inherit; font-size: 14px; line-height: 20px; color: #14181b; padding: 12px 14px; border-radius: 10px; }
+.mapa-vivo .maplibregl-popup-content p { margin: 4px 0 8px; }
+.mapa-vivo .maplibregl-popup-content a { color: #14181b; font-weight: 700; }
+.mapa-leyenda { list-style: none; margin: 0 0 24px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; }
+.mapa-leyenda li { display: inline-flex; align-items: center; gap: 8px; }
+.ley-linea { display: inline-block; width: 28px; height: 0; border-top: 5px solid #8a939b; border-radius: 3px; }
+.ley-linea-recta { border-top-style: dashed; }
+.tabla-tramos { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 15px; }
+.tabla-tramos th, .tabla-tramos td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.tabla-tramos thead th { font-size: 13px; color: var(--muted-foreground); }

@@ -1,0 +1,27 @@
+# HU-115: calcula el trazado por carretera y los km de cada tramo con OSRM (datos de OpenStreetMap).
+# Se lanza a mano. Deja data/trazados.json en una rama nueva para revisarlo en un Pull Request.
+name: Trazados
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  calcular:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Calcular trazados
+        run: node scripts/trazados.mjs
+      - name: Guardar en una rama
+        run: |
+          rama="trazados-$(date -u +%Y%m%d-%H%M)"
+          git config user.name "Ernesto Lezcano"
+          git config user.email "elezcanofm@gmail.com"
+          git checkout -b "$rama"
+          git add data/trazados.json
+          git commit -m "Trazados por carretera calculados con OpenStreetMap (OSRM)"
+          git push origin "$rama"
+          echo "Rama: $rama" >> "$GITHUB_STEP_SUMMARY"
