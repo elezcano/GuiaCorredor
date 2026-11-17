@@ -36,15 +36,24 @@ async function comprobarMapa(p, ok, donde) {
     }
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'desborde ' + tema);
     await p.screenshot({ path: captura(`mapa-${tema}.png`) });
-    // Portada: el mapa se carga al llegar a su sección (si MapLibre está instalado).
-    await p.goto(B + '/');
-    if (await p.$('.mapa-vivo-marco')) {
-      ok((await p.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
-      await p.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
-      const est = await comprobarMapa(p, ok, 'portada');
-      console.log(`  portada ${tema}: ${est}`);
-      if (est === 'mapa') await p.waitForTimeout(2500);
-      await p.locator('.mapa-vivo-marco').screenshot({ path: captura(`portada-mapa-${tema}.png`) });
+    // Portada: el mapa se carga al llegar a su sección. Sin reloj fijo: con la fecha congelada
+    // MapLibre no termina de cargar en la portada, y aquí la fecha no importa.
+    {
+      const { chromium } = require('playwright');
+      const nav = await chromium.launch();
+      const q = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: sch });
+      q.on('pageerror', (e) => errs.push(e.message));
+      await q.addInitScript((t) => { try { localStorage.setItem('tema', t); } catch {} }, tema);
+      await q.goto(B + '/');
+      if (await q.$('.mapa-vivo-marco')) {
+        ok((await q.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
+        await q.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
+        const est = await comprobarMapa(q, ok, 'portada');
+        console.log(`  portada ${tema}: ${est}`);
+        if (est === 'mapa') await q.waitForTimeout(2500);
+        await q.locator('.mapa-vivo-marco').screenshot({ path: captura(`portada-mapa-${tema}.png`) });
+      }
+      await nav.close();
     }
     ok(errs.length === 0, 'errores JS ' + errs);
     await p.close();
