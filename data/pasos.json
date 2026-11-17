@@ -313,22 +313,22 @@
         }
       },
       "estado": {
-        "valor": "operativo",
-        "texto": "Habilitado de 09:00 a 19:15 (hora de Argentina), según Gendarmería (parte del 15/11/2026, 20:03). Vialidad Nacional publica un aviso en la RN 52 (tramo Susques – límite con Chile) sin más detalle. Cierres por nieve posibles en invierno.",
-        "fuente": "ar-seguridad-paso-jama",
-        "publicado": "2026-11-15",
+        "valor": "cerrado",
+        "texto": "No habilitado para transporte de carga por fuertes ráfagas de viento, según la Unidad de Pasos Fronterizos de Chile (parte del 16/11/2026, 18:25). Turismo con atención normal. Horario habitual: 09:00 a 19:15 (hora de Argentina).",
+        "fuente": "upf-chile-canal",
+        "publicado": "2026-11-16",
         "validacion": "verificado",
-        "actualizado": "2026-11-16",
+        "actualizado": "2026-11-17",
         "verificacion": {
           "verificadoPor": "responsable-editorial",
           "rol": "responsable-editorial",
-          "fecha": "2026-11-16",
-          "alcance": "Ernesto confirmó el 16/11/2026, con captura de la página del Ministerio de Seguridad, que Jama está abierto con horario 09:00–19:15."
+          "fecha": "2026-11-17",
+          "alcance": "Ernesto confirmó el 17/11/2026, con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Provincia El Loa, 16/11/2026 a las 18:25, hora de Chile), que Jama no estaba habilitado para transporte de carga por fuertes ráfagas de viento, con atención normal para turismo."
         },
         "evidencia": "oficial",
         "otrasFuentes": [
-          "el-tribuno-jujuy-jama-15-11-2026",
-          "upf-chile-canal"
+          "ar-seguridad-paso-jama",
+          "el-tribuno-jujuy-jama-15-11-2026"
         ]
       },
       "horarios": [
@@ -495,6 +495,22 @@
             "fecha": "2026-11-16",
             "alcance": "Confirmado por Ernesto el 16/11/2026."
           }
+        },
+        {
+          "fecha": "2026-11-16",
+          "valor": "cerrado",
+          "texto": "UPF Chile (18:25): no habilitado para transporte de carga por fuertes ráfagas de viento; turismo con atención normal.",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-17",
+            "alcance": "Ernesto confirmó el 17/11/2026, con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Provincia El Loa, 16/11/2026 a las 18:25, hora de Chile), que Jama no estaba habilitado para transporte de carga por fuertes ráfagas de viento, con atención normal para turismo."
+          }
         }
       ],
       "controles": [
@@ -599,7 +615,7 @@
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
           "valor": null,
-          "texto": "Figuraba «Cerrado» de madrugada, fuera de su horario (09:00–19:15); sin aviso de cierre por clima ni por ruta. Consultado por Ernesto el 17/11/2026 a las 04:21 (hora de Argentina).",
+          "texto": "Figuraba «Cerrado» de madrugada, fuera de su horario (09:00–19:15). Consultado por Ernesto el 17/11/2026 a las 04:21 (hora de Argentina).",
           "hora": "20:19",
           "fuente": "ar-seguridad-paso-jama",
           "publicado": "2026-11-16",
@@ -611,6 +627,24 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-17",
             "alcance": "Ernesto confirmó el 17/11/2026, con captura de la página oficial, el parte de Gendarmería del 16/11 a las 20:19."
+          }
+        },
+        {
+          "lado": "CL",
+          "emisor": "Unidad de Pasos Fronterizos de Chile (Provincia El Loa)",
+          "valor": "cerrado",
+          "texto": "No habilitado para transporte de carga: suspensión de la revisión de carga por fuertes ráfagas de viento. Atención normal en el sector de turismo.",
+          "hora": "18:25",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-17",
+            "alcance": "Ernesto confirmó el 17/11/2026, con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Provincia El Loa, 16/11/2026 a las 18:25, hora de Chile), que Jama no estaba habilitado para transporte de carga por fuertes ráfagas de viento, con atención normal para turismo."
           }
         }
       ]
