@@ -17,20 +17,20 @@ jobs:
               items=re.findall(r'<a href="([^"]+)"[^>]*>.*?<div class="flip-entry-title">([^<]+)</div>.*?<div class="flip-entry-last-modified"><div>([^<]*)</div>',h,re.S)
               return [(html.unescape(u),html.unescape(t),m) for u,t,m in items]
           raiz=listar('16y2lx1eoOwn532O1F0j-g0Ye7YZj0dWD')
-          for x in raiz: print('RAIZ',x)
+          pass
           nov=[u for u,t,m in raiz if 'NOVIEMBRE' in t.upper()]
           fid=re.search(r'folders/([\w-]+)',nov[0]).group(1) if nov else '1ZgmBceMvSZ9TDlJfiVsN40ED73jWj25o'
           arch=listar(fid)
-          for x in arch: print('NOV',x)
+          pass
           ult=arch[-1] if arch else None
           ids=[re.search(r'/d/([\w-]+)',u).group(1) for u,t,m in arch if re.search(r'/d/([\w-]+)',u)]
-          for i,(u,t,m) in enumerate(arch[:2]):
+          for i,(u,t,m) in enumerate(arch[-1:]):
               fi=re.search(r'/d/([\w-]+)',u)
               if not fi: continue
               open('/tmp/p.pdf','wb').write(get(f'https://drive.google.com/uc?export=download&id={fi.group(1)}'))
               print('=== PDF',t, subprocess.run(['pdfinfo','/tmp/p.pdf'],capture_output=True,text=True).stdout[:400])
               txt=subprocess.run(['pdftotext','-layout','/tmp/p.pdf','-'],capture_output=True,text=True).stdout
-              print('CHARS',len(txt)); print(txt[:4000])
+              print('CHARS',len(txt)); print(txt)
               for k in ['PY15','PY 15','PY-15','Mariscal','Pozo Hondo','Carmelo','Transchaco','PY09','Loma Plata']:
                   j=txt.find(k)
                   if j>=0: print('---',k,':',txt[max(0,j-300):j+400].replace('\n',' | '))
