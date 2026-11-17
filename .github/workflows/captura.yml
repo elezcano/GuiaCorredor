@@ -11,30 +11,21 @@ jobs:
         with:
           node-version: 22
       - run: |
-          cat > /tmp/d.mjs <<'JS'
-          const pag = await (await fetch('https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas', { headers: { 'User-Agent': 'Mozilla/5.0' } })).text();
-          const m = pag.match(/spreadsheets\/d?\/?([A-Za-z0-9_-]{30,})/g); const k = pag.match(/AIza[0-9A-Za-z_-]{30,}/g);
-          console.log('En el HTML estático: hoja', m && [...new Set(m)], 'clave', !!k);
-          const scripts = [...pag.matchAll(/<script[^>]+src="([^"]+)"/g)].map((x) => x[1]).filter((s) => /rutas|estado|vialidad|tabla/i.test(s));
-          console.log('scripts:', scripts);
-          const u = 'https://sheets.googleapis.com/v4/spreadsheets/17AqjqeNvM4nG6cOUsUFKFaKXMiNmztYfzHIxeM9FcXk/values/tablavisible?key=AIzaSyCq2wEEKL9-6RmX-TkW23qJsrmnFHFf5tY&alt=json';
-          const j = await (await fetch(u, { headers: { Referer: 'https://www.argentina.gob.ar/' } })).json();
-          const v = j.values || []; console.log('filas', v.length, j.error ? JSON.stringify(j.error) : '');
-          const est = {}; for (const r of v.slice(2)) { const e = (r[3] || '').replace(/<[^>]+>/g, ''); est[e] = (est[e] || 0) + 1; } console.log('estados:', est);
-          for (const r of v) if (['Jujuy', 'Salta', 'Formosa', 'Chaco'].includes(r[0]) && ['9', '34', '51', '52', '81', '86', '16', '40', '66', '68', '95'].includes(r[1])) console.log(JSON.stringify(r.map((c) => (c || '').replace(/<[^>]+>/g, ''))));
-          // Chile
-          const wm = await (await fetch('https://sitministerial.maps.arcgis.com/sharing/rest/content/items/db8af9ff4a8b4854907d6333ce9bc5ca/data?f=json')).json();
-          for (const l of wm.operationalLayers || []) console.log('CAPA', l.title, '|', l.url, '|', l.visibility);
-          const it = await (await fetch('https://sitministerial.maps.arcgis.com/sharing/rest/content/items/db8af9ff4a8b4854907d6333ce9bc5ca?f=json')).json();
-          console.log('DESCRIPCION', (it.description || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 1200));
-          for (const l of (wm.operationalLayers || []).filter((l) => /emerg|siemop|evento|corte|camino|red vial/i.test(l.title) && l.url)) {
-            try {
-              const meta = await (await fetch(l.url + '?f=json')).json();
-              console.log('\n## ' + l.title, l.url, 'campos:', (meta.fields || []).map((f) => f.name).join(','));
-              const q = await (await fetch(l.url + '/query?where=1%3D1&outFields=*&returnGeometry=false&resultRecordCount=3&orderByFields=OBJECTID+DESC&f=json')).json();
-              console.log(JSON.stringify(q.features?.map((f) => f.attributes) || q.error).slice(0, 2500));
-              const q2 = await (await fetch(l.url + "/query?where=" + encodeURIComponent("1=1") + "&returnCountOnly=true&f=json")).json(); console.log('total', JSON.stringify(q2));
-            } catch (e) { console.log('error', l.title, e.message); }
+          cat > /tmp/e.mjs <<'JS'
+          for (const svc of ['Emergencias_Vialidad', 'Pasos_Fronterizos']) {
+            const base = `https://rest-sit.mop.gob.cl/arcgis/rest/services/VIALIDAD/${svc}/MapServer`;
+            const m = await (await fetch(base + '?f=json')).json();
+            console.log('\n#### ' + svc, JSON.stringify(m.layers?.map((l) => [l.id, l.name])), m.error ? JSON.stringify(m.error) : '');
+            for (const l of m.layers || []) {
+              const meta = await (await fetch(`${base}/${l.id}?f=json`)).json();
+              console.log(`-- capa ${l.id} ${l.name} campos: ${(meta.fields || []).map((f) => f.name).join(',')}`);
+              const c = await (await fetch(`${base}/${l.id}/query?where=1%3D1&returnCountOnly=true&f=json`)).json();
+              console.log('   total', JSON.stringify(c));
+              const reg = (meta.fields || []).find((f) => /REGION/i.test(f.name));
+              const w = reg ? `${reg.name} LIKE '%ANTOFAGASTA%' OR ${reg.name} LIKE '%Antofagasta%' OR ${reg.name} LIKE '%II%'` : '1=1';
+              const q = await (await fetch(`${base}/${l.id}/query?where=${encodeURIComponent(w)}&outFields=*&returnGeometry=false&resultRecordCount=8&f=json`)).json();
+              console.log('   ' + JSON.stringify(q.features?.map((f) => f.attributes) || q.error).slice(0, 4000));
+            }
           }
           JS
-          node /tmp/d.mjs
+          node /tmp/e.mjs
