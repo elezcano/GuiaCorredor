@@ -43,6 +43,7 @@ async function comprobarMapa(p, ok, donde) {
       const nav = await chromium.launch();
       const q = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: sch });
       q.on('pageerror', (e) => errs.push(e.message));
+      q.on('console', (m) => /Mapa/.test(m.text()) && console.log('  consola portada:', m.text().slice(0, 200)));
       await q.addInitScript((t) => { try { localStorage.setItem('tema', t); } catch {} }, tema);
       await q.goto(B + '/');
       if (await q.$('.mapa-vivo-marco')) {

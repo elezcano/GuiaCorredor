@@ -30,7 +30,8 @@
       cooperativeGestures: true,
       locale: { 'CooperativeGesturesHandler.WindowsHelpText': 'Usa Ctrl + rueda para acercar', 'CooperativeGesturesHandler.MacHelpText': 'Usa ⌘ + rueda para acercar', 'CooperativeGesturesHandler.MobileHelpText': 'Usa dos dedos para mover el mapa' },
     });
-  } catch {
+  } catch (e) {
+    console.warn('Mapa: no se pudo crear', e && e.message);
     estado('esquema');
     return;
   }
@@ -38,10 +39,12 @@
   // Si el mapa base no carga en 12 s, se vuelve al esquema.
   const plazo = setTimeout(() => {
     if (!listo) {
+      console.warn('Mapa: el mapa base no cargó en 12 s; se muestra el esquema');
       estado('esquema');
       try { mapa.remove(); } catch {}
     }
   }, 12000);
+  mapa.on('error', (e) => console.warn('Mapa:', e && e.error && e.error.message));
   mapa.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
   mapa.on('load', () => {
     listo = true;
