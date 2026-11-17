@@ -145,7 +145,7 @@ export function generarApi(ctx) {
     sitio: { nombre: site.nombreCompleto, url: urlBase, contacto: site.contacto.email || null },
     contrato: 'https://github.com/elezcano/GuiaCorredor/blob/main/docs/ia-dev.md',
     reglas: [
-      'Solo nivel "verificado" significa que el responsable editorial revisó el dato y su evidencia.',
+      'Solo nivel "verificado" significa que el dato se comprobó a mano en su fuente (oficial o citada).',
       'mostrar.nivelMostrado es el nivel del propio dato operativo (el borrador del texto de la guía no lo rebaja). mostrar.confirmado = false: el valor que se muestra es "pendiente" (Por verificar); ultimoReportado es el último dato publicado por la fuente, sin confirmar.',
       'evidencia "estimacion" o "calculo" nunca es un dato oficial; "historico" nunca es la situación actual.',
       'distancia.km null = no hay distancia con fuente. Si hay "estimacion", es provisional, en línea recta y sin verificar: decirlo siempre así y nunca sumarla como dato oficial.',

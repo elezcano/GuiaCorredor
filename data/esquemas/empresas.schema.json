@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://elezcano.github.io/GuiaCorredor/esquemas/empresas.schema.json",
   "title": "Directorio de empresas",
-  "description": "Solo empresas reales revisadas por el responsable editorial. La sede (pais, ciudad) es distinta de la cobertura (puntos, cobertura).",
+  "description": "Solo empresas reales, revisadas a mano antes de publicarse. La sede (pais, ciudad) es distinta de la cobertura (puntos, cobertura).",
   "type": "object",
   "required": [
     "version",
