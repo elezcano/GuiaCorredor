@@ -39,7 +39,10 @@ for (const t of rutas.tramos) {
       const r = await ruta(pts);
       const km = Math.round(r.distance / 100) / 10;
       const directa = pts.slice(1).reduce((s, p, i) => s + recta(pts[i], p), 0);
-      if (km > Math.max(3 * directa, directa + 150)) {
+      const oficial = typeof t.km === 'number' ? t.km : null;
+      if (oficial && Math.abs(km - oficial) / oficial > 0.15) {
+        salida.descartados[clave] = `ruta de ${km} km frente a ${oficial} km con fuente: no cuadra (rodeo por una carretera aún no trazada en OpenStreetMap o puntos distintos); manda el dato con fuente`;
+      } else if (km > Math.max(3 * directa, directa + 150)) {
         salida.descartados[clave] = `ruta de ${km} km para ${Math.round(directa)} km en línea recta: probablemente da un rodeo (camino aún no abierto en OpenStreetMap)`;
       } else {
         salida.tramos[clave] = { km, geometria: r.geometry.coordinates.map(([lo, la]) => [Math.round(lo * 1e4) / 1e4, Math.round(la * 1e4) / 1e4]) };
