@@ -326,8 +326,18 @@ function autoprueba() {
   ok(r1.cambios.length === 8 && r1.incidencias.find((i) => i.id === aMano.id).descripcion === 'a mano', 'publica los avisos nuevos y no toca lo cargado a mano.');
   ok(r1.incidencias.filter((i) => i.verificacion?.verificadoPor === 'vigilante').length === 8, 'lo publicado va firmado por el vigilante.');
   ok(aplicar(r1.incidencias, incAR, 'ar', t1).cambios.length === 0, 'releer lo mismo no cambia nada.');
-  const r2 = aplicar(r1.incidencias, incAR.slice(0, 5), 'ar', t1);
-  ok(r2.cambios.filter((c) => c.startsWith('Resuelto')).length === 4 && r2.incidencias.filter((i) => i.estado === 'resuelta').length === 4, 'lo que la fuente deja de listar se da por resuelto.');
+  const r2a = aplicar(r1.incidencias, incAR.slice(0, 5), 'ar', t1);
+  ok(r2a.cambios.length === 0 && r2a.tocado && r2a.incidencias.filter((i) => i.estado === 'activa' && i.ausencias === 1).length === 4, 'una sola lectura sin el aviso no lo retira (puede ser una lectura a medias).');
+  ok(aplicar(r2a.incidencias, incAR, 'ar', t1).incidencias.every((i) => !i.ausencias), 'si vuelve a aparecer, se olvida la ausencia.');
+  const r2 = aplicar(r2a.incidencias, incAR.slice(0, 5), 'ar', t1);
+  ok(r2.cambios.filter((c) => c.startsWith('Resuelto')).length === 4 && r2.incidencias.filter((i) => i.estado === 'resuelta').length === 4, 'lo que la fuente deja de listar en dos pasadas seguidas se da por resuelto.');
+  let vacia = false;
+  try {
+    leerCL({ features: [] }, trazados);
+  } catch {
+    vacia = true;
+  }
+  ok(vacia, 'una capa de Chile vacía es un fallo de lectura, no «sin incidencias».');
   const viejas = incAR.map((i) => ({ ...i, descripcion: 'otra', horaFuente: '2026-11-10T12:00:00.000Z' }));
   ok(aplicar(r1.incidencias, viejas, 'ar', t1).descartada === true, 'nunca marcha atrás: una copia más antigua de la fuente se descarta.');
   ok(aplicar(r2.incidencias, incAR, 'ar', new Date('2026-12-20T12:00:00Z')).incidencias.filter((i) => i.estado === 'resuelta').length === 0, 'las resueltas se retiran a los 15 días.');
@@ -428,6 +438,7 @@ async function revisarCarreteras(ahora = new Date()) {
   let lista = archivo.incidencias;
   const resultados = [];
   const publicados = [];
+  let hayQueEscribir = false;
   const fuentes = [
     { id: 'ar-vialidad-estado-rutas', nombre: 'Carreteras de Argentina (Vialidad Nacional)', url: 'https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas', leer: async () => ({ inc: await leerFuenteAR() }) },
     { id: 'cl-vialidad-siemop', nombre: 'Carreteras de Chile (Vialidad, MOP)', url: 'https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0', leer: leerFuenteCL },
@@ -445,12 +456,13 @@ async function revisarCarreteras(ahora = new Date()) {
     const parada = MAX_HORAS[f.id] && horas != null && horas > MAX_HORAS[f.id];
     const error = parada ? `la fuente no se actualiza desde hace ${Math.floor(horas / 24)} días` : null;
     resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: !parada, error });
-    const { incidencias, cambios, descartada } = aplicar(lista, leido.inc, f.id, ahora);
+    const { incidencias, cambios, descartada, tocado } = aplicar(lista, leido.inc, f.id, ahora);
+    if (tocado) hayQueEscribir = true;
     console.log(`${f.nombre}: ${leido.inc.length} avisos en el corredor${descartada ? ' (copia antigua: descartada)' : ''}${error ? ` · ⚠ ${error}` : ''}`);
     lista = incidencias;
     if (cambios.length) publicados.push({ paso: { id: f.id, nombre: f.nombre }, url: f.url, cambios, avisos: [] });
   }
-  return { archivo: { ...archivo, incidencias: lista }, resultados, publicados };
+  return { archivo: { ...archivo, incidencias: lista }, resultados, publicados, hayQueEscribir };
 }
 
 // ---------- Estado de la vigilancia (HU-129) ----------
@@ -574,7 +586,7 @@ async function principal() {
   // HU-130: escribe los datos y el resumen. El flujo comprueba (npm run check), sube a main y publica.
   if (args.has('--escribir')) {
     if (publicados.some((p) => p.cambios.length && !p.paso.id.includes('vialidad'))) fs.writeFileSync('data/pasos.json', JSON.stringify(pasos, null, 2) + '\n');
-    if (carreteras?.publicados.length) fs.writeFileSync('data/incidencias.json', JSON.stringify(carreteras.archivo, null, 2) + '\n');
+    if (carreteras?.hayQueEscribir) fs.writeFileSync('data/incidencias.json', JSON.stringify(carreteras.archivo, null, 2) + '\n');
     if (archivoCambios) fs.writeFileSync(archivoCambios, JSON.stringify(publicados, null, 1) + '\n');
   }
 

@@ -102,6 +102,11 @@
                   "null"
                 ],
                 "description": "HU-130: fecha y hora (ISO) de la última actualización en la fuente oficial, para no publicar nunca una copia más antigua."
+              },
+              "ausencias": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "HU-130: pasadas seguidas en que la fuente no ha listado este aviso. Se retira a la segunda (una lectura a medias no basta)."
               }
             },
             "anyOf": [
