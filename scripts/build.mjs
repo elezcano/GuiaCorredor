@@ -207,13 +207,15 @@ const otras = (r) => (r?.otrasFuentes?.length ? ` · También: ${r.otrasFuentes.
 const fuenteEnlace = (f) => (f?.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.nombre)}</a>` : esc(f?.nombre || ''));
 const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', referencia: 'obra de referencia', empresa: 'declaración de la empresa', otra: 'otra fuente' };
 /** Insignia de validación (texto + icono, no solo color). */
-function validacionHTML(n, verificado) {
-  const txt = n === 'verificado' && verificado ? `Verificado el ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
+/** HU-107: la insignia dice dónde se comprobó el dato, nunca quién. */
+const verificadoEn = (fuente) => (fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente');
+function validacionHTML(n, verificado, fuente) {
+  const txt = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
   return `<span class="val val-${esc(n)}">${esc(txt)}</span>`;
 }
 /** Estado operativo + línea de contexto: confirmado, o "Por verificar" con el último dato. */
 function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
-  if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha">Verificado ${corto ? '' : 'el '}${corto ? fechaCorta(v.verificado) : fecha(v.verificado)}</span>`;
+  if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha">${verificadoEn(v.fuente)} ${corto ? '' : 'el '}${corto ? fechaCorta(v.verificado) : fecha(v.verificado)}</span>`;
   if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
   const dias = diasDesde(v.publicado);
   const viejo = dias > 30; // un parte operativo de más de un mes ya no sirve para decidir
@@ -695,7 +697,7 @@ function partesHTML(p, op) {
           <span class="parte-cuando"><time datetime="${instanteParte(x)}">${fecha(x.publicado)}${x.hora ? `, ${x.hora} h` : ''}</time>${x.hora ? '' : ' <span class="texto-suave">(sin hora publicada)</span>'}</span>
           <p>${x.valor ? `${estado(x.valor)} ` : ''}${esc(x.texto)}</p>
           <p class="parte-aviso" hidden></p>
-          <span class="dato-fuente">${validacionHTML(nivelReg(x, 'estado-operativo'), x.verificado)} ${fuenteEnlace(x.fuente)}</span>
+          <span class="dato-fuente">${validacionHTML(nivelReg(x, 'estado-operativo'), x.verificado, x.fuente)} ${fuenteEnlace(x.fuente)}</span>
         </li>`
           )
           .join('')
@@ -807,7 +809,7 @@ function fichaOperativa(p) {
   const e = estadoPaso(p.id);
   const fila = (titulo, contenido) => `<div class="dato-fila"><dt>${titulo}</dt><dd>${contenido}</dd></div>`;
   const conFuente = (x, tipo = 'ficha') =>
-    `${esc(x.texto)}<span class="dato-fuente">${validacionHTML(peor(nivelReg(x, tipo), e.nivel === 'borrador' ? 'borrador' : null), x.verificado)} ${fuenteEnlace(x.fuente)}${x.publicado ? `, ${fecha(x.publicado)}` : ', sin fecha'}</span>`;
+    `${esc(x.texto)}<span class="dato-fuente">${validacionHTML(peor(nivelReg(x, tipo), e.nivel === 'borrador' ? 'borrador' : null), x.verificado, x.fuente)} ${fuenteEnlace(x.fuente)}${x.publicado ? `, ${fecha(x.publicado)}` : ', sin fecha'}</span>`;
   const lista = (xs, vacio, tipo) => (xs?.length ? `<ul>${xs.map((x) => `<li${attrSentido(x)}>${etiquetaSentido(x)}${conFuente(x, tipo)}</li>`).join('')}</ul>` : `<span class="sin-dato">${vacio}</span>`);
   const orgs = (p.organismos || []).map((id) => organismoPorId[id]).filter(Boolean);
   const inc = incidenciasDe({ paso: p.id, tramos: rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id) });
@@ -842,13 +844,13 @@ function fichaOperativa(p) {
   ${fiabilidadHTML(p)}
   <div class="ficha-cabeza"><h2 id="t-ficha">Situación operativa</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
   <dl class="datos">
-    ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
+    ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado, p.estado.fuente)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
     ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
     ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">${coordenadasHTML(p.ubicacion.coordenadas, p.ubicacion.coordenadasNota)}</span>`)}
     ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li${attrSentido(h)}><strong>${conBanderas(h.lado)}:</strong> ${etiquetaSentido(h)}${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
     ${fila('Operaciones habilitadas', p.operaciones ? conFuente(p.operaciones) : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
     ${fila('Transporte pesado', lista(p.restricciones, 'Sin restricciones verificadas'))}
-    ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado)} ${fuenteEnlace(i.fuente)}${otras(i)} · <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
+    ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente)} ${fuenteEnlace(i.fuente)}${otras(i)} · <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
     ${fila('Acceso', lista(p.acceso, 'Sin verificar'))}
     ${fila('Organismos', orgs.length ? `<ul class="lista-enlaces">${orgs.map(enlaceOrganismo).join('')}</ul>` : '<span class="sin-dato">Sin verificar</span>')}
     ${fila('Servicios en el paso', lista(p.servicios, 'Sin verificar'))}
@@ -859,7 +861,7 @@ function fichaOperativa(p) {
             .map(
               (c) => `<li>${c.lado ? conBanderas(c.lado) + ' ' : ''}<strong>${esc(c.nombre || c.texto)}</strong>${c.nombre && c.texto ? `<span class="dato-fuente">${esc(c.texto)}</span>` : ''}
               <span class="contacto-acciones">${c.telefono ? `<a class="btn btn-borde btn-pequeno btn-llamar" href="tel:${esc(c.telefono)}">${icono('telefono')}Llamar ${esc(telLegible(c.telefono))}</a>` : ''}${c.email ? `<a class="btn btn-borde btn-pequeno" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''}</span>
-              <span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado)} ${fuenteEnlace(c.fuente)}</span></li>`
+              <span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado, c.fuente)} ${fuenteEnlace(c.fuente)}</span></li>`
             )
             .join('')}</ul>`
         : `<span class="sin-dato">Sin teléfono con fuente.</span> ${orgs.length ? 'Consulta la web oficial de cada organismo (arriba).' : ''}`
@@ -872,7 +874,7 @@ function fichaOperativa(p) {
             .map(
               (c) => `<li data-lado="${esc(c.lado || '')}" data-orden="${c.orden}"${attrSentido(c)}><span class="control-tipo">${esc(TIPO_CONTROL[c.tipo] || c.tipo)}</span> ${c.lado ? conBanderas(c.lado) : ''} ${esc(c.texto)}${
                 c.organismo && organismoPorId[c.organismo] ? ` <a href="${esc(organismoPorId[c.organismo].url)}" rel="noopener">${esc(organismoPorId[c.organismo].nombre)}</a>` : ''
-              }<span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado)} ${fuenteEnlace(c.fuente)}${c.publicado ? `, ${fecha(c.publicado)}` : ''}</span></li>`
+              }<span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado, c.fuente)} ${fuenteEnlace(c.fuente)}${c.publicado ? `, ${fecha(c.publicado)}` : ''}</span></li>`
             )
             .join('')}</ol>`
         : '<span class="sin-dato">Sin controles publicados: el paso no está habilitado o no hay fuente.</span>'
@@ -1101,7 +1103,7 @@ ${seccion({
         <td class="col-tipo">${esc({ pasos: 'Paso fronterizo', tramos: 'Tramo', documentos: 'Documentos' }[p.seccion] || p.seccion)}</td>
         <td>${paises(p.meta.paises)}</td>
         <td>${vistaGuia(p) ? estado(estadoGuia(p)) : '<span class="sin-dato">No aplica</span>'}</td>
-        <td>${validacionHTML(nivelGuia(p), p.meta.verificado)}</td>
+        <td>${validacionHTML(nivelGuia(p), p.meta.verificado, p.meta.fuente)}</td>
         <td class="col-revisado">${fecha(p.meta.revisado)}</td>
       </tr>`
     )
@@ -1374,7 +1376,7 @@ add(
     <h2>Fuentes y revisión</h2>
     <ul>
       <li>Cada dato indica su fuente, su fecha y el tipo de evidencia: oficial, de terceros, declarado por una empresa, cálculo o histórico.</li>
-      <li><b>Verificado</b> significa que el responsable editorial del proyecto revisó el dato y su fuente. Nadie más, tampoco un proceso automático ni un asistente de IA, puede marcar un dato como verificado.</li>
+      <li><b>Verificado en fuente oficial</b> significa que el dato se comprobó a mano en la web o el canal oficial del organismo que lo publica, enlazado junto al dato. <b>Verificado en la fuente</b>, que se comprobó en la fuente citada (prensa u obra de referencia). Un proceso automático o un asistente de IA nunca puede marcar un dato como verificado.</li>
       <li>Lo demás se muestra como <b>Por verificar</b>, con el último dato publicado y su fuente.</li>
       <li>Si un tramo no tiene distancia con fuente, mostramos una <b>estimación provisional</b> en línea recta, indicando el tramo y los puntos usados. Por carretera la distancia es mayor.</li>
       <li>Un festivo nacional no significa que la aduana cierre; solo cuenta lo que publica cada organismo.</li>
@@ -1423,7 +1425,7 @@ add(
 <div class="contenedor">
   <header class="cabeza-pagina"><h1>Pasos fronterizos</h1><p>Estado, horarios y organismos de cada frontera del corredor. Cada dato lleva su fuente y su fecha.</p></header>
   <ul class="pasos-lista">${fichaPasos.map(tarjeta).join('')}</ul>
-  <p class="nota-guardado">Solo se muestra como confirmado lo que ha verificado el responsable editorial. Lo demás sale «Sin confirmar» con su último dato, su fecha y cuánto hace.</p>
+  <p class="nota-guardado">Solo se muestra como confirmado lo que se ha comprobado a mano en su fuente. Lo demás sale «Sin confirmar» con su último dato, su fecha y cuánto hace.</p>
 </div>
 ${seccion({
   titulo: 'Recorrido',
@@ -1462,7 +1464,7 @@ ${seccion({
       })
       .join('<br>') || '<span class="sin-dato">Sin asignar</span>'}</dd></div>
   </dl>
-  <p class="inc-revisado">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado)}</p>
+  <p class="inc-revisado">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente)}</p>
 </li>`;
   const porPais = Object.keys(PAISES).map((k) => {
     const de = (t) => organismos.filter((o) => o.pais === k && t.includes(o.tipo));
@@ -1549,7 +1551,7 @@ ${seccion({
         .map(
           (f) => `<li class="fest-item" data-cal data-pais="${esc(f.pais)}" data-organismo="${esc(f.organismo || 'general')}" data-fecha="${esc(f.fecha)}" data-mes="${esc(m)}">
   <ul class="fest-fila">${filaFestivo(f)}</ul>
-  <p class="fest-detalle">${validacionHTML(nivelReg(f, 'festivo'), f.verificado)} ${f.nota ? `${esc(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
+  <p class="fest-detalle">${validacionHTML(nivelReg(f, 'festivo'), f.verificado, f.fuente)} ${f.nota ? `${esc(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
 </li>`
         )
         .join('')}`;
@@ -1564,7 +1566,7 @@ ${seccion({
     <td data-l="Lado">${conBanderas(h.lado || '')}</td>
     <td data-l="Organismo">${esc(ORGANISMOS_CAL[h.organismo] || h.organismo || '')}</td>
     <td data-l="Horario">${especial ? `<strong>${fecha(h.desde)} – ${fecha(h.hasta)}:</strong> ` : ''}${esc(h.texto)}</td>
-    <td data-l="Fuente">${fuenteEnlace(h.fuente)}${h.publicado ? `, ${fechaCorta(h.publicado)}` : ''}<br>${validacionHTML(nivelReg(h, 'horario'), h.verificado)}</td>
+    <td data-l="Fuente">${fuenteEnlace(h.fuente)}${h.publicado ? `, ${fechaCorta(h.publicado)}` : ''}<br>${validacionHTML(nivelReg(h, 'horario'), h.verificado, h.fuente)}</td>
   </tr>`;
   const tablaHorarios = (filas) => `<div class="tabla-marco"><table class="tabla-oficial tabla-horarios"><thead><tr><th scope="col">Paso</th><th scope="col">Lado</th><th scope="col">Organismo</th><th scope="col">Horario</th><th scope="col">Fuente y validación</th></tr></thead><tbody>${filas}</tbody></table></div>`;
   const orgsUsados = [...new Set(['general', ...horarios.map((x) => x.h.organismo), ...especiales.map((x) => x.h.organismo)].filter(Boolean))];

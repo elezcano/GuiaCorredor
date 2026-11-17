@@ -49,7 +49,7 @@
   const tag = (t) => `<span class="tag tag-${t}">${TAGS[t]}</span>`;
   // Mismo criterio que el resto del portal: solo lo verificado se muestra como confirmado.
   function vista(v) {
-    if (v?.confirmado) return `${estado(v.valor, v.op)}<span class="estado-fecha">Verificado el ${esc(fechaCorta(v.verificado))}</span>`;
+    if (v?.confirmado) return `${estado(v.valor, v.op)}<span class="estado-fecha">${v.fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente'} el ${esc(fechaCorta(v.verificado))}</span>`;
     if (!v?.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
     const origen = v.fuente?.tipo ? `, ${datos.tiposFuente[v.fuente.tipo]}` : '';
     const dato = v.ultimo === 'pendiente' ? 'Sin estado confirmado' : `Último dato: ${(datos.estados[v.ultimo] || v.ultimo).toLowerCase()}`;
@@ -162,7 +162,7 @@
             : 'No hay alternativas documentadas para este recorrido.'
         )}
       </dl>
-      <p class="res-leyenda"><b>Verificado:</b> revisado por el responsable editorial. <b>Sin verificar:</b> dato publicado por la fuente, sin revisar. <b>Calculado:</b> suma de datos con fuente. <b>Estimación provisional:</b> línea recta entre puntos con coordenadas; por carretera es más.</p>
+      <p class="res-leyenda"><b>Verificado:</b> comprobado a mano en la fuente oficial o en la fuente citada. <b>Sin verificar:</b> dato publicado por la fuente, sin revisar. <b>Calculado:</b> suma de datos con fuente. <b>Estimación provisional:</b> línea recta entre puntos con coordenadas; por carretera es más.</p>
     </section>`;
   }
 

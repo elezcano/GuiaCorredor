@@ -12,7 +12,7 @@
 
 /** Identificadores de verificador aceptados. Representan un rol, no a una persona concreta. */
 export const VERIFICADORES = {
-  'responsable-editorial': 'Responsable editorial del proyecto (Ernesto)',
+  'responsable-editorial': 'Comprobación manual en la fuente',
 };
 export const EVIDENCIAS = {
   oficial: 'Dato oficial',

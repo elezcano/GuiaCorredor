@@ -59,7 +59,7 @@
     return datos.operativa[op].texto + det;
   };
   const vistaTexto = (v) => {
-    if (v?.confirmado) return `Verificado el ${fechaCorta(v.verificado)}`;
+    if (v?.confirmado) return `${v.fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente'} el ${fechaCorta(v.verificado)}`;
     if (!v?.ultimo || v.ultimo === 'pendiente') return 'Sin estado publicado';
     const viejo = dias(v.publicado) > 30;
     return `Último dato: ${esc((datos.estados[v.ultimo] || v.ultimo).toLowerCase())}, ${v.publicado ? `${fechaCorta(v.publicado)} <span class="edad${viejo ? ' edad-vieja' : ''}">(${hace(v.publicado)})</span>` : 'sin fecha'}`;
@@ -370,7 +370,7 @@
     </section>
 
     <footer class="informe-pie">
-      <p><strong>Situación a ${esc(genTexto)}. Confirma antes de salir.</strong> «Verificado» significa revisado por el responsable editorial de la Guía del Corredor; «Sin confirmar», que solo hay un dato publicado por su fuente. Un festivo no implica cierre de aduana.</p>
+      <p><strong>Situación a ${esc(genTexto)}. Confirma antes de salir.</strong> «Verificado» significa comprobado a mano en la fuente oficial o en la fuente citada; «Sin confirmar», que solo hay un dato publicado por su fuente. Un festivo no implica cierre de aduana.</p>
       <p class="texto-suave">${esc(location.origin + datos.base)}/</p>
     </footer>
   </article>`;
