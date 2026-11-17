@@ -346,8 +346,8 @@
         }
       },
       "estado": {
-        "valor": "cerrado",
-        "texto": "Cerrado según Gendarmería (parte del 17/11/2026, 16:13), dentro de su horario habitual (09:00–19:15, hora de Argentina). La web oficial no indica el motivo ni la reapertura: confírmalo antes de salir.",
+        "valor": "operativo",
+        "texto": "Abierto de 09:00 a 19:15 (hora de Argentina), según Gendarmería (parte del 17/11/2026, 16:13). El último parte de Chile (16/11, 18:25) suspendía la revisión de carga por viento y no ha publicado otro desde entonces: si vas con carga, confírmalo con la Unidad de Pasos Fronterizos antes de salir.",
         "fuente": "ar-seguridad-paso-jama",
         "publicado": "2026-11-17",
         "validacion": "verificado",
@@ -356,7 +356,7 @@
           "verificadoPor": "responsable-editorial",
           "rol": "responsable-editorial",
           "fecha": "2026-11-17",
-          "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: Jama «Cerrado», parte de Gendarmería de las 16:13."
+          "alcance": "Corrección del 17/11/2026: la página oficial leída con un navegador en hora de Argentina (16:58) muestra Jama «Abierto», horario 09:00–19:15, parte de Gendarmería de las 16:13. El «Cerrado» de la captura de las 20:51 (España) lo calculaba la propia web con la hora del móvil, no era un cierre."
         },
         "evidencia": "oficial",
         "otrasFuentes": [
@@ -886,8 +886,8 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "cerrado",
-          "texto": "Cerrado dentro de su horario habitual (09:00–19:15, hora de Argentina). La web oficial no indica el motivo ni la reapertura.",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
           "hora": "16:13",
           "fuente": "ar-seguridad-paso-jama",
           "publicado": "2026-11-17",
@@ -898,7 +898,7 @@
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
             "fecha": "2026-11-17",
-            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: Jama «Cerrado», parte de Gendarmería de las 16:13 (lista «Información provista por»)."
+            "alcance": "Corrección del 17/11/2026: la página oficial leída con un navegador en hora de Argentina (16:58) muestra Jama «Abierto», horario 09:00–19:15, parte de Gendarmería de las 16:13. El «Cerrado» de la captura de las 20:51 (España) lo calculaba la propia web con la hora del móvil, no era un cierre."
           }
         },
         {
