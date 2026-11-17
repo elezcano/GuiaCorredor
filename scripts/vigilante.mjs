@@ -29,7 +29,7 @@
 //   node scripts/vigilante.mjs --github --prueba   abre una incidencia de prueba con lo leído, para comprobar el correo
 //   node scripts/vigilante.mjs --autoprueba    comprueba el lector con un ejemplo, sin red
 import fs from 'node:fs';
-import { aplicar, antiguedadHoras, configTablaAR, incidenciaAR, incidenciaCL, leerAR, leerCL } from './carreteras.mjs';
+import { aplicar, antiguedadHoras, configTablaAR, incidenciaAR, incidenciaCL, kmALinea, leerAR, leerCL } from './carreteras.mjs';
 
 const PAGINAS = [
   { paso: 'jama', fuente: 'ar-seguridad-paso-jama' },
@@ -304,12 +304,21 @@ function autoprueba() {
   ok(cambiada, 'si la tabla cambia de columnas, la lectura falla (no se publica nada).');
   const cfg = configTablaAR(`ponchoTable({"hojaNombre":"tablavisible","idSpread":"17AqjqeNvM4nG6cOUsUFKFaKXMiNmztYfzHIxeM9FcXk"})`, 'gapi_key:"AIzaSyCq2wEEKL9-6RmX-TkW23qJsrmnFHFf5tY",gapi_uri');
   ok(cfg.hoja?.startsWith('17Aq') && cfg.pestana === 'tablavisible' && cfg.clave?.startsWith('AIza'), 'la hoja, la pestaña y la clave se leen de la página oficial.');
-  const cl = fx('vialidad-cl')['0'];
-  ok(leerCL(cl).length === 0, 'Vialidad Chile: hoy ninguna emergencia en carreteras del corredor (las 8 de la región son de la Ruta 1 y caminos B).');
-  const emerg = (extra) => ({ features: [{ attributes: { OBJECTID: 1, CORRELATIVO: '62X', ROL: '27-CH', NOMBRE_CAMINO: 'San Pedro de Atacama - Paso Jama', KM_INICIO_SEGMENTO: 100, KM_FIN_SEGMENTO: 120, TRANSITO: 'Parcialmente Operativo', RESTRICCION: null, RESUMEN_EMERGENCIA: 'Nieve en calzada', FECHA_EMERGENCIA: Date.parse('2026-11-16T10:00:00Z'), last_edited_date: Date.parse('2026-11-16T15:00:00Z'), ...extra } }] });
-  const peso = incidenciaCL(leerCL(emerg({ RESTRICCION: 'Peso Restringido' }))[0], 'cl');
-  ok(peso.paso === 'jama' && peso.gravedad === 'rojo' && peso.afecta === 'carga' && peso.tipo === 'peso' && /^27-CH \(km 100–120\): No habilitado para carga/.test(peso.descripcion), `«Peso restringido» en la CH-27: no habilitado para carga (${peso.descripcion.slice(0, 70)}).`);
-  ok(incidenciaCL(leerCL(emerg({}))[0], 'cl').gravedad === 'ambar' && incidenciaCL(leerCL(emerg({ TRANSITO: 'No Operativo' }))[0], 'cl').gravedad === 'rojo', 'parcialmente operativo: ámbar; no operativo: rojo.');
+  const trazados = JSON.parse(fs.readFileSync(new URL('../data/trazados.json', import.meta.url), 'utf8')).tramos;
+  const ahoraCL = new Date('2026-11-17T21:00:00Z');
+  const cl = fx('vialidad-cl');
+  const incCL = leerCL(cl, trazados).map((x) => incidenciaCL(x, 'cl', ahoraCL));
+  ok(cl.features.length === 14 && incCL.length === 2 && incCL.every((i) => i.tramos?.[0] === 'calama-iquique'), `Vialidad Chile: de 14 emergencias en Tarapacá y Antofagasta, 2 caen sobre el corredor (ramal de Iquique: Ruta 1 y Ruta 16) (${incCL.map((i) => i.tramo).join(', ')}).`);
+  ok(incCL.every((i) => i.gravedad === 'ambar' && /puede estar ya resuelto/.test(i.descripcion)), 'cortes sin novedades de Vialidad en más de 14 días: ámbar y «confírmalo», no bloquean.');
+  ok(!leerCL(cl, trazados).some((x) => /^[A-Z]{1,2}-\d/.test(x.a.ROL)), 'los caminos secundarios que salen de la ruta (A-750, A-730…) no cuentan aunque estén a menos de 3 km.');
+  const enJama = trazados['andes@jama'].geometria.find(([lon]) => lon < -67.6);
+  const emerg = (extra) => ({ features: [{ geometry: { x: enJama[0] + 0.01, y: enJama[1] }, attributes: { OBJECTID: 1, CORRELATIVO: '62X', ROL: '27-CH', NOMBRE_CAMINO: 'San Pedro de Atacama - Paso Jama', KM_INICIO_SEGMENTO: 100, KM_FIN_SEGMENTO: 120, TRANSITO: 'Parcialmente Operativo', RESTRICCION: null, RESUMEN_EMERGENCIA: 'Nieve en calzada', FECHA_EMERGENCIA: Date.parse('2026-11-16T10:00:00Z'), FECHA: Date.parse('2026-11-16T15:00:00Z'), last_edited_date: Date.parse('2026-11-16T15:00:00Z'), ...extra } }] });
+  const uno = (extra) => incidenciaCL(leerCL(emerg(extra), trazados)[0], 'cl', ahoraCL);
+  const peso = uno({ RESTRICCION: 'Peso Restringido' });
+  ok(peso.paso === 'jama' && peso.gravedad === 'rojo' && peso.afecta === 'carga' && peso.tipo === 'peso' && /^27-CH \(km 100–120\): No habilitado para carga/.test(peso.descripcion), `«Peso restringido» reciente junto al trazado de Jama: no habilitado para carga (${peso.descripcion.slice(0, 70)}).`);
+  ok(uno({}).gravedad === 'ambar' && uno({ TRANSITO: 'No Operativo' }).gravedad === 'rojo', 'reciente: parcialmente operativo, ámbar; no operativo, rojo.');
+  ok(leerCL(emerg({ ROL: 'B-241' }), trazados).length === 0 && leerCL({ features: [{ ...emerg({}).features[0], geometry: { x: -70.4, y: -25.4 } }] }, trazados).length === 0, 'un camino secundario, o una ruta lejos del trazado, no se asigna.');
+  ok(kmALinea([0.01, 0], [[0, -1], [0, 1]]) > 1.0 && kmALinea([0.01, 0], [[0, -1], [0, 1]]) < 1.2, 'distancia punto–trazado en km.');
   // Aplicar sobre data/incidencias.json.
   const aMano = { id: incAR[0].id, descripcion: 'a mano', estado: 'activa', fuente: 'ar', verificacion: null };
   const t1 = new Date('2026-11-17T20:00:00Z');
@@ -404,12 +413,13 @@ async function leerFuenteAR() {
   return leerAR(datos).map((r) => incidenciaAR(r, 'ar-vialidad-estado-rutas')).filter(Boolean);
 }
 async function leerFuenteCL() {
-  const q = `${CL_CAPA}?where=${encodeURIComponent("REGION='02'")}&outFields=*&returnGeometry=false&f=json`;
+  const q = `${CL_CAPA}?where=${encodeURIComponent("REGION IN ('01','02')")}&outFields=*&returnGeometry=true&outSR=4326&f=json`;
   const datos = await (await traer(q)).json();
   if (datos.error) throw new Error(`ArcGIS: ${JSON.stringify(datos.error).slice(0, 200)}`);
   // La antigüedad se mide sobre toda la región (aunque hoy no haya nada en el corredor).
   const region = (datos.features || []).map((f) => f.attributes?.last_edited_date).filter(Boolean).sort().pop();
-  return { inc: leerCL(datos).map((x) => incidenciaCL(x, 'cl-vialidad-siemop')), ultimaEdicion: region ? new Date(region).toISOString() : null };
+  const trazados = json('data/trazados.json').tramos;
+  return { inc: leerCL(datos, trazados).map((x) => incidenciaCL(x, 'cl-vialidad-siemop', new Date())), ultimaEdicion: region ? new Date(region).toISOString() : null };
 }
 
 /** Lee las fuentes de carreteras y decide los cambios en data/incidencias.json. */
