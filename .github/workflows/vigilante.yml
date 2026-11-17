@@ -1,5 +1,6 @@
 # Vigilante de webs oficiales (scripts/vigilante.mjs). HU-130 (decisión 22): lo que Gendarmería o Vialidad
-# publican en la web oficial de cada paso se escribe en data/pasos.json, se comprueba (npm run check), se
+# publican en la web oficial de cada paso se escribe en data/pasos.json, y el estado de las carreteras
+# (Vialidad Nacional y Vialidad de Chile) en data/incidencias.json; se comprueba (npm run check), se
 # sube a main y se publica al momento. Después avisa por correo, con una incidencia, de lo publicado.
 name: Vigilante de webs oficiales
 
@@ -18,7 +19,7 @@ on:
   # En una PR que toque el vigilante: comprueba el lector. Con la etiqueta «prueba-vigilante», además abre una incidencia de prueba.
   pull_request:
     types: [opened, synchronize, labeled]
-    paths: ['scripts/vigilante.mjs', '.github/workflows/vigilante.yml']
+    paths: ['scripts/vigilante.mjs', 'scripts/carreteras.mjs', '.github/workflows/vigilante.yml']
 
 permissions:
   contents: write # HU-129: estado en la rama datos-vigilancia. HU-130: sube a main lo leído de la web oficial
@@ -63,18 +64,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if git diff --quiet -- data/pasos.json; then echo "Nada que publicar."; exit 0; fi
-          git diff --stat -- data/pasos.json
+          if git diff --quiet -- data/pasos.json data/incidencias.json; then echo "Nada que publicar."; exit 0; fi
+          git diff --stat -- data/pasos.json data/incidencias.json
           npm install --no-audit --no-fund
           if ! npm run check; then
             echo "publicado=0" >> "$GITHUB_OUTPUT"
             echo "::error::La comprobación de datos falla con lo leído: no se publica."
-            git checkout -- data/pasos.json
+            git checkout -- data/pasos.json data/incidencias.json
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/pasos.json
+          git add data/pasos.json data/incidencias.json
           git commit -q -m "Vigilante: lo leído de la web oficial ($(TZ=America/Argentina/Salta date '+%d/%m %H:%M') hora de Argentina)"
           for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done
           gh workflow run publicar.yml --ref main

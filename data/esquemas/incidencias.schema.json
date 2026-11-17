@@ -80,6 +80,28 @@
               },
               "paso": {
                 "$ref": "comun.schema.json#/$defs/id"
+              },
+              "gravedad": {
+                "enum": [
+                  "info",
+                  "ambar",
+                  "rojo"
+                ],
+                "description": "HU-130: informativo (no cambia el veredicto), ámbar (con dudas) o rojo (impide el paso). Sin gravedad: ámbar."
+              },
+              "afecta": {
+                "enum": [
+                  "todo",
+                  "carga"
+                ],
+                "description": "A quién afecta: todo el tránsito (por defecto) o solo la carga."
+              },
+              "horaFuente": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "HU-130: fecha y hora (ISO) de la última actualización en la fuente oficial, para no publicar nunca una copia más antigua."
               }
             },
             "anyOf": [

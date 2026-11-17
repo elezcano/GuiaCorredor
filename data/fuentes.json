@@ -446,6 +446,18 @@
       "nombre": "OpenStreetMap (búsqueda Nominatim)",
       "url": "https://www.openstreetmap.org/copyright",
       "tipo": "referencia"
+    },
+    {
+      "id": "ar-vialidad-estado-rutas",
+      "nombre": "Vialidad Nacional (Argentina): Estado de rutas",
+      "url": "https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas",
+      "tipo": "oficial"
+    },
+    {
+      "id": "cl-vialidad-siemop",
+      "nombre": "Dirección de Vialidad (MOP, Chile): visor de emergencias SIEMOP",
+      "url": "https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0",
+      "tipo": "oficial"
     }
   ]
 }
