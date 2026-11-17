@@ -277,18 +277,18 @@
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
           "valor": "operativo",
-          "texto": "Horario 07:00–20:00. Consultado por Ernesto el 16/11/2026 a las 14:32 (hora de Argentina).",
-          "hora": "09:30",
+          "texto": "Habilitado, horario 07:00–20:00. Consultado por Ernesto el 17/11/2026 a las 04:21 (hora de Argentina).",
+          "hora": "20:01",
           "fuente": "ar-seguridad-paso-mision-la-paz",
-          "publicado": "2026-11-14",
-          "actualizado": "2026-11-16",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
-            "fecha": "2026-11-16",
-            "alcance": "Ernesto confirmó el 16/11/2026 el parte de Gendarmería (14/11, 09:30) con captura de la página oficial."
+            "fecha": "2026-11-17",
+            "alcance": "Ernesto confirmó el 17/11/2026, con captura de la página oficial, el parte de Gendarmería del 16/11 a las 20:01."
           }
         }
       ]
@@ -578,39 +578,39 @@
       "partes": [
         {
           "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Horario 09:00–19:15. Consultado por Ernesto el 16/11/2026 a las 14:32 (hora de Argentina).",
-          "hora": "20:03",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-15",
-          "actualizado": "2026-11-16",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "responsable-editorial",
-            "rol": "responsable-editorial",
-            "fecha": "2026-11-16",
-            "alcance": "Ernesto confirmó el 16/11/2026 el parte de Gendarmería (15/11, 20:03) con captura de la página oficial."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Vialidad Nacional",
           "valor": null,
           "texto": "Aviso en la RN 52, tramo Susques – límite con Chile. La web oficial no da más detalle.",
           "hora": "09:00",
           "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-12",
-          "actualizado": "2026-11-16",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
-            "fecha": "2026-11-16",
-            "alcance": "Ernesto confirmó el 16/11/2026 el aviso de Vialidad (12/11, 09:00) tal como aparece en la página oficial."
+            "fecha": "2026-11-17",
+            "alcance": "Ernesto confirmó el 17/11/2026 el aviso de Vialidad (16/11, 09:00) tal como aparece en la página oficial."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": null,
+          "texto": "Figuraba «Cerrado» de madrugada, fuera de su horario (09:00–19:15); sin aviso de cierre por clima ni por ruta. Consultado por Ernesto el 17/11/2026 a las 04:21 (hora de Argentina).",
+          "hora": "20:19",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-17",
+            "alcance": "Ernesto confirmó el 17/11/2026, con captura de la página oficial, el parte de Gendarmería del 16/11 a las 20:19."
           }
         }
       ]
@@ -873,39 +873,39 @@
       "partes": [
         {
           "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Horario 09:00–19:00. Consultado por Ernesto el 16/11/2026 a las 14:32 (hora de Argentina).",
-          "hora": "20:08",
-          "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-15",
-          "actualizado": "2026-11-16",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "responsable-editorial",
-            "rol": "responsable-editorial",
-            "fecha": "2026-11-16",
-            "alcance": "Ernesto confirmó el 16/11/2026 el parte de Gendarmería (15/11, 20:08) con captura de la página oficial."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Vialidad Nacional",
           "valor": null,
           "texto": "RN 51, San Antonio de los Cobres – Paso de Sico: transitar con precaución, máquinas trabajando en badenes con material.",
           "hora": "08:30",
           "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-12",
-          "actualizado": "2026-11-15",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
-            "fecha": "2026-11-15",
-            "alcance": "Ernesto confirmó el 15/11/2026 el aviso de Vialidad Nacional (12/11, 08:30) en la página del Ministerio de Seguridad."
+            "fecha": "2026-11-17",
+            "alcance": "Ernesto confirmó el 17/11/2026 el aviso de Vialidad (16/11, 08:30) en la página oficial."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": null,
+          "texto": "Figuraba «Cerrado» de madrugada, fuera de su horario (09:00–19:00); sin aviso de cierre por clima. Consultado por Ernesto el 17/11/2026 a las 04:21 (hora de Argentina).",
+          "hora": "18:50",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-17",
+            "alcance": "Ernesto confirmó el 17/11/2026, con captura de la página oficial, el parte de Gendarmería del 16/11 a las 18:50."
           }
         }
       ]
