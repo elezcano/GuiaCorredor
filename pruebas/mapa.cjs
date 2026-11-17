@@ -49,6 +49,11 @@ async function comprobarMapa(p, ok, donde) {
       if (await q.$('.mapa-vivo-marco')) {
         ok((await q.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
         await q.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
+        // Primero tiene que arrancar la carga perezosa (el estado deja de ser «esquema»).
+        if (await q.$('script[src$="/assets/mapa-perezoso.js"]')) {
+          const arranca = await q.waitForFunction(() => document.querySelector('.mapa-vivo-marco')?.dataset.estado !== 'esquema', null, { timeout: 20000 }).then(() => true, () => false);
+          ok(arranca, 'portada: el mapa no empieza a cargarse al llegar a su sección');
+        }
         const est = await comprobarMapa(q, ok, 'portada');
         console.log(`  portada ${tema}: ${est}`);
         if (est === 'mapa') await q.waitForTimeout(2500);
