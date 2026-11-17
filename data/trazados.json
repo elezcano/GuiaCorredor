@@ -144,6 +144,83 @@
     ]
    ]
   },
+  "cp-me": {
+   "km": 379.4,
+   "geometria": [
+    [
+     -57.9071,
+     -21.6801
+    ],
+    [
+     -57.9162,
+     -21.6708
+    ],
+    [
+     -58.007,
+     -21.6709
+    ],
+    [
+     -58.0236,
+     -21.691
+    ],
+    [
+     -58.4974,
+     -21.6918
+    ],
+    [
+     -58.5193,
+     -21.7406
+    ],
+    [
+     -58.609,
+     -21.8473
+    ],
+    [
+     -58.679,
+     -21.9638
+    ],
+    [
+     -58.6719,
+     -22.0799
+    ],
+    [
+     -59.3675,
+     -22.0759
+    ],
+    [
+     -59.4139,
+     -22.0567
+    ],
+    [
+     -59.5671,
+     -22.0568
+    ],
+    [
+     -59.571,
+     -22.4586
+    ],
+    [
+     -59.5788,
+     -22.467
+    ],
+    [
+     -60.0905,
+     -22.4654
+    ],
+    [
+     -60.4391,
+     -22.2029
+    ],
+    [
+     -60.5791,
+     -22.0401
+    ],
+    [
+     -60.6251,
+     -22.0284
+    ]
+   ]
+  },
   "pozo-hondo@pozo-hondo": {
    "km": 539.5,
    "geometria": [
@@ -152,8 +229,12 @@
      -22.3701
     ],
     [
-     -62.5477,
-     -22.3859
+     -62.5188,
+     -22.3787
+    ],
+    [
+     -62.5481,
+     -22.3858
     ],
     [
      -62.6161,
@@ -1117,6 +1198,7 @@
   }
  },
  "descartados": {
-  "me-ph": "ruta de 369.5 km frente a 224 km con fuente: no cuadra (rodeo por una carretera aún no trazada en OpenStreetMap o puntos distintos); manda el dato con fuente"
+  "me-ph": "ruta de 369.5 km frente a 224 km con fuente: no cuadra (rodeo por una carretera aún no trazada en OpenStreetMap o puntos distintos); manda el dato con fuente",
+  "puente@puente-bioceanica": "el puente no está habilitado (en OpenStreetMap figura en construcción): la ruta calculada da un rodeo de 56,6 km"
  }
 }

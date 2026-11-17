@@ -10,6 +10,7 @@ const OSRM = process.env.OSRM_URL || 'https://router.project-osrm.org';
 const rutas = readJSON('data/rutas.json');
 const pasos = readJSON('data/pasos.json').pasos;
 const nodo = Object.fromEntries(rutas.nodos.map((n) => [n.id, n.coordenadas ? { lon: n.coordenadas.lon, lat: n.coordenadas.lat } : null]));
+const noHabilitado = new Set(pasos.filter((p) => ['en-obras', 'cerrado'].includes(p.estado?.valor) && p.estado?.afecta !== 'carga').map((p) => p.id));
 const paso = Object.fromEntries(pasos.map((p) => [p.id, p.ubicacion?.coordenadas?.lat != null ? { lon: p.ubicacion.coordenadas.lon, lat: p.ubicacion.coordenadas.lat } : null]));
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 // Distancia en línea recta (km), para descartar rutas absurdas (p. ej. un puente que aún no existe en OSM).
@@ -30,6 +31,10 @@ const salida = { nota: 'Cálculo de ruta por carretera con OSRM sobre datos de O
 for (const t of rutas.tramos) {
   for (const via of t.alternativa ? [t.paso, t.alternativa] : [t.paso || null]) {
     const clave = `${t.id}${via ? `@${via.id}` : ''}`;
+    if (via && noHabilitado.has(via.id) && pasos.find((p) => p.id === via.id)?.estado?.valor === 'en-obras') {
+      salida.descartados[clave] = 'el paso no está habilitado (en obras): no se puede calcular una ruta por él';
+      continue;
+    }
     const pts = [nodo[t.desde], ...(via && paso[via.id] ? [paso[via.id]] : []), nodo[t.hasta]];
     if (pts.some((p) => !p)) {
       salida.descartados[clave] = 'faltan coordenadas con fuente';
