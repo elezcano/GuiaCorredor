@@ -1252,3 +1252,4 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .tabla-tramos thead th { font-size: 13px; color: var(--muted-foreground); }
 .seccion .mapa-vivo-marco { margin: 0; }
 .seccion .mapa-vivo { height: min(60vh, 520px); }
+.mapa-respaldo[hidden], .mapa-vivo[hidden] { display: none !important; }
