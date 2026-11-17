@@ -1052,8 +1052,8 @@ function datosMapa() {
   return datosMapa;
 }
 /** Marco del mapa: el mapa vivo (oculto hasta que carga) y el esquema SVG de respaldo. */
-const mapaVivoHTML = () => `<div class="mapa-vivo-marco">
-    <div id="mapa-vivo" class="mapa-vivo" hidden role="region" aria-label="Mapa interactivo del corredor. La misma información está en la tabla de tramos de la página del mapa."></div>
+const mapaVivoHTML = () => `<div class="mapa-vivo-marco" data-estado="esquema">
+    <div id="mapa-vivo" class="mapa-vivo" role="region" aria-label="Mapa interactivo del corredor. La misma información está en la tabla de tramos de la página del mapa."></div>
     <div class="mapa-respaldo">${mapaHTML()}</div>
   </div>`;
 const datosMapaScript = () => `<script type="application/json" id="datos-mapa">${JSON.stringify(datosMapa()).replace(/</g, '\\u003c')}</script>`;
