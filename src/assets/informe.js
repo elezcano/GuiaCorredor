@@ -195,6 +195,13 @@
   // HU-73: partes por país con antigüedad y aviso a partir del umbral.
   const horasDesde = (ts) => (Date.now() - new Date(ts).getTime()) / 36e5;
   const edadParte = (h) => (h < 1 ? 'hace menos de 1 h' : h < 48 ? `hace ${Math.floor(h)} h` : `hace ${Math.floor(h / 24)} días`);
+  // HU-97: fiabilidad en los últimos 30 y 90 días.
+  const fiabTexto = (f) =>
+    [f.cerrado && `${f.cerrado} no habilitado`, f.soloCarga && `${f.soloCarga} sin paso para carga`, f.restricciones && `${f.restricciones} con restricciones`, f.abierto && `${f.abierto} habilitado`, f.sinDatos && `${f.sinDatos} sin datos`]
+      .filter(Boolean)
+      .join(' · ');
+  const fiabPaso = (p) =>
+    p.fiabilidad ? `<p class="inf-fiab"><strong>Fiabilidad:</strong> últimos 30 días: ${fiabTexto(p.fiabilidad.d30)}; últimos 90 días: ${fiabTexto(p.fiabilidad.d90)}.</p>` : '';
   const partesPaso = (p) =>
     p.partes || p.lados
       ? `<h4>Qué informa cada país</h4><ul class="inf-partes">${(p.lados || [])
@@ -219,6 +226,7 @@
     const esp = especialesDia(t.paso.id);
     return `<div class="inf-bloque-paso">
       <h3>${esc(p.nombre)}</h3>
+      ${fiabPaso(p)}
       ${partesPaso(p)}
       <h4>Horarios</h4>
       ${

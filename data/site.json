@@ -49,5 +49,9 @@
   "partes": {
     "umbralHoras": 48,
     "nota": "Antigüedad a partir de la cual un parte sale con aviso. Decisión de Ernesto: en mayo/junio de 2027 (invierno austral) bajar a 24."
+  },
+  "fiabilidad": {
+    "vigenciaDias": 1,
+    "nota": "HU-97: un día sin parte hereda el estado del último parte como mucho estos días; después cuenta como «sin datos». 1 = solo el día siguiente (decisión inicial: no inflar cierres ni aperturas)."
   }
 }

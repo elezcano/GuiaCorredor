@@ -11,6 +11,7 @@ Registro para quien consume los datos (Claude incluido). La misma lista sale en 
 
 | Fecha | Versión | Tipo | Cambio |
 |---|---|---|---|
+| 17/11/2026 | 1.6.0 | Compatible | `pasos[]`: `fiabilidad` con `d30` y `d90` (días `cerrado`, `soloCarga`, `restricciones`, `abierto`, `sinDatos` y `pendientesDeVerificar`) |
 | 15/11/2026 | 1.5.0 | Compatible | `pasos[]`: `partes` (lado, emisor, organismo, valor, texto, `publicado` y `hora` local del país) |
 | 15/11/2026 | 1.4.0 | Compatible | `pasos[]`: `historial` (novedades del paso con fecha y fuente), `controles` (en orden), horarios con `apertura`/`cierre`/`zona`, contactos con `telefono` E.164 |
 | 15/11/2026 | 1.3.0 | Compatible | Campo opcional `otrasFuentes`: fuentes adicionales que respaldan el dato, resueltas |

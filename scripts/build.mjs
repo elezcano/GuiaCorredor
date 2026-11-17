@@ -8,6 +8,7 @@ import { nivel, peor, estadoMostrable, NIVELES, diasEntre, registroGuia, EVIDENC
 import { cargar } from './datos.mjs';
 import { generarApi } from './api.mjs';
 import { aplicarEstimaciones } from './estimaciones.mjs';
+import { fiabilidad, ETIQUETAS_DIA } from './fiabilidad.mjs';
 import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO, CAMPOS_SOLICITUD } from './cruces.mjs';
 
 const require = createRequire(import.meta.url);
@@ -704,6 +705,41 @@ function partesHTML(p, op) {
     <div class="partes-grid">${porLado.join('')}</div>
   </section>`;
 }
+/** HU-97: fiabilidad del paso en los últimos 30 y 90 días. */
+const VIGENCIA_FIAB = site.fiabilidad?.vigenciaDias ?? 1;
+const fiabPaso = (p, dias) => fiabilidad(p, HOY, dias, VIGENCIA_FIAB);
+function frasesFiab(f) {
+  const partes = [];
+  if (f.cerrado) partes.push(`${f.cerrado} ${f.cerrado === 1 ? 'día' : 'días'} no habilitado`);
+  if (f.soloCarga) partes.push(`${f.soloCarga} ${f.soloCarga === 1 ? 'día' : 'días'} sin paso para carga`);
+  if (f.restricciones) partes.push(`${f.restricciones} con restricciones`);
+  if (f.abierto) partes.push(`${f.abierto} habilitado`);
+  if (f.sinDatos) partes.push(`${f.sinDatos} sin datos`);
+  return partes.join(' · ');
+}
+function fiabilidadHTML(p) {
+  if (p.estado?.valor === 'en-obras') return ''; // un paso que aún no se ha habilitado no tiene fiabilidad que medir
+  const f30 = fiabPaso(p, 30);
+  const f90 = fiabPaso(p, 90);
+  if (f90.sinDatos === 90 && !f90.pendientesDeVerificar) return '';
+  const cuadros = f30.porDia
+    .map((d) => `<li class="fd fd-${d.clase}" title="${fecha(d.dia)}: ${ETIQUETAS_DIA[d.clase]}"><span class="sr-only">${fecha(d.dia)}: ${ETIQUETAS_DIA[d.clase]}</span></li>`)
+    .join('');
+  const fila = (f) => `<tr><th scope="row">Últimos ${f.dias} días</th><td>${f.cerrado}</td><td>${f.soloCarga}</td><td>${f.restricciones}</td><td>${f.abierto}</td><td>${f.sinDatos}</td></tr>`;
+  return `<section class="fiabilidad" aria-labelledby="t-fiab">
+    <h3 id="t-fiab">Fiabilidad del paso</h3>
+    <p class="fiab-resumen"><strong>Últimos 30 días:</strong> ${frasesFiab(f30) || 'sin datos'}.</p>
+    <ol class="fiab-tira" aria-label="Estado de cada uno de los últimos 30 días">${cuadros}</ol>
+    <p class="fiab-leyenda" aria-hidden="true"><span class="fd fd-cerrado"></span> No habilitado <span class="fd fd-carga"></span> Sin paso para carga <span class="fd fd-restricciones"></span> Restricciones <span class="fd fd-abierto"></span> Habilitado <span class="fd fd-sin-datos"></span> Sin datos</p>
+    <div class="tabla-scroll"><table class="tabla-fiab">
+      <thead><tr><th scope="col">Periodo</th><th scope="col">No habilitado</th><th scope="col">Sin paso para carga</th><th scope="col">Restricciones</th><th scope="col">Habilitado</th><th scope="col">Sin datos</th></tr></thead>
+      <tbody>${fila(f30)}${fila(f90)}</tbody>
+    </table></div>
+    <p class="dato-fuente">Días calculados con los partes verificados del historial (abajo, en «Novedades del paso»). Un día sin parte hereda el del día anterior${VIGENCIA_FIAB > 1 ? ` (como mucho ${VIGENCIA_FIAB} días)` : ''}; si no, cuenta como «sin datos», nunca como habilitado.${
+      f90.pendientesDeVerificar ? ` Hay ${f90.pendientesDeVerificar} ${f90.pendientesDeVerificar === 1 ? 'parte' : 'partes'} de los últimos 90 días pendientes de verificar que todavía no cuentan.` : ''
+    }</p>
+  </section>`;
+}
 /** HU-66: hora local de cada lado y «abierto ahora». Lo calcula ahora.js en el navegador. */
 function ahoraHTML(p, op) {
   const h = (p.horarios || []).find((x) => x.apertura && x.cierre && x.zona);
@@ -785,6 +821,7 @@ function fichaOperativa(p) {
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
   ${respuesta}
   ${partesHTML(p, op)}
+  ${fiabilidadHTML(p)}
   <div class="ficha-cabeza"><h2 id="t-ficha">Situación operativa</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
   <dl class="datos">
     ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
@@ -973,6 +1010,10 @@ ${seccion({
           horarios: (p.horarios || []).map(reg),
           especiales: (p.horariosEspeciales || []).map((h) => ({ ...reg(h), desde: h.desde, hasta: h.hasta })),
           lados: Object.keys(p.lados),
+          fiabilidad: (() => {
+            const r = (f) => ({ dias: f.dias, cerrado: f.cerrado, soloCarga: f.soloCarga, restricciones: f.restricciones, abierto: f.abierto, sinDatos: f.sinDatos, pendientesDeVerificar: f.pendientesDeVerificar });
+            return { d30: r(fiabPaso(p, 30)), d90: r(fiabPaso(p, 90)) };
+          })(),
           partes: (p.partes || []).map((x) => ({ ...reg(x), emisor: x.emisor, valor: x.valor || null, hora: x.hora || null, ts: instanteParte(x) })).sort((a, b) => (b.ts > a.ts ? 1 : -1)),
           guia: rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id)?.guia || null,
         },
