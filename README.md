@@ -50,6 +50,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 17/11/2026 | **Vigilante fiable:** pasadas cada hora desde cron-job.org, estado de cada fuente guardado en la rama `datos-vigilancia`, aviso si una fuente falla 3 veces seguidas y estado de la vigilancia en las tareas del día | #129 |
 | 17/11/2026 | **Planificador rediseñado:** primero el veredicto («Hoy no se puede hacer entera», «Se puede hoy, con dudas», «Sin problemas conocidos»), qué lo impide y qué parte funciona hoy; opciones en tarjetas; tramo a tramo, avisos, papeles y festivos plegados; km por tipo (con fuente, calculados, estimados). Cualquier origen y destino de la red, en los dos sentidos. El tipo de carga sale de la búsqueda y pasa a «Papeles», que es lo único que cambia | #116 |
 | 17/11/2026 | **Contraste con Google Maps:** coordenadas y km de la red confirmados; Carmelo Peralta → Mariscal pasa a 379,4 km calculados (los 307 km eran una resta sin fuente); el puente queda sin distancia hasta el dato oficial; los dos puentes fronterizos ya tienen coordenadas | #115 |
 | 17/11/2026 | **Puertos de Chile por separado:** San Pedro de Atacama, Calama, Antofagasta, Mejillones e Iquique son puntos propios; Mejillones e Iquique, como ramales desde Calama. El planificador ya calcula rutas a cada puerto | #115 |
@@ -112,6 +113,8 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 19 | Avisos del vigilante por correo (incidencia de GitHub asignada a Ernesto); WhatsApp, más adelante y solo por vía oficial |
 | 20 | Los datos oficiales leídos automáticamente se publican con su propia etiqueta («dato oficial leído automáticamente»); el semáforo y las fuentes de prensa siguen necesitando verificación humana (#100) |
 | 21 | Cada día, a las 14:07 de España, Ernesto recibe por correo la lista «Tareas del día» (#99) |
+| 22 | **Avisar de incidencias:** lo que el vigilante lee de una web oficial se publica al momento con la etiqueta «leído de la web oficial», sin esperar confirmación; Ernesto lo revisa después. La web dice «Sin incidencias», «Incidencia» o «Sin vigilancia» en lugar de «Sin confirmar». Amplía la 20 (#129, #130, #131) |
+| 23 | El vigilante se lanza cada hora desde cron-job.org (token de GitHub con permisos mínimos, guardado solo allí); la pasada programada de GitHub queda de respaldo. Si una fuente falla 3 pasadas seguidas, aviso por correo (#129) |
 
 </details>
 
