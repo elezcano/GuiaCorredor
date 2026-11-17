@@ -163,6 +163,241 @@
         "fecha": "2026-11-15",
         "alcance": "Comprobado el 15/11/2026: el aviso de Vialidad Nacional (12/11/2026, 08:30) publicado en la página oficial del paso."
       }
+    },
+    {
+      "id": "vn-jujuy-rn34-lte-con-salta-acc-norte-a-san-pedro",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 34, Lte. Con Salta - Acc. Norte a San Pedro (Jujuy)",
+      "tramo": "RN 34: Lte. Con Salta - Acc. Norte a San Pedro · pavimento",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 34 (Lte. Con Salta - Acc. Norte a San Pedro): Circular con precaución entre los km 1149-1174 (empalme RN 66)-km 1196 (acceso norte a San Pedro), por obras de duplicación de calzada. Desvios de transito en km 1159, distribuidores RP 1 (km 1188), km1161, y RP 56 (km 1190).",
+      "tramos": [
+        "pozo-hondo"
+      ],
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-17",
+      "horaFuente": "2026-11-17T12:00:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 34, Lte. Con Salta - Acc. Norte a San Pedro (Jujuy): RN 34 (Lte. Con Salta - Acc. Norte a San Pedro): Circular con precaución entre los km 1149-1174 (empalme RN 66)-km 1196 (acceso norte a San Pedro), por obras de duplicación de calzada. Desvios de transito en km 1159, distribuidores RP 1 (km 1188), km1161, y RP 56 (km 1190).."
+      }
+    },
+    {
+      "id": "vn-jujuy-rn34-acc-a-san-pedro-lte-con-salta",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 34, Acc. a San Pedro -Lte. Con Salta (Jujuy)",
+      "tramo": "RN 34: Acc. a San Pedro -Lte. Con Salta · pavimento",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 34 (Acc. a San Pedro -Lte. Con Salta): Circular con precaución en pte. A° El Zanjón (km 1207,31), pte.Rio Negro I (km.1210,37), pte.Rio Negro II (km.1210,80), Pte Rio Negro III (km.1211,21), un vehículo por vez. Circular con extrema precaución por calzada deteriorada entre Calilegua (km 1247) y el limimite con Salta (km 1287).",
+      "tramos": [
+        "pozo-hondo"
+      ],
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-17",
+      "horaFuente": "2026-11-17T12:00:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 34, Acc. a San Pedro -Lte. Con Salta (Jujuy): RN 34 (Acc. a San Pedro -Lte. Con Salta): Circular con precaución en pte. A° El Zanjón (km 1207,31), pte.Rio Negro I (km.1210,37), pte.Rio Negro II (km.1210,80), Pte Rio Negro III (km.1211,21), un vehículo por vez. Circular con extrema precaución por calzada deteriorada entre Calilegua (km 1247) y el limimite con Salta (km 1287).."
+      }
+    },
+    {
+      "id": "vn-jujuy-rn52-purmamarca-emp-rp-79",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 52, Purmamarca - Emp. RP 79 (Jujuy)",
+      "tramo": "RN 52: Purmamarca - Emp. RP 79 · pavimento",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 52 (Purmamarca - Emp. RP 79): Circular con extrema precaución por calzada deteriorada en Cuesta de Lipan. En paraje Ronqui Angosto (km 50) desvío del tránsito permanente para todo tipo de vehículos.",
+      "paso": "jama",
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-17",
+      "horaFuente": "2026-11-17T12:00:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 52, Purmamarca - Emp. RP 79 (Jujuy): RN 52 (Purmamarca - Emp. RP 79): Circular con extrema precaución por calzada deteriorada en Cuesta de Lipan. En paraje Ronqui Angosto (km 50) desvío del tránsito permanente para todo tipo de vehículos.."
+      }
+    },
+    {
+      "id": "vn-salta-rn34-pichanal-embarcacion",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 34, Pichanal - Embarcación (Salta)",
+      "tramo": "RN 34: Pichanal - Embarcación · pavimento",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 34 (Pichanal - Embarcación): Transitar con precaución. Maquinas trabajando en banquina y en calzada en los km1341.",
+      "tramos": [
+        "pozo-hondo"
+      ],
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-16",
+      "horaFuente": "2026-11-16T11:30:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 34, Pichanal - Embarcación (Salta): RN 34 (Pichanal - Embarcación): Transitar con precaución. Maquinas trabajando en banquina y en calzada en los km1341.."
+      }
+    },
+    {
+      "id": "vn-salta-rn34-embarcacion-gral-e-mosconi",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 34, Embarcación - Gral. E. Mosconi (Salta)",
+      "tramo": "RN 34: Embarcación - Gral. E. Mosconi · pavimento",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 34 (Embarcación - Gral. E. Mosconi): Transitar con precaución.",
+      "tramos": [
+        "pozo-hondo"
+      ],
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-16",
+      "horaFuente": "2026-11-16T11:30:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 34, Embarcación - Gral. E. Mosconi (Salta): RN 34 (Embarcación - Gral. E. Mosconi): Transitar con precaución.."
+      }
+    },
+    {
+      "id": "vn-salta-rn34-gral-e-mosconi-tartagal",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 34, Gral. E. Mosconi - Tartagal (Salta)",
+      "tramo": "RN 34: Gral. E. Mosconi - Tartagal · pavimento",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 34 (Gral. E. Mosconi - Tartagal): Tránsito con precaución.",
+      "tramos": [
+        "pozo-hondo"
+      ],
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-16",
+      "horaFuente": "2026-11-16T11:30:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 34, Gral. E. Mosconi - Tartagal (Salta): RN 34 (Gral. E. Mosconi - Tartagal): Tránsito con precaución.."
+      }
+    },
+    {
+      "id": "vn-salta-rn51-el-aybal-campo-quijano",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 51, El Aybal - Campo Quijano (Salta)",
+      "tramo": "RN 51: El Aybal - Campo Quijano · pavimento",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 51 (El Aybal - Campo Quijano): Transito con precaución.",
+      "paso": "sico",
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-16",
+      "horaFuente": "2026-11-16T11:30:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 51, El Aybal - Campo Quijano (Salta): RN 51 (El Aybal - Campo Quijano): Transito con precaución.."
+      }
+    },
+    {
+      "id": "vn-salta-rn51-campo-quijano-san-antonio-de-los-cobres",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 51, Campo Quijano - San Antonio De Los Cobres (Salta)",
+      "tramo": "RN 51: Campo Quijano - San Antonio De Los Cobres · pavimento",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 51 (Campo Quijano - San Antonio De Los Cobres): Tránsito con precaución.",
+      "paso": "sico",
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-16",
+      "horaFuente": "2026-11-16T11:30:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 51, Campo Quijano - San Antonio De Los Cobres (Salta): RN 51 (Campo Quijano - San Antonio De Los Cobres): Tránsito con precaución.."
+      }
+    },
+    {
+      "id": "vn-salta-rn51-san-antonio-de-los-cobres-paso-de-sico",
+      "paises": [
+        "AR"
+      ],
+      "ubicacion": "RN 51, San Antonio De Los Cobres - Paso De Sico (Salta)",
+      "tramo": "RN 51: San Antonio De Los Cobres - Paso De Sico · ripio",
+      "tipo": "otro",
+      "estado": "activa",
+      "gravedad": "info",
+      "descripcion": "RN 51 (San Antonio De Los Cobres - Paso De Sico): Transitar con precaución maquinas trabjando en badenes con material.",
+      "paso": "sico",
+      "fuente": "ar-vialidad-estado-rutas",
+      "publicado": "2026-11-16",
+      "horaFuente": "2026-11-16T11:30:00.000Z",
+      "actualizado": "2026-11-17",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-17",
+        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 51, San Antonio De Los Cobres - Paso De Sico (Salta): RN 51 (San Antonio De Los Cobres - Paso De Sico): Transitar con precaución maquinas trabjando en badenes con material.."
+      }
     }
   ]
 }
