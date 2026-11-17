@@ -14,13 +14,13 @@ for (const r of indice.recursos) {
   if (!fs.existsSync(f)) fallos.push(`falta api/v1/${r.recurso}.json`);
   else if (leer(`${r.recurso}.json`).registros.length !== r.registros) fallos.push(`${r.recurso}: el índice no cuadra con el archivo.`);
 }
-// Pasos: estado de la ficha de la guía (fila "Estado") frente a la API.
+// Pasos: estado de la ficha de la guía (recuadro de respuesta, HU-113) frente a la API.
 const rutas = readJSON('data/rutas.json');
 const guiaDe = Object.fromEntries(rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).filter(Boolean).map((p) => [p.id, p.guia]));
 for (const p of leer('pasos.json').registros) {
   const html = fs.readFileSync(path.join(DIST, 'guia', guiaDe[p.id], 'index.html'), 'utf8');
-  const fila = html.match(/<div class="dato-estado">\s*<span class="estado estado-([a-z-]+)[ "]/);
-  if (!fila) fallos.push(`paso ${p.id}: la ficha no muestra la fila de estado.`);
+  const fila = html.match(/<div class="respuesta [^"]*" data-estado="([a-z-]+)"/);
+  if (!fila) fallos.push(`paso ${p.id}: la ficha no muestra el recuadro de estado.`);
   else if (fila[1] !== p.estado.mostrar.valor) fallos.push(`paso ${p.id}: la web muestra "${fila[1]}" y la API "${p.estado.mostrar.valor}".`);
   if (p.estado.mostrar.confirmado && p.estado.nivel !== 'verificado') fallos.push(`paso ${p.id}: confirmado sin verificación.`);
 }

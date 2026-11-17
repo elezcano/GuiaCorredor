@@ -50,6 +50,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 17/11/2026 | **Ficha de paso más corta:** la decisión en la primera pantalla (estado, hora de cierre, qué dice cada país, últimos 30 días y Llamar · Compartir · Planificar) y lo demás plegado. Jama pasa de 15 a 4 pantallas de móvil | #113 |
 | 17/11/2026 | **La web no nombra a nadie:** las insignias dicen «Verificado en fuente oficial» o «Verificado en la fuente», y los textos públicos ya no mencionan a ninguna persona | #107 |
 | 17/11/2026 | **Ficha de paso por sentido de cruce** con botón «⇄»; el planificador abre cada ficha en el sentido del viaje | #105 |
 | 17/11/2026 | **Tareas del día por correo** para el responsable editorial | #99 |
