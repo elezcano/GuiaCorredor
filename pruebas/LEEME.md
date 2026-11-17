@@ -8,6 +8,7 @@ Abren la web en Chromium, como lo haría un usuario, y comprueban que lo que ya 
 | `informe.cjs` | Informe de viaje (HU-45): puente no habilitado, festivos, alternativa por Sico, resumen de WhatsApp, PDF, móvil claro y oscuro |
 | `informe-resumen.cjs` | Informe resumido (HU-80): el PDF ocupa una sola hoja A4 por Jama y por Sico, bloques, enlace al completo, móvil claro y oscuro |
 | `fiabilidad.cjs` | Fiabilidad (HU-97): cálculo de días (cierre, solo carga, sin datos, pendientes) y bloque en la ficha y el informe |
+| `sentido.cjs` | Sentido del cruce (HU-105): botón «⇄», orden de controles y partes, sentido en la URL y enlaces del planificador |
 | `fichas-paso.cjs` | Fichas de paso (HU-65 a HU-68): hora local, «abierto ahora», controles, botón Llamar y novedades |
 | `partes.cjs` | Partes por organismo (HU-73): fecha, hora, antigüedad, «sin parte cargado» y aviso a partir de 48 h |
 

@@ -134,6 +134,11 @@
                         "America/Asuncion",
                         "America/Campo_Grande"
                       ]
+                    },
+                    "sentido": {
+                      "type": "string",
+                      "pattern": "^(AR|BR|CL|PY)-(AR|BR|CL|PY)$",
+                      "description": "Solo para este sentido de cruce (país de salida-país de entrada). Sin este campo, vale para los dos."
                     }
                   },
                   "dependentRequired": {
@@ -162,6 +167,11 @@
                     "texto": {
                       "type": "string",
                       "minLength": 3
+                    },
+                    "sentido": {
+                      "type": "string",
+                      "pattern": "^(AR|BR|CL|PY)-(AR|BR|CL|PY)$",
+                      "description": "Solo para este sentido de cruce (país de salida-país de entrada). Sin este campo, vale para los dos."
                     }
                   },
                   "required": [
@@ -368,6 +378,11 @@
                     },
                     "texto": {
                       "type": "string"
+                    },
+                    "sentido": {
+                      "type": "string",
+                      "pattern": "^(AR|BR|CL|PY)-(AR|BR|CL|PY)$",
+                      "description": "Solo para este sentido de cruce (país de salida-país de entrada). Sin este campo, vale para los dos."
                     }
                   }
                 }

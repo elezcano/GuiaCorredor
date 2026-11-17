@@ -411,10 +411,12 @@ const noticia = (n, { principal = false, conLugar = true } = {}) => {
 const paginas = [];
 const add = (ruta, html) => paginas.push({ ruta, html });
 
+const pasosArr = () => (Array.isArray(D.pasos) ? D.pasos : D.pasos.pasos);
 const datosRutas = (extra = {}) =>
   `<script type="application/json" id="datos-rutas">${JSON.stringify({
     nodos: rutas.nodos,
     tramos: rutas.tramos,
+    ladosPaso: Object.fromEntries(pasosArr().map((q) => [q.id, Object.keys(q.lados)])),
     documentosCruce: rutas.documentosCruce,
     avisoDocumentos: rutas.avisoDocumentos,
     tiposCarga: rutas.tiposCarga,
@@ -698,12 +700,27 @@ function partesHTML(p, op) {
           )
           .join('')
       : `<li class="parte parte-vacio"><span class="sin-dato">Sin parte cargado de ${esc(PAISES[k])}.</span></li>`;
-    return `<div class="partes-lado"><h4>${bandera(k)} ${esc(PAISES[k])}</h4><ul class="partes-lista">${items}</ul></div>`;
+    return `<div class="partes-lado" data-pais="${k}"><h4>${bandera(k)} ${esc(PAISES[k])}</h4><ul class="partes-lista">${items}</ul></div>`;
   });
   return `<section class="partes" aria-labelledby="t-partes" data-umbral="${UMBRAL_PARTES_H}">
     <h3 id="t-partes">Qué informa cada país</h3>
     <div class="partes-grid">${porLado.join('')}</div>
   </section>`;
+}
+/** HU-105: sentido de cruce. «AR-CL» = sale de Argentina y entra en Chile. */
+const attrSentido = (x) => (x?.sentido ? ` data-sentido="${esc(x.sentido)}"` : '');
+const etiquetaSentido = (x) => {
+  if (!x?.sentido) return '';
+  const [a, b] = x.sentido.split('-');
+  return `<span class="solo-sentido">Solo ${esc(PAISES[a] || a)} → ${esc(PAISES[b] || b)}:</span> `;
+};
+function sentidoHTML(p) {
+  const [a, b] = Object.keys(p.lados);
+  return `<div class="sentido" data-sentido-paso="${a}-${b}" data-nombres='${esc(JSON.stringify(Object.fromEntries(Object.keys(p.lados).map((k) => [k, PAISES[k]]))))}'>
+    <p class="sentido-texto"><span class="sentido-label">Sentido del cruce:</span> <span class="sentido-ruta"><span class="sentido-a">${bandera(a)} ${esc(PAISES[a])}</span> → <span class="sentido-b">${bandera(b)} ${esc(PAISES[b])}</span></span></p>
+    <button type="button" class="btn btn-borde btn-pequeno btn-sentido" aria-label="Cambiar el sentido del cruce">⇄ Cambiar sentido</button>
+    <p class="sentido-nota" aria-live="polite">Sales de ${esc(PAISES[a])} y entras en ${esc(PAISES[b])}. Los controles van en ese orden.</p>
+  </div>`;
 }
 /** HU-97: fiabilidad del paso en los últimos 30 y 90 días. */
 const VIGENCIA_FIAB = site.fiabilidad?.vigenciaDias ?? 1;
@@ -791,7 +808,7 @@ function fichaOperativa(p) {
   const fila = (titulo, contenido) => `<div class="dato-fila"><dt>${titulo}</dt><dd>${contenido}</dd></div>`;
   const conFuente = (x, tipo = 'ficha') =>
     `${esc(x.texto)}<span class="dato-fuente">${validacionHTML(peor(nivelReg(x, tipo), e.nivel === 'borrador' ? 'borrador' : null), x.verificado)} ${fuenteEnlace(x.fuente)}${x.publicado ? `, ${fecha(x.publicado)}` : ', sin fecha'}</span>`;
-  const lista = (xs, vacio, tipo) => (xs?.length ? `<ul>${xs.map((x) => `<li>${conFuente(x, tipo)}</li>`).join('')}</ul>` : `<span class="sin-dato">${vacio}</span>`);
+  const lista = (xs, vacio, tipo) => (xs?.length ? `<ul>${xs.map((x) => `<li${attrSentido(x)}>${etiquetaSentido(x)}${conFuente(x, tipo)}</li>`).join('')}</ul>` : `<span class="sin-dato">${vacio}</span>`);
   const orgs = (p.organismos || []).map((id) => organismoPorId[id]).filter(Boolean);
   const inc = incidenciasDe({ paso: p.id, tramos: rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id) });
   // Respuesta en una línea: lo que mira quien va a transportar o cotizar.
@@ -819,6 +836,7 @@ function fichaOperativa(p) {
     </div>
   </div>`;
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
+  ${sentidoHTML(p)}
   ${respuesta}
   ${partesHTML(p, op)}
   ${fiabilidadHTML(p)}
@@ -827,7 +845,7 @@ function fichaOperativa(p) {
     ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
     ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
     ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">${coordenadasHTML(p.ubicacion.coordenadas, p.ubicacion.coordenadasNota)}</span>`)}
-    ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li><strong>${conBanderas(h.lado)}:</strong> ${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
+    ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li${attrSentido(h)}><strong>${conBanderas(h.lado)}:</strong> ${etiquetaSentido(h)}${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
     ${fila('Operaciones habilitadas', p.operaciones ? conFuente(p.operaciones) : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
     ${fila('Transporte pesado', lista(p.restricciones, 'Sin restricciones verificadas'))}
     ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado)} ${fuenteEnlace(i.fuente)}${otras(i)} · <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
@@ -852,7 +870,7 @@ function fichaOperativa(p) {
         ? `<ol class="controles">${[...p.controles]
             .sort((x, y) => x.orden - y.orden)
             .map(
-              (c) => `<li><span class="control-tipo">${esc(TIPO_CONTROL[c.tipo] || c.tipo)}</span> ${c.lado ? conBanderas(c.lado) : ''} ${esc(c.texto)}${
+              (c) => `<li data-lado="${esc(c.lado || '')}" data-orden="${c.orden}"${attrSentido(c)}><span class="control-tipo">${esc(TIPO_CONTROL[c.tipo] || c.tipo)}</span> ${c.lado ? conBanderas(c.lado) : ''} ${esc(c.texto)}${
                 c.organismo && organismoPorId[c.organismo] ? ` <a href="${esc(organismoPorId[c.organismo].url)}" rel="noopener">${esc(organismoPorId[c.organismo].nombre)}</a>` : ''
               }<span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado)} ${fuenteEnlace(c.fuente)}${c.publicado ? `, ${fecha(c.publicado)}` : ''}</span></li>`
             )
