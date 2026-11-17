@@ -13,6 +13,9 @@
 /** Identificadores de verificador aceptados. Representan un rol, no a una persona concreta. */
 export const VERIFICADORES = {
   'responsable-editorial': 'Comprobación manual en la fuente',
+  // HU-130 (decisión 22): lectura automática de una web oficial, publicada al momento. Solo en
+  // estados y partes de pasos con fuente oficial (lo controla check.mjs); el responsable revisa después.
+  vigilante: 'Leído de la web oficial',
 };
 export const EVIDENCIAS = {
   oficial: 'Dato oficial',

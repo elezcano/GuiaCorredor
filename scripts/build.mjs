@@ -225,7 +225,7 @@ const fuenteEnlace = (f) => (f?.url ? `<a href="${esc(f.url)}" rel="noopener">${
 const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', referencia: 'obra de referencia', empresa: 'declaración de la empresa', otra: 'otra fuente' };
 /** Insignia de validación (texto + icono, no solo color). */
 /** HU-107: la insignia dice dónde se comprobó el dato, nunca quién. */
-const verificadoEn = (fuente) => (fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente');
+const verificadoEn = (fuente) => (fuente?.leidoAuto ? 'Leído de la web oficial' : fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente');
 function validacionHTML(n, verificado, fuente) {
   const txt = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
   return `<span class="val val-${esc(n)}">${esc(txt)}</span>`;
@@ -721,8 +721,8 @@ const desfase = (zona, dia) => {
 const instanteParte = (x) => `${x.publicado}T${x.hora || '12:00'}:00${desfase(ZONAS[x.lado] || 'UTC', x.publicado)}`;
 /** HU-113: sello de validación compacto. La fuente, la fecha y la comprobación se abren al tocarlo. */
 function selloHTML(n, verificado, fuente, publicado) {
-  const corto = n === 'verificado' && verificado ? `${fuente?.tipo === 'oficial' ? 'Oficial' : 'Fuente'} · ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
-  const largo = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fecha(verificado)}.` : n === 'caducado' ? 'Verificación caducada: confírmalo antes de salir.' : 'Publicado por su fuente, sin comprobar todavía.';
+  const corto = n === 'verificado' && verificado ? `${fuente?.leidoAuto ? 'Web oficial' : fuente?.tipo === 'oficial' ? 'Oficial' : 'Fuente'} · ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
+  const largo = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fecha(verificado)}${fuente?.leidoAuto ? ', de forma automática' : ''}.` : n === 'caducado' ? 'Verificación caducada: confírmalo antes de salir.' : 'Publicado por su fuente, sin comprobar todavía.';
   return `<details class="sello sello-${esc(n)}"><summary><span class="sello-corto">${esc(corto)}</span></summary><span class="sello-hoja">${esc(largo)} ${fuenteEnlace(fuente)}${publicado ? `, ${fecha(publicado)}` : ''}${fuente?.tipo ? ` (${TIPO_FUENTE[fuente.tipo]})` : ''}.</span></details>`;
 }
 /** HU-73 / HU-113: lo que informa cada organismo, una línea por parte, con fecha, hora y sello de fuente. */
