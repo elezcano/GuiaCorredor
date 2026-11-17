@@ -50,6 +50,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 17/11/2026 | **Contraste con Google Maps:** coordenadas y km de la red confirmados; Carmelo Peralta → Mariscal pasa a 379,4 km calculados (los 307 km eran una resta sin fuente); el puente queda sin distancia hasta el dato oficial; los dos puentes fronterizos ya tienen coordenadas | #115 |
 | 17/11/2026 | **Puertos de Chile por separado:** San Pedro de Atacama, Calama, Antofagasta, Mejillones e Iquique son puntos propios; Mejillones e Iquique, como ramales desde Calama. El planificador ya calcula rutas a cada puerto | #115 |
 | 17/11/2026 | **Mapa interactivo** con MapLibre y teselas de OpenFreeMap (OpenStreetMap), con el estado de cada tramo y paso, y cálculo de trazados por carretera con OSRM (en revisión) | #115 |
 | 17/11/2026 | **Ficha de paso más corta:** la decisión en la primera pantalla (estado, hora de cierre, qué dice cada país, últimos 30 días y Llamar · Compartir · Planificar) y lo demás plegado. Jama pasa de 15 a 4 pantallas de móvil | #113 |
