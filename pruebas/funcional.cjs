@@ -13,18 +13,34 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   ok((await p.$$('.mapa a')).length >= 9, 'mapa sin enlaces');
   ok(await p.isVisible('.tablero'), 'sin tablero');
   ok(!(await p.content()).includes('Histórico</span></p>') || true, '');
-  // Planificador
+  // Planificador (HU-116): veredicto primero, opciones y detalle plegado
   await p.goto(B + '/planificador/?desde=0&hasta=8&carga=granel');
-  const filas = await p.$$eval('.res-fila dt', l => l.map(x => x.textContent));
-  ok(['Origen y destino','Distancia','Países','Pasos fronterizos','Tramos','Incidencias','Festivos, próximos 21 días','Documentación','Alternativas'].every(t => filas.includes(t)), 'resumen incompleto: ' + filas);
-  ok((await p.textContent('.ficha-resultado')).includes('Estimación provisional'), 'sin distinción estimado');
-  const incRec = await p.$$eval('.ficha-resultado .res-fila:nth-child(6) li', l => l.map(x => x.textContent));
-  ok(incRec.some(t => t.includes('CH-27')) && !incRec.some(t => t.includes('RN51')), 'incidencias de la opción recomendada mal asignadas: ' + incRec);
-  await p.click('.ficha-resultado [data-abrir="det-alternativa"]');
-  ok(await p.isVisible('#det-alternativa'), 'botón alternativa no abre');
-  const avisosAlt = await p.$$eval('#det-alternativa .it-aviso', l => l.map(x => x.textContent));
-  ok(avisosAlt.some(t => t.includes('RN51')) && !avisosAlt.some(t => t.includes('CH-27')), 'incidencias de Sico mal asignadas: ' + avisosAlt);
-  ok((await p.$$eval('#det-principal .it-estado .estado', l => l.map(x => x.textContent))).every(t => /^(Sin confirmar|No habilitado|Con restricciones|Abierto)/.test(t)), 'itinerario muestra estados confirmados');
+  const ver = await p.textContent('.pl-veredicto');
+  ok(/Hoy no se puede hacer entera/.test(ver) && /Puente de la Bioce/.test(ver), 'veredicto: debe decir que el puente lo impide: ' + ver);
+  ok(/Sí funciona hoy:.*Carmelo Peralta → Antofagasta/.test(ver), 'veredicto: falta lo que funciona hoy: ' + ver);
+  ok((await p.$$('.pl-opcion')).length === 2, 'deben salir dos opciones (Jama y Sico)');
+  ok((await p.textContent('.pl-opcion[aria-pressed="true"]')).includes('Recomendada'), 'la opción elegida por defecto debe ser la recomendada');
+  const avisosRec = await p.$$eval('.pl-detalle:not([hidden]) .pl-tramo-aviso', (l) => l.map((x) => x.textContent));
+  ok(avisosRec.some((t) => t.includes('CH-27')) && !avisosRec.some((t) => t.includes('RN51')), 'avisos de la opción recomendada mal asignados: ' + avisosRec);
+  ok((await p.textContent('.pl-detalle:not([hidden])')).includes('Estimados en línea recta') || (await p.textContent('.pl-detalle:not([hidden])')).includes('estimado'), 'sin distinción de distancia estimada');
+  await p.click('.pl-opcion[data-op="alternativa"]');
+  ok(!(await p.$eval('#det-alternativa', (d) => d.hidden)), 'la opción por Sico no se abre');
+  const avisosAlt = await p.$$eval('#det-alternativa .pl-tramo-aviso', (l) => l.map((x) => x.textContent));
+  ok(avisosAlt.some((t) => t.includes('RN51')) && !avisosAlt.some((t) => t.includes('CH-27')), 'avisos de Sico mal asignados: ' + avisosAlt);
+  ok((await p.$$eval('.pl-detalle:not([hidden]) .pl-tramo-datos > span:first-child', (l) => l.map((x) => x.textContent))).every((t) => /^(Sin confirmar|No habilitado|Con restricciones|Abierto)/.test(t)), 'tramo a tramo con estados inesperados');
+  // Tipo de carga: fuera de la búsqueda; dentro de «Papeles» cambia la lista
+  ok(!(await p.$('.buscador input[name="carga"]')), 'el tipo de carga no debe estar en la búsqueda');
+  await p.goto(B + '/planificador/?desde=0&hasta=8&carga=general');
+  const docsGeneral = await p.$$eval('#det-principal .pl-papeles li', (l) => l.length);
+  await p.evaluate(() => (document.querySelector('#det-principal .pl-carga').closest('details').open = true));
+  await p.check('#det-principal .pl-carga input[value="refrigerada"]');
+  const docsRefri = await p.$$eval('#det-principal .pl-papeles li', (l) => l.map((x) => x.textContent));
+  ok(docsRefri.length === docsGeneral + 1 && docsRefri.some((t) => /sanitario/i.test(t)), 'refrigerada debe añadir los certificados sanitarios');
+  ok(p.url().includes('carga=refrigerada'), 'el tipo de carga no queda en la URL');
+  // Ruta sin fronteras y en sentido contrario: sin errores y sin papeles
+  await p.goto(B + '/planificador/?desde=7&hasta=6');
+  ok((await p.textContent('.pl-cabeza')).includes('Calama → San Pedro de Atacama'), 'ruta corta en sentido contrario');
+  ok(!(await p.textContent('#resultado')).includes('Papeles para cruzar'), 'una ruta sin fronteras no debe pedir papeles');
   // Avisos
   await p.goto(B + '/avisos/');
   ok(await p.$('#inc-py15-lote3'), 'sin ancla de incidencia');

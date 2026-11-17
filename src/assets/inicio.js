@@ -34,10 +34,7 @@
 
   document.getElementById('origen').value = String(ruta.desde);
   document.getElementById('destino').value = String(ruta.hasta);
-  if (ruta.carga) {
-    const c = document.querySelector(`input[name="carga"][value="${CSS.escape(ruta.carga)}"]`);
-    if (c) c.checked = true;
-  }
+
 
   const [i, j] = r.rango;
   const carretera = document.getElementById('ruta-corredor');
