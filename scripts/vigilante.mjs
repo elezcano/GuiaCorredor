@@ -66,6 +66,14 @@ function autoprueba() {
     r.length === 2 &&
     r[0].emisor === 'Gendarmería Nacional' && r[0].dia === '2026-11-15' && r[0].hora === '09:50' && r[0].instante.toISOString() === '2026-11-15T12:50:00.000Z' &&
     r[1].emisor === 'Vialidad Nacional' && r[1].dia === '2026-11-12' && r[1].hora === '08:30';
+  const paso = { horarios: [{ apertura: '09:00', cierre: '19:15', zona: 'America/Argentina/Jujuy' }] };
+  const okHorario =
+    dentroDeHorario(paso, new Date('2026-11-17T12:30:00Z')).dentro === true && // 09:30 AR
+    dentroDeHorario(paso, new Date('2026-11-17T07:21:00Z')).dentro === false && // 04:21 AR
+    dentroDeHorario(paso, new Date('2026-11-17T23:30:00Z')).dentro === false && // 20:30 AR
+    dentroDeHorario({ horarios: [] }).dentro === true;
+  console.log(okHorario ? '✓ Vigilante: solo avisa dentro del horario del paso (hora de Argentina).' : '✗ Vigilante: el filtro de horario falla.');
+  if (!okHorario) process.exit(1);
   console.log(ok ? '✓ Vigilante: el lector entiende el formato de la página oficial.' : `✗ Vigilante: lectura inesperada ${JSON.stringify(r)}`);
   process.exit(ok ? 0 : 1);
 }
@@ -136,7 +144,30 @@ async function abrirOCompletar(titulo, cuerpo, linea) {
   console.log(`Comentario añadido en #${ya.number}.`);
 }
 
-const PIE = '\n\n---\nAviso automático del vigilante (`scripts/vigilante.mjs`). No cambia datos: mira el parte y, si procede, dile a Claude «confirmo …» para cargarlo. Claude la cierra cuando el parte esté revisado.';
+/** Hora actual en Argentina y en España, para el correo. */
+function horasAhora(ahora = new Date()) {
+  const f = (zona) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zona }).format(ahora);
+  return { ar: f('America/Argentina/Salta'), es: f('Europe/Madrid') };
+}
+/** Minutos desde medianoche en una zona horaria. */
+function minutosEn(zona, ahora = new Date()) {
+  const [h, m] = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zona }).format(ahora).split(':').map(Number);
+  return h * 60 + m;
+}
+const aMin = (hhmm) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+/**
+ * Solo se avisa dentro del horario conocido del paso (apertura–cierre, hora de Argentina): de noche
+ * Gendarmería publica el cierre de la jornada, que no cambia nada. Lo publicado de noche se avisa
+ * en la primera pasada tras la apertura. Un paso sin horario estructurado avisa a cualquier hora.
+ */
+export function dentroDeHorario(paso, ahora = new Date()) {
+  const h = (paso.horarios || []).find((x) => x.apertura && x.cierre && x.zona);
+  if (!h) return { dentro: true, horario: null };
+  const m = minutosEn(h.zona, ahora);
+  return { dentro: m >= aMin(h.apertura) && m <= aMin(h.cierre), horario: `${h.apertura}–${h.cierre}` };
+}
+
+const PIE = '\n\n---\nAviso automático del vigilante (`scripts/vigilante.mjs`). No cambia datos: mira el parte y, si procede, dile a Claude «confirmo …» para cargarlo. Claude la cierra cuando el parte esté revisado.\n\nOjo desde España: la cuenta atrás de la web oficial («cierra en…», «abre en…») usa la hora de tu móvil, no la de Argentina. Fíate del horario, del recuadro «Atención» y de la lista «Información provista por».';
 
 async function principal() {
   if (args.has('--autoprueba')) return autoprueba();
@@ -167,12 +198,18 @@ async function principal() {
   // Un aviso por paso y día; los partes nuevos del mismo día se añaden como comentario.
   const porPaso = new Map();
   for (const a of avisos) porPaso.set(a.paso.id, [...(porPaso.get(a.paso.id) || []), a]);
+  const { ar, es } = horasAhora();
   for (const [, lista] of porPaso) {
     const { paso, url } = lista[0];
+    const hor = dentroDeHorario(paso);
+    if (!hor.dentro) {
+      console.log(`${paso.nombre}: parte nuevo fuera del horario (${hor.horario}, hora AR); se avisará tras la apertura.`);
+      continue;
+    }
     const lineas = lista.map((a) => `**${a.emisor}**: parte del ${fmt(a.dia, a.hora)} (cargado: ${a.cargado || 'ninguno'})`);
     await abrirOCompletar(
       `Vigilante · ${paso.nombre}: parte nuevo (${hoy})`,
-      `Hay partes más recientes que los cargados en la Guía:\n\n${lineas.map((l) => `- ${l}`).join('\n')}\n\nPágina oficial: ${url}${PIE}`,
+      `**Hora en Argentina: ${ar}** (en España: ${es}). Horario del paso: ${hor.horario ? `${hor.horario}, hora de Argentina` : 'sin horario cargado'}.\n\nHay partes más recientes que los cargados en la Guía:\n\n${lineas.map((l) => `- ${l}`).join('\n')}\n\nPágina oficial: ${url}${PIE}`,
       lineas.join(' · ')
     );
   }
