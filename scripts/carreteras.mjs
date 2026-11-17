@@ -138,6 +138,8 @@ export const guiaDeTrazado = (k) => (k.startsWith('andes@') ? { paso: k.split('@
 export function leerCL(json, trazados) {
   const feats = json?.features;
   if (!Array.isArray(feats)) throw new Error('la capa de emergencias de Vialidad (MOP) no devuelve registros (¿ha cambiado?)');
+  // Dos regiones sin ningún registro no es «todo bien»: suele ser la capa a medio reescribir.
+  if (!feats.length) throw new Error('la capa de emergencias de Vialidad (MOP) viene vacía (¿se está actualizando?)');
   const vistos = new Set();
   const res = [];
   for (const { attributes: a, geometry: g } of feats) {
@@ -202,6 +204,7 @@ const sello = (ahora, que) => {
 };
 const delVigilante = (i) => i.verificacion?.verificadoPor === 'vigilante';
 const DIAS_RESUELTAS = 15;
+export const AUSENCIAS_PARA_RESOLVER = 2;
 
 /**
  * nuevas: incidencias leídas ahora de UNA fuente (todas con la misma fuente). Puro: devuelve
@@ -230,9 +233,20 @@ export function aplicar(lista, nuevas, fuente, ahora = new Date()) {
     else res.push(reg), porId.set(reg.id, reg);
     cambios.push(`${ya ? 'Actualizado' : 'Nuevo'} · ${n.ubicacion}: ${n.descripcion}`);
   }
+  let tocado = cambios.length > 0;
   for (const i of res) {
     if (!delVigilante(i) || i.fuente !== fuente) continue;
+    if (vistas.has(i.id) && i.ausencias) {
+      delete i.ausencias;
+      tocado = true;
+    }
     if (i.estado === 'activa' && !vistas.has(i.id)) {
+      // Se retira solo si falta en dos pasadas seguidas: una lectura a medias (la fuente reescribiéndose
+      // mientras se lee) no puede dar por resuelto un corte.
+      i.ausencias = (i.ausencias || 0) + 1;
+      tocado = true;
+      if (i.ausencias < AUSENCIAS_PARA_RESOLVER) continue;
+      delete i.ausencias;
       i.estado = 'resuelta';
       i.fin = hoy;
       Object.assign(i, sello(ahora, `${i.ubicacion}: la fuente ya no lo lista`));
@@ -242,7 +256,8 @@ export function aplicar(lista, nuevas, fuente, ahora = new Date()) {
   // Las resueltas del vigilante se guardan unos días (para el historial) y después se retiran.
   const limite = new Date(ahora.getTime() - DIAS_RESUELTAS * 864e5).toISOString().slice(0, 10);
   const final = res.filter((i) => !(delVigilante(i) && i.fuente === fuente && i.estado === 'resuelta' && (i.fin || '') < limite));
-  return { incidencias: final, cambios };
+  if (final.length !== res.length) tocado = true;
+  return { incidencias: final, cambios, tocado };
 }
 
 /** La fuente lleva demasiado sin actualizarse (horas): dato oficial, pero viejo. */
