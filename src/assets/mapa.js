@@ -24,7 +24,7 @@
       container: caja,
       style: 'https://tiles.openfreemap.org/styles/positron',
       bounds: [[Math.min(...lons) - 1, Math.min(...lats) - 1], [Math.max(...lons) + 1, Math.max(...lats) + 1]],
-      attributionControl: { compact: true, customAttribution: 'Teselas: <a href="https://openfreemap.org" rel="noopener">OpenFreeMap</a>' },
+      attributionControl: { compact: true },
       cooperativeGestures: true,
       locale: { 'CooperativeGesturesHandler.WindowsHelpText': 'Usa Ctrl + rueda para acercar', 'CooperativeGesturesHandler.MacHelpText': 'Usa ⌘ + rueda para acercar', 'CooperativeGesturesHandler.MobileHelpText': 'Usa dos dedos para mover el mapa' },
     });
