@@ -54,7 +54,7 @@ Solo empresas reales que el responsable editorial ha revisado. Nunca empresas de
 }
 ```
 
-`puntos`: `campo-grande`, `porto-murtinho`, `carmelo-peralta`, `mariscal-estigarribia`, `pozo-hondo`, `salta-jujuy`, `norte-chile`, `puertos-chile`. Categorías: `data/categorias.json`. La verificación caduca al año.
+`puntos`: `campo-grande`, `porto-murtinho`, `carmelo-peralta`, `mariscal-estigarribia`, `pozo-hondo`, `salta-jujuy`, `san-pedro-atacama`, `calama`, `antofagasta`, `mejillones`, `iquique`. Categorías: `data/categorias.json`. La verificación caduca al año.
 
 ## Añadir o actualizar una página de la guía
 

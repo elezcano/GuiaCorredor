@@ -25,7 +25,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
     ok(!(await p.$('.partes')), 'Puente no habilitado: sin bloque de partes');
     await p.goto(B + '/guia/pasos/pozo-hondo/');
     ok((await p.$$('.partes .parte-vacio')).length === 2, 'Pozo Hondo: dos lados sin parte');
-    await p.goto(B + '/informe/?desde=0&hasta=7&carga=granel&fecha=2026-12-08&op=alternativa');
+    await p.goto(B + '/informe/?desde=0&hasta=8&carga=granel&fecha=2026-12-08&op=alternativa');
     const inf = await p.textContent('.informe');
     ok(/Qué informa cada país/.test(inf) && /Gendarmería Nacional/.test(inf) && /Chile: sin parte cargado/.test(inf), 'C4 informe con partes');
     ok(/Este parte tiene 3 días/.test(inf), 'C4 informe con aviso de antigüedad');

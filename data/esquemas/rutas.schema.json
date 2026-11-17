@@ -131,7 +131,11 @@
               }
             ]
           },
-          "estado": false
+          "estado": false,
+          "ramal": {
+            "type": "boolean",
+            "description": "Tramo que sale de un punto de la ruta principal hacia un destino propio (p. ej. Calama → Iquique)."
+          }
         }
       }
     },

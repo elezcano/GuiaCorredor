@@ -320,6 +320,12 @@
       "nombre": "Wikipedia (en): Sico Pass",
       "url": "https://en.wikipedia.org/wiki/Sico_Pass",
       "tipo": "referencia"
+    },
+    {
+      "id": "osm-nominatim",
+      "nombre": "OpenStreetMap (búsqueda Nominatim)",
+      "url": "https://www.openstreetmap.org/copyright",
+      "tipo": "referencia"
     }
   ]
 }

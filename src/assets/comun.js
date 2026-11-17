@@ -76,10 +76,29 @@
     },
     /** Opciones de ruta entre dos nodos. Si un tramo tiene paso alternativo, devuelve dos opciones comparables. */
     opciones(datos, a, b) {
-      const ida = a < b;
-      const [i, j] = ida ? [a, b] : [b, a];
-      const base = datos.tramos.slice(i, j).map((t) => ({ ...t, de: ida ? t.desde : t.hasta, a: ida ? t.hasta : t.desde }));
-      if (!ida) base.reverse();
+      // HU-115: la red es un árbol (ruta principal + ramales). Se busca el único camino entre los dos nodos.
+      const idx = Object.fromEntries(datos.nodos.map((n, k) => [n.id, k]));
+      const vecinos = datos.nodos.map(() => []);
+      datos.tramos.forEach((t) => {
+        vecinos[idx[t.desde]].push([idx[t.hasta], t, true]);
+        vecinos[idx[t.hasta]].push([idx[t.desde], t, false]);
+      });
+      const previo = { [a]: null };
+      const cola = [a];
+      while (cola.length) {
+        const x = cola.shift();
+        if (x === b) break;
+        for (const [y, t, sentido] of vecinos[x]) if (!(y in previo)) (previo[y] = [x, t, sentido]), cola.push(y);
+      }
+      const base = [];
+      for (let x = b; previo[x]; x = previo[x][0]) {
+        const [, t, sentido] = previo[x];
+        base.unshift({ ...t, de: sentido ? t.desde : t.hasta, a: sentido ? t.hasta : t.desde });
+      }
+      // Tramo de la ruta principal que toca cada nodo (para resaltar la carretera de la portada).
+      const nPrincipal = datos.tramos.filter((t) => !t.ramal).length + 1;
+      const enPrincipal = (k) => (k < nPrincipal ? k : idx[datos.tramos.find((t) => t.ramal && idx[t.hasta] === k)?.desde] ?? k);
+      const [i, j] = [enPrincipal(a), enPrincipal(b)].sort((x, y) => x - y);
       const conAlternativa = base.findIndex((t) => t.alternativa);
       const variantes = [{ tramos: base, via: null }];
       if (conAlternativa >= 0) {

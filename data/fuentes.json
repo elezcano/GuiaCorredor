@@ -440,6 +440,12 @@
       "nombre": "Voces Críticas: «Paso de Jama cerrado y rutas con nieve en Salta…» (19/09/2026; Sico habilitado)",
       "url": "https://www.vocescriticas.com/noticias/2026/09/19/218287-paso-de-jama-cerrado-y-rutas-con-nieve-en-salta-como-estan-los-cruces-fronterizos-este-sabado",
       "tipo": "prensa"
+    },
+    {
+      "id": "osm-nominatim",
+      "nombre": "OpenStreetMap (búsqueda Nominatim)",
+      "url": "https://www.openstreetmap.org/copyright",
+      "tipo": "referencia"
     }
   ]
 }

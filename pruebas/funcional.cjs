@@ -14,7 +14,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   ok(await p.isVisible('.tablero'), 'sin tablero');
   ok(!(await p.content()).includes('Histórico</span></p>') || true, '');
   // Planificador
-  await p.goto(B + '/planificador/?desde=0&hasta=7&carga=granel');
+  await p.goto(B + '/planificador/?desde=0&hasta=8&carga=granel');
   const filas = await p.$$eval('.res-fila dt', l => l.map(x => x.textContent));
   ok(['Origen y destino','Distancia','Países','Pasos fronterizos','Tramos','Incidencias','Festivos, próximos 21 días','Documentación','Alternativas'].every(t => filas.includes(t)), 'resumen incompleto: ' + filas);
   ok((await p.textContent('.ficha-resultado')).includes('Estimación provisional'), 'sin distinción estimado');

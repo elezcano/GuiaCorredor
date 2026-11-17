@@ -83,31 +83,71 @@
       }
     },
     {
-      "id": "norte-chile",
-      "nombre": "San Pedro de Atacama / Calama",
+      "id": "san-pedro-atacama",
+      "nombre": "San Pedro de Atacama",
       "pais": "CL",
       "coordenadas": {
         "lat": -22.917,
         "lon": -68.2,
         "fuente": "wikipedia-en-san-pedro-de-atacama",
         "evidencia": "tercero",
-        "precision": "referencia",
-        "consultado": "2026-11-14",
-        "nota": "Punto de referencia: San Pedro de Atacama. El nodo agrupa San Pedro de Atacama y Calama hasta separarlos (P1.1)."
+        "precision": "localidad",
+        "consultado": "2026-11-14"
       }
     },
     {
-      "id": "puertos-chile",
-      "nombre": "Antofagasta / Mejillones / Iquique",
+      "id": "calama",
+      "nombre": "Calama",
+      "pais": "CL",
+      "coordenadas": {
+        "lat": -22.4624,
+        "lon": -68.9272,
+        "fuente": "osm-nominatim",
+        "evidencia": "tercero",
+        "precision": "localidad",
+        "consultado": "2026-11-17",
+        "nota": "Centro de la comuna según OpenStreetMap (relación 1561886)."
+      }
+    },
+    {
+      "id": "antofagasta",
+      "nombre": "Antofagasta",
       "pais": "CL",
       "coordenadas": {
         "lat": -23.65,
         "lon": -70.4,
         "fuente": "wikipedia-en-antofagasta",
         "evidencia": "tercero",
-        "precision": "referencia",
-        "consultado": "2026-11-14",
-        "nota": "Punto de referencia: Antofagasta. El nodo agrupa Antofagasta, Mejillones e Iquique hasta separarlos (P1.1)."
+        "precision": "localidad",
+        "consultado": "2026-11-14"
+      }
+    },
+    {
+      "id": "mejillones",
+      "nombre": "Mejillones",
+      "pais": "CL",
+      "coordenadas": {
+        "lat": -23.1002,
+        "lon": -70.4483,
+        "fuente": "osm-nominatim",
+        "evidencia": "tercero",
+        "precision": "localidad",
+        "consultado": "2026-11-17",
+        "nota": "Centro de la comuna según OpenStreetMap (relación 1564422)."
+      }
+    },
+    {
+      "id": "iquique",
+      "nombre": "Iquique",
+      "pais": "CL",
+      "coordenadas": {
+        "lat": -20.2141,
+        "lon": -70.1525,
+        "fuente": "osm-nominatim",
+        "evidencia": "tercero",
+        "precision": "localidad",
+        "consultado": "2026-11-17",
+        "nota": "Centro de la comuna según OpenStreetMap (relación 239456)."
       }
     }
   ],
@@ -178,7 +218,7 @@
     {
       "id": "andes",
       "desde": "salta-jujuy",
-      "hasta": "norte-chile",
+      "hasta": "san-pedro-atacama",
       "km": null,
       "paso": {
         "id": "jama",
@@ -192,11 +232,36 @@
       }
     },
     {
-      "id": "calama-puertos",
-      "desde": "norte-chile",
-      "hasta": "puertos-chile",
+      "id": "spa-calama",
+      "desde": "san-pedro-atacama",
+      "hasta": "calama",
       "km": null,
       "guia": null
+    },
+    {
+      "id": "calama-antofagasta",
+      "desde": "calama",
+      "hasta": "antofagasta",
+      "km": null,
+      "guia": null
+    },
+    {
+      "id": "calama-mejillones",
+      "desde": "calama",
+      "hasta": "mejillones",
+      "km": null,
+      "guia": null,
+      "ramal": true,
+      "nota": "Ramal desde Calama al puerto de Mejillones."
+    },
+    {
+      "id": "calama-iquique",
+      "desde": "calama",
+      "hasta": "iquique",
+      "km": null,
+      "guia": null,
+      "ramal": true,
+      "nota": "Ramal desde Calama al puerto de Iquique."
     }
   ],
   "documentosCruce": [

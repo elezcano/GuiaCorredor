@@ -343,13 +343,16 @@ const seccion = ({ titulo, contexto, enlace, cuerpo, id = '', clase = '' }) => `
 /** Corredor como carretera. Horizontal en escritorio, vertical en móvil. */
 function rutaHTML() {
   const items = [];
-  rutas.nodos.forEach((n, i) => {
+  // HU-115: la carretera dibuja la ruta principal; los ramales (Calama → Mejillones, Iquique) van en una línea aparte.
+  const principales = rutas.tramos.filter((t) => !t.ramal);
+  const ramales = rutas.tramos.filter((t) => t.ramal);
+  rutas.nodos.slice(0, principales.length + 1).forEach((n, i) => {
     const nEmp = empresasEn([n.id]).length;
     items.push(`<li class="parada" data-i="${i}"><span class="via" aria-hidden="true"><span class="punto"></span></span>
       <span class="texto"><strong>${esc(n.nombre)}</strong><span class="parada-pais">${esc(PAISES[n.pais])}</span>${
         nEmp ? `<a class="parada-empresas" href="${u(`/directorio/?punto=${n.id}`)}">${plural(nEmp, 'empresa', 'empresas')}</a>` : ''
       }</span></li>`);
-    const t = rutas.tramos[i];
+    const t = principales[i];
     if (!t) return;
     const enlace = t.paso?.guia || t.guia;
     const etiqueta = t.paso ? `${rutas.nodos[i].pais}–${rutas.nodos[i + 1].pais}` : km(t.km);
@@ -359,7 +362,10 @@ function rutaHTML() {
     items.push(`<li class="tramo tramo-${esc(t.estado)} tramo-op-${t.op}${t.paso ? ' tramo-frontera' : ''}" data-i="${i}"><span class="via" aria-hidden="true"></span>
       ${enlace ? `<a class="texto" href="${u(`/guia/${enlace}/`)}">${contenido}</a>` : `<span class="texto">${contenido}</span>`}</li>`);
   });
-  return `<div class="carretera-marco"><ol class="ruta" id="ruta-corredor" aria-label="Recorrido del corredor de este a oeste">${items.join('')}</ol></div>`;
+  const nota = ramales.length
+    ? `<p class="ruta-ramales">También: ${ramales.map((t) => `${esc(nodoNombre[t.hasta])}`).join(' e ')}, desde ${esc(nodoNombre[ramales[0].desde])}.</p>`
+    : '';
+  return `<div class="carretera-marco"><ol class="ruta" id="ruta-corredor" aria-label="Recorrido del corredor de este a oeste">${items.join('')}</ol>${nota}</div>`;
 }
 
 const opcionesNodos = (sel) => rutas.nodos.map((n, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${esc(n.nombre)}</option>`).join('');
@@ -581,8 +587,14 @@ function mapaHTML() {
     return `<g><title>${esc(titulo)}</title><polyline class="${cls}" points="${linea(pts)}"/>${op === 'sin-confirmar' ? `<polyline class="m-tramo-hueco${alt ? ' m-alt' : ''}${typeof t.km === 'number' ? '' : ' m-estimado'}" points="${linea(pts)}"/>` : ''}</g>`;
   };
   const tramosMapa = [...rutas.tramos.filter((t) => t.alternativa).map((t) => segmento(t, true)), ...rutas.tramos.map((t) => segmento(t))].join('');
-  // Solo puertos con coordenadas con fuente (Mejillones e Iquique, pendientes de P1.1).
-  const puertos = [{ nombre: 'Antofagasta', lat: n['puertos-chile'].lat, lon: n['puertos-chile'].lon, dx: 10, dy: 18 }];
+  // Puertos de Chile (HU-115: cada uno con su punto y su ramal desde Calama).
+  const puertos = [
+    ['antofagasta', 10, 18],
+    ['mejillones', 10, -8],
+    ['iquique', 10, 4],
+  ]
+    .filter(([id]) => n[id])
+    .map(([id, dx, dy]) => ({ id, nombre: n[id].nombre, lat: n[id].lat, lon: n[id].lon, dx, dy }));
   const costa = [[-70.15, -19.3], [-70.15, -20.2], [-70.25, -21], [-70.2, -21.6], [-70.3, -22.3], [-70.5, -23], [-70.6, -23.5], [-70.45, -24], [-70.55, -25.6]];
   const oceano = `${costa.map(([lo, la]) => `${X(lo)},${Y(la)}`).join(' ')} 0,${Y(-25.6)} 0,0`;
   const etiqueta = (x, y, t, sub, a = 'start') =>
@@ -591,8 +603,10 @@ function mapaHTML() {
     ['campo-grande', 0, 24, 'middle'],
     ['mariscal-estigarribia', 0, 26, 'middle'],
     ['salta-jujuy', 12, 18],
-    ['norte-chile', 10, -14],
+    ['san-pedro-atacama', 10, -14],
+    ['calama', 10, -10],
   ]
+    .filter(([id]) => n[id])
     .map(([id, dx, dy, a = 'start']) => {
       const o = n[id];
       const x = X(o.lon), y = Y(o.lat);
@@ -621,7 +635,7 @@ function mapaHTML() {
   const pts = puertos
     .map((q) => {
       const x = X(q.lon), y = Y(q.lat);
-      return `<a href="${u('/directorio/?punto=puertos-chile')}" aria-label="Puerto de ${esc(q.nombre)}: empresas y servicios"><rect class="m-puerto" x="${x - 5}" y="${y - 5}" width="10" height="10"/>${etiqueta(x + q.dx, y + q.dy, q.nombre)}</a>`;
+      return `<a href="${u(`/directorio/?punto=${q.id}`)}" aria-label="Puerto de ${esc(q.nombre)}: empresas y servicios"><rect class="m-puerto" x="${x - 5}" y="${y - 5}" width="10" height="10"/>${etiqueta(x + q.dx, y + q.dy, q.nombre)}</a>`;
     })
     .join('');
   const paisesM = [
@@ -655,7 +669,7 @@ function mapaHTML() {
       <li><span class="ley-ciudad"></span>Ciudad</li>
       <li><span class="ley-puerto"></span>Puerto</li>
     </ul>
-    <p>Esquema sin límites políticos. Las coordenadas tienen fuente; las de Salta, San Pedro de Atacama y Antofagasta son puntos de referencia de nodos que agrupan varias localidades.</p>
+    <p>Esquema sin límites políticos. Las coordenadas tienen fuente; la de Salta / Jujuy es un punto de referencia que agrupa las dos ciudades.</p>
   </figcaption>
 </figure>`;
 }
@@ -1039,7 +1053,7 @@ function datosMapa() {
     }
   }
   const puntos = [
-    ...rutas.nodos.map((x) => ({ id: x.id, nombre: x.nombre, pais: PAISES[x.pais], tipo: x.id === 'puertos-chile' ? 'puerto' : 'ciudad', lon: x.lon, lat: x.lat, url: u(`/directorio/?punto=${x.id}`) })),
+    ...rutas.nodos.map((x) => ({ id: x.id, nombre: x.nombre, pais: PAISES[x.pais], tipo: ['antofagasta', 'mejillones', 'iquique'].includes(x.id) ? 'puerto' : 'ciudad', lon: x.lon, lat: x.lat, url: u(`/directorio/?punto=${x.id}`) })),
     ...fichaPasos.map((p) => {
       const e = estadoPaso(p.id);
       const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';

@@ -3,7 +3,7 @@ titulo: Paso de Jama (Argentina – Chile)
 tipo: paso
 resumen: Principal paso entre Jujuy y el norte de Chile, a unos 4.200 m de altitud. En invierno funciona de forma intermitente por el clima.
 paises: AR, CL
-puntos: salta-jujuy, norte-chile
+puntos: salta-jujuy, san-pedro-atacama, calama
 revisado: 2026-11-14
 validacion: borrador
 ---
