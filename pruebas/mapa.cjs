@@ -26,6 +26,19 @@ const f = []; const ok = (c, m) => c || f.push(m);
     }
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'desborde ' + tema);
     await p.screenshot({ path: captura(`mapa-${tema}.png`) });
+    // Portada: el mapa se carga al llegar a su sección (si MapLibre está instalado).
+    await p.goto(B + '/');
+    if (await p.$('.mapa-vivo-marco')) {
+      ok(await p.isHidden('#mapa-vivo'), 'portada: el mapa no debe cargarse antes de llegar a él');
+      await p.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
+      // Estado final: mapa cargado, o esquema de vuelta (sin MapLibre o sin teselas).
+      await p.waitForFunction(() => document.querySelector('#mapa-vivo')?.dataset.listo === 'true' || (window.maplibregl && document.querySelector('#mapa-vivo')?.hidden), null, { timeout: 25000 }).catch(() => {});
+      const vivo = await p.isVisible('#mapa-vivo');
+      ok(vivo !== (await p.isVisible('.mapa-respaldo')), 'portada: mapa y esquema a la vez o ninguno');
+      console.log(`  portada ${tema}: ${vivo ? 'MapLibre con teselas' : 'esquema SVG'}`);
+      if (vivo) await p.waitForTimeout(2500);
+      await p.locator('.mapa-vivo-marco').screenshot({ path: captura(`portada-mapa-${tema}.png`) });
+    }
     ok(errs.length === 0, 'errores JS ' + errs);
     await p.close();
   }
