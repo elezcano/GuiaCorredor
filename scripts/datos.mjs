@@ -32,6 +32,8 @@ export function cargar() {
     if (Array.isArray(o.otrasFuentes)) o.otrasFuentes = o.otrasFuentes.map((id) => (typeof id === 'string' ? fuentes.get(id) || { id, nombre: id, url: '', tipo: 'otra' } : id));
     for (const k of ['fuente', 'kmFuente']) if (typeof o[k] === 'string') o[k] = fuentes.get(o[k]) || { id: o[k], nombre: o[k], url: '', tipo: 'otra' };
     if ('validacion' in o) o.verificado = fechaVerificacion(o);
+    // HU-130: lo leído por el vigilante lleva su propio sello («Leído en web oficial»).
+    if (o.verificacion?.verificadoPor === 'vigilante' && o.fuente && typeof o.fuente === 'object') o.fuente = { ...o.fuente, leidoAuto: true };
     if ('coordenadas' in o) {
       o.lat = o.coordenadas?.lat ?? null;
       o.lon = o.coordenadas?.lon ?? null;

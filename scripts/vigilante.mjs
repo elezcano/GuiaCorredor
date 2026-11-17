@@ -8,12 +8,24 @@
 // HU-129: guarda en la rama «datos-vigilancia» (vigilancia.json) cuándo leyó bien cada fuente por última
 // vez. Si una fuente falla 3 pasadas seguidas, abre un aviso: el vigilante está ciego con esa fuente.
 //
-// No cambia datos ni publica nada: solo avisa. El estado («Abierto/Cerrado») de esas páginas se
-// carga en el navegador y no se puede leer aquí; la incidencia enlaza a la página para mirarlo.
+// HU-130 (decisión 22): lo leído de la web oficial se publica al momento, sin esperar confirmación.
+// La página trae escrito por el servidor el estado que pone Gendarmería (estadoPrioridad), el de
+// Vialidad (estadoVialidad), el horario (fechaSchema) y el recuadro «Atención». La etiqueta
+// «Abierto/Cerrado» y la cuenta atrás que se ven en pantalla las calcula el navegador con la hora del
+// dispositivo: no se usan. Reglas:
+//   1. Hora de Argentina siempre (America/Argentina/Salta).
+//   2. «Cerrado» de Gendarmería fuera del horario es el cierre de cada noche: no es una incidencia.
+//      Dentro del horario (o con el parte publicado dentro del horario) es un cierre: se publica en rojo.
+//   3. Nunca marcha atrás: si la web sirve una copia más antigua que lo publicado, se descarta.
+//   4. Vialidad «Restringida» o «Corte total» con el paso abierto: con restricciones (ámbar).
+//   5. El vigilante solo reabre lo que él mismo cerró; lo cargado a mano lo revisa el responsable.
 //
 // Uso:
 //   node scripts/vigilante.mjs                 lee las páginas y muestra qué avisaría (sin tocar GitHub)
 //   node scripts/vigilante.mjs --github        además abre o completa las incidencias (necesita GITHUB_TOKEN)
+//   node scripts/vigilante.mjs --escribir      HU-130: escribe en data/pasos.json lo leído y deja el resumen
+//                                              en VIGILANCIA_CAMBIOS (el flujo lo comprueba, publica y avisa)
+//   node scripts/vigilante.mjs --github --avisar-publicado   avisa de lo publicado (lee VIGILANCIA_CAMBIOS)
 //   node scripts/vigilante.mjs --github --prueba   abre una incidencia de prueba con lo leído, para comprobar el correo
 //   node scripts/vigilante.mjs --autoprueba    comprueba el lector con un ejemplo, sin red
 import fs from 'node:fs';
@@ -59,34 +71,217 @@ export function leerActualizaciones(html) {
   return res;
 }
 
+// ---------- HU-130: lo que publica el servidor en la página oficial ----------
+const varJS = (html, nombre) => html.match(new RegExp(`var\\s+${nombre}\\s*=\\s*(['"])(.*?)\\1\\s*;`))?.[2] ?? null;
+
+/** Recuadro «Atención»: [{ emisor, texto }]. «<b>Vialidad Nacional informa:</b> RN 52 …» y los párrafos que le siguen. */
+export function leerAtencion(html) {
+  const i = html.search(/>\s*Atenci(?:ó|&oacute;)n\s*<\/p>/i);
+  if (i < 0) return [];
+  const fin = html.indexOf('divisor', i);
+  const bloque = html.slice(i, fin > i ? fin : i + 4000);
+  const res = [];
+  for (const [, p] of bloque.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)) {
+    const em = p.match(/<span[^>]*fw-bold[^>]*>\s*([^<]+?)\s+informa:?\s*<\/span>/i);
+    const texto = textoPlano(p.replace(/<span[^>]*fw-bold[^>]*>[\s\S]*?<\/span>/i, '')).trim();
+    if (em) res.push({ emisor: textoPlano(em[1]).trim(), texto });
+    else if (texto && res.length && !/^Atenci[óo]n$/i.test(texto)) res[res.length - 1].texto += `. ${texto}`;
+  }
+  return res.map((a) => ({ ...a, texto: a.texto.replace(/\s+/g, ' ').replace(/\.\s*\./g, '.').trim() })).filter((a) => a.texto);
+}
+
+/** Todo lo que el vigilante usa de la página oficial de un paso. null en estado = la página ha cambiado de formato. */
+export function leerPagina(html) {
+  const horarioCrudo = varJS(html, 'fechaSchema');
+  const m = horarioCrudo?.match(/^\s*(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})\s*$/);
+  return {
+    estado: varJS(html, 'estadoPrioridad')?.toUpperCase() || null, // ABIERTO | CERRADO (lo pone Gendarmería)
+    vialidad: varJS(html, 'estadoVialidad')?.toUpperCase() || null, // HABILITADA | RESTRINGIDA | CORTE TOTAL | ''
+    horario: m ? { apertura: m[1], cierre: m[2] } : null,
+    horarioCrudo,
+    atencion: leerAtencion(html),
+    actualizaciones: leerActualizaciones(html),
+  };
+}
+
+const ZONA_AR = 'America/Argentina/Salta';
+const diaAR = (d) => d.toLocaleDateString('sv-SE', { timeZone: ZONA_AR });
+const horaAR = (d) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: ZONA_AR }).format(d);
+const entre = (hhmm, h) => !!h && aMin(hhmm) >= aMin(h.apertura) && aMin(hhmm) <= aMin(h.cierre);
+const fechaCortaAR = (dia) => dia.split('-').slice(1).reverse().join('/');
+
+function sello(fuente, ahora, que) {
+  return {
+    fuente,
+    publicado: null,
+    actualizado: diaAR(ahora),
+    evidencia: 'oficial',
+    validacion: 'verificado',
+    verificacion: { verificadoPor: 'vigilante', rol: 'vigilante', fecha: diaAR(ahora), alcance: `Leído automáticamente de la web oficial el ${fechaCortaAR(diaAR(ahora))} a las ${horaAR(ahora)} (hora de Argentina): ${que}.` },
+  };
+}
+const aHistorial = (e) => ({ fecha: e.publicado, valor: e.valor, texto: e.texto, fuente: e.fuente, publicado: e.publicado, actualizado: e.actualizado, evidencia: e.evidencia, validacion: e.validacion, verificacion: e.verificacion });
+
+/**
+ * HU-130. Decide qué publicar en un paso a partir de lo leído. Puro: devuelve { paso, cambios, avisos }
+ * sin tocar el original. cambios = lo publicado; avisos = lo que el responsable debe mirar.
+ */
+export function decidir(original, lectura, fuente, ahora = new Date()) {
+  const paso = structuredClone(original);
+  const cambios = [];
+  const avisos = [];
+  const partes = (paso.partes ||= []);
+  const gen = lectura.actualizaciones.find((a) => a.emisor === 'Gendarmería Nacional');
+  const vial = lectura.actualizaciones.find((a) => a.emisor === 'Vialidad Nacional');
+  const horario = lectura.horario || (paso.horarios || []).find((x) => x.apertura && x.cierre) || null;
+  const horTxt = horario ? `${horario.apertura}–${horario.cierre}` : null;
+  const cargadoG = ultimoParte(paso, 'Gendarmería');
+  const cargadoV = ultimoParte(paso, 'Vialidad');
+
+  // Regla 3: una copia más antigua que lo publicado no cuenta (el servidor oficial a veces sirve copias viejas).
+  if (gen && cargadoG && gen.instante < cargadoG.instante) {
+    avisos.push(`copia antigua de la web (Gendarmería ${fmt(gen.dia, gen.hora)}; publicado ${fmt(cargadoG.publicado, cargadoG.hora)}): descartada`);
+    return { paso: original, cambios, avisos, descartada: true };
+  }
+  if (!lectura.estado) {
+    avisos.push('la página no trae el estado de Gendarmería (¿ha cambiado de formato?): no se publica nada');
+    return { paso: original, cambios, avisos };
+  }
+  const cerradoGendarmeria = lectura.estado === 'CERRADO';
+  // Regla 2: cierre real si Gendarmería lo marca dentro del horario (ahora, o al publicar su parte).
+  const cierre = cerradoGendarmeria && (!horario || entre(horaAR(ahora), horario) || (gen && entre(gen.hora, horario)));
+  const restringida = ['RESTRINGIDA', 'CORTE TOTAL'].includes(lectura.vialidad);
+  const quitar = (emisor) => {
+    for (let k = partes.length - 1; k >= 0; k--) if (partes[k].lado === 'AR' && partes[k].emisor.startsWith(emisor)) partes.splice(k, 1);
+  };
+  const textoGen = () =>
+    cierre
+      ? 'Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.'
+      : cerradoGendarmeria
+        ? `Cierre de la jornada (fuera del horario ${horTxt}, hora de Argentina).`
+        : horTxt
+          ? `Abierto, horario ${horTxt} (hora de Argentina).`
+          : `Abierto. Horario publicado: ${lectura.horarioCrudo || 'sin horario'}.`;
+  const valorGen = () => (cierre ? 'cerrado' : cerradoGendarmeria ? null : 'operativo');
+
+  // Partes: solo cuando el organismo publica una actualización más reciente que la cargada.
+  if (gen && (!cargadoG || gen.instante > cargadoG.instante)) {
+    quitar('Gendarmería');
+    partes.push({ lado: 'AR', emisor: 'Gendarmería Nacional', organismo: 'ar-pasos', valor: valorGen(), texto: textoGen(), hora: gen.hora, ...sello(fuente, ahora, `estado de Gendarmería «${lectura.estado}», horario ${lectura.horarioCrudo}`), publicado: gen.dia });
+    cambios.push(`Gendarmería (${fmt(gen.dia, gen.hora)}): ${textoGen()}`);
+  }
+  if (vial && (!cargadoV || vial.instante > cargadoV.instante)) {
+    const at = lectura.atencion.filter((a) => /vialidad/i.test(a.emisor)).map((a) => a.texto).join('. ');
+    const valor = lectura.vialidad === 'CORTE TOTAL' ? 'cerrado' : lectura.vialidad === 'RESTRINGIDA' ? 'restricciones' : null;
+    const etiqueta = { 'CORTE TOTAL': 'Corte total', RESTRINGIDA: 'Circulación restringida' }[lectura.vialidad];
+    const texto = [etiqueta, at].filter(Boolean).join(': ') || `Ruta ${(lectura.vialidad || 'sin estado').toLowerCase()} según Vialidad Nacional; la web oficial no da más detalle.`;
+    quitar('Vialidad');
+    partes.push({ lado: 'AR', emisor: 'Vialidad Nacional', valor, texto: /[.!?]$/.test(texto) ? texto : texto + '.', hora: vial.hora, ...sello(fuente, ahora, `aviso de Vialidad «${lectura.vialidad || 'sin estado'}»${at ? `: ${at}` : ''}`), publicado: vial.dia });
+    cambios.push(`Vialidad Nacional (${fmt(vial.dia, vial.hora)}): ${texto}`);
+  }
+  // Si el cierre llega con un parte ya cargado (p. ej. publicado antes de abrir), se rehace ese parte.
+  const pg = partes.find((x) => x.lado === 'AR' && x.emisor.startsWith('Gendarmería'));
+  if (cierre && pg && pg.valor !== 'cerrado' && gen && pg.hora === gen.hora && pg.publicado === gen.dia) Object.assign(pg, { valor: 'cerrado', texto: textoGen(), ...sello(fuente, ahora, 'estado de Gendarmería «CERRADO» dentro del horario'), publicado: gen.dia });
+
+  // Estado del paso.
+  const e = paso.estado;
+  const delVigilante = e?.verificacion?.verificadoPor === 'vigilante';
+  const cuando = gen ? `parte del ${fechaCortaAR(gen.dia)}, ${gen.hora}` : 'sin hora de parte';
+  const nuevoEstado = (valor, texto) => {
+    (paso.historial ||= []).push(aHistorial(e));
+    paso.estado = { valor, texto, ...sello(fuente, ahora, `estado de Gendarmería «${lectura.estado}», Vialidad «${lectura.vialidad || '—'}»`), publicado: gen?.dia || diaAR(ahora) };
+    cambios.push(`Estado del paso: ${texto}`);
+  };
+  if (cierre && e.valor !== 'cerrado') {
+    nuevoEstado('cerrado', `Cerrado por Gendarmería (${cuando}, hora de Argentina): la web oficial lo marca cerrado dentro de su horario${horTxt ? ` (${horTxt})` : ''}, sin motivo publicado.`);
+  } else if (!cerradoGendarmeria && restringida && e.valor === 'operativo') {
+    const at = lectura.atencion.map((a) => `${a.emisor}: ${a.texto}`).join('. ');
+    nuevoEstado('restricciones', `Abierto${horTxt ? ` de ${horTxt}` : ''} (hora de Argentina), con ${lectura.vialidad === 'CORTE TOTAL' ? 'corte total' : 'circulación restringida'} según Vialidad Nacional${at ? `. ${at}` : ''}.`);
+  } else if (!cerradoGendarmeria && !restringida && ['cerrado', 'restricciones'].includes(e.valor)) {
+    if (delVigilante) nuevoEstado('operativo', `Abierto${horTxt ? ` de ${horTxt}` : ''} (hora de Argentina), según Gendarmería (${cuando}).`);
+    // Unas restricciones cargadas a mano suelen ser estructurales (un puente, la carga): no se avisan a diario.
+    else if (e.valor === 'cerrado') avisos.push('la web oficial lo da abierto, pero en la Guía está «cerrado» cargado a mano: revísalo (el vigilante solo reabre lo que cerró él)');
+  }
+  // El horario cambia: se avisa (el horario estructurado del paso lo revisa el responsable).
+  const hc = (paso.horarios || []).find((x) => x.apertura && x.cierre);
+  if (lectura.horario && hc && (hc.apertura !== lectura.horario.apertura || hc.cierre !== lectura.horario.cierre))
+    avisos.push(`la web oficial publica horario ${lectura.horario.apertura}–${lectura.horario.cierre} y la Guía tiene ${hc.apertura}–${hc.cierre}`);
+  return { paso: cambios.length ? paso : original, cambios, avisos };
+}
+
 function autoprueba() {
+  let fallos = 0;
+  const ok = (cond, msg) => {
+    console.log(`${cond ? '✓' : '✗'} Vigilante: ${msg}`);
+    if (!cond) fallos++;
+  };
   const ejemplo = `<h2>Información provista por</h2><ul>
     <li>Gendarmería Nacional <span>(última actualización 15/11/2026 - 09:50 h)</span></li>
     <li>Vialidad&nbsp;Nacional (&uacute;ltima actualizaci&oacute;n 12/11/2026 - 8:30 h)</li>
     <li>Servicio Meteorológico Nacional (última actualización 15/11/2026 - 15:00 h)</li></ul>`;
   const r = leerActualizaciones(ejemplo);
-  const ok =
-    r.length === 2 &&
-    r[0].emisor === 'Gendarmería Nacional' && r[0].dia === '2026-11-15' && r[0].hora === '09:50' && r[0].instante.toISOString() === '2026-11-15T12:50:00.000Z' &&
-    r[1].emisor === 'Vialidad Nacional' && r[1].dia === '2026-11-12' && r[1].hora === '08:30';
-  const paso = { horarios: [{ apertura: '09:00', cierre: '19:15', zona: 'America/Argentina/Jujuy' }] };
-  const okHorario =
-    dentroDeHorario(paso, new Date('2026-11-17T12:30:00Z')).dentro === true && // 09:30 AR
-    dentroDeHorario(paso, new Date('2026-11-17T07:21:00Z')).dentro === false && // 04:21 AR
-    dentroDeHorario(paso, new Date('2026-11-17T23:30:00Z')).dentro === false && // 20:30 AR
-    dentroDeHorario({ horarios: [] }).dentro === true;
-  console.log(okHorario ? '✓ Vigilante: solo avisa dentro del horario del paso (hora de Argentina).' : '✗ Vigilante: el filtro de horario falla.');
-  if (!okHorario) process.exit(1);
+  ok(r.length === 2 && r[0].dia === '2026-11-15' && r[0].hora === '09:50' && r[0].instante.toISOString() === '2026-11-15T12:50:00.000Z' && r[1].emisor === 'Vialidad Nacional' && r[1].hora === '08:30', 'el lector entiende «Información provista por».');
+  const paso0 = { horarios: [{ apertura: '09:00', cierre: '19:15', zona: 'America/Argentina/Jujuy' }] };
+  ok(dentroDeHorario(paso0, new Date('2026-11-17T12:30:00Z')).dentro && !dentroDeHorario(paso0, new Date('2026-11-17T07:21:00Z')).dentro && !dentroDeHorario(paso0, new Date('2026-11-17T23:30:00Z')).dentro && dentroDeHorario({ horarios: [] }).dentro, 'el horario se mira en hora de Argentina.');
   let e = {};
   const t0 = new Date('2026-11-17T12:00:00Z');
   for (let k = 0; k < 4; k++) e = actualizarEstado(e, [{ fuente: 'f', nombre: 'F', url: 'u', ok: k === 0, error: k ? 'HTTP 500' : null }], new Date(t0.getTime() + k * 36e5));
-  const okEstado = e.fuentes.f.fallosSeguidos === 3 && e.fuentes.f.ultimaLecturaBuena === '2026-11-17T12:00:00.000Z' && fuentesCiegas(e).length === 1 &&
-    fuentesCiegas(actualizarEstado(e, [{ fuente: 'f', nombre: 'F', url: 'u', ok: false, error: 'x' }])).length === 0 &&
-    actualizarEstado(e, [{ fuente: 'f', nombre: 'F', url: 'u', ok: true }]).fuentes.f.fallosSeguidos === 0;
-  console.log(okEstado ? '✓ Vigilante: el estado avisa una vez al tercer fallo seguido.' : `✗ Vigilante: estado inesperado ${JSON.stringify(e)}`);
-  if (!okEstado) process.exit(1);
-  console.log(ok ? '✓ Vigilante: el lector entiende el formato de la página oficial.' : `✗ Vigilante: lectura inesperada ${JSON.stringify(r)}`);
-  process.exit(ok ? 0 : 1);
+  ok(e.fuentes.f.fallosSeguidos === 3 && e.fuentes.f.ultimaLecturaBuena === '2026-11-17T12:00:00.000Z' && fuentesCiegas(e).length === 1 && fuentesCiegas(actualizarEstado(e, [{ fuente: 'f', ok: false, error: 'x' }])).length === 0, 'el estado avisa una vez al tercer fallo seguido.');
+
+  // HU-130: páginas oficiales guardadas el 17/11/2026 (pruebas/vigilante/).
+  const pag = (n) => fs.readFileSync(new URL(`../pruebas/vigilante/${n}-2026-11-17.html`, import.meta.url), 'utf8');
+  const jama = leerPagina(pag('jama'));
+  ok(jama.estado === 'ABIERTO' && jama.vialidad === 'HABILITADA' && jama.horario?.apertura === '09:00' && jama.horario?.cierre === '19:15', 'Jama: estado de Gendarmería, de Vialidad y horario.');
+  ok(jama.atencion.length === 1 && jama.atencion[0].emisor === 'Vialidad Nacional' && jama.atencion[0].texto === 'RN 52 tramo Susques - Lte. con Chile', `Jama: recuadro «Atención» (${JSON.stringify(jama.atencion)}).`);
+  const sico = leerPagina(pag('sico'));
+  ok(sico.atencion[0]?.texto === 'RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material' && sico.horario?.cierre === '19:00', `Sico: aviso de Vialidad con su detalle (${JSON.stringify(sico.atencion)}).`);
+  const ph = leerPagina(pag('pozo-hondo'));
+  ok(ph.estado === 'ABIERTO' && ph.vialidad === null && ph.atencion.length === 0 && ph.horario?.apertura === '07:00' && ph.actualizaciones.length === 1, 'Misión La Paz: sin Vialidad ni «Atención».');
+  ok(leerPagina('<html>otra cosa</html>').estado === null, 'una página con otro formato no da estado.');
+
+  // Decisiones, sobre un paso de ejemplo (no sobre los datos reales, que cambian).
+  const parte = (emisor, hora, valor = 'operativo') => ({ lado: 'AR', emisor, valor, texto: 'x', hora, fuente: 'f', publicado: '2026-11-17', actualizado: '2026-11-17', evidencia: 'oficial', validacion: 'verificado', verificacion: null });
+  const base = {
+    id: 'jama', horarios: [{ apertura: '09:00', cierre: '19:15', zona: 'America/Argentina/Jujuy' }],
+    estado: { valor: 'operativo', texto: 'Abierto', fuente: 'f', publicado: '2026-11-17', actualizado: '2026-11-17', evidencia: 'oficial', validacion: 'verificado', verificacion: null },
+    partes: [parte('Gendarmería Nacional', '16:13'), parte('Vialidad Nacional', '09:00', null), { ...parte('Unidad de Pasos Fronterizos de Chile', '18:25', 'cerrado'), lado: 'CL' }],
+    historial: [],
+  };
+  const conPag = (cambios) => {
+    let h = pag('jama');
+    for (const [a, b] of cambios) h = h.replace(a, b);
+    return leerPagina(h);
+  };
+  const A = (hhmm) => new Date(`2026-11-17T${hhmm}:00-03:00`);
+  let d = decidir(base, jama, 'f', A('17:00'));
+  ok(d.cambios.length === 0 && d.paso === base, 'sin partes nuevos no publica nada.');
+  const cerrado = conPag([['"ABIERTO"', '"CERRADO"'], ['17/11/2026 - 16:13', '17/11/2026 - 17:30']]);
+  d = decidir(base, cerrado, 'f', A('17:40'));
+  const pg = d.paso.partes.find((x) => x.emisor.startsWith('Gend'));
+  ok(d.paso.estado.valor === 'cerrado' && pg.valor === 'cerrado' && pg.hora === '17:30' && d.paso.estado.verificacion.verificadoPor === 'vigilante' && d.paso.historial.length === 1 && d.paso.partes.some((x) => x.lado === 'CL'), '«Cerrado» de Gendarmería dentro del horario: se publica el cierre.');
+  ok(base.estado.valor === 'operativo' && base.partes[0].hora === '16:13', 'decidir no toca el paso original.');
+  const cerradoDespues = d.paso;
+  const noche = conPag([['"ABIERTO"', '"CERRADO"'], ['17/11/2026 - 16:13', '17/11/2026 - 19:40']]);
+  d = decidir(base, noche, 'f', A('19:50'));
+  ok(d.paso.estado.valor === 'operativo' && d.paso.partes.find((x) => x.emisor.startsWith('Gend')).valor === null, '«Cerrado» fuera del horario es el cierre de cada noche: no cambia el estado.');
+  d = decidir(d.paso, noche, 'f', new Date('2026-11-18T09:20:00-03:00'));
+  ok(d.paso.estado.valor === 'cerrado', 'si a la hora de abrir sigue «Cerrado», ya es un cierre.');
+  const vieja = conPag([['17/11/2026 - 16:13', '17/11/2026 - 15:00']]);
+  d = decidir(base, vieja, 'f', A('17:00'));
+  ok(d.descartada && d.paso === base, 'nunca marcha atrás: una copia más antigua se descarta.');
+  const reabre = conPag([['17/11/2026 - 16:13', '17/11/2026 - 18:00']]);
+  d = decidir(cerradoDespues, reabre, 'f', A('18:05'));
+  ok(d.paso.estado.valor === 'operativo' && d.paso.historial.length === 2, 'el vigilante reabre lo que él cerró.');
+  const manual = { ...base, estado: { ...base.estado, valor: 'cerrado' } };
+  d = decidir(manual, reabre, 'f', A('18:05'));
+  ok(d.paso.estado.valor === 'cerrado' && d.avisos.some((a) => /cargado a mano/.test(a)), 'lo cerrado a mano no lo reabre: avisa.');
+  const corte = conPag([['"HABILITADA"', '"CORTE TOTAL"'], ['17/11/2026 - 9:00', '17/11/2026 - 17:10']]);
+  d = decidir(base, corte, 'f', A('17:15'));
+  const pv = d.paso.partes.find((x) => x.emisor.startsWith('Vial'));
+  ok(d.paso.estado.valor === 'restricciones' && pv.valor === 'cerrado' && pv.texto === 'Corte total: RN 52 tramo Susques - Lte. con Chile.', `corte total de Vialidad con el paso abierto: con restricciones (${pv.texto}).`);
+  const otroHorario = conPag([["'09:00-19:15'", "'08:00-20:00'"]]);
+  ok(decidir(base, otroHorario, 'f', A('17:00')).avisos.some((a) => /08:00–20:00/.test(a)), 'un cambio de horario se avisa.');
+  process.exit(fallos ? 1 : 0);
 }
 
 /** Último parte cargado de un organismo en un paso (lado AR). */
@@ -99,17 +294,18 @@ function ultimoParte(paso, emisor) {
 
 const fmt = (dia, hora) => `${dia.split('-').reverse().join('/')} ${hora} h`;
 
-async function revisar() {
+async function revisar(ahora = new Date()) {
   const pasos = json('data/pasos.json');
   const lista = pasos.pasos || pasos;
   const fuentes = json('data/fuentes.json');
   const fuentePorId = Object.fromEntries((fuentes.fuentes || fuentes).map((f) => [f.id, f]));
-  const avisos = [];
   const lecturas = [];
   const errores = [];
   const resultados = [];
+  const publicados = []; // HU-130: { paso, url, cambios, avisos }
   for (const { paso: id, fuente } of PAGINAS) {
-    const paso = lista.find((p) => p.id === id);
+    const k = lista.findIndex((p) => p.id === id);
+    const paso = lista[k];
     const url = fuentePorId[fuente]?.url;
     if (!paso || !url) continue;
     let html;
@@ -122,17 +318,22 @@ async function revisar() {
       resultados.push({ fuente, nombre: `${paso.nombre} (Ministerio de Seguridad)`, url, ok: false, error: e.message });
       continue;
     }
-    const act = leerActualizaciones(html);
-    const sinFormato = 'no aparece «última actualización» de Gendarmería ni de Vialidad (¿ha cambiado la página?)';
-    if (!act.length) errores.push({ paso, url, error: sinFormato });
-    resultados.push({ fuente, nombre: `${paso.nombre} (Ministerio de Seguridad)`, url, ok: act.length > 0, error: act.length ? null : sinFormato });
+    const lectura = leerPagina(html);
+    const act = lectura.actualizaciones;
+    const fallo = !act.length ? 'no aparece «última actualización» de Gendarmería ni de Vialidad (¿ha cambiado la página?)' : !lectura.estado ? 'no aparece el estado de Gendarmería (estadoPrioridad): ¿ha cambiado la página?' : null;
+    if (fallo) errores.push({ paso, url, error: fallo });
+    resultados.push({ fuente, nombre: `${paso.nombre} (Ministerio de Seguridad)`, url, ok: !fallo, error: fallo });
     for (const a of act) {
       const ult = ultimoParte(paso, a.emisor);
       lecturas.push({ paso, url, ...a, cargado: ult ? fmt(ult.publicado, ult.hora || '--:--') : null });
-      if (!ult || a.instante > ult.instante) avisos.push({ paso, url, ...a, cargado: ult ? fmt(ult.publicado, ult.hora || 'sin hora') : null });
     }
+    console.log(`${paso.nombre}: Gendarmería «${lectura.estado}», Vialidad «${lectura.vialidad || '—'}», horario ${lectura.horarioCrudo}${lectura.atencion.length ? `, Atención: ${lectura.atencion.map((x) => `${x.emisor}: ${x.texto}`).join(' / ')}` : ''}`);
+    if (fallo) continue;
+    const d = decidir(paso, lectura, fuente, ahora);
+    if (d.cambios.length) lista[k] = d.paso;
+    if (d.cambios.length || d.avisos.length) publicados.push({ paso: { id: paso.id, nombre: paso.nombre }, url, cambios: d.cambios, avisos: d.avisos });
   }
-  return { avisos, lecturas, errores, resultados };
+  return { lecturas, errores, resultados, publicados, pasos };
 }
 
 // ---------- Estado de la vigilancia (HU-129) ----------
@@ -207,11 +408,31 @@ export function dentroDeHorario(paso, ahora = new Date()) {
   return { dentro: m >= aMin(h.apertura) && m <= aMin(h.cierre), horario: `${h.apertura}–${h.cierre}` };
 }
 
-const PIE = '\n\n---\nAviso automático del vigilante (`scripts/vigilante.mjs`). No cambia datos: mira el parte y, si procede, dile a Claude «confirmo …» para cargarlo. Claude la cierra cuando el parte esté revisado.\n\nOjo desde España: la cuenta atrás de la web oficial («cierra en…», «abre en…») usa la hora de tu móvil, no la de Argentina. Fíate del horario, del recuadro «Atención» y de la lista «Información provista por».';
+const PIE = '\n\n---\nAviso automático del vigilante (`scripts/vigilante.mjs`, HU-130). Lo leído de la web oficial ya está publicado en la Guía con el sello «Leído en web oficial» (decisión 22). Si algo no cuadra, dile a Claude qué corregir o retirar.\n\nOjo desde España: la etiqueta «Abierto/Cerrado» y la cuenta atrás de la web oficial usan la hora de tu móvil, no la de Argentina. Fíate del horario, del recuadro «Atención» y de la lista «Información provista por».';
 
 async function principal() {
   if (args.has('--autoprueba')) return autoprueba();
-  const { avisos, lecturas, errores, resultados } = await revisar();
+  const archivoCambios = process.env.VIGILANCIA_CAMBIOS;
+  const hoy = new Date().toLocaleDateString('sv-SE', { timeZone: ZONA_AR });
+  const { ar, es } = horasAhora();
+
+  // HU-130, segundo paso del flujo: ya publicado (comprobado y subido a main), se avisa.
+  if (args.has('--avisar-publicado')) {
+    const publicados = archivoCambios && fs.existsSync(archivoCambios) ? json(archivoCambios) : [];
+    for (const p of publicados) {
+      // PUBLICADO=0: la comprobación de datos falló y no se subió nada.
+      const pre = process.env.PUBLICADO === '0' ? 'NO publicado (falló la comprobación de datos; mira el registro del vigilante)' : 'Publicado';
+      const lineas = [...p.cambios.map((c) => `${pre}: ${c}`), ...p.avisos.map((a) => `Revisa: ${a}`)];
+      await abrirOCompletar(
+        `Vigilante · ${p.paso.nombre} (${hoy})`,
+        `**Hora en Argentina: ${ar}** (en España: ${es}).\n\n${lineas.map((l) => `- ${l}`).join('\n')}\n\nPágina oficial: ${p.url}${PIE}`,
+        lineas.join(' · ')
+      );
+    }
+    return;
+  }
+
+  const { lecturas, errores, resultados, publicados, pasos } = await revisar();
   // HU-129: estado de la vigilancia (si se indica dónde guardarlo).
   const archivoEstado = process.env.VIGILANCIA_ARCHIVO;
   let estado = null;
@@ -224,11 +445,17 @@ async function principal() {
     fs.writeFileSync(archivoEstado, JSON.stringify(estado, null, 1) + '\n');
     for (const [id, f] of Object.entries(estado.fuentes)) console.log(`Estado ${id}: ${f.fallosSeguidos ? `${f.fallosSeguidos} fallos seguidos` : 'lectura buena'}`);
   }
-  const hoy = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Argentina/Salta' });
 
   for (const l of lecturas) console.log(`${l.paso.nombre} · ${l.emisor}: en la web ${fmt(l.dia, l.hora)} · cargado ${l.cargado || 'ninguno'}`);
   for (const e of errores) console.log(`⚠ ${e.paso.nombre}: ${e.error}`);
-  if (!avisos.length) console.log('Sin partes nuevos.');
+  for (const p of publicados) for (const c of [...p.cambios, ...p.avisos.map((a) => `(aviso) ${a}`)]) console.log(`→ ${p.paso.nombre}: ${c}`);
+  if (!publicados.length) console.log('Nada nuevo que publicar.');
+
+  // HU-130: escribe los datos y el resumen. El flujo comprueba (npm run check), sube a main y publica.
+  if (args.has('--escribir')) {
+    if (publicados.some((p) => p.cambios.length)) fs.writeFileSync('data/pasos.json', JSON.stringify(pasos, null, 2) + '\n');
+    if (archivoCambios) fs.writeFileSync(archivoCambios, JSON.stringify(publicados, null, 1) + '\n');
+  }
 
   if (!args.has('--github')) return;
 
@@ -247,27 +474,15 @@ async function principal() {
     return;
   }
 
-  // Un aviso por paso y día; los partes nuevos del mismo día se añaden como comentario.
-  const porPaso = new Map();
-  for (const a of avisos) porPaso.set(a.paso.id, [...(porPaso.get(a.paso.id) || []), a]);
-  const { ar, es } = horasAhora();
-  for (const [, lista] of porPaso) {
-    const { paso, url } = lista[0];
-    const hor = dentroDeHorario(paso);
-    if (!hor.dentro) {
-      console.log(`${paso.nombre}: parte nuevo fuera del horario (${hor.horario}, hora AR); se avisará tras la apertura.`);
-      continue;
+  // Lo que solo hay que revisar (sin cambios publicados) se avisa ya; lo publicado, tras subirlo (--avisar-publicado).
+  if (!args.has('--escribir'))
+    for (const p of publicados.filter((x) => !x.cambios.length)) {
+      const lineas = p.avisos.map((a) => `Revisa: ${a}`);
+      await abrirOCompletar(`Vigilante · ${p.paso.nombre} (${hoy})`, `**Hora en Argentina: ${ar}** (en España: ${es}).\n\n${lineas.map((l) => `- ${l}`).join('\n')}\n\nPágina oficial: ${p.url}${PIE}`, lineas.join(' · '));
     }
-    const lineas = lista.map((a) => `**${a.emisor}**: parte del ${fmt(a.dia, a.hora)} (cargado: ${a.cargado || 'ninguno'})`);
-    await abrirOCompletar(
-      `Vigilante · ${paso.nombre}: parte nuevo (${hoy})`,
-      `**Hora en Argentina: ${ar}** (en España: ${es}). Horario del paso: ${hor.horario ? `${hor.horario}, hora de Argentina` : 'sin horario cargado'}.\n\nHay partes más recientes que los cargados en la Guía:\n\n${lineas.map((l) => `- ${l}`).join('\n')}\n\nPágina oficial: ${url}${PIE}`,
-      lineas.join(' · ')
-    );
-  }
   // HU-129: si una fuente falla 3 pasadas seguidas, el vigilante está ciego con ella: un aviso.
   // Sin estado guardado (ejecución suelta), se avisa al primer fallo, como antes.
-  const ciegas = estado ? fuentesCiegas(estado).map(([, f]) => `${f.nombre}: ${FALLOS_PARA_AVISAR} lecturas seguidas fallidas; última buena ${f.ultimaLecturaBuena ? new Date(f.ultimaLecturaBuena).toLocaleString('es-ES', { timeZone: 'America/Argentina/Salta' }) + ' (hora AR)' : 'nunca'}. Error: ${f.ultimoError} (${f.url})`) : errores.map((e) => `${e.paso.nombre}: ${e.error} (${e.url})`);
+  const ciegas = estado ? fuentesCiegas(estado).map(([, f]) => `${f.nombre}: ${FALLOS_PARA_AVISAR} lecturas seguidas fallidas; última buena ${f.ultimaLecturaBuena ? new Date(f.ultimaLecturaBuena).toLocaleString('es-ES', { timeZone: ZONA_AR }) + ' (hora AR)' : 'nunca'}. Error: ${f.ultimoError} (${f.url})`) : errores.map((e) => `${e.paso.nombre}: ${e.error} (${e.url})`);
   if (ciegas.length) {
     await abrirOCompletar(`Vigilante · fuentes oficiales sin leer (${hoy})`, `El vigilante no puede leer estas fuentes. Mientras tanto, la web no puede decir «sin incidencias» para ellas.\n\n${ciegas.map((l) => `- ${l}`).join('\n')}${PIE}`, ciegas.join(' · '));
   }

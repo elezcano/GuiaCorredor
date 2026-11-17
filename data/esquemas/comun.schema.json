@@ -72,11 +72,15 @@
           "properties": {
             "verificadoPor": {
               "enum": [
-                "responsable-editorial"
+                "responsable-editorial",
+                "vigilante"
               ]
             },
             "rol": {
-              "const": "responsable-editorial"
+              "enum": [
+                "responsable-editorial",
+                "vigilante"
+              ]
             },
             "fecha": {
               "$ref": "#/$defs/fecha"
