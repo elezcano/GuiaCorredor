@@ -5,6 +5,9 @@
 // reciente que el último parte cargado en data/pasos.json → partes, abre (o completa) una incidencia
 // en GitHub asignada al responsable editorial, que recibe el aviso por correo.
 //
+// HU-129: guarda en la rama «datos-vigilancia» (vigilancia.json) cuándo leyó bien cada fuente por última
+// vez. Si una fuente falla 3 pasadas seguidas, abre un aviso: el vigilante está ciego con esa fuente.
+//
 // No cambia datos ni publica nada: solo avisa. El estado («Abierto/Cerrado») de esas páginas se
 // carga en el navegador y no se puede leer aquí; la incidencia enlaza a la página para mirarlo.
 //
@@ -74,6 +77,14 @@ function autoprueba() {
     dentroDeHorario({ horarios: [] }).dentro === true;
   console.log(okHorario ? '✓ Vigilante: solo avisa dentro del horario del paso (hora de Argentina).' : '✗ Vigilante: el filtro de horario falla.');
   if (!okHorario) process.exit(1);
+  let e = {};
+  const t0 = new Date('2026-11-17T12:00:00Z');
+  for (let k = 0; k < 4; k++) e = actualizarEstado(e, [{ fuente: 'f', nombre: 'F', url: 'u', ok: k === 0, error: k ? 'HTTP 500' : null }], new Date(t0.getTime() + k * 36e5));
+  const okEstado = e.fuentes.f.fallosSeguidos === 3 && e.fuentes.f.ultimaLecturaBuena === '2026-11-17T12:00:00.000Z' && fuentesCiegas(e).length === 1 &&
+    fuentesCiegas(actualizarEstado(e, [{ fuente: 'f', nombre: 'F', url: 'u', ok: false, error: 'x' }])).length === 0 &&
+    actualizarEstado(e, [{ fuente: 'f', nombre: 'F', url: 'u', ok: true }]).fuentes.f.fallosSeguidos === 0;
+  console.log(okEstado ? '✓ Vigilante: el estado avisa una vez al tercer fallo seguido.' : `✗ Vigilante: estado inesperado ${JSON.stringify(e)}`);
+  if (!okEstado) process.exit(1);
   console.log(ok ? '✓ Vigilante: el lector entiende el formato de la página oficial.' : `✗ Vigilante: lectura inesperada ${JSON.stringify(r)}`);
   process.exit(ok ? 0 : 1);
 }
@@ -96,6 +107,7 @@ async function revisar() {
   const avisos = [];
   const lecturas = [];
   const errores = [];
+  const resultados = [];
   for (const { paso: id, fuente } of PAGINAS) {
     const paso = lista.find((p) => p.id === id);
     const url = fuentePorId[fuente]?.url;
@@ -107,18 +119,46 @@ async function revisar() {
       html = await r.text();
     } catch (e) {
       errores.push({ paso, url, error: e.message });
+      resultados.push({ fuente, nombre: `${paso.nombre} (Ministerio de Seguridad)`, url, ok: false, error: e.message });
       continue;
     }
     const act = leerActualizaciones(html);
-    if (!act.length) errores.push({ paso, url, error: 'no aparece «última actualización» de Gendarmería ni de Vialidad (¿ha cambiado la página?)' });
+    const sinFormato = 'no aparece «última actualización» de Gendarmería ni de Vialidad (¿ha cambiado la página?)';
+    if (!act.length) errores.push({ paso, url, error: sinFormato });
+    resultados.push({ fuente, nombre: `${paso.nombre} (Ministerio de Seguridad)`, url, ok: act.length > 0, error: act.length ? null : sinFormato });
     for (const a of act) {
       const ult = ultimoParte(paso, a.emisor);
       lecturas.push({ paso, url, ...a, cargado: ult ? fmt(ult.publicado, ult.hora || '--:--') : null });
       if (!ult || a.instante > ult.instante) avisos.push({ paso, url, ...a, cargado: ult ? fmt(ult.publicado, ult.hora || 'sin hora') : null });
     }
   }
-  return { avisos, lecturas, errores };
+  return { avisos, lecturas, errores, resultados };
 }
+
+// ---------- Estado de la vigilancia (HU-129) ----------
+export const FALLOS_PARA_AVISAR = 3;
+/**
+ * Nuevo estado a partir del anterior y de lo leído en esta pasada.
+ * resultados: [{ fuente, nombre, url, ok, error }]. Puro: no toca disco ni red.
+ */
+export function actualizarEstado(previo = {}, resultados = [], ahora = new Date()) {
+  const iso = ahora.toISOString();
+  const fuentes = { ...(previo.fuentes || {}) };
+  for (const r of resultados) {
+    const a = fuentes[r.fuente] || {};
+    fuentes[r.fuente] = {
+      nombre: r.nombre,
+      url: r.url,
+      ultimoIntento: iso,
+      ultimaLecturaBuena: r.ok ? iso : a.ultimaLecturaBuena || null,
+      fallosSeguidos: r.ok ? 0 : (a.fallosSeguidos || 0) + 1,
+      ultimoError: r.ok ? null : r.error,
+    };
+  }
+  return { nota: 'Estado del vigilante (scripts/vigilante.mjs). Lo escribe cada pasada.', ultimaPasada: iso, fuentes };
+}
+/** Fuentes que acaban de llegar al umbral de fallos seguidos (se avisa una vez al cruzarlo). */
+export const fuentesCiegas = (estado) => Object.entries(estado.fuentes || {}).filter(([, f]) => f.fallosSeguidos === FALLOS_PARA_AVISAR);
 
 // ---------- GitHub ----------
 const REPO = process.env.GITHUB_REPOSITORY || 'elezcano/GuiaCorredor';
@@ -171,7 +211,19 @@ const PIE = '\n\n---\nAviso automático del vigilante (`scripts/vigilante.mjs`).
 
 async function principal() {
   if (args.has('--autoprueba')) return autoprueba();
-  const { avisos, lecturas, errores } = await revisar();
+  const { avisos, lecturas, errores, resultados } = await revisar();
+  // HU-129: estado de la vigilancia (si se indica dónde guardarlo).
+  const archivoEstado = process.env.VIGILANCIA_ARCHIVO;
+  let estado = null;
+  if (archivoEstado) {
+    let previo = {};
+    try {
+      previo = json(archivoEstado);
+    } catch {}
+    estado = actualizarEstado(previo, resultados);
+    fs.writeFileSync(archivoEstado, JSON.stringify(estado, null, 1) + '\n');
+    for (const [id, f] of Object.entries(estado.fuentes)) console.log(`Estado ${id}: ${f.fallosSeguidos ? `${f.fallosSeguidos} fallos seguidos` : 'lectura buena'}`);
+  }
   const hoy = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Argentina/Salta' });
 
   for (const l of lecturas) console.log(`${l.paso.nombre} · ${l.emisor}: en la web ${fmt(l.dia, l.hora)} · cargado ${l.cargado || 'ninguno'}`);
@@ -213,10 +265,11 @@ async function principal() {
       lineas.join(' · ')
     );
   }
-  // Si una página no se puede leer, un aviso al día para saber que el vigilante está ciego.
-  if (errores.length) {
-    const lineas = errores.map((e) => `${e.paso.nombre}: ${e.error} (${e.url})`);
-    await abrirOCompletar(`Vigilante · no se pudieron leer páginas oficiales (${hoy})`, `${lineas.map((l) => `- ${l}`).join('\n')}${PIE}`, lineas.join(' · '));
+  // HU-129: si una fuente falla 3 pasadas seguidas, el vigilante está ciego con ella: un aviso.
+  // Sin estado guardado (ejecución suelta), se avisa al primer fallo, como antes.
+  const ciegas = estado ? fuentesCiegas(estado).map(([, f]) => `${f.nombre}: ${FALLOS_PARA_AVISAR} lecturas seguidas fallidas; última buena ${f.ultimaLecturaBuena ? new Date(f.ultimaLecturaBuena).toLocaleString('es-ES', { timeZone: 'America/Argentina/Salta' }) + ' (hora AR)' : 'nunca'}. Error: ${f.ultimoError} (${f.url})`) : errores.map((e) => `${e.paso.nombre}: ${e.error} (${e.url})`);
+  if (ciegas.length) {
+    await abrirOCompletar(`Vigilante · fuentes oficiales sin leer (${hoy})`, `El vigilante no puede leer estas fuentes. Mientras tanto, la web no puede decir «sin incidencias» para ellas.\n\n${ciegas.map((l) => `- ${l}`).join('\n')}${PIE}`, ciegas.join(' · '));
   }
 }
 

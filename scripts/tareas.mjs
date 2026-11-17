@@ -6,6 +6,7 @@
 //   3. Datos operativos pendientes de verificar (pasos, incidencias, tramos), numerados para
 //      poder responder «confirmo 3 y 5».
 //   4. El resto pendiente (festivos, organismos, novedades), solo con el recuento.
+//   Y arriba, el estado de la vigilancia (HU-129): última pasada y fuentes que no se pueden leer.
 // Con --github abre la incidencia «Tareas del día · AAAA-MM-DD» asignada al responsable (le llega
 // por correo) y cierra la del día anterior.
 //
@@ -109,13 +110,35 @@ async function gh(ruta, opciones = {}) {
   return r.json();
 }
 
+/** HU-129: estado de la vigilancia guardado por el vigilante en la rama datos-vigilancia. */
+async function estadoVigilancia() {
+  try {
+    const f = await gh('/contents/vigilancia.json?ref=datos-vigilancia');
+    return JSON.parse(Buffer.from(f.content, 'base64').toString('utf8'));
+  } catch {
+    return null;
+  }
+}
+const horaAR = (iso) => new Date(iso).toLocaleString('es-ES', { timeZone: ZONA_AR, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+function bloqueVigilancia(e) {
+  if (!e?.ultimaPasada) return '## Vigilancia\n- ⚠ Sin estado guardado todavía: el vigilante no ha registrado ninguna pasada.';
+  const h = (Date.now() - new Date(e.ultimaPasada).getTime()) / 36e5;
+  const lineas = [`- ${h > 3 ? '⚠ ' : ''}Última pasada: ${horaAR(e.ultimaPasada)} (hora AR), hace ${h < 1 ? 'menos de 1 h' : `${Math.floor(h)} h`}.`];
+  for (const f of Object.values(e.fuentes || {}))
+    if (f.fallosSeguidos) lineas.push(`- ⚠ ${f.nombre}: ${f.fallosSeguidos} lecturas fallidas seguidas (última buena: ${f.ultimaLecturaBuena ? horaAR(f.ultimaLecturaBuena) : 'nunca'}).`);
+  if (lineas.length === 1) lineas.push(`- Las ${Object.keys(e.fuentes || {}).length} fuentes se leen bien.`);
+  return `## Vigilancia\n${lineas.join('\n')}`;
+}
+
 async function principal() {
   const vigilante = args.has('--github') ? await gh('/issues?state=open&labels=vigilante&per_page=50') : [];
+  const vigilancia = args.has('--github') ? await estadoVigilancia() : null;
   const caducados = partes();
   const { operativos, resto } = pendientes();
   const ahoraAR = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: ZONA_AR }).format(new Date());
 
   const bloques = [`Hora en Argentina: **${ahoraAR}**. Respóndele a Claude en el chat, por ejemplo «confirmo 1, 3 y 5» o «revisa los avisos del vigilante».`];
+  if (args.has('--github')) bloques.push(bloqueVigilancia(vigilancia));
   bloques.push(
     `## 1. Avisos del vigilante\n${vigilante.length ? vigilante.map((i) => `- [ ] #${i.number} ${i.title}`).join('\n') : '- Ninguno abierto.'}`
   );

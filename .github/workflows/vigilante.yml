@@ -21,7 +21,7 @@ on:
     paths: ['scripts/vigilante.mjs', '.github/workflows/vigilante.yml']
 
 permissions:
-  contents: read
+  contents: write # HU-129: guarda el estado en la rama datos-vigilancia (no toca main ni publica)
   issues: write
 
 concurrency:
@@ -43,11 +43,34 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/vigilante.mjs --github --prueba
+      # HU-129: estado de la vigilancia (cuándo se leyó bien cada fuente) en la rama datos-vigilancia.
+      - name: Traer el estado de la vigilancia
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.prueba)
+        run: |
+          git fetch --depth=1 origin datos-vigilancia 2>/dev/null && git show FETCH_HEAD:vigilancia.json > "$RUNNER_TEMP/vigilancia.json" || echo '{}' > "$RUNNER_TEMP/vigilancia.json"
       - name: Vigilar
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.prueba)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VIGILANCIA_ARCHIVO: ${{ runner.temp }}/vigilancia.json
         run: node scripts/vigilante.mjs --github
+      - name: Guardar el estado de la vigilancia
+        if: always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.prueba))
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          dir="$RUNNER_TEMP/estado"
+          if git ls-remote --exit-code origin datos-vigilancia >/dev/null 2>&1; then
+            git fetch --depth=1 origin datos-vigilancia
+            git worktree add -B datos-vigilancia "$dir" FETCH_HEAD
+          else
+            git worktree add --orphan -b datos-vigilancia "$dir"
+          fi
+          cp "$RUNNER_TEMP/vigilancia.json" "$dir/vigilancia.json"
+          cd "$dir"
+          git add vigilancia.json
+          git commit -q -m "Estado de la vigilancia $(date -u +%Y-%m-%dT%H:%MZ)" || exit 0
+          git push -q origin datos-vigilancia
       - name: Leer sin avisar (PR)
         if: github.event_name == 'pull_request'
         run: node scripts/vigilante.mjs
