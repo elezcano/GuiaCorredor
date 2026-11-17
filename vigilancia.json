@@ -1,28 +1,28 @@
 {
  "nota": "Estado del vigilante (scripts/vigilante.mjs). Lo escribe cada pasada.",
- "ultimaPasada": "2026-11-17T20:39:21.484Z",
+ "ultimaPasada": "2026-11-17T21:00:22.334Z",
  "fuentes": {
   "ar-seguridad-paso-jama": {
    "nombre": "Paso de Jama (Ministerio de Seguridad)",
    "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/19/Jama",
-   "ultimoIntento": "2026-11-17T20:39:21.484Z",
-   "ultimaLecturaBuena": "2026-11-17T20:39:21.484Z",
+   "ultimoIntento": "2026-11-17T21:00:22.334Z",
+   "ultimaLecturaBuena": "2026-11-17T21:00:22.334Z",
    "fallosSeguidos": 0,
    "ultimoError": null
   },
   "ar-seguridad-paso-sico": {
    "nombre": "Paso de Sico (Ministerio de Seguridad)",
    "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/20/Sico",
-   "ultimoIntento": "2026-11-17T20:39:21.484Z",
-   "ultimaLecturaBuena": "2026-11-17T20:39:21.484Z",
+   "ultimoIntento": "2026-11-17T21:00:22.334Z",
+   "ultimaLecturaBuena": "2026-11-17T21:00:22.334Z",
    "fallosSeguidos": 0,
    "ultimoError": null
   },
   "ar-seguridad-paso-mision-la-paz": {
    "nombre": "Pozo Hondo – Misión La Paz (Ministerio de Seguridad)",
    "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/72/Misi%C3%B3n-La-Paz-Pozo-Hondo",
-   "ultimoIntento": "2026-11-17T20:39:21.484Z",
-   "ultimaLecturaBuena": "2026-11-17T20:39:21.484Z",
+   "ultimoIntento": "2026-11-17T21:00:22.334Z",
+   "ultimaLecturaBuena": "2026-11-17T21:00:22.334Z",
    "fallosSeguidos": 0,
    "ultimoError": null
   }
