@@ -11,45 +11,30 @@ jobs:
         with:
           node-version: 22
       - run: |
-          npm install --no-save --no-audit --no-fund playwright@1.63.0
-          npx playwright install --with-deps chromium
-      - run: |
-          cat > /tmp/c.cjs <<'JS'
-          const { chromium } = require(process.cwd() + '/node_modules/playwright');
-          const paginas = [
-            'https://www.argentina.gob.ar/obras-publicas/vialidad-nacional/estado-de-las-rutas',
-            'https://www.argentina.gob.ar/rutasnacionales',
-            'https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0',
-          ];
-          (async () => {
-            const b = await chromium.launch();
-            const ctx = await b.newContext({ timezoneId: 'America/Argentina/Salta', locale: 'es-AR' });
-            for (const u of paginas) {
-              const p = await ctx.newPage();
-              const reqs = [];
-              p.on('response', async (r) => {
-                const ct = r.headers()['content-type'] || '';
-                if (/json|xml|csv|geo/.test(ct) && !/\.(js|css)(\?|$)/.test(r.url())) {
-                  let cuerpo = ''; try { cuerpo = (await r.text()).slice(0, 600).replace(/\s+/g, ' '); } catch {}
-                  reqs.push(`${r.status()} ${ct.split(';')[0]} ${r.url()}\n      ${cuerpo}`);
-                }
-              });
-              console.log('\n=== ' + u);
-              try { await p.goto(u, { waitUntil: 'networkidle', timeout: 90000 }); } catch (e) { console.log('goto: ' + e.message); }
-              await p.waitForTimeout(8000);
-              console.log('URL final: ' + p.url());
-              const t = (await p.innerText('body').catch(() => '')).replace(/\n{2,}/g, '\n');
-              console.log('TEXTO:\n' + t.slice(0, 2500));
-              for (const k of ['RN 52', 'RN 51', 'Jama', 'Sico', '52', 'Jujuy']) { const i = t.indexOf(k); if (i >= 0) { console.log(`--- ${k}: ` + t.slice(Math.max(0, i - 200), i + 600)); break; } }
-              console.log('PETICIONES (' + reqs.length + '):\n' + reqs.slice(0, 60).join('\n'));
-              const iframes = await p.evaluate(() => [...document.querySelectorAll('iframe')].map((f) => f.src));
-              console.log('IFRAMES: ' + iframes.join(' | '));
-              const enlaces = await p.evaluate(() => [...document.querySelectorAll('a')].map((a) => a.href).filter((h) => /ruta|vial|estado|transit|arcgis|mapa/i.test(h)).slice(0, 40));
-              console.log('ENLACES: ' + enlaces.join('\n  '));
-            }
-            await b.close();
-          })();
+          cat > /tmp/d.mjs <<'JS'
+          const pag = await (await fetch('https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas', { headers: { 'User-Agent': 'Mozilla/5.0' } })).text();
+          const m = pag.match(/spreadsheets\/d?\/?([A-Za-z0-9_-]{30,})/g); const k = pag.match(/AIza[0-9A-Za-z_-]{30,}/g);
+          console.log('En el HTML estático: hoja', m && [...new Set(m)], 'clave', !!k);
+          const scripts = [...pag.matchAll(/<script[^>]+src="([^"]+)"/g)].map((x) => x[1]).filter((s) => /rutas|estado|vialidad|tabla/i.test(s));
+          console.log('scripts:', scripts);
+          const u = 'https://sheets.googleapis.com/v4/spreadsheets/17AqjqeNvM4nG6cOUsUFKFaKXMiNmztYfzHIxeM9FcXk/values/tablavisible?key=AIzaSyCq2wEEKL9-6RmX-TkW23qJsrmnFHFf5tY&alt=json';
+          const j = await (await fetch(u, { headers: { Referer: 'https://www.argentina.gob.ar/' } })).json();
+          const v = j.values || []; console.log('filas', v.length, j.error ? JSON.stringify(j.error) : '');
+          const est = {}; for (const r of v.slice(2)) { const e = (r[3] || '').replace(/<[^>]+>/g, ''); est[e] = (est[e] || 0) + 1; } console.log('estados:', est);
+          for (const r of v) if (['Jujuy', 'Salta', 'Formosa', 'Chaco'].includes(r[0]) && ['9', '34', '51', '52', '81', '86', '16', '40', '66', '68', '95'].includes(r[1])) console.log(JSON.stringify(r.map((c) => (c || '').replace(/<[^>]+>/g, ''))));
+          // Chile
+          const wm = await (await fetch('https://sitministerial.maps.arcgis.com/sharing/rest/content/items/db8af9ff4a8b4854907d6333ce9bc5ca/data?f=json')).json();
+          for (const l of wm.operationalLayers || []) console.log('CAPA', l.title, '|', l.url, '|', l.visibility);
+          const it = await (await fetch('https://sitministerial.maps.arcgis.com/sharing/rest/content/items/db8af9ff4a8b4854907d6333ce9bc5ca?f=json')).json();
+          console.log('DESCRIPCION', (it.description || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 1200));
+          for (const l of (wm.operationalLayers || []).filter((l) => /emerg|siemop|evento|corte|camino|red vial/i.test(l.title) && l.url)) {
+            try {
+              const meta = await (await fetch(l.url + '?f=json')).json();
+              console.log('\n## ' + l.title, l.url, 'campos:', (meta.fields || []).map((f) => f.name).join(','));
+              const q = await (await fetch(l.url + '/query?where=1%3D1&outFields=*&returnGeometry=false&resultRecordCount=3&orderByFields=OBJECTID+DESC&f=json')).json();
+              console.log(JSON.stringify(q.features?.map((f) => f.attributes) || q.error).slice(0, 2500));
+              const q2 = await (await fetch(l.url + "/query?where=" + encodeURIComponent("1=1") + "&returnCountOnly=true&f=json")).json(); console.log('total', JSON.stringify(q2));
+            } catch (e) { console.log('error', l.title, e.message); }
+          }
           JS
-          node /tmp/c.cjs
-      - run: |
-          curl -sS "https://sitministerial.maps.arcgis.com/sharing/rest/content/items/500fa188342a4b6cb9acd7b96d5a12d0/data?f=json" | head -c 4000; echo
+          node /tmp/d.mjs
