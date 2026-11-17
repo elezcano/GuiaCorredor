@@ -1,0 +1,16 @@
+name: Coordenadas temporales
+on:
+  push:
+    branches: [captura-coordenadas]
+jobs:
+  geo:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for q in "Puente Bioceánico Carmelo Peralta" "Ponte Bioceânica Porto Murtinho" "Puente Internacional Misión La Paz Pozo Hondo" "Puente Misión La Paz" "Misión La Paz, Salta"; do
+            echo "== $q"
+            curl -s -G -A "GuiaCorredor-coordenadas" --data-urlencode "q=$q" --data-urlencode "format=jsonv2" --data-urlencode "limit=3" https://nominatim.openstreetmap.org/search | python3 -c "import json,sys;[print('RES',r['lat'],r['lon'],r.get('osm_type'),r.get('osm_id'),r.get('category'),r.get('type'),r['display_name'][:100]) for r in json.load(sys.stdin)]"
+            sleep 1.2
+          done
+          echo "== OSRM puente"
+          curl -s "https://router.project-osrm.org/route/v1/driving/-57.88278,-21.69889;-57.90729,-21.67985?overview=false" | python3 -c "import json,sys;j=json.load(sys.stdin);print('RES',j['routes'][0]['distance'])"
