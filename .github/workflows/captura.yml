@@ -8,7 +8,7 @@ jobs:
     steps:
       - run: |
           base='https://rest-sit.mop.gob.cl/arcgis/rest/services/VIALIDAD/Emergencias_Vialidad/MapServer'
-          curl -sS "$base/0?f=json" | python3 -c "import json,sys;d=json.load(sys.stdin);print('TIPO',d.get('geometryType'))"
-          curl -sS "$base/0/query?where=REGION%20IN%20('01','02')&outFields=*&returnGeometry=true&outSR=4326&f=json" -o /tmp/cl.json
-          python3 -c "import json;d=json.load(open('/tmp/cl.json'));print('N',len(d['features']));[print(f['attributes']['REGION'],f['attributes']['ROL'],f['geometry']) for f in d['features']]"
-          echo "B64"; gzip -9c /tmp/cl.json | base64 -w0; echo; echo "FIN"
+          for i in 1 2 3; do
+            curl -sS -A 'GuiaCorredor-vigilante (+https://elezcano.github.io/GuiaCorredor/)' "$base/0/query?where=REGION%20IN%20('01','02')&outFields=ROL,KM_INICIO_SEGMENTO,FECHA,last_edited_date&returnGeometry=true&outSR=4326&f=json" | python3 -c "import json,sys;d=json.load(sys.stdin);print('N',len(d.get('features',[])),d.get('error'));[print(f['attributes'],f.get('geometry')) for f in d.get('features',[]) if f['attributes']['ROL'] in ('Ruta 1','Ruta 16')]"
+            sleep 5
+          done
