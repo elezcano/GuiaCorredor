@@ -6,9 +6,19 @@ jobs:
   captura:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: |
-          base='https://rest-sit.mop.gob.cl/arcgis/rest/services/VIALIDAD/Emergencias_Vialidad/MapServer'
-          for i in 1 2 3; do
-            curl -sS -A 'GuiaCorredor-vigilante (+https://elezcano.github.io/GuiaCorredor/)' "$base/0/query?where=REGION%20IN%20('01','02')&outFields=ROL,KM_INICIO_SEGMENTO,FECHA,last_edited_date&returnGeometry=true&outSR=4326&f=json" | python3 -c "import json,sys;d=json.load(sys.stdin);print('N',len(d.get('features',[])),d.get('error'));[print(f['attributes'],f.get('geometry')) for f in d.get('features',[]) if f['attributes']['ROL'] in ('Ruta 1','Ruta 16')]"
-            sleep 5
-          done
+          cat > /tmp/d.mjs <<'JS'
+          import fs from 'node:fs';
+          const m = await import(process.cwd() + '/scripts/carreteras.mjs');
+          const T = JSON.parse(fs.readFileSync('data/trazados.json')).tramos;
+          const q = `https://rest-sit.mop.gob.cl/arcgis/rest/services/VIALIDAD/Emergencias_Vialidad/MapServer/0/query?where=${encodeURIComponent("REGION IN ('01','02')")}&outFields=*&returnGeometry=true&outSR=4326&f=json`;
+          const d = await (await fetch(q, { headers: { 'User-Agent': 'GuiaCorredor-vigilante (+https://elezcano.github.io/GuiaCorredor/)' } })).json();
+          console.log('features', d.features?.length);
+          for (const f of d.features) { const a = f.attributes, g = f.geometry; console.log(JSON.stringify(a.ROL), m.esRutaNacional(a.ROL), g?.x, g?.y, Object.entries(T).map(([k, t]) => [k, m.kmALinea([g.x, g.y], t.geometria).toFixed(1)]).sort((x, y) => x[1] - y[1])[0]); }
+          console.log('leerCL', m.leerCL(d, T).length);
+          JS
+          node /tmp/d.mjs
