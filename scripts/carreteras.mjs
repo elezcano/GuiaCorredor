@@ -4,8 +4,9 @@
 //   (columnas: provincia, ruta, tramo, estado, calzada, km, conocé más, observaciones, actualizado). El
 //   vigilante lee de la propia página qué hoja y qué pestaña usa, y la clave pública de su código: no se
 //   guarda ninguna clave en el repositorio.
-//   Chile: Dirección de Vialidad (MOP), visor SIEMOP de emergencias (capa pública de ArcGIS), región 02
-//   (Antofagasta). Según el propio visor se actualiza una vez a la semana (lunes a mediodía) y a diario
+//   Chile: Dirección de Vialidad (MOP), visor SIEMOP de emergencias (capa pública de ArcGIS), regiones 01
+//   (Tarapacá) y 02 (Antofagasta). Cada emergencia se asigna por posición: rutas nacionales a menos de
+//   3 km del trazado del tramo. Según el propio visor se actualiza una vez a la semana (lunes a mediodía) y a diario
 //   solo en emergencias.
 //
 // Cada tramo oficial con algo que decir se convierte en una incidencia de data/incidencias.json firmada
@@ -35,17 +36,7 @@ export const CORRESPONDENCIAS = {
     { guia: { tramo: 'pozo-hondo' }, provincia: 'Jujuy', ruta: '34', tramos: '*' },
     { guia: { tramo: 'pozo-hondo' }, provincia: 'Jujuy', ruta: '66', tramos: '*' },
   ],
-  // Chile: por rol de la carretera, solo las que pertenecen a un único tramo de la Guía. La Ruta 5 y la
-  // Ruta 1 cruzan toda la región: necesitan un intervalo de km por tramo (pendiente) para no atribuir a
-  // un tramo un problema que está a 300 km.
-  cl: [
-    { guia: { paso: 'jama' }, roles: ['27-CH', 'RUTA 27-CH', 'RUTA 27'] },
-    { guia: { paso: 'sico' }, roles: ['23-CH', 'RUTA 23-CH', 'RUTA 23'], soloSector: /sico|socaire|toconao|peine|san pedro/i },
-    { guia: { tramo: 'spa-calama' }, roles: ['23-CH', 'RUTA 23-CH', 'RUTA 23'], soloSector: /calama|san pedro/i },
-    { guia: { tramo: 'calama-antofagasta' }, roles: ['25', 'RUTA 25'] },
-    { guia: { tramo: 'calama-mejillones' }, roles: ['25', 'RUTA 25'] },
-    { guia: { tramo: 'calama-iquique' }, roles: ['24', 'RUTA 24'] },
-  ],
+  // Chile: no por número de carretera sino por posición (ver leerCL).
 };
 
 const limpio = (s) => String(s ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -53,7 +44,7 @@ const sinPuntoInicial = (s) => s.replace(/^[\s.,;:-]+/, '');
 const conTexto = (s) => /[a-záéíóúñ]{3}/i.test(s || '');
 const slug = (s) => limpio(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 /** { paso } o { tramo } de la correspondencia → campos de la incidencia (paso, o tramos: [id]). */
-const enGuia = (g) => (g.paso ? { paso: g.paso } : { tramos: [g.tramo] });
+const enGuia = (g) => (g.paso ? { paso: g.paso } : { tramos: g.tramos || [g.tramo] });
 const punto = (s) => (/[.!?]$/.test(s) ? s : `${s}.`);
 
 // ---------- Argentina ----------
@@ -119,53 +110,82 @@ export function incidenciaAR(r, fuente) {
 
 // ---------- Chile ----------
 const RESTR_CARGA = /peso restringido|s[óo]lo veh[íi]culos livianos|s[óo]lo veh[íi]culos doble tracci[óo]n/i;
-/** Emergencias de la capa SIEMOP (región 02) → lecturas por tramo de la Guía. */
-export function leerCL(json) {
+/** Distancia en km de un punto [lon, lat] a una línea [[lon, lat], …] (proyección local, basta a esta escala). */
+export function kmALinea([lon, lat], linea) {
+  const c = Math.cos((lat * Math.PI) / 180);
+  const K = 111.32;
+  let min = Infinity;
+  for (let i = 0; i < linea.length - 1; i++) {
+    const [ax, ay] = linea[i];
+    const [bx, by] = linea[i + 1];
+    const dx = (bx - ax) * c, dy = by - ay, px = (lon - ax) * c, py = lat - ay;
+    const t = Math.max(0, Math.min(1, (px * dx + py * dy) / (dx * dx + dy * dy || 1)));
+    min = Math.min(min, Math.hypot(px - t * dx, py - t * dy) * K);
+  }
+  return min;
+}
+/** Solo rutas nacionales numeradas («Ruta 1», «Ruta 16», «27-CH»): un camino secundario que sale de la ruta no la corta. */
+export const esRutaNacional = (rol) => /^(ruta\s*)?\d+(\s*-?\s*ch)?$/i.test(limpio(rol));
+export const MAX_KM_TRAZADO = 3;
+/** Clave de data/trazados.json → dónde cuenta en la Guía: «andes@jama» → paso jama; «calama-iquique» → tramo. */
+export const guiaDeTrazado = (k) => (k.startsWith('andes@') ? { paso: k.split('@')[1] } : { tramo: k.split('@')[0] });
+
+/**
+ * Emergencias de la capa SIEMOP (regiones 01 y 02, con coordenadas) → lecturas por tramo de la Guía.
+ * Una emergencia es de un tramo si es de una ruta nacional y está a menos de MAX_KM_TRAZADO del trazado
+ * del tramo (data/trazados.json, OpenStreetMap). Puede afectar a varios tramos (p. ej. en Calama).
+ */
+export function leerCL(json, trazados) {
   const feats = json?.features;
   if (!Array.isArray(feats)) throw new Error('la capa de emergencias de Vialidad (MOP) no devuelve registros (¿ha cambiado?)');
   const vistos = new Set();
   const res = [];
-  for (const { attributes: a } of feats) {
+  for (const { attributes: a, geometry: g } of feats) {
     if (!a || !('ROL' in a) || !('TRANSITO' in a)) throw new Error('la capa de emergencias de Vialidad (MOP) ha cambiado de campos');
     const clave = `${a.CORRELATIVO}|${a.KM_INICIO_SEGMENTO}|${a.KM_FIN_SEGMENTO}`;
-    if (vistos.has(clave)) continue;
+    if (vistos.has(clave) || !esRutaNacional(a.ROL) || !Number.isFinite(g?.x) || !Number.isFinite(g?.y)) continue;
     vistos.add(clave);
-    const rol = limpio(a.ROL).toUpperCase();
-    for (const m of CORRESPONDENCIAS.cl) {
-      if (!m.roles.includes(rol)) continue;
-      if (m.soloSector && !m.soloSector.test(a.NOMBRE_CAMINO || '')) continue;
-      res.push({ a, guia: m.guia });
-    }
+    const cerca = Object.entries(trazados).filter(([, t]) => kmALinea([g.x, g.y], t.geometria) <= MAX_KM_TRAZADO);
+    const pasos = [...new Set(cerca.map(([k]) => guiaDeTrazado(k).paso).filter(Boolean))];
+    const tramos = [...new Set(cerca.map(([k]) => guiaDeTrazado(k).tramo).filter(Boolean))];
+    for (const paso of pasos) res.push({ a, guia: { paso } });
+    if (tramos.length) res.push({ a, guia: { tramos } });
   }
   return res;
 }
 
 const diaCL = (ms) => (ms ? new Date(ms).toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }) : null);
-export function incidenciaCL({ a, guia }, fuente) {
+// Un registro sin novedad de campo en más de 14 días puede estar ya resuelto: se avisa en ámbar y no
+// bloquea. (last_edited_date no sirve: Vialidad edita todos los registros en bloque a la vez.)
+export const DIAS_SIN_NOVEDAD = 14;
+export function incidenciaCL({ a, guia }, fuente, ahora = new Date()) {
   const transito = limpio(a.TRANSITO);
   const restr = limpio(a.RESTRICCION);
   const carga = RESTR_CARGA.test(restr);
-  const nivel = /^no operativo/i.test(transito) ? 'rojo' : carga ? 'rojo' : /parcial/i.test(transito) || restr ? 'ambar' : 'info';
+  const novedad = a.FECHA || a.FECHA_INGRESO || a.FECHA_EMERGENCIA || null;
+  const viejo = !novedad || (ahora - novedad) / 864e5 > DIAS_SIN_NOVEDAD;
+  const nivelFuente = /^no operativo/i.test(transito) ? 'rojo' : carga ? 'rojo' : /parcial/i.test(transito) || restr ? 'ambar' : 'info';
+  const nivel = viejo && nivelFuente === 'rojo' ? 'ambar' : nivelFuente;
   const km = a.KM_INICIO_SEGMENTO != null ? ` (km ${a.KM_INICIO_SEGMENTO}–${a.KM_FIN_SEGMENTO})` : '';
   const quePasa = limpio(a.RESUMEN_EMERGENCIA || a.RESUMEN || a.DESCRIPCION_DETALLADA);
-  const estado = nivel === 'rojo' && !carga ? 'Tránsito no operativo' : carga ? `No habilitado para carga: ${restr.toLowerCase()}` : transito ? `Tránsito ${transito.toLowerCase()}${restr ? `, ${restr.toLowerCase()}` : ''}` : restr;
+  const estado = nivelFuente === 'rojo' && !carga ? 'Tránsito no operativo' : carga ? `No habilitado para carga: ${restr.toLowerCase()}` : transito ? `Tránsito ${transito.toLowerCase()}${restr ? `, ${restr.toLowerCase()}` : ''}` : restr;
   const editado = a.last_edited_date || a.FECHA || a.FECHA_INGRESO;
   return {
-    id: `mop-${slug(a.CORRELATIVO || a.OBJECTID)}-${slug(a.KM_INICIO_SEGMENTO)}`.slice(0, 80),
+    id: `mop-${slug(a.CORRELATIVO || a.OBJECTID)}-${slug(a.KM_INICIO_SEGMENTO)}${guia.paso ? `-${guia.paso}` : ''}`.slice(0, 80),
     paises: ['CL'],
     ubicacion: `${limpio(a.ROL)}${km}, ${limpio(a.NOMBRE_CAMINO)}`,
     tramo: `${limpio(a.ROL)}${km}`,
-    tipo: carga ? 'peso' : nivel === 'rojo' ? 'corte' : 'restriccion',
+    tipo: carga ? 'peso' : nivelFuente === 'rojo' ? 'corte' : 'restriccion',
     estado: 'activa',
     gravedad: nivel,
     ...(carga ? { afecta: 'carga' } : {}),
-    descripcion: `${limpio(a.ROL)}${km}: ${punto(estado)}${quePasa ? ` ${punto(quePasa)}` : ''} Registrado por Vialidad el ${diaCL(a.FECHA_EMERGENCIA || a.FECHA_INGRESO)?.split('-').reverse().join('/') || 'sin fecha'}.`,
+    descripcion: `${limpio(a.ROL)}${km}: ${punto(estado)}${quePasa ? ` ${punto(quePasa)}` : ''} Registrado por Vialidad el ${diaCL(a.FECHA_EMERGENCIA || a.FECHA_INGRESO)?.split('-').reverse().join('/') || 'sin fecha'}.${viejo ? ` Sin novedades de Vialidad desde el ${diaCL(novedad)?.split('-').reverse().join('/') || '—'}: puede estar ya resuelto, confírmalo antes de salir.` : ''}`,
     inicio: diaCL(a.FECHA_EMERGENCIA || a.FECHA_INGRESO),
     ...enGuia(guia),
     fuente,
-    publicado: diaCL(editado),
-    horaFuente: editado ? new Date(editado).toISOString() : null,
-    ...(carga ? { impacto: `No habilitado para carga (${restr.toLowerCase()}).` } : nivel === 'rojo' ? { impacto: 'Tránsito no operativo.' } : {}),
+    publicado: diaCL(novedad || editado),
+    horaFuente: novedad || editado ? new Date(novedad || editado).toISOString() : null,
+    ...(viejo && nivelFuente === 'rojo' ? { impacto: 'Sin confirmar: el último registro de Vialidad es antiguo.' } : carga ? { impacto: `No habilitado para carga (${restr.toLowerCase()}).` } : nivel === 'rojo' ? { impacto: 'Tránsito no operativo.' } : {}),
   };
 }
 
