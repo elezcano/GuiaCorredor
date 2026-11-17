@@ -9,14 +9,14 @@ const paginasPDF = (buf) => (buf.toString('latin1').match(/\/Type\s*\/Page(?!s)/
   // Informe completo: botones del resumen
   const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
   p.on('pageerror', (e) => errs.push(e.message));
-  await p.goto(B + '/informe/?desde=0&hasta=7&carga=granel&fecha=2026-12-08');
+  await p.goto(B + '/informe/?desde=0&hasta=8&carga=granel&fecha=2026-12-08');
   ok(await p.$('#inf-resumen-pdf'), 'C1 falta el botón «Resumen en 1 página»');
   ok(!(await p.isVisible('.informe-resumen')), 'el resumen no debe verse en el informe completo');
   const ver = await p.getAttribute('#inf-ver', 'href');
   ok(ver && ver.includes('formato=resumen'), 'C4 el enlace «Ver resumen» no lleva formato=resumen');
 
   for (const [nombre, q] of [['principal (Jama)', ''], ['alternativa (Sico)', '&op=alternativa']]) {
-    await p.goto(`${B}/informe/?desde=0&hasta=7&carga=granel&fecha=2026-12-08${q}&formato=resumen`);
+    await p.goto(`${B}/informe/?desde=0&hasta=8&carga=granel&fecha=2026-12-08${q}&formato=resumen`);
     ok(await p.isVisible('.informe-resumen'), `${nombre}: el resumen no se ve`);
     ok(!(await p.isVisible('#inf-horarios')), `${nombre}: las secciones completas deberían ocultarse`);
     const t = await p.textContent('.informe-resumen');
@@ -35,7 +35,7 @@ const paginasPDF = (buf) => (buf.toString('latin1').match(/\/Type\s*\/Page(?!s)/
   for (const sch of ['light', 'dark']) {
     const m = await b.newPage({ viewport: { width: 360, height: 780 }, deviceScaleFactor: 2, colorScheme: sch });
     m.on('pageerror', (e) => errs.push(e.message));
-    await m.goto(B + '/informe/?desde=0&hasta=7&carga=granel&fecha=2026-12-08&op=alternativa&formato=resumen');
+    await m.goto(B + '/informe/?desde=0&hasta=8&carga=granel&fecha=2026-12-08&op=alternativa&formato=resumen');
     ok(!(await m.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'desborde en móvil ' + sch);
     await m.screenshot({ path: captura(`resumen-movil-${sch}.png`), fullPage: true });
     await m.close();

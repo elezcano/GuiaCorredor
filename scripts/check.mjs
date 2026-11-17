@@ -82,15 +82,26 @@ for (const p of guia) {
 }
 
 // Rutas y tramos
-const nodos = rutas.nodos.map((n) => n.id);
-if (rutas.tramos.length !== nodos.length - 1) errores.push('rutas: debe haber exactamente un tramo entre cada par de nodos consecutivos.');
+// HU-115: ruta principal (un tramo entre cada par de nodos consecutivos) y ramales al final
+// (un tramo con "ramal": true desde un nodo de la ruta principal hasta un nodo propio, que va al final de la lista).
+const principales = rutas.tramos.filter((t) => !t.ramal);
+const ramales = rutas.tramos.filter((t) => t.ramal);
+const nodos = rutas.nodos.slice(0, principales.length + 1).map((n) => n.id);
+const nodosRamal = rutas.nodos.slice(principales.length + 1).map((n) => n.id);
+if (rutas.tramos.slice(0, principales.length).some((t) => t.ramal)) errores.push('rutas: los tramos de ramal van después de los de la ruta principal.');
+if (nodosRamal.length !== ramales.length) errores.push('rutas: cada nodo después de la ruta principal necesita exactamente un tramo de ramal.');
+ramales.forEach((t, k) => {
+  if (!nodos.includes(t.desde)) errores.push(`rutas: el ramal "${t.id}" debe salir de un nodo de la ruta principal.`);
+  if (t.hasta !== nodosRamal[k]) errores.push(`rutas: el ramal "${t.id}" debe ir hasta "${nodosRamal[k]}" (mismo orden que los nodos).`);
+  if (t.paso || t.alternativa) errores.push(`rutas: el ramal "${t.id}" no puede tener paso fronterizo.`);
+});
 const vistos = new Set();
 rutas.tramos.forEach((t, i) => {
   const donde = `rutas: tramo "${t.id || i + 1}"`;
   if (!t.id) errores.push(`rutas: el tramo ${i + 1} no tiene "id".`);
   if (vistos.has(t.id)) errores.push(`${donde}: id repetido.`);
   vistos.add(t.id);
-  if (t.desde !== nodos[i] || t.hasta !== nodos[i + 1]) errores.push(`${donde}: debe ir de "${nodos[i]}" a "${nodos[i + 1]}".`);
+  if (!t.ramal && (t.desde !== nodos[i] || t.hasta !== nodos[i + 1])) errores.push(`${donde}: debe ir de "${nodos[i]}" a "${nodos[i + 1]}".`);
   if ('estado' in t) errores.push(`${donde}: el estado va en "reporte" (o en data/pasos.json si es un paso).`);
   if (t.reporte) {
     if (!ESTADOS[t.reporte.valor]) errores.push(`${donde}: reporte.valor no válido "${t.reporte.valor}".`);

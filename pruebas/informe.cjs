@@ -7,12 +7,12 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, permissions: ['clipboard-read', 'clipboard-write'] });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   // E1: generar desde el planificador
-  await p.goto(B + '/planificador/?desde=0&hasta=7&carga=granel');
+  await p.goto(B + '/planificador/?desde=0&hasta=8&carga=granel');
   await p.fill('#lanzar-informe input[name=fecha]', '2026-12-08');
   await Promise.all([p.waitForNavigation(), p.click('#lanzar-informe button[type=submit]')]);
   ok(p.url().includes('/informe/') && p.url().includes('fecha=2026-12-08'), 'E1 no navega al informe');
   for (const id of ['inf-alertas', 'inf-estado', 'inf-horarios', 'inf-avisos', 'inf-km', 'inf-papeles', 'inf-fuentes']) ok(await p.$('#' + id), 'E1 falta sección ' + id);
-  ok((await p.$$('.tabla-informe tbody tr')).length === 7, 'E1 no salen los 7 tramos');
+  ok((await p.$$('.tabla-informe tbody tr')).length === 8, 'E1 no salen los 8 tramos');
   const txt = await p.textContent('.informe');
   // E2: festivo
   ok(/8 dic 2026: .*Paraguay/.test(txt), 'E2 no avisa del festivo de Paraguay');
@@ -20,7 +20,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   // E3: paso no habilitado y sin confirmar
   ok(/Puente de la Bioce[aá]nica.*no habilitado/i.test(txt), 'E3 no destaca el puente no habilitado');
   ok(txt.includes('No hay alternativa registrada'), 'E3 no dice que no hay alternativa');
-  const ps = await ctx.newPage(); await ps.goto(B + '/informe/?desde=0&hasta=7&carga=granel&fecha=2026-12-08&op=alternativa');
+  const ps = await ctx.newPage(); await ps.goto(B + '/informe/?desde=0&hasta=8&carga=granel&fecha=2026-12-08&op=alternativa');
   ok(/RN 51/.test(await ps.textContent('.informe')) && !/Sico.*sin confirmar/i.test(await ps.textContent('.informe')), 'E3 alternativa por Sico: falta el aviso de la RN 51 o sigue sin confirmar'); await ps.close();
   // Regla 3: distancias no sumadas como oficiales
   ok(txt.includes('No se suman como distancia oficial') && txt.includes('Estimación provisional'), 'Regla 3 distancias');

@@ -29,10 +29,10 @@ const f = []; const ok = (c, m) => c || f.push(m);
   }
   // El planificador abre las fichas en el sentido del viaje
   const p = await b.newPage();
-  await p.goto(B + '/planificador/?desde=7&hasta=0');
+  await p.goto(B + '/planificador/?desde=8&hasta=0');
   const hrefs = await p.$$eval('a[href*="sentido="]', (l) => l.map((x) => x.getAttribute('href')));
   ok(hrefs.some((h) => h.includes('/jama/?sentido=CL-AR')), 'viaje de vuelta: el planificador debe enlazar Jama en sentido CL-AR');
-  await p.goto(B + '/planificador/?desde=0&hasta=7');
+  await p.goto(B + '/planificador/?desde=0&hasta=8');
   const ida = await p.$$eval('a[href*="sentido="]', (l) => l.map((x) => x.getAttribute('href')));
   ok(ida.some((h) => h.includes('/jama/?sentido=AR-CL')), 'viaje de ida: Jama en sentido AR-CL');
   ok(errs.length === 0, 'errores JS: ' + errs);

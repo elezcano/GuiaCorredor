@@ -6,7 +6,7 @@
 import { CADUCIDAD, EVIDENCIAS, NIVELES, VERIFICADORES, tipoEstado } from './validacion.mjs';
 import { fiabilidad } from './fiabilidad.mjs';
 
-export const API_VERSION = '1.6.0';
+export const API_VERSION = '1.7.0';
 
 /**
  * Registro de versiones publicadas. Gestión interna del formato:
@@ -20,6 +20,7 @@ export const API_VERSIONES = {
 };
 /** Avisos para consumidores (los más recientes primero). */
 export const AVISOS_API = [
+  { fecha: '2026-11-17', version: '1.7.0', tipo: 'compatible', texto: 'Red: los nodos agrupados «norte-chile» y «puertos-chile» se separan en san-pedro-atacama, calama, antofagasta, mejillones e iquique (cambio de datos). Nuevo campo tramos[].ramal y rutas por ramal (Calama → Mejillones, Calama → Iquique).' },
   { fecha: '2026-11-17', version: '1.6.0', tipo: 'compatible', texto: 'pasos[]: nuevo fiabilidad (días no habilitado, sin paso para carga, con restricciones, habilitado y sin datos en 30 y 90 días).' },
   { fecha: '2026-11-15', version: '1.5.0', tipo: 'compatible', texto: 'pasos[]: nuevo partes (parte de cada organismo por país, con publicado y hora local).' },
   { fecha: '2026-11-15', version: '1.4.0', tipo: 'compatible', texto: 'pasos[]: nuevos historial y controles; horarios con apertura, cierre y zona; contactos con telefono (E.164).' },
@@ -94,6 +95,7 @@ export function generarApi(ctx) {
         : { km: null, evidencia: null, fuente: null, nota: 'Sin distancia con fuente.' },
     // Estimación provisional (evidencia "estimacion"): nunca es un dato oficial ni verificado.
     estimacion: t.estimacion || null,
+    ramal: !!t.ramal,
     paso: t.paso ? { id: t.paso.id, nombre: t.paso.nombre } : null,
     alternativa: t.alternativa ? { id: t.alternativa.id, nombre: t.alternativa.nombre, estimacion: t.alternativa.estimacion || null } : null,
     estado: { reporte: t.reporte ? pv(t.reporte, tipoEstado(t.reporte.valor)) : null, mostrar: mostrar(t.vista) },
@@ -103,11 +105,16 @@ export function generarApi(ctx) {
 
   const nodos = D.rutas.nodos.map((n) => ({ id: n.id, nombre: n.nombre, pais: n.pais, coordenadas: coord(n.coordenadas) }));
   const conAlt = D.rutas.tramos.find((t) => t.alternativa);
+  const princ = D.rutas.tramos.filter((t) => !t.ramal);
+  const nodosPrinc = nodos.slice(0, princ.length + 1).map((n) => n.id);
   const rutas = [
-    { id: 'principal', nombre: 'Ruta principal', nodos: nodos.map((n) => n.id), tramos: D.rutas.tramos.map((t) => t.id), pasos: D.rutas.tramos.filter((t) => t.paso).map((t) => t.paso.id) },
+    { id: 'principal', nombre: 'Ruta principal', nodos: nodosPrinc, tramos: princ.map((t) => t.id), pasos: princ.filter((t) => t.paso).map((t) => t.paso.id) },
     ...(conAlt
-      ? [{ id: `por-${conAlt.alternativa.id}`, nombre: `Alternativa por ${conAlt.alternativa.nombre}`, nodos: nodos.map((n) => n.id), tramos: D.rutas.tramos.map((t) => t.id), pasos: D.rutas.tramos.filter((t) => t.paso).map((t) => (t === conAlt ? t.alternativa.id : t.paso.id)) }]
+      ? [{ id: `por-${conAlt.alternativa.id}`, nombre: `Alternativa por ${conAlt.alternativa.nombre}`, nodos: nodosPrinc, tramos: princ.map((t) => t.id), pasos: princ.filter((t) => t.paso).map((t) => (t === conAlt ? t.alternativa.id : t.paso.id)) }]
       : []),
+    ...D.rutas.tramos
+      .filter((t) => t.ramal)
+      .map((t) => ({ id: `ramal-${t.hasta}`, nombre: `Ramal ${nodoNombre[t.desde]} → ${nodoNombre[t.hasta]}`, nodos: [t.desde, t.hasta], tramos: [t.id], pasos: [] })),
   ];
 
   const calendario = {

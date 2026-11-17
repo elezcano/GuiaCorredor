@@ -1258,3 +1258,4 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .mapa-vivo-marco[data-estado="cargando"] .mapa-vivo, .mapa-vivo-marco[data-estado="mapa"] .mapa-vivo { display: block; }
 .mapa-vivo-marco[data-estado="cargando"] .mapa-respaldo { position: absolute; inset: 0; overflow: hidden; background: var(--background); }
 .mapa-vivo-marco[data-estado="mapa"] .mapa-respaldo { display: none; }
+.ruta-ramales { margin: 8px 0 0; font-size: 14px; color: var(--muted-foreground); }
