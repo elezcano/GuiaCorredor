@@ -1,8 +1,10 @@
 // HU-115: mapa interactivo del corredor con MapLibre GL y teselas de OpenFreeMap (datos de OpenStreetMap).
 // Si MapLibre no está, el navegador no tiene WebGL o el mapa base no carga, se queda el esquema SVG.
 (function () {
+  // Un solo estado en el marco: «esquema» (por defecto), «cargando» (el esquema tapa el mapa) o «mapa».
   const caja = document.getElementById('mapa-vivo');
-  const respaldo = document.querySelector('.mapa-respaldo');
+  const marco = caja?.closest('.mapa-vivo-marco');
+  const estado = (e) => marco && (marco.dataset.estado = e);
   const fuente = document.getElementById('datos-mapa');
   if (!caja || !fuente || !window.maplibregl) return;
   if (window.maplibregl.supported && !window.maplibregl.supported()) return;
@@ -19,7 +21,7 @@
   const lons = d.puntos.map((p) => p.lon), lats = d.puntos.map((p) => p.lat);
   let mapa;
   try {
-    caja.hidden = false;
+    estado('cargando');
     mapa = new maplibregl.Map({
       container: caja,
       style: 'https://tiles.openfreemap.org/styles/positron',
@@ -28,24 +30,25 @@
       cooperativeGestures: true,
       locale: { 'CooperativeGesturesHandler.WindowsHelpText': 'Usa Ctrl + rueda para acercar', 'CooperativeGesturesHandler.MacHelpText': 'Usa ⌘ + rueda para acercar', 'CooperativeGesturesHandler.MobileHelpText': 'Usa dos dedos para mover el mapa' },
     });
-  } catch {
-    caja.hidden = true;
+  } catch (e) {
+    console.warn('Mapa: no se pudo crear', e && e.message);
+    estado('esquema');
     return;
   }
   let listo = false;
   // Si el mapa base no carga en 12 s, se vuelve al esquema.
   const plazo = setTimeout(() => {
     if (!listo) {
-      caja.hidden = true;
-      respaldo.hidden = false;
+      console.warn('Mapa: el mapa base no cargó en 12 s; se muestra el esquema');
+      estado('esquema');
       try { mapa.remove(); } catch {}
     }
   }, 12000);
+  mapa.on('error', (e) => console.warn('Mapa:', e && e.error && e.error.message));
   mapa.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
   mapa.on('load', () => {
     listo = true;
     clearTimeout(plazo);
-    respaldo.hidden = true;
     mapa.addSource('lineas', { type: 'geojson', data: lineas });
     mapa.addSource('puntos', { type: 'geojson', data: puntos });
     mapa.addLayer({ id: 'lineas-borde', type: 'line', source: 'lineas', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': ['case', ['get', 'alt'], 6, 8] } });
@@ -75,6 +78,6 @@
       mapa.on('mouseenter', capa, () => (mapa.getCanvas().style.cursor = 'pointer'));
       mapa.on('mouseleave', capa, () => (mapa.getCanvas().style.cursor = ''));
     }
-    caja.dataset.listo = 'true';
+    estado('mapa');
   });
 })();

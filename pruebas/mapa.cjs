@@ -2,6 +2,20 @@
 // HU-115: mapa interactivo (MapLibre + OpenFreeMap) con el esquema SVG como respaldo.
 const { B, captura, lanzar, fin } = require('./comun.cjs');
 const f = []; const ok = (c, m) => c || f.push(m);
+// Estado final del marco del mapa: «mapa» o «esquema». Las teselas vienen de un servidor externo:
+// si siguen cargando a los 40 s, solo se exige que el esquema tape el hueco.
+async function comprobarMapa(p, ok, donde) {
+  const est = await p
+    .waitForFunction(() => ['mapa', 'esquema'].includes(document.querySelector('.mapa-vivo-marco')?.dataset.estado) && document.querySelector('.mapa-vivo-marco').dataset.estado, null, { timeout: 40000 })
+    .then((h) => h.jsonValue(), () => 'cargando');
+  const vivo = await p.isVisible('#mapa-vivo');
+  const resp = await p.isVisible('.mapa-respaldo');
+  if (est === 'mapa') ok(vivo && !resp, `${donde}: con el mapa cargado no debe verse el esquema`);
+  else ok(resp, `${donde}: debe verse el esquema (${est})`);
+  if (est === 'esquema') ok(!vivo, `${donde}: sin mapa, el hueco del mapa no debe verse`);
+  return est;
+}
+
 (async () => {
   const b = await lanzar();
   for (const [tema, sch] of [['claro', 'light'], ['oscuro', 'dark']]) {
@@ -14,37 +28,38 @@ const f = []; const ok = (c, m) => c || f.push(m);
     ok((await p.$$('.tabla-tramos tbody tr')).length === datos.lineas.length, 'la tabla de tramos no cuadra con el mapa');
     const conMapLibre = await p.evaluate(() => !!window.maplibregl);
     if (conMapLibre) {
-      // Con MapLibre: o carga el mapa (hay red) o, pasado el plazo, se queda el esquema. Nunca los dos ni ninguno.
-      const final = await p
-        .waitForFunction(() => document.querySelector('#mapa-vivo')?.dataset.listo === 'true' || document.querySelector('#mapa-vivo')?.hidden, null, { timeout: 40000 })
-        .then(() => true, () => false);
-      const vivo = await p.isVisible('#mapa-vivo');
-      const resp = await p.isVisible('.mapa-respaldo');
-      if (final) ok(vivo !== resp, `mapa y esquema a la vez o ninguno (vivo ${vivo}, esquema ${resp})`);
-      else ok(resp, 'mientras carga, el esquema debe seguir visible');
-      console.log(`  mapa ${tema}: ${vivo ? 'MapLibre con teselas' : 'esquema SVG (sin teselas)'}`);
-      if (vivo) await p.waitForTimeout(2500);
+      const est = await comprobarMapa(p, ok, 'mapa');
+      console.log(`  mapa ${tema}: ${est}`);
+      if (est === 'mapa') await p.waitForTimeout(2500);
     } else {
       ok(await p.isVisible('.mapa-respaldo svg'), 'sin MapLibre debe verse el esquema');
     }
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'desborde ' + tema);
     await p.screenshot({ path: captura(`mapa-${tema}.png`) });
-    // Portada: el mapa se carga al llegar a su sección (si MapLibre está instalado).
-    await p.goto(B + '/');
-    if (await p.$('.mapa-vivo-marco')) {
-      ok(await p.isHidden('#mapa-vivo'), 'portada: el mapa no debe cargarse antes de llegar a él');
-      await p.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
-      // Estado final: mapa cargado, o esquema de vuelta (sin MapLibre o sin teselas).
-      const final = await p
-        .waitForFunction(() => document.querySelector('#mapa-vivo')?.dataset.listo === 'true' || (window.maplibregl && document.querySelector('#mapa-vivo')?.hidden), null, { timeout: 40000 })
-        .then(() => true, () => false);
-      const vivo = await p.isVisible('#mapa-vivo');
-      // Las teselas vienen de un servidor externo: si tardan, no es un fallo de la web (el respaldo sigue visible).
-      if (final) ok(vivo !== (await p.isVisible('.mapa-respaldo')), 'portada: mapa y esquema a la vez o ninguno');
-      else ok(await p.isVisible('.mapa-respaldo'), 'portada: mientras carga, el esquema debe seguir visible');
-      console.log(`  portada ${tema}: ${!final ? 'teselas lentas, se ve el esquema' : vivo ? 'MapLibre con teselas' : 'esquema SVG'}`);
-      if (vivo) await p.waitForTimeout(2500);
-      await p.locator('.mapa-vivo-marco').screenshot({ path: captura(`portada-mapa-${tema}.png`) });
+    // Portada: el mapa se carga al llegar a su sección. Sin reloj fijo: con la fecha congelada
+    // MapLibre no termina de cargar en la portada, y aquí la fecha no importa.
+    {
+      const { chromium } = require('playwright');
+      const nav = await chromium.launch();
+      const q = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: sch });
+      q.on('pageerror', (e) => errs.push(e.message));
+      q.on('console', (m) => /Mapa/.test(m.text()) && console.log('  consola portada:', m.text().slice(0, 200)));
+      await q.addInitScript((t) => { try { localStorage.setItem('tema', t); } catch {} }, tema);
+      await q.goto(B + '/');
+      if (await q.$('.mapa-vivo-marco')) {
+        ok((await q.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
+        await q.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
+        // Primero tiene que arrancar la carga perezosa (el estado deja de ser «esquema»).
+        if (await q.$('script[src$="/assets/mapa-perezoso.js"]')) {
+          const arranca = await q.waitForFunction(() => document.querySelector('.mapa-vivo-marco')?.dataset.estado !== 'esquema', null, { timeout: 20000 }).then(() => true, () => false);
+          ok(arranca, 'portada: el mapa no empieza a cargarse al llegar a su sección');
+        }
+        const est = await comprobarMapa(q, ok, 'portada');
+        console.log(`  portada ${tema}: ${est}`);
+        if (est === 'mapa') await q.waitForTimeout(2500);
+        await q.locator('.mapa-vivo-marco').screenshot({ path: captura(`portada-mapa-${tema}.png`) });
+      }
+      await nav.close();
     }
     ok(errs.length === 0, 'errores JS ' + errs);
     await p.close();

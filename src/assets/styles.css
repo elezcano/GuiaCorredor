@@ -1252,4 +1252,9 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .tabla-tramos thead th { font-size: 13px; color: var(--muted-foreground); }
 .seccion .mapa-vivo-marco { margin: 0; }
 .seccion .mapa-vivo { height: min(60vh, 520px); }
-.mapa-respaldo[hidden], .mapa-vivo[hidden] { display: none !important; }
+/* Un solo estado en el marco del mapa (mapa.js): esquema → cargando → mapa (o de vuelta a esquema). */
+.mapa-vivo-marco { position: relative; }
+.mapa-vivo-marco .mapa-vivo { display: none; }
+.mapa-vivo-marco[data-estado="cargando"] .mapa-vivo, .mapa-vivo-marco[data-estado="mapa"] .mapa-vivo { display: block; }
+.mapa-vivo-marco[data-estado="cargando"] .mapa-respaldo { position: absolute; inset: 0; overflow: hidden; background: var(--background); }
+.mapa-vivo-marco[data-estado="mapa"] .mapa-respaldo { display: none; }
