@@ -100,7 +100,7 @@
         "fuente": "saltazoom-pasos-30-09-2026",
         "publicado": "2026-09-30",
         "validacion": "verificado",
-        "actualizado": "2026-11-15",
+        "actualizado": "2026-11-17",
         "verificacion": {
           "verificadoPor": "responsable-editorial",
           "rol": "responsable-editorial",
@@ -218,6 +218,23 @@
           "evidencia": "tercero",
           "validacion": "por-verificar",
           "verificacion": null
+        },
+        {
+          "fecha": "2026-11-16",
+          "valor": "operativo",
+          "texto": "Habilitado, horario 07:00–20:00. Consultado el 17/11/2026 a las 04:21 (hora de Argentina).",
+          "hora": "20:01",
+          "fuente": "ar-seguridad-paso-mision-la-paz",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-17",
+            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial, el parte de Gendarmería del 16/11 a las 20:01."
+          }
         }
       ],
       "controles": [
@@ -277,10 +294,10 @@
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
           "valor": "operativo",
-          "texto": "Habilitado, horario 07:00–20:00. Consultado el 17/11/2026 a las 04:21 (hora de Argentina).",
-          "hora": "20:01",
+          "texto": "Abierto, horario 07:00–20:00 (hora de Argentina).",
+          "hora": "07:17",
           "fuente": "ar-seguridad-paso-mision-la-paz",
-          "publicado": "2026-11-16",
+          "publicado": "2026-11-17",
           "actualizado": "2026-11-17",
           "evidencia": "oficial",
           "validacion": "verificado",
@@ -288,7 +305,7 @@
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
             "fecha": "2026-11-17",
-            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial, el parte de Gendarmería del 16/11 a las 20:01."
+            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: paso «Abierto», horario 07:00–20:00. Hora del parte (07:17) según la lista «Información provista por» de la misma página."
           }
         }
       ]
@@ -313,24 +330,22 @@
         }
       },
       "estado": {
-        "valor": "cerrado",
-        "texto": "No habilitado para transporte de carga por fuertes ráfagas de viento, según la Unidad de Pasos Fronterizos de Chile (parte del 16/11/2026, 18:25). Turismo con atención normal. Horario habitual: 09:00 a 19:15 (hora de Argentina).",
-        "fuente": "upf-chile-canal",
-        "publicado": "2026-11-16",
+        "valor": "operativo",
+        "texto": "Abierto de 09:00 a 19:15 (hora de Argentina), según Gendarmería (parte del 17/11/2026, 08:29). El último parte de Chile (16/11, 18:25) suspendía la revisión de carga por viento y no ha publicado otro desde entonces: si vas con carga, confírmalo con la Unidad de Pasos Fronterizos antes de salir.",
+        "fuente": "ar-seguridad-paso-jama",
+        "publicado": "2026-11-17",
         "validacion": "verificado",
         "actualizado": "2026-11-17",
         "verificacion": {
           "verificadoPor": "responsable-editorial",
           "rol": "responsable-editorial",
           "fecha": "2026-11-17",
-          "alcance": "Comprobado el 17/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Provincia El Loa, 16/11/2026 a las 18:25, hora de Chile), que Jama no estaba habilitado para transporte de carga por fuertes ráfagas de viento, con atención normal para turismo."
+          "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: Jama «Abierto», horario 09:00–19:15, parte de Gendarmería de las 08:29."
         },
         "evidencia": "oficial",
         "otrasFuentes": [
-          "ar-seguridad-paso-jama",
-          "el-tribuno-jujuy-jama-15-11-2026"
-        ],
-        "afecta": "carga"
+          "upf-chile-canal"
+        ]
       },
       "horarios": [
         {
@@ -717,6 +732,24 @@
           "evidencia": "tercero",
           "validacion": "por-verificar",
           "verificacion": null
+        },
+        {
+          "fecha": "2026-11-16",
+          "valor": "cerrado",
+          "afecta": "carga",
+          "texto": "No habilitado para transporte de carga por fuertes ráfagas de viento (Unidad de Pasos Fronterizos de Chile, 18:25 hora de Chile). Turismo con atención normal.",
+          "hora": "18:25",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-16",
+          "actualizado": "2026-11-17",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-17",
+            "alcance": "Comprobado el 17/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Provincia El Loa, 16/11/2026 a las 18:25, hora de Chile), que Jama no estaba habilitado para transporte de carga por fuertes ráfagas de viento, con atención normal para turismo."
+          }
         }
       ],
       "controles": [
@@ -805,7 +838,7 @@
           "texto": "Aviso en la RN 52, tramo Susques – límite con Chile. La web oficial no da más detalle.",
           "hora": "09:00",
           "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-16",
+          "publicado": "2026-11-17",
           "actualizado": "2026-11-17",
           "evidencia": "oficial",
           "validacion": "verificado",
@@ -813,18 +846,18 @@
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
             "fecha": "2026-11-17",
-            "alcance": "Comprobado el 17/11/2026: el aviso de Vialidad (16/11, 09:00) tal como aparece en la página oficial."
+            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: el aviso de Vialidad sobre la RN 52 (Susques – límite con Chile), sin más detalle."
           }
         },
         {
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": null,
-          "texto": "Figuraba «Cerrado» de madrugada, fuera de su horario (09:00–19:15). Consultado el 17/11/2026 a las 04:21 (hora de Argentina).",
-          "hora": "20:19",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "08:29",
           "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-16",
+          "publicado": "2026-11-17",
           "actualizado": "2026-11-17",
           "evidencia": "oficial",
           "validacion": "verificado",
@@ -832,7 +865,7 @@
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
             "fecha": "2026-11-17",
-            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial, el parte de Gendarmería del 16/11 a las 20:19."
+            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: paso «Abierto», horario 09:00–19:15. Hora del parte (08:29) según la lista «Información provista por» de la misma página."
           }
         },
         {
@@ -877,16 +910,16 @@
       },
       "estado": {
         "valor": "operativo",
-        "texto": "Habilitado de 09:00 a 19:00 (hora de Argentina), según Gendarmería (parte del 15/11/2026, 20:08). RN 51 con precaución por máquinas en badenes (Vialidad Nacional, 12/11/2026).",
+        "texto": "Habilitado de 09:00 a 19:00 (hora de Argentina), según Gendarmería (parte del 17/11/2026, 08:06). RN 51 con precaución por máquinas en badenes (Vialidad Nacional, 16/11/2026).",
         "fuente": "ar-seguridad-paso-sico",
-        "publicado": "2026-11-15",
+        "publicado": "2026-11-17",
         "validacion": "verificado",
-        "actualizado": "2026-11-16",
+        "actualizado": "2026-11-17",
         "verificacion": {
           "verificadoPor": "responsable-editorial",
           "rol": "responsable-editorial",
-          "fecha": "2026-11-16",
-          "alcance": "Comprobado el 16/11/2026 con captura de la página del Ministerio de Seguridad, que Sico está abierto con horario 09:00–19:00. Corrige la apertura a las 05:00 publicada el 15/11 por error: la cuenta atrás de esa web usa la hora del dispositivo (España)."
+          "fecha": "2026-11-17",
+          "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: Sico «Abierto», horario 09:00–19:00, parte de Gendarmería de las 08:06, y el aviso de Vialidad sobre la RN 51."
         },
         "evidencia": "oficial",
         "otrasFuentes": [
@@ -1178,11 +1211,11 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": null,
-          "texto": "Figuraba «Cerrado» de madrugada, fuera de su horario (09:00–19:00); sin aviso de cierre por clima. Consultado el 17/11/2026 a las 04:21 (hora de Argentina).",
-          "hora": "18:50",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:00 (hora de Argentina).",
+          "hora": "08:06",
           "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-16",
+          "publicado": "2026-11-17",
           "actualizado": "2026-11-17",
           "evidencia": "oficial",
           "validacion": "verificado",
@@ -1190,7 +1223,7 @@
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
             "fecha": "2026-11-17",
-            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial, el parte de Gendarmería del 16/11 a las 18:50."
+            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: paso «Abierto», horario 09:00–19:00. Hora del parte (08:06) según la lista «Información provista por» de la misma página."
           }
         }
       ]
