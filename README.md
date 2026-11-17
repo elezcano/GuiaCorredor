@@ -19,6 +19,7 @@
 | Llamar a la frontera | Ficha del paso: **botón Llamar** con teléfonos de fuente oficial |
 | Saber qué controles pasa un camión | Ficha del paso: **controles para carga en orden** (integrado, migraciones, aduana, sanitario) |
 | Ver qué ha pasado en un paso | Ficha del paso: **novedades** en línea de tiempo |
+| Saber cuánto se cierra un paso | Ficha del paso: **fiabilidad**, días no habilitado (en total y solo para carga) en los últimos 30 y 90 días |
 | Planificar una ruta y una fecha | **Planificador** y **informe de viaje** para enviar por WhatsApp, enlace o PDF, o como **resumen en una página** para quien cotiza |
 | Ver obras, cortes y festivos | Avisos y calendario aduanero |
 | Usar los datos en otro sistema | `api/v1` (JSON abierto, versionado) |
@@ -49,13 +50,16 @@ Lo más reciente, arriba.
 | Fecha | Avance | Dónde |
 |---|---|---|
 | 17/11/2026 | **Tareas del día por correo** para el responsable editorial | #99 |
+| 17/11/2026 | **Fiabilidad de cada paso:** días no habilitado, sin paso para carga, con restricciones, habilitado y sin datos en 30 y 90 días, solo con partes verificados. El relleno de agosto a noviembre espera la confirmación de Ernesto | #97 |
+| 17/11/2026 | **Feriados verificados:** Paraguay 2027 (con los trasladables marcados), Argentina, Chile y Brasil, comprobados contra sus leyes | PR #103, #104 |
+| 17/11/2026 | **Jama sin paso para carga por viento** (UPF Chile, 16/11): primer parte del lado chileno y texto claro de «no habilitado para carga» | PR #93, #94 |
 | 17/11/2026 | **Vigilante con horario:** solo avisa dentro del horario de cada paso (hora de Argentina), y cada correo lleva la hora de Argentina y de España | — |
 | 16/11/2026 | **Primeros avisos del vigilante atendidos:** partes de Gendarmería y Vialidad en Jama, Sico y Pozo Hondo; horario de Sico corregido (09:00–19:00) y de Jama aclarado (09:00–19:15). El vigilante pasa a revisar cada hora | #86 |
 | 15/11/2026 | **Informe resumido en una página:** estado y último parte de cada paso, lo importante, avisos, distancia y papeles en una hoja A4 | #80 |
 | 15/11/2026 | **Vigilante de webs oficiales:** cada hora revisa Gendarmería y Vialidad y avisa por correo si hay un parte más nuevo que el cargado | #77 |
 | 15/11/2026 | **Pruebas automáticas en GitHub:** las pruebas de navegador se ejecutan en cada cambio y bloquean la publicación si algo falla | #50 |
 | 15/11/2026 | **Partes por organismo** con fecha, hora y aviso de antigüedad a partir de 48 h (se bajará a 24 h en mayo/junio de 2027) | #73 |
-| 15/11/2026 | **Los cuatro pasos con estado verificado.** Sico, habilitado con horario: abre a las 05:00, según Gendarmería. Aviso en la RN 51 | PR #72 |
+| 15/11/2026 | **Los cuatro pasos con estado verificado.** Sico, habilitado con horario (corregido el 16/11 a 09:00–19:00). Aviso en la RN 51 | PR #72 |
 | 15/11/2026 | **Teléfonos verificados** de Jama, Sico y Pozo Hondo, con la etiqueta exacta de la web oficial | PR #71 |
 | 15/11/2026 | **Fichas de paso:** hora local y «abierto ahora», controles para carga, botón Llamar y novedades del paso | #65–#68 |
 | 15/11/2026 | **Informe de viaje** por ruta y fecha, para WhatsApp, enlace o PDF | #45 |

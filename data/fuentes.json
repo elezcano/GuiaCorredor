@@ -197,9 +197,9 @@
     },
     {
       "id": "portaria-mgi-11-460-2025-calendario-federal-2026",
-      "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026)",
-      "url": "https://cnbsp.org.br/2025/12/30/dou-portaria-ministerio-de-estado-da-gestao-e-da-inovacao-em-servicos-publicos-n-11-460-2025-divulga-os-dias-de-feriados-nacionais-e-estabelece-os-dias-de-ponto-facultativo-no-ano-de-2026/",
-      "tipo": "otra"
+      "nombre": "Portaria MGI 11.460/2025 (calendario federal 2026, Diário Oficial da União)",
+      "url": "https://www.in.gov.br/web/dou/-/portaria-mgi-n-11.460-de-29-de-dezembro-de-2025-678388627",
+      "tipo": "oficial"
     },
     {
       "id": "resolucion-jgm-164-2025",
@@ -320,6 +320,126 @@
       "nombre": "Wikipedia (en): Sico Pass",
       "url": "https://en.wikipedia.org/wiki/Sico_Pass",
       "tipo": "referencia"
+    },
+    {
+      "id": "lei-6-802-1980",
+      "nombre": "Lei 6.802/1980 (12 de octubre, Nossa Senhora Aparecida)",
+      "url": "https://www.planalto.gov.br/ccivil_03/LEIS/L6802.htm",
+      "tipo": "oficial"
+    },
+    {
+      "id": "saltanews-jama-sico-22-08-2026",
+      "nombre": "Salta News: «Nieve: cerraron los pasos de Sico y Jama» (22/08/2026, parte de Defensa Civil de Salta)",
+      "url": "https://www.saltanews.com.ar/nieve-cerraron-los-pasos-de-sico-y-jama/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "el-tribuno-jujuy-jama-29-08-2026",
+      "nombre": "El Tribuno de Jujuy: «Habilitaron el Paso de Jama para todo tránsito» (29/08/2026, parte del Ministerio de Seguridad de Jujuy)",
+      "url": "https://eltribunodejujuy.com/informacion-general/2026-8-29-9-30-0-habilitaron-el-paso-de-jama-para-todo-transito",
+      "tipo": "prensa"
+    },
+    {
+      "id": "el-tribuno-jujuy-jama-31-08-2026",
+      "nombre": "El Tribuno de Jujuy: «Paso de Jama habilitado» (31/08/2026, reporte diario N.º 4 de la Provincia El Loa)",
+      "url": "https://eltribunodejujuy.com/informacion-general/2026-8-31-18-57-0-paso-de-jama-habilitado",
+      "tipo": "prensa"
+    },
+    {
+      "id": "la-voz-de-jujuy-jama-01-09-2026",
+      "nombre": "La Voz de Jujuy: «Paso de Jama habilitado en ambos sentidos con fuertes vientos y hielo en calzada» (01/09/2026)",
+      "url": "https://www.lavozdejujuy.com/jujuy/paso-de-jama-habilitado-en-ambos-sentidos-con-fuertes-vientos-y-hielo-en-calzada",
+      "tipo": "prensa"
+    },
+    {
+      "id": "somos-jujuy-jama-17-09-2026",
+      "nombre": "Somos Jujuy: «Por un alerta meteorológica, cerraron Paso de Jama» (17/09/2026)",
+      "url": "https://www.somosjujuy.com.ar/jujuy/por-alerta-meteorologica-cerraron-paso-jama-cuando-reabre-n124185",
+      "tipo": "prensa"
+    },
+    {
+      "id": "el-tribuno-jujuy-jama-18-09-2026",
+      "nombre": "El Tribuno de Jujuy: «Cerraron el Paso de Jama» (18/09/2026)",
+      "url": "https://eltribunodejujuy.com/informacion-general/2026-9-18-8-26-0-cerraron-el-paso-de-jama",
+      "tipo": "prensa"
+    },
+    {
+      "id": "el-tribuno-jujuy-jama-19-09-2026",
+      "nombre": "El Tribuno de Jujuy: «Paso de Jama cerrado por nieve» (19/09/2026)",
+      "url": "https://eltribunodejujuy.com/informacion-general/2026-9-19-9-40-0-paso-de-jama-cerrado-por-nieve",
+      "tipo": "prensa"
+    },
+    {
+      "id": "todojujuy-jama-23-09-2026",
+      "nombre": "TodoJujuy: «Paso de Jama habilitado en ambos sentidos con temperatura de -4 °C» (23/09/2026)",
+      "url": "https://www.todojujuy.com/jujuy/paso-jama-habilitado-ambos-sentidos-temperatura-4c-n296445",
+      "tipo": "prensa"
+    },
+    {
+      "id": "somos-jujuy-jama-29-09-2026",
+      "nombre": "Somos Jujuy: «Cerraron el Paso de Jama por las condiciones meteorológicas del lado chileno» (29/09/2026)",
+      "url": "https://www.somosjujuy.com.ar/jujuy/cerraron-paso-jama-condiciones-meteorologicas-lado-chileno-n124789",
+      "tipo": "prensa"
+    },
+    {
+      "id": "el-submarino-jama-30-09-2026",
+      "nombre": "El Submarino Jujuy: «El Paso de Jama está cerrado por nieve del lado chileno» (30/09/2026)",
+      "url": "https://elsubmarinojujuy.com.ar/el-paso-de-jama-esta-cerrado-por-nieve-del-lado-chileno/",
+      "tipo": "prensa"
+    },
+    {
+      "id": "el-monterizo-jama-12-10-2026",
+      "nombre": "El Monterizo: «El Paso de Jama quedó cerrado y no hay fecha de reapertura» (12/10/2026, parte de Seguridad Vial de Jujuy)",
+      "url": "https://elmonterizo.com/el-paso-de-jama-quedo-cerrado-y-no-hay-fecha-de-reapertura-las-rafagas-llegan-a-100-kmh",
+      "tipo": "prensa"
+    },
+    {
+      "id": "el-tribuno-jujuy-jama-13-10-2026",
+      "nombre": "El Tribuno de Jujuy: «Paso de Jama cerrado por nevadas» (13/10/2026)",
+      "url": "https://eltribunodejujuy.com/informacion-general/2026-10-13-8-20-0-paso-de-jama-cerrado-por-nevadas",
+      "tipo": "prensa"
+    },
+    {
+      "id": "todojujuy-jama-24-10-2026",
+      "nombre": "TodoJujuy: «Cerraron Paso de Jama por la presencia de hielo y nieve en la ruta» (24/10/2026)",
+      "url": "https://www.todojujuy.com/jujuy/cerraron-paso-jama-la-presencia-hielo-y-nieve-la-ruta-n297896",
+      "tipo": "prensa"
+    },
+    {
+      "id": "examedia-jama-27-10-2026",
+      "nombre": "Examedia: «El Paso de Jama se encuentra cerrado hoy martes 27 de octubre por nieve y fuertes vientos» (27/10/2026)",
+      "url": "https://examedia.com.ar/portada/post/88129474",
+      "tipo": "prensa"
+    },
+    {
+      "id": "el-tribuno-jujuy-jama-27-10-2026",
+      "nombre": "El Tribuno de Jujuy: «Continúa cerrado el Paso de Jama» (27/10/2026)",
+      "url": "https://eltribunodejujuy.com/informacion-general/2026-10-27-8-36-0-continua-cerrado-el-paso-de-jama",
+      "tipo": "prensa"
+    },
+    {
+      "id": "todojujuy-jama-sico-29-10-2026",
+      "nombre": "TodoJujuy: «El Paso de Jama sigue cerrado: las nevadas impiden habilitar el tránsito hacia Chile» (29/10/2026; también Sico)",
+      "url": "https://www.todojujuy.com/el-paso-jama-sigue-cerrado-las-nevadas-impiden-habilitar-el-transito-chile-n298104",
+      "tipo": "prensa"
+    },
+    {
+      "id": "todojujuy-jama-01-11-2026",
+      "nombre": "TodoJujuy: «Paso de Jama habilitado: el horario para ambos sentidos será de 8 a 20» (01/11/2026)",
+      "url": "https://www.todojujuy.com/jujuy/paso-jama-habilitado-el-horario-ambos-sentidos-sera-8-20-n298243",
+      "tipo": "prensa"
+    },
+    {
+      "id": "voces-criticas-sico-10-09-2026",
+      "nombre": "Voces Críticas: «Complicaciones para viajar por Salta…» (10/09/2026, parte de Defensa Civil de Salta)",
+      "url": "https://www.vocescriticas.com/noticias/2026/09/10/216983-complicaciones-para-viajar-por-salta-que-rutas-presentan-hielo-neblina-y-animales-sueltos",
+      "tipo": "prensa"
+    },
+    {
+      "id": "voces-criticas-jama-sico-19-09-2026",
+      "nombre": "Voces Críticas: «Paso de Jama cerrado y rutas con nieve en Salta…» (19/09/2026; Sico habilitado)",
+      "url": "https://www.vocescriticas.com/noticias/2026/09/19/218287-paso-de-jama-cerrado-y-rutas-con-nieve-en-salta-como-estan-los-cruces-fronterizos-este-sabado",
+      "tipo": "prensa"
     }
   ]
 }

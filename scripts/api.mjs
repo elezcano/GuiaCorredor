@@ -4,8 +4,9 @@
 // Cambios compatibles (campos nuevos) suben la versión menor; un cambio incompatible crea api/v2
 // y api/v1 se sigue publicando durante la transición (6 meses, docs/ia-dev.md).
 import { CADUCIDAD, EVIDENCIAS, NIVELES, VERIFICADORES, tipoEstado } from './validacion.mjs';
+import { fiabilidad } from './fiabilidad.mjs';
 
-export const API_VERSION = '1.5.0';
+export const API_VERSION = '1.6.0';
 
 /**
  * Registro de versiones publicadas. Gestión interna del formato:
@@ -19,6 +20,7 @@ export const API_VERSIONES = {
 };
 /** Avisos para consumidores (los más recientes primero). */
 export const AVISOS_API = [
+  { fecha: '2026-11-17', version: '1.6.0', tipo: 'compatible', texto: 'pasos[]: nuevo fiabilidad (días no habilitado, sin paso para carga, con restricciones, habilitado y sin datos en 30 y 90 días).' },
   { fecha: '2026-11-15', version: '1.5.0', tipo: 'compatible', texto: 'pasos[]: nuevo partes (parte de cada organismo por país, con publicado y hora local).' },
   { fecha: '2026-11-15', version: '1.4.0', tipo: 'compatible', texto: 'pasos[]: nuevos historial y controles; horarios con apertura, cierre y zona; contactos con telefono (E.164).' },
   { fecha: '2026-11-15', version: '1.3.0', tipo: 'compatible', texto: 'Campo opcional otrasFuentes (fuentes resueltas que respaldan el dato además de la principal).' },
@@ -36,6 +38,8 @@ const sumar = (fecha, dias) => (fecha && Number.isFinite(dias) ? new Date(Date.p
 export function generarApi(ctx) {
   const { D, HOY, site, urlBase, nivelReg, estadoPaso, nodoNombre } = ctx;
   const generado = new Date().toISOString();
+  const hoy = HOY;
+  const vigencia = site.fiabilidad?.vigenciaDias ?? 1;
   // Procedencia y validación de un registro, con la fuente resuelta y el nivel ya calculado.
   const pv = (r, tipo) => {
     if (!r) return null;
@@ -66,6 +70,10 @@ export function generarApi(ctx) {
     servicios: (p.servicios || []).map((h) => pv(h, 'ficha')),
     contactos: (p.contactos || []).map((h) => pv(h, 'ficha')),
     controles: (p.controles || []).map((h) => pv(h, 'ficha')).sort((a, b) => a.orden - b.orden),
+    fiabilidad: p.estado?.valor === 'en-obras' ? null : (() => {
+      const r = (f) => ({ dias: f.dias, desde: f.desde, hasta: f.hasta, cerrado: f.cerrado, soloCarga: f.soloCarga, restricciones: f.restricciones, abierto: f.abierto, sinDatos: f.sinDatos, pendientesDeVerificar: f.pendientesDeVerificar });
+      return { d30: r(fiabilidad(p, hoy, 30, vigencia)), d90: r(fiabilidad(p, hoy, 90, vigencia)) };
+    })(),
     partes: (p.partes || []).map((h) => pv(h, h.valor ? tipoEstado(h.valor) : 'incidencia')).sort((a, b) => ((b.publicado + (b.hora || '')) > (a.publicado + (a.hora || '')) ? 1 : -1)),
     historial: (p.historial || []).map((h) => pv(h, h.valor ? tipoEstado(h.valor) : 'incidencia')).sort((a, b) => (a.fecha < b.fecha ? 1 : -1)),
     organismos: p.organismos,
