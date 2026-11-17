@@ -205,9 +205,14 @@
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     },
     {
@@ -270,13 +275,19 @@
       "nombre": "Día de los Héroes",
       "tipo": "feriado",
       "fuente": "ley-7544-2025",
-      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto.",
+      "nota": "Trasladable por decreto al lunes anterior o siguiente (Ley 7544/2025, art. 3); en 2027 cae en lunes. Hasta que salga el decreto, vale esta fecha.",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
-      "evidencia": "oficial"
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
+      "evidencia": "oficial",
+      "trasladable": true
     },
     {
       "pais": "AR",
@@ -313,9 +324,14 @@
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     },
     {
@@ -366,9 +382,14 @@
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     },
     {
@@ -457,9 +478,14 @@
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     },
     {
@@ -470,22 +496,32 @@
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     },
     {
       "pais": "PY",
       "fecha": "2027-05-15",
-      "nombre": "Independencia Nacional",
+      "nombre": "Independencia Nacional y Día de la Madre",
       "tipo": "feriado",
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     },
     {
@@ -534,13 +570,19 @@
       "nombre": "Paz del Chaco",
       "tipo": "feriado",
       "fuente": "ley-7544-2025",
-      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto.",
+      "nota": "Trasladable por decreto al lunes anterior o siguiente (Ley 7544/2025, art. 3); en 2027 cae en sábado. Hasta que salga el decreto, vale esta fecha.",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": null,
-      "verificacion": null,
-      "evidencia": "oficial"
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
+      "evidencia": "oficial",
+      "trasladable": true
     },
     {
       "pais": "AR",
@@ -561,13 +603,19 @@
       "nombre": "Jura de la Constitución Nacional",
       "tipo": "feriado",
       "fuente": "ley-7544-2025",
-      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto.",
+      "nota": "Trasladable por decreto al lunes anterior o siguiente (Ley 7544/2025, art. 3); en 2027 cae en domingo. Hasta que salga el decreto, vale esta fecha.",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": null,
-      "verificacion": null,
-      "evidencia": "oficial"
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
+      "evidencia": "oficial",
+      "trasladable": true
     },
     {
       "pais": "AR",
@@ -658,9 +706,14 @@
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     },
     {
@@ -736,13 +789,19 @@
       "nombre": "Batalla de Boquerón",
       "tipo": "feriado",
       "fuente": "ley-7544-2025",
-      "nota": "Feriado móvil: el Poder Ejecutivo puede trasladarlo a un lunes por decreto.",
+      "nota": "Trasladable por decreto al lunes anterior o siguiente (Ley 7544/2025, art. 3); en 2027 cae en miércoles. Hasta que salga el decreto, vale esta fecha.",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": null,
-      "verificacion": null,
-      "evidencia": "oficial"
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
+      "evidencia": "oficial",
+      "trasladable": true
     },
     {
       "pais": "AR",
@@ -898,9 +957,14 @@
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     },
     {
@@ -950,9 +1014,14 @@
       "fuente": "ley-7544-2025",
       "organismo": "general",
       "publicado": null,
-      "validacion": "por-verificar",
-      "actualizado": "2026-11-14",
-      "verificacion": null,
+      "validacion": "verificado",
+      "actualizado": "2026-11-17",
+      "verificacion": {
+        "verificadoPor": "responsable-editorial",
+        "rol": "responsable-editorial",
+        "fecha": "2026-11-17",
+        "alcance": "Ernesto confirmó el 17/11/2026 los 13 feriados nacionales de Paraguay en 2027 según la Ley 7544/2025, contrastados con el calendario publicado para 2027 (mismas fechas y días de la semana)."
+      },
       "evidencia": "oficial"
     }
   ]
