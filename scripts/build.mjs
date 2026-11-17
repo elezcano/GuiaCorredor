@@ -683,7 +683,13 @@ const desfase = (zona, dia) => {
   return v === 'GMT' ? '+00:00' : v.slice(3);
 };
 const instanteParte = (x) => `${x.publicado}T${x.hora || '12:00'}:00${desfase(ZONAS[x.lado] || 'UTC', x.publicado)}`;
-/** HU-73: lo que informa cada organismo, por país, con fecha, hora y fuente. */
+/** HU-113: sello de validación compacto. La fuente, la fecha y la comprobación se abren al tocarlo. */
+function selloHTML(n, verificado, fuente, publicado) {
+  const corto = n === 'verificado' && verificado ? `${fuente?.tipo === 'oficial' ? 'Oficial' : 'Fuente'} · ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
+  const largo = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fecha(verificado)}.` : n === 'caducado' ? 'Verificación caducada: confírmalo antes de salir.' : 'Publicado por su fuente, sin comprobar todavía.';
+  return `<details class="sello sello-${esc(n)}"><summary><span class="sello-corto">${esc(corto)}</span></summary><span class="sello-hoja">${esc(largo)} ${fuenteEnlace(fuente)}${publicado ? `, ${fecha(publicado)}` : ''}${fuente?.tipo ? ` (${TIPO_FUENTE[fuente.tipo]})` : ''}.</span></details>`;
+}
+/** HU-73 / HU-113: lo que informa cada organismo, una línea por parte, con fecha, hora y sello de fuente. */
 function partesHTML(p, op) {
   const partes = p.partes || [];
   if (!partes.length && op === 'cerrado') return '';
@@ -693,19 +699,19 @@ function partesHTML(p, op) {
       ? del
           .map(
             (x) => `<li class="parte" data-ts="${instanteParte(x)}">
-          <span class="parte-emisor">${esc(x.emisor)}</span>
-          <span class="parte-cuando"><time datetime="${instanteParte(x)}">${fecha(x.publicado)}${x.hora ? `, ${x.hora} h` : ''}</time>${x.hora ? '' : ' <span class="texto-suave">(sin hora publicada)</span>'}</span>
-          <p>${x.valor ? `${estado(x.valor)} ` : ''}${esc(x.texto)}</p>
+          <div class="parte-linea">${bandera(k)}<span class="parte-quien"><span class="parte-emisor">${esc(x.emisor)}</span>
+          <span class="parte-cuando"><time datetime="${instanteParte(x)}">${fecha(x.publicado)}${x.hora ? `, ${x.hora} h` : ''}</time>${x.hora ? '' : ' <span class="texto-suave">(sin hora publicada)</span>'}</span></span>${x.valor ? estado(x.valor) : ''}</div>
+          <p class="parte-texto">${esc(x.texto)}</p>
           <p class="parte-aviso" hidden></p>
-          <span class="dato-fuente">${validacionHTML(nivelReg(x, 'estado-operativo'), x.verificado, x.fuente)} ${fuenteEnlace(x.fuente)}</span>
+          ${selloHTML(nivelReg(x, 'estado-operativo'), x.verificado, x.fuente, x.publicado)}
         </li>`
           )
           .join('')
-      : `<li class="parte parte-vacio"><span class="sin-dato">Sin parte cargado de ${esc(PAISES[k])}.</span></li>`;
-    return `<div class="partes-lado" data-pais="${k}"><h4>${bandera(k)} ${esc(PAISES[k])}</h4><ul class="partes-lista">${items}</ul></div>`;
+      : `<li class="parte parte-vacio"><div class="parte-linea">${bandera(k)}<span class="sin-dato">Sin parte cargado de ${esc(PAISES[k])}.</span></div></li>`;
+    return `<div class="partes-lado" data-pais="${k}"><h4 class="sr-only">${esc(PAISES[k])}</h4><ul class="partes-lista">${items}</ul></div>`;
   });
   return `<section class="partes" aria-labelledby="t-partes" data-umbral="${UMBRAL_PARTES_H}">
-    <h3 id="t-partes">Qué informa cada país</h3>
+    <h3 id="t-partes">Qué dice cada país</h3>
     <div class="partes-grid">${porLado.join('')}</div>
   </section>`;
 }
@@ -719,8 +725,8 @@ const etiquetaSentido = (x) => {
 function sentidoHTML(p) {
   const [a, b] = Object.keys(p.lados);
   return `<div class="sentido" data-sentido-paso="${a}-${b}" data-nombres='${esc(JSON.stringify(Object.fromEntries(Object.keys(p.lados).map((k) => [k, PAISES[k]]))))}'>
-    <p class="sentido-texto"><span class="sentido-label">Sentido del cruce:</span> <span class="sentido-ruta"><span class="sentido-a">${bandera(a)} ${esc(PAISES[a])}</span> → <span class="sentido-b">${bandera(b)} ${esc(PAISES[b])}</span></span></p>
-    <button type="button" class="btn btn-borde btn-pequeno btn-sentido" aria-label="Cambiar el sentido del cruce">⇄ Cambiar sentido</button>
+    <p class="sentido-texto"><span class="sr-only">Sentido del cruce: </span><span class="sentido-ruta"><span class="sentido-a">${bandera(a)} ${esc(PAISES[a])}</span> → <span class="sentido-b">${bandera(b)} ${esc(PAISES[b])}</span></span></p>
+    <button type="button" class="btn btn-borde btn-pequeno btn-sentido" aria-label="Cambiar el sentido del cruce">⇄ Cambiar</button>
     <p class="sentido-nota" aria-live="polite">Sales de ${esc(PAISES[a])} y entras en ${esc(PAISES[b])}. Los controles van en ese orden.</p>
   </div>`;
 }
@@ -746,17 +752,19 @@ function fiabilidadHTML(p) {
     .join('');
   const fila = (f) => `<tr><th scope="row">Últimos ${f.dias} días</th><td>${f.cerrado}</td><td>${f.soloCarga}</td><td>${f.restricciones}</td><td>${f.abierto}</td><td>${f.sinDatos}</td></tr>`;
   return `<section class="fiabilidad" aria-labelledby="t-fiab">
-    <h3 id="t-fiab">Fiabilidad del paso</h3>
-    <p class="fiab-resumen"><strong>Últimos 30 días:</strong> ${frasesFiab(f30) || 'sin datos'}.</p>
+    <h3 id="t-fiab">Últimos 30 días</h3>
     <ol class="fiab-tira" aria-label="Estado de cada uno de los últimos 30 días">${cuadros}</ol>
+    <p class="fiab-resumen">${frasesFiab(f30) || 'sin datos'}.</p>
+    <details class="fiab-mas"><summary>Ver detalle</summary>
     <p class="fiab-leyenda" aria-hidden="true"><span class="fd fd-cerrado"></span> No habilitado <span class="fd fd-carga"></span> Sin paso para carga <span class="fd fd-restricciones"></span> Restricciones <span class="fd fd-abierto"></span> Habilitado <span class="fd fd-sin-datos"></span> Sin datos</p>
     <div class="tabla-scroll"><table class="tabla-fiab">
       <thead><tr><th scope="col">Periodo</th><th scope="col">No habilitado</th><th scope="col">Sin paso para carga</th><th scope="col">Restricciones</th><th scope="col">Habilitado</th><th scope="col">Sin datos</th></tr></thead>
       <tbody>${fila(f30)}${fila(f90)}</tbody>
     </table></div>
-    <p class="dato-fuente">Días calculados con los partes verificados del historial (abajo, en «Novedades del paso»). Un día sin parte hereda el del día anterior${VIGENCIA_FIAB > 1 ? ` (como mucho ${VIGENCIA_FIAB} días)` : ''}; si no, cuenta como «sin datos», nunca como habilitado.${
+    <p class="dato-fuente">Días calculados con los partes verificados (en «Historial»). Un día sin parte hereda el del día anterior${VIGENCIA_FIAB > 1 ? ` (como mucho ${VIGENCIA_FIAB} días)` : ''}; si no, cuenta como «sin datos», nunca como habilitado.${
       f90.pendientesDeVerificar ? ` Hay ${f90.pendientesDeVerificar} ${f90.pendientesDeVerificar === 1 ? 'parte' : 'partes'} de los últimos 90 días pendientes de verificar que todavía no cuentan.` : ''
     }</p>
+    </details>
   </section>`;
 }
 /** HU-66: hora local de cada lado y «abierto ahora». Lo calcula ahora.js en el navegador. */
@@ -791,97 +799,141 @@ function novedadesPaso(p) {
       const k = `${x.fecha}|${x.fuente?.url}|${x.texto.slice(0, 40)}`;
       return vistos.has(k) ? false : vistos.add(k);
     });
-  if (!lista.length) return '';
-  return `<section class="novedades-paso" aria-labelledby="t-novedades-paso">
-    <h3 id="t-novedades-paso">Novedades del paso</h3>
-    <ol class="linea-tiempo">${lista
+  if (!lista.length) return null;
+  return {
+    n: lista.length,
+    ultima: lista[0].fecha,
+    html: `<ol class="linea-tiempo">${lista
       .map(
         (x) => `<li class="${x.op ? `op-${x.op}` : 'lt-noticia'}${x.actual ? ' lt-actual' : ''}">
         <time datetime="${x.fecha}">${fecha(x.fecha)} <span class="edad">(${haceTiempo(x.fecha)})</span></time>
         <p>${x.op ? `${estado(x.valor || (x.op === 'sin-confirmar' ? 'pendiente' : 'restricciones'))} ` : ''}${esc(x.texto)}</p>
-        <span class="dato-fuente">${x.verificado ? `Verificado el ${fecha(x.verificado)} · ` : 'Sin verificar · '}${fuenteEnlace(x.fuente)}</span>
+        ${selloHTML(x.verificado ? 'verificado' : 'por-verificar', x.verificado, x.fuente, null)}
       </li>`
       )
-      .join('')}</ol>
-  </section>`;
+      .join('')}</ol>`,
+  };
 }
-function fichaOperativa(p) {
+/** HU-113: sección plegada de la ficha, con resumen de una línea. */
+const plegable = (id, titulo, resumen, cuerpo, abierta = false) =>
+  `<details class="plegable" id="${id}"${abierta ? ' open' : ''}><summary><span class="plegable-titulo">${titulo}</span><span class="plegable-resumen">${resumen}</span></summary><div class="plegable-cuerpo">${cuerpo}</div></details>`;
+function fichaOperativa(p, guiaPag) {
   const e = estadoPaso(p.id);
-  const fila = (titulo, contenido) => `<div class="dato-fila"><dt>${titulo}</dt><dd>${contenido}</dd></div>`;
-  const conFuente = (x, tipo = 'ficha') =>
-    `${esc(x.texto)}<span class="dato-fuente">${validacionHTML(peor(nivelReg(x, tipo), e.nivel === 'borrador' ? 'borrador' : null), x.verificado, x.fuente)} ${fuenteEnlace(x.fuente)}${x.publicado ? `, ${fecha(x.publicado)}` : ', sin fecha'}</span>`;
-  const lista = (xs, vacio, tipo) => (xs?.length ? `<ul>${xs.map((x) => `<li${attrSentido(x)}>${etiquetaSentido(x)}${conFuente(x, tipo)}</li>`).join('')}</ul>` : `<span class="sin-dato">${vacio}</span>`);
+  const sello = (x, tipo = 'ficha') => selloHTML(peor(nivelReg(x, tipo), e.nivel === 'borrador' ? 'borrador' : null), x.verificado, x.fuente, x.publicado);
+  const item = (x, tipo) => `<li${attrSentido(x)}>${etiquetaSentido(x)}${esc(x.texto)}${sello(x, tipo)}</li>`;
+  const lista = (xs, tipo) => `<ul class="lista-datos">${xs.map((x) => item(x, tipo)).join('')}</ul>`;
   const orgs = (p.organismos || []).map((id) => organismoPorId[id]).filter(Boolean);
   const inc = incidenciasDe({ paso: p.id, tramos: rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id) });
-  // Respuesta en una línea: lo que mira quien va a transportar o cotizar.
+  // Primera pantalla: la respuesta a «¿puedo cruzar hoy con mi carga?».
   const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
   const soloCarga = e.confirmado && p.estado.afecta === 'carga' && op !== 'abierto';
   const detalleEstado = soloCarga ? ' para carga · turismo con atención normal' : e.confirmado && ESTADOS[e.valor] && ESTADOS[e.valor] !== OPERATIVA[op].texto && e.valor !== 'operativo' ? ` · ${ESTADOS[e.valor]}` : '';
-  const primeraFrase = (t = '') => (t.match(/^[^.]+\./)?.[0] || t);
+  const frases = (p.estado.texto || '').match(/[^.]+(\.|$)/g)?.map((x) => x.trim()).filter(Boolean) || [];
+  const resto = frases.slice(1).join(' ');
   const prevision = inc.find((i) => i.finPrevista)?.finPrevista;
-  const hor = p.horarios?.[0];
   const respuesta = `<div class="respuesta op-${op}" role="status" aria-live="polite">
     ${OPERATIVA[op].icono}
     <div>
       <p class="respuesta-titulo">${esc(OPERATIVA[op].texto + detalleEstado)}</p>
-      <p class="respuesta-detalle">${
-        e.confirmado
-          ? esc(primeraFrase(p.estado.texto))
-          : e.ultimo && e.ultimo !== 'pendiente'
-            ? `Último dato publicado: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${esc(haceTiempo(p.estado.publicado))}. Confírmalo antes de salir.`
-            : 'No hay un estado confirmado. Consulta el parte oficial antes de salir.'
-      }</p>
-      ${prevision ? `<p class="respuesta-detalle">Previsión: ${esc(prevision)}</p>` : ''}
-      ${hor ? `<p class="respuesta-detalle">Horario${hor.lado ? ` (${conBanderas(hor.lado)})` : ''}: ${esc(hor.texto)}${hor.validacion === 'verificado' ? '' : ' <span class="respuesta-meta">· sin verificar</span>'}</p>` : ''}
-      <p class="respuesta-meta">${e.confirmado ? `Verificado el ${fecha(e.verificado)}` : `Sin verificar · fuente: ${fuenteEnlace(p.estado.fuente)}, ${fecha(p.estado.publicado)}`}</p>
       ${ahoraHTML(p, op)}
+      ${
+        e.confirmado
+          ? resto
+            ? `<p class="respuesta-nota">${esc(resto)}</p>`
+            : ''
+          : `<p class="respuesta-nota">${
+              e.ultimo && e.ultimo !== 'pendiente'
+                ? `Último dato publicado: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${esc(haceTiempo(p.estado.publicado))}. Confírmalo antes de salir.`
+                : 'No hay un estado confirmado. Consulta el parte oficial antes de salir.'
+            }</p>`
+      }
+      ${prevision ? `<p class="respuesta-nota">Previsión: ${esc(prevision)}</p>` : ''}
+      ${selloHTML(e.nivel, e.verificado, p.estado.fuente, p.estado.publicado)}
     </div>
   </div>`;
+  // Acciones: llamar al primer teléfono oficial, compartir por WhatsApp, planificar.
+  const tel = (p.contactos || []).find((c) => c.telefono);
+  const hor = (p.horarios || []).find((x) => x.apertura && x.cierre);
+  const textoWa = `${p.nombre}: ${OPERATIVA[op].texto + detalleEstado}${e.confirmado ? ` (${verificadoEn(p.estado.fuente).toLowerCase()} el ${fechaCorta(e.verificado)})` : ' (sin confirmar)'}.${hor ? ` Horario ${hor.apertura}–${hor.cierre}, hora local.` : ''} ${site.url.replace(/\/$/, '')}${u('/guia/' + guiaPag + '/')}`;
+  const acciones = `<div class="ficha-acciones no-imprimir">
+    ${tel ? `<a class="btn btn-borde btn-llamar" href="tel:${esc(tel.telefono)}">${icono('telefono')}Llamar</a>` : ''}
+    <a class="btn btn-borde" href="https://wa.me/?text=${encodeURIComponent(textoWa)}" rel="noopener">${icono('chat')}Compartir</a>
+    <a class="btn btn-principal" href="${u('/planificador/')}">${icono('ruta')}Planificar</a>
+  </div>`;
+  // Lo demás, plegado con resumen de una línea.
+  const controles = [...(p.controles || [])].sort((x, y) => x.orden - y.orden);
+  const secControles = plegable(
+    'controles',
+    'Controles para carga',
+    controles.length ? `${plural(controles.length, 'paso', 'pasos')}${controles.some((c) => c.tipo === 'integrado') ? ' en un solo complejo' : ''}` : 'Sin controles publicados',
+    controles.length
+      ? `<ol class="controles">${controles
+          .map(
+            (c) => `<li data-lado="${esc(c.lado || '')}" data-orden="${c.orden}"${attrSentido(c)}><span class="control-tipo">${esc(TIPO_CONTROL[c.tipo] || c.tipo)}</span> ${c.lado ? conBanderas(c.lado) : ''} ${esc(c.texto)}${
+              c.organismo && organismoPorId[c.organismo] ? ` <a href="${esc(organismoPorId[c.organismo].url)}" rel="noopener">${esc(organismoPorId[c.organismo].nombre)}</a>` : ''
+            }${sello(c)}</li>`
+          )
+          .join('')}</ol>`
+      : '<p class="sin-dato">Sin controles publicados: el paso no está habilitado o no hay fuente.</p>'
+  );
+  const secHorarios = plegable(
+    'horarios',
+    'Horarios',
+    hor ? `${hor.apertura}–${hor.cierre}, hora local` : p.horarios?.length ? 'Sin hora de apertura y cierre confirmada' : 'Sin horario con fuente',
+    p.horarios?.length ? `<ul class="lista-datos">${p.horarios.map((h) => `<li${attrSentido(h)}><strong>${conBanderas(h.lado)}:</strong> ${etiquetaSentido(h)}${esc(h.texto)}${sello(h, 'horario')}</li>`).join('')}</ul>` : '<p class="sin-dato">Sin horario con fuente.</p>'
+  );
+  const tels = (p.contactos || []).filter((c) => c.telefono || c.email);
+  const secTel = plegable(
+    'telefonos',
+    'Teléfonos',
+    tels.length ? `${plural(tels.length, 'contacto oficial', 'contactos oficiales')}` : 'Sin teléfono con fuente',
+    p.contactos?.length
+      ? `<ul class="contactos">${p.contactos
+          .map(
+            (c) => `<li>${c.lado ? conBanderas(c.lado) + ' ' : ''}<strong>${esc(c.nombre || c.texto)}</strong>${c.nombre && c.texto ? `<span class="dato-fuente">${esc(c.texto)}</span>` : ''}
+            <span class="contacto-acciones">${c.telefono ? `<a class="btn btn-borde btn-pequeno" href="tel:${esc(c.telefono)}">${icono('telefono')}${esc(telLegible(c.telefono))}</a>` : ''}${c.email ? `<a class="btn btn-borde btn-pequeno" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''}</span>
+            ${sello(c)}</li>`
+          )
+          .join('')}</ul>`
+      : `<p class="sin-dato">Sin teléfono con fuente. ${orgs.length ? 'Consulta la web oficial de cada organismo (en «Sobre el paso»).' : ''}</p>`
+  );
+  const nAvisos = inc.length + (p.restricciones?.length || 0);
+  const secAvisos = plegable(
+    'avisos-paso',
+    'Obras y avisos',
+    nAvisos ? `${plural(inc.length, 'aviso activo', 'avisos activos')}${p.restricciones?.length ? ` · ${plural(p.restricciones.length, 'norma', 'normas')} para camiones` : ''}` : 'Ninguno registrado',
+    `${inc.length ? `<ul class="lista-datos">${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a>${selloHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</li>`).join('')}</ul>` : '<p class="sin-dato">Ninguna incidencia registrada.</p>'}
+     ${p.restricciones?.length ? `<h4>Transporte pesado</h4>${lista(p.restricciones)}` : ''}`
+  );
+  const nov = novedadesPaso(p);
+  const secHist = nov ? plegable('historial', 'Historial', `${plural(nov.n, 'entrada', 'entradas')} · la última, ${haceTiempo(nov.ultima)}`, nov.html) : '';
+  const fila = (titulo, contenido) => `<div class="dato-fila"><dt>${titulo}</dt><dd>${contenido}</dd></div>`;
+  const secSobre = plegable(
+    'sobre-paso',
+    'Sobre el paso',
+    [p.ubicacion?.texto?.match(/\d[\d.]*\s?m de altitud/)?.[0], orgs.length ? plural(orgs.length, 'organismo', 'organismos') : null, 'acceso y servicios'].filter(Boolean).join(' · '),
+    `<dl class="datos">
+      ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
+      ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">${coordenadasHTML(p.ubicacion.coordenadas, p.ubicacion.coordenadasNota)}</span>`)}
+      ${fila('Operaciones habilitadas', p.operaciones ? `${esc(p.operaciones.texto)}${sello(p.operaciones)}` : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
+      ${fila('Acceso', p.acceso?.length ? lista(p.acceso) : '<span class="sin-dato">Sin verificar</span>')}
+      ${fila('Servicios en el paso', p.servicios?.length ? lista(p.servicios) : '<span class="sin-dato">Sin verificar</span>')}
+      ${fila('Organismos', orgs.length ? `<ul class="lista-enlaces">${orgs.map(enlaceOrganismo).join('')}</ul>` : '<span class="sin-dato">Sin verificar</span>')}
+      ${fila('Estado en detalle', `${esc(p.estado.texto)}${otras(p.estado) ? `<span class="dato-fuente">${otras(p.estado).replace(/^ · /, '')}</span>` : ''}`)}
+      ${fila('Revisión', `Ficha revisada el ${fecha(p.revisado)}`)}
+    </dl>
+    <button class="btn btn-borde btn-pequeno no-imprimir" type="button" onclick="document.querySelectorAll('.ficha-operativa details').forEach((d) => (d.open = true)); window.print()">${icono('imprimir')}Imprimir ficha completa</button>`
+  );
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
+  <h2 id="t-ficha" class="sr-only">Situación operativa</h2>
   ${sentidoHTML(p)}
   ${respuesta}
   ${partesHTML(p, op)}
   ${fiabilidadHTML(p)}
-  <div class="ficha-cabeza"><h2 id="t-ficha">Situación operativa</h2><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir ficha</button></div>
-  <dl class="datos">
-    ${fila('Estado', `<div class="dato-estado">${vistaHTML(e)}</div>${e.confirmado ? '' : 'Último parte: '}${esc(p.estado.texto)}<span class="dato-fuente">${validacionHTML(e.nivel, e.verificado, p.estado.fuente)} ${fuenteEnlace(p.estado.fuente)} (${TIPO_FUENTE[p.estado.fuente.tipo] || 'fuente'}), ${fecha(p.estado.publicado)}${otras(p.estado)}</span>`)}
-    ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
-    ${fila('Ubicación', `${esc(p.ubicacion.texto)}<span class="dato-fuente">${coordenadasHTML(p.ubicacion.coordenadas, p.ubicacion.coordenadasNota)}</span>`)}
-    ${fila('Horarios', p.horarios?.length ? `<ul>${p.horarios.map((h) => `<li${attrSentido(h)}><strong>${conBanderas(h.lado)}:</strong> ${etiquetaSentido(h)}${conFuente(h, 'horario')}</li>`).join('')}</ul>` : '<span class="sin-dato">Sin horario con fuente</span>')}
-    ${fila('Operaciones habilitadas', p.operaciones ? conFuente(p.operaciones) : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
-    ${fila('Transporte pesado', lista(p.restricciones, 'Sin restricciones verificadas'))}
-    ${fila('Incidencias', inc.length ? `<ul>${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${esc(i.descripcion)}<span class="dato-fuente">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente)} ${fuenteEnlace(i.fuente)}${otras(i)} · <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></span></li>`).join('')}</ul>` : '<span class="sin-dato">Ninguna registrada</span>')}
-    ${fila('Acceso', lista(p.acceso, 'Sin verificar'))}
-    ${fila('Organismos', orgs.length ? `<ul class="lista-enlaces">${orgs.map(enlaceOrganismo).join('')}</ul>` : '<span class="sin-dato">Sin verificar</span>')}
-    ${fila('Servicios en el paso', lista(p.servicios, 'Sin verificar'))}
-    ${fila(
-      'Contactos oficiales',
-      p.contactos?.length
-        ? `<ul class="contactos">${p.contactos
-            .map(
-              (c) => `<li>${c.lado ? conBanderas(c.lado) + ' ' : ''}<strong>${esc(c.nombre || c.texto)}</strong>${c.nombre && c.texto ? `<span class="dato-fuente">${esc(c.texto)}</span>` : ''}
-              <span class="contacto-acciones">${c.telefono ? `<a class="btn btn-borde btn-pequeno btn-llamar" href="tel:${esc(c.telefono)}">${icono('telefono')}Llamar ${esc(telLegible(c.telefono))}</a>` : ''}${c.email ? `<a class="btn btn-borde btn-pequeno" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''}</span>
-              <span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado, c.fuente)} ${fuenteEnlace(c.fuente)}</span></li>`
-            )
-            .join('')}</ul>`
-        : `<span class="sin-dato">Sin teléfono con fuente.</span> ${orgs.length ? 'Consulta la web oficial de cada organismo (arriba).' : ''}`
-    )}
-    ${fila(
-      'Controles para carga',
-      p.controles?.length
-        ? `<ol class="controles">${[...p.controles]
-            .sort((x, y) => x.orden - y.orden)
-            .map(
-              (c) => `<li data-lado="${esc(c.lado || '')}" data-orden="${c.orden}"${attrSentido(c)}><span class="control-tipo">${esc(TIPO_CONTROL[c.tipo] || c.tipo)}</span> ${c.lado ? conBanderas(c.lado) : ''} ${esc(c.texto)}${
-                c.organismo && organismoPorId[c.organismo] ? ` <a href="${esc(organismoPorId[c.organismo].url)}" rel="noopener">${esc(organismoPorId[c.organismo].nombre)}</a>` : ''
-              }<span class="dato-fuente">${validacionHTML(nivelReg(c, 'ficha'), c.verificado, c.fuente)} ${fuenteEnlace(c.fuente)}${c.publicado ? `, ${fecha(c.publicado)}` : ''}</span></li>`
-            )
-            .join('')}</ol>`
-        : '<span class="sin-dato">Sin controles publicados: el paso no está habilitado o no hay fuente.</span>'
-    )}
-    ${fila('Revisión', `Revisado el ${fecha(p.revisado)}`)}
-  </dl>
-${novedadesPaso(p)}
+  ${acciones}
+  <div class="plegables">
+    ${secControles}${secHorarios}${secTel}${secAvisos}${secHist}${secSobre}
+  </div>
 </section>`;
 }
 
@@ -1152,6 +1204,7 @@ for (const p of guia) {
   const nombresZona = listaY(zona.map((z) => nodoNombre[z] || z));
   const paso = pasoPorGuia[`${p.seccion}/${p.slug}`];
   const cruce = paso ? panelCruce(paso) : '';
+  const esPaso = !!(paso && fichaPaso[paso.id]);
   add(
     p.ruta,
     layout({
@@ -1166,14 +1219,20 @@ for (const p of guia) {
     <h1 class="senal-titulo">${esc(p.meta.titulo)}</h1>
     <span class="senal-pie">${vistaGuia(p) ? estado(estadoGuia(p)) : ''}${paises(p.meta.paises)}</span>
   </header>
-  <p class="paso-meta"><span>Texto de la guía: ${esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase())}</span><span>Revisado el ${fecha(p.meta.revisado)}</span>${nov.length ? `<span>Última noticia ${tiempo(nov[0].publicado)}</span>` : ''}</p>
+  ${esPaso ? '' : `<p class="paso-meta"><span>Texto de la guía: ${esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase())}</span><span>Revisado el ${fecha(p.meta.revisado)}</span>${nov.length ? `<span>Última noticia ${tiempo(nov[0].publicado)}</span>` : ''}</p>`}
   <div class="paso-cuerpo">
     <article class="articulo">
-      ${paso && fichaPaso[paso.id] ? fichaOperativa(fichaPaso[paso.id]) : bloqueTramos(`${p.seccion}/${p.slug}`)}
-      ${avisoValidacion(nivelGuia(p), p.meta.verificado)}
+      ${paso && fichaPaso[paso.id] ? fichaOperativa(fichaPaso[paso.id], `${p.seccion}/${p.slug}`) : bloqueTramos(`${p.seccion}/${p.slug}`)}
+      ${(() => {
+        const texto = `${avisoValidacion(nivelGuia(p), p.meta.verificado)}
       <p class="resumen">${esc(p.meta.resumen)}</p>
       ${p.html}
-      ${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}
+      ${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}`;
+        // HU-113: en un paso, el texto de la guía va plegado al final de la ficha.
+        return esPaso
+          ? `<div class="plegables plegables-guia">${plegable('guia-paso', 'Guía del paso', `${p.indice.map((h) => h.t).slice(0, 3).join(', ').toLowerCase() || 'texto de la guía'} · ${esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase())}`, texto)}</div>`
+          : texto;
+      })()}
     </article>
     <aside class="lateral">
       ${cruce}
@@ -1191,14 +1250,14 @@ for (const p of guia) {
           : ''
       }
       ${
-        p.indice.length > 2
+        !esPaso && p.indice.length > 2
           ? `<nav class="panel indice" aria-labelledby="t-indice"><h2 id="t-indice">En esta página</h2><ol>${p.indice
               .map((h) => `<li><a href="#${h.id}">${esc(h.t)}</a></li>`)
               .join('')}${nov.length ? '<li><a href="#ultimos-cambios">Últimos cambios</a></li>' : ''}</ol></nav>`
           : ''
       }
-      <section class="panel" aria-labelledby="t-viaje"><h2 id="t-viaje">¿Viajas por aquí?</h2><p>Compara rutas, fronteras y papeles de origen a destino.</p>
-        <a class="btn btn-principal" href="${u('/planificador/')}">Planificar ruta</a></section>
+      ${esPaso ? '' : `<section class="panel" aria-labelledby="t-viaje"><h2 id="t-viaje">¿Viajas por aquí?</h2><p>Compara rutas, fronteras y papeles de origen a destino.</p>
+        <a class="btn btn-principal" href="${u('/planificador/')}">Planificar ruta</a></section>`}
     </aside>
   </div>
 </div>`,

@@ -1157,3 +1157,82 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .btn-sentido { min-height: 44px; font-weight: 700; }
 .sentido-nota { margin: 0; flex-basis: 100%; font-size: 14px; color: var(--foreground); }
 .solo-sentido { font-weight: 700; }
+
+/* ---------- HU-113: ficha de paso compacta (la decisión arriba, lo demás plegado) ---------- */
+.ficha-operativa .sentido { padding: 6px 6px 6px 12px; margin-bottom: 12px; }
+.ficha-operativa .sentido-texto { flex: 1 1 auto; }
+.ficha-operativa .sentido-nota { font-size: 13px; color: var(--muted-foreground); }
+.ficha-operativa .respuesta { margin-bottom: 16px; border-width: 3px; }
+.ficha-operativa .ahora { margin-top: 6px; padding-top: 0; border-top: 0; }
+.ficha-operativa .ahora-relojes { font-size: 14px; color: var(--muted-foreground); }
+.respuesta-nota { margin: 10px 0 0; padding: 8px 10px; border-radius: var(--radius); background: var(--muted); font-size: 15px; line-height: 22px; color: var(--foreground); }
+.respuesta .sello { margin-top: 10px; }
+
+/* Sello de fuente: corto a la vista, detalle al tocarlo */
+.sello { display: block; margin-top: 4px; font-size: 13px; line-height: 18px; }
+.sello summary { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 2px 10px 0; border-radius: 999px; cursor: pointer; list-style: none; font-weight: 700; }
+.sello summary::-webkit-details-marker { display: none; }
+.sello summary:focus-visible { outline: 3px solid var(--ring, #1f6feb); outline-offset: 2px; }
+.sello-verificado summary { color: var(--ok-fg, #145c32); background: color-mix(in srgb, var(--ok-dot) 16%, transparent); }
+.sello-verificado summary::before { content: "✓"; }
+.sello-por-verificar summary, .sello-borrador summary { color: var(--muted-foreground); border: 1px dashed var(--border-strong); }
+.sello-caducado summary { color: var(--foreground); background: color-mix(in srgb, var(--obras-dot) 22%, transparent); }
+.sello-hoja { display: block; margin-top: 6px; padding: 8px 10px; border-radius: var(--radius); background: var(--muted); color: var(--foreground); }
+.sello-hoja a { color: inherit; }
+
+/* Partes: una línea por organismo */
+.ficha-operativa .partes { margin: 0 0 16px; }
+.ficha-operativa .partes h3, .ficha-operativa .fiabilidad h3 { font-size: 17px; margin: 0 0 6px; }
+.ficha-operativa .partes-grid { display: block; }
+.ficha-operativa .partes-lado { border: 0; padding: 0; border-radius: 0; }
+.ficha-operativa .partes-lista { gap: 0; }
+.ficha-operativa .parte { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.parte-linea { display: flex; align-items: center; gap: 10px; }
+.parte-linea .pais-bandera { flex-shrink: 0; }
+.parte-quien { flex: 1; min-width: 0; }
+.ficha-operativa .parte-emisor { display: inline; font-size: 15px; }
+.ficha-operativa .parte-cuando { display: block; font-size: 13px; }
+.parte-linea .estado { flex-shrink: 0; font-size: 13px; margin: 0; }
+.parte-texto { margin: 4px 0 0 31px; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.ficha-operativa .parte .sello, .ficha-operativa .parte .parte-aviso { margin-left: 31px; }
+.ficha-operativa .parte-vieja { border-left: 0; padding-left: 0; }
+
+/* Últimos 30 días */
+.ficha-operativa .fiabilidad { margin: 0 0 16px; }
+.ficha-operativa .fiab-tira { margin-bottom: 6px; }
+.ficha-operativa .fiab-resumen { margin: 0; font-size: 14px; color: var(--muted-foreground); }
+.fiab-mas { margin-top: 6px; font-size: 14px; }
+.fiab-mas > summary { cursor: pointer; font-weight: 600; min-height: 32px; display: inline-flex; align-items: center; text-decoration: underline; }
+.fiab-mas .fiab-leyenda { margin-top: 8px; }
+
+/* Acciones */
+.ficha-acciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; margin: 0 0 20px; }
+.ficha-acciones .btn { width: 100%; padding: 0 10px; gap: 6px; min-height: 48px; }
+
+/* Secciones plegadas */
+.plegables { border-top: 1px solid var(--border-strong); }
+.plegable { border-bottom: 1px solid var(--border); }
+.plegable > summary { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; column-gap: 12px; align-items: center; min-height: 60px; padding: 8px 0; cursor: pointer; list-style: none; }
+.plegable > summary::-webkit-details-marker { display: none; }
+.plegable > summary::after { content: ""; grid-row: 1 / 3; grid-column: 2; width: 9px; height: 9px; border-right: 2.5px solid var(--muted-foreground); border-bottom: 2.5px solid var(--muted-foreground); transform: rotate(-45deg); transition: transform .15s; }
+.plegable[open] > summary::after { transform: rotate(45deg); }
+.plegable > summary:focus-visible { outline: 3px solid var(--ring, #1f6feb); outline-offset: 2px; }
+.plegable-titulo { font-size: 17px; font-weight: 700; color: var(--foreground); }
+.plegable-resumen { grid-column: 1; font-size: 14px; color: var(--muted-foreground); }
+.plegable-cuerpo { padding: 4px 0 18px; }
+.plegable-cuerpo h4 { margin: 14px 0 6px; font-size: 15px; }
+.lista-datos { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.articulo .lista-datos li { margin: 0; }
+.plegable .datos { margin-top: 0; }
+.plegable .dato-fila:first-child { border-top: 0; }
+.plegables-guia { margin-top: 8px; border-top: 0; }
+.plegables-guia .plegable-cuerpo > :first-child { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .plegable > summary::after { transition: none; } }
+@media print { .plegable > summary::after, .sello summary::before { display: none; } .sello-hoja { background: none; padding: 0; } }
+.ficha-operativa { margin-top: 16px; }
+.ficha-operativa .sentido { flex-wrap: nowrap; }
+.ficha-operativa .sentido-nota { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.parte-linea { flex-wrap: wrap; }
+.parte-quien { flex: 1 1 60%; }
+.parte-linea .estado-detalle { display: none; }
+@media (max-width: 640px) { .ficha-operativa .respuesta { padding: 14px; } }
