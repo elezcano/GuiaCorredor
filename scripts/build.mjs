@@ -105,6 +105,7 @@ const TIPOS_INCIDENCIA = {
   pendiente: ['Sin habilitar', 'pendiente'],
   peso: ['Límite de peso', 'restriccion'],
   desvio: ['Desvío', 'restriccion'],
+  otro: ['Aviso', 'restriccion'], // HU-130: observaciones de Vialidad sobre una ruta habilitada
 };
 const TIPOS_FESTIVO = { feriado: 'Feriado', 'no-laborable': 'No laborable', facultativo: 'Punto facultativo' };
 
@@ -469,6 +470,9 @@ const datosRutas = (extra = {}) =>
       fuente: i.fuente.nombre,
       publicado: i.publicado,
       nivel: nivelReg(i, 'incidencia'),
+      // HU-130: info no cambia el veredicto; rojo impide el paso (afecta: carga → «No habilitado para carga»).
+      gravedad: i.gravedad || 'ambar',
+      afecta: i.afecta || 'todo',
     })),
     niveles: Object.fromEntries(Object.entries(NIVELES).map(([k, v]) => [k, v.texto])),
     tiposFuente: TIPO_FUENTE,

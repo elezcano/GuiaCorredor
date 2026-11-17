@@ -62,15 +62,23 @@
   const TIPO_KM = { fuente: 'con fuente', calculado: 'calculado', osm: 'calculado con OpenStreetMap', estimado: 'estimado en línea recta' };
 
   // --- Diagnóstico de una opción: qué lo impide, qué genera dudas y qué funciona hoy ---
+  // HU-130: un aviso rojo de la fuente oficial (corte total, o no habilitado para carga) bloquea el tramo.
+  const cortaAviso = (op, t) => op.incDe(t).some((i) => i.gravedad === 'rojo');
+  const bloquea = (op, t) => opDe(t) === 'cerrado' || cortaAviso(op, t);
+  const motivoBloqueo = (op, t) => {
+    const i = opDe(t) === 'cerrado' ? null : op.incDe(t).find((x) => x.gravedad === 'rojo');
+    return i ? `${i.afecta === 'carga' ? 'no habilitado para carga' : 'corte'} en ${i.ubicacion}` : textoEstado(t).toLowerCase();
+  };
   function diagnostico(op) {
-    const bloqueos = op.tramos.filter((t) => opDe(t) === 'cerrado');
+    const bloqueos = op.tramos.filter((t) => bloquea(op, t));
     // Dudas: una por tramo. Si el tramo tiene un aviso, manda el aviso (más concreto que el estado);
     // los avisos de un tramo que ya bloquea la ruta no se repiten.
     const dudas = [];
     op.tramos.forEach((t) => {
       const o = opDe(t);
-      if (o === 'cerrado') return;
-      const avisos = op.incDe(t);
+      if (bloquea(op, t)) return;
+      // Los avisos informativos (observaciones de una ruta habilitada) se ven en el tramo, no son dudas.
+      const avisos = op.incDe(t).filter((i) => i.gravedad !== 'info');
       if (avisos.length) return avisos.forEach((i) => dudas.push(`${i.tipo}: ${i.ubicacion}`));
       if (t.paso && o === 'restricciones') dudas.push(`${sinParentesis(t.paso.nombre)}: con restricciones`);
       else if (t.paso && o === 'sin-confirmar') dudas.push(`${sinParentesis(t.paso.nombre)}: estado sin confirmar`);
@@ -81,7 +89,7 @@
     const trozos = [];
     let actual = [];
     op.tramos.forEach((t) => {
-      if (opDe(t) === 'cerrado') {
+      if (bloquea(op, t)) {
         if (actual.length) trozos.push(actual);
         actual = [];
       } else actual.push(t);
@@ -99,7 +107,7 @@
     const partes = [];
     if (dg.bloqueos.length)
       partes.push(
-        `<p><strong>Lo impide:</strong> ${dg.bloqueos.map((t) => `${t.paso ? enlaceGuia(t.paso.guia, sinParentesis(t.paso.nombre), qSentido(t)) : esc(tramoNombre(t))} (${esc(textoEstado(t).toLowerCase())})`).join(', ')}.</p>`
+        `<p><strong>Lo impide:</strong> ${dg.bloqueos.map((t) => `${t.paso ? enlaceGuia(t.paso.guia, sinParentesis(t.paso.nombre), qSentido(t)) : esc(tramoNombre(t))} (${esc(motivoBloqueo(op, t))})`).join(', ')}.</p>`
       );
     if (dg.bloqueos.length && dg.trozos.length)
       partes.push(`<p><strong>Sí funciona hoy:</strong> ${dg.trozos.map((tr) => esc(`${nombre(tr[0].de)} → ${nombre(tr[tr.length - 1].a)}`)).join(' y ')}.</p>`);

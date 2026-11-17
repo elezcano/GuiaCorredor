@@ -262,17 +262,18 @@ JSON.stringify(C, (k, v) => {
   return v;
 });
 // Ninguna verificación la puede firmar el asistente. HU-130: el vigilante solo firma lo leído de una
-// web oficial, en el estado y los partes de un paso.
+// web oficial, en el estado y los partes de un paso y en las incidencias de carreteras (fase 2).
 if (/"verificadoPor":"(?!responsable-editorial"|vigilante")/.test(JSON.stringify(C))) errores.push('verificacion: solo se admite verificadoPor "responsable-editorial" o "vigilante".');
 {
   const tipoFuente = Object.fromEntries(C.fuentes.fuentes.map((f) => [f.id, f.tipo]));
   const permitidos = new Set();
   for (const p of C.pasos.pasos) for (const r of [p.estado, ...(p.partes || []), ...(p.historial || [])]) if (r) permitidos.add(r);
+  for (const i of C.incidencias.incidencias) permitidos.add(i); // HU-130 fase 2: carreteras
   const recorrer = (o, ruta) => {
     if (Array.isArray(o)) return o.forEach((x, i) => recorrer(x, `${ruta}[${i}]`));
     if (!o || typeof o !== 'object') return;
     if (o.verificacion?.verificadoPor === 'vigilante') {
-      if (!permitidos.has(o)) errores.push(`${ruta}: el vigilante solo puede firmar estados y partes de pasos.`);
+      if (!permitidos.has(o)) errores.push(`${ruta}: el vigilante solo puede firmar estados y partes de pasos, e incidencias.`);
       else if (tipoFuente[o.fuente] !== 'oficial' || o.evidencia !== 'oficial') errores.push(`${ruta}: el vigilante solo firma lo leído de una fuente oficial.`);
     }
     for (const [k, v] of Object.entries(o)) if (k !== 'verificacion') recorrer(v, `${ruta}.${k}`);

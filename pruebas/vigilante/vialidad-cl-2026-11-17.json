@@ -1,0 +1,1514 @@
+{
+"0": {
+"displayFieldName": "ESTADO",
+"fieldAliases": {
+"OBJECTID": "OBJECTID",
+"CORRELATIVO": "CORRELATIVO",
+"ESTADO": "ESTADO",
+"DIRECCION": "DIRECCION",
+"FECHA_INGRESO": "FECHA_INGRESO",
+"FECHA_EMERGENCIA": "FECHA_EMERGENCIA",
+"RESUMEN_EMERGENCIA": "RESUMEN_EMERGENCIA",
+"NIVEL_DE_GRAVEDAD": "NIVEL_DE_GRAVEDAD",
+"DESCRIPCION_DETALLADA": "DESCRIPCION_DETALLADA",
+"CAMINO": "CAMINO",
+"NOMBRE_CAMINO": "NOMBRE_CAMINO",
+"ROL": "ROL",
+"ELEMENTO": "ELEMENTO",
+"REGION": "REGION",
+"KM_INICIO_SEGMENTO": "KM_INICIO_SEGMENTO",
+"KM_FIN_SEGMENTO": "KM_FIN_SEGMENTO",
+"TRANSITO": "TRANSITO",
+"RESTRICCION": "RESTRICCION",
+"INFORMADO_POR": "INFORMADO_POR",
+"COMPETENCIA": "COMPETENCIA",
+"EVENTO_ASOCIADO": "EVENTO_ASOCIADO",
+"EVENTO": "EVENTO",
+"CLASE": "CLASE",
+"CREADO_POR": "CREADO_POR",
+"FECHA": "FECHA",
+"TIPO": "TIPO",
+"OPERATIVIDAD": "OPERATIVIDAD",
+"RESUMEN": "RESUMEN",
+"DETALLE": "DETALLE",
+"IMAGEN": "IMAGEN",
+"DOCUMENTO": "DOCUMENTO",
+"SIMBOLOGIA": "SIMBOLOGIA",
+"CAPA": "CAPA",
+"created_user": "created_user",
+"created_date": "created_date",
+"last_edited_user": "last_edited_user",
+"last_edited_date": "last_edited_date",
+"GlobalID": "GlobalID"
+},
+"fields": [
+{
+"name": "OBJECTID",
+"type": "esriFieldTypeOID",
+"alias": "OBJECTID"
+},
+{
+"name": "CORRELATIVO",
+"type": "esriFieldTypeDouble",
+"alias": "CORRELATIVO"
+},
+{
+"name": "ESTADO",
+"type": "esriFieldTypeString",
+"alias": "ESTADO",
+"length": 10
+},
+{
+"name": "DIRECCION",
+"type": "esriFieldTypeString",
+"alias": "DIRECCION",
+"length": 8
+},
+{
+"name": "FECHA_INGRESO",
+"type": "esriFieldTypeDate",
+"alias": "FECHA_INGRESO",
+"length": 36
+},
+{
+"name": "FECHA_EMERGENCIA",
+"type": "esriFieldTypeDate",
+"alias": "FECHA_EMERGENCIA",
+"length": 36
+},
+{
+"name": "RESUMEN_EMERGENCIA",
+"type": "esriFieldTypeString",
+"alias": "RESUMEN_EMERGENCIA",
+"length": 100
+},
+{
+"name": "NIVEL_DE_GRAVEDAD",
+"type": "esriFieldTypeString",
+"alias": "NIVEL_DE_GRAVEDAD",
+"length": 30
+},
+{
+"name": "DESCRIPCION_DETALLADA",
+"type": "esriFieldTypeString",
+"alias": "DESCRIPCION_DETALLADA",
+"length": 3000
+},
+{
+"name": "CAMINO",
+"type": "esriFieldTypeString",
+"alias": "CAMINO",
+"length": 12
+},
+{
+"name": "NOMBRE_CAMINO",
+"type": "esriFieldTypeString",
+"alias": "NOMBRE_CAMINO",
+"length": 250
+},
+{
+"name": "ROL",
+"type": "esriFieldTypeString",
+"alias": "ROL",
+"length": 15
+},
+{
+"name": "ELEMENTO",
+"type": "esriFieldTypeString",
+"alias": "ELEMENTO",
+"length": 50
+},
+{
+"name": "REGION",
+"type": "esriFieldTypeString",
+"alias": "REGION",
+"length": 36
+},
+{
+"name": "KM_INICIO_SEGMENTO",
+"type": "esriFieldTypeDouble",
+"alias": "KM_INICIO_SEGMENTO"
+},
+{
+"name": "KM_FIN_SEGMENTO",
+"type": "esriFieldTypeDouble",
+"alias": "KM_FIN_SEGMENTO"
+},
+{
+"name": "TRANSITO",
+"type": "esriFieldTypeString",
+"alias": "TRANSITO",
+"length": 133
+},
+{
+"name": "RESTRICCION",
+"type": "esriFieldTypeString",
+"alias": "RESTRICCION",
+"length": 40
+},
+{
+"name": "INFORMADO_POR",
+"type": "esriFieldTypeString",
+"alias": "INFORMADO_POR",
+"length": 62
+},
+{
+"name": "COMPETENCIA",
+"type": "esriFieldTypeString",
+"alias": "COMPETENCIA",
+"length": 40
+},
+{
+"name": "EVENTO_ASOCIADO",
+"type": "esriFieldTypeString",
+"alias": "EVENTO_ASOCIADO",
+"length": 40
+},
+{
+"name": "EVENTO",
+"type": "esriFieldTypeString",
+"alias": "EVENTO",
+"length": 30
+},
+{
+"name": "CLASE",
+"type": "esriFieldTypeString",
+"alias": "CLASE",
+"length": 16
+},
+{
+"name": "CREADO_POR",
+"type": "esriFieldTypeString",
+"alias": "CREADO_POR",
+"length": 30
+},
+{
+"name": "FECHA",
+"type": "esriFieldTypeDate",
+"alias": "FECHA",
+"length": 36
+},
+{
+"name": "TIPO",
+"type": "esriFieldTypeString",
+"alias": "TIPO",
+"length": 16
+},
+{
+"name": "OPERATIVIDAD",
+"type": "esriFieldTypeString",
+"alias": "OPERATIVIDAD",
+"length": 40
+},
+{
+"name": "RESUMEN",
+"type": "esriFieldTypeString",
+"alias": "RESUMEN",
+"length": 100
+},
+{
+"name": "DETALLE",
+"type": "esriFieldTypeString",
+"alias": "DETALLE",
+"length": 3000
+},
+{
+"name": "IMAGEN",
+"type": "esriFieldTypeString",
+"alias": "IMAGEN",
+"length": 100
+},
+{
+"name": "DOCUMENTO",
+"type": "esriFieldTypeString",
+"alias": "DOCUMENTO",
+"length": 100
+},
+{
+"name": "SIMBOLOGIA",
+"type": "esriFieldTypeString",
+"alias": "SIMBOLOGIA",
+"length": 50
+},
+{
+"name": "CAPA",
+"type": "esriFieldTypeSmallInteger",
+"alias": "CAPA"
+},
+{
+"name": "created_user",
+"type": "esriFieldTypeString",
+"alias": "created_user",
+"length": 255
+},
+{
+"name": "created_date",
+"type": "esriFieldTypeDate",
+"alias": "created_date",
+"length": 36
+},
+{
+"name": "last_edited_user",
+"type": "esriFieldTypeString",
+"alias": "last_edited_user",
+"length": 255
+},
+{
+"name": "last_edited_date",
+"type": "esriFieldTypeDate",
+"alias": "last_edited_date",
+"length": 36
+},
+{
+"name": "GlobalID",
+"type": "esriFieldTypeGlobalID",
+"alias": "GlobalID",
+"length": 38
+},
+{
+"name": "GlobalID",
+"type": "esriFieldTypeGlobalID",
+"alias": "GlobalID",
+"length": 38
+}
+],
+"features": [
+{
+"attributes": {
+"OBJECTID": 66454,
+"CORRELATIVO": 16864,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1786649946000,
+"FECHA_EMERGENCIA": 1786618800000,
+"RESUMEN_EMERGENCIA": "Cierre total por socavación e inundación de la plataforma.",
+"NIVEL_DE_GRAVEDAD": "Leve",
+"DESCRIPCION_DETALLADA": "Se verifica afectación severa de la plataforma de la Ruta B-902 producto de escurrimientos aluvionales que atraviesan la vía, generando inundación de la superficie de rodadura, arrastre y deposición de material fino y pétreo, embancamiento, erosión superficial y pérdida local de la rasante. La magnitud y extensión del flujo impiden la habilitación de desvíos seguros para mantener la circulación vehicular. En consecuencia, se dispuso la suspensión total del tránsito desde el Km 0 de la Ruta B-902, manteniéndose el camino fuera de servicio hasta la evaluación de daños y ejecución de las labores de despeje, reconformación y restitución de la plataforma vial.",
+"CAMINO": "62C10902",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Agua Verdes) - Cruce Ruta 1 (Las Breas)",
+"ROL": "B-902",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 28,
+"KM_FIN_SEGMENTO": 32,
+"TRANSITO": "No Operativo",
+"RESTRICCION": null,
+"INFORMADO_POR": "MAURICIO.FATIGATTI",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Crecida de Quebrada",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.FATIGATTI",
+"FECHA": 1787511173000,
+"TIPO": "OBSERVACIONES",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Se habilita tránsito restringido para 4x4 y residentes.",
+"DETALLE": "Se informa que la Ruta B-902 se mantiene cerrada al tránsito general debido a daños en la plataforma y condiciones de seguridad aún desfavorables. Sin perjuicio de lo anterior, se efectuó un recorrido completo de la ruta en camioneta 4x4, verificándose conectividad restringida. En consecuencia, se autoriza el tránsito controlado de vehículos 4x4 y residentes, manteniéndose la restricción para el resto de los usuarios.",
+"IMAGEN": "Se habilita tránsito restringido para 4x4 y residentes.",
+"DOCUMENTO": "Se habilita tránsito restringido para 4x4 y residentes.",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423481000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423481000,
+"GlobalID": "{9AFA0FF2-A4BC-4699-87DF-1C4370160176}"
+}
+},
+{
+"attributes": {
+"OBJECTID": 66536,
+"CORRELATIVO": 16990,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1786752503000,
+"FECHA_EMERGENCIA": 1786739400000,
+"RESUMEN_EMERGENCIA": "Rodados material en ruta 1 sector km 199 a km 267",
+"NIVEL_DE_GRAVEDAD": "Moderado",
+"DESCRIPCION_DETALLADA": "Se realiza cierre preventivo en ruta 1 km 191 a km 267 por rodados y material (arena) en calzada producto de las precipitaciones en la comuna de Tocopilla.\n\n- Km 207.500 desprendimiento de material en calzada.\n- km 199 a km 236,900 ejecución de trabajos de mejoramiento de ruta cuyas obras utilizan desvios y producto de las precipitaciones la carpeta de rodado se vuelve peligrosa para usuarios que transitan la ruta.\n- km 256 escurrimiento de arena en calzada derecha.\n\nEmpresas contratistas en conocimiento y a la espera que acabe la contingencia para iniciar las labores de despeje.",
+"CAMINO": "62A00001",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Las Breas) - Taltal - Río Loa - Iquique, Sector: Antofagasta - Río Loa",
+"ROL": "Ruta 1",
+"ELEMENTO": null,
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 192,
+"KM_FIN_SEGMENTO": 267,
+"TRANSITO": "No Operativo",
+"RESTRICCION": null,
+"INFORMADO_POR": "GONZALO.ESPARZA",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.BARRIOS",
+"FECHA": 1787742238000,
+"TIPO": "OBSERVACIONES",
+"OPERATIVIDAD": "No Operativo",
+"RESUMEN": "Ruta 1 trabajos de despeje ejecutados hasta km 207",
+"DETALLE": "Ruta 1 continúan trabajos de despeje en sector señalado en emergencia, actualmente ejecutados hasta el km 207",
+"IMAGEN": "Ruta 1 trabajos de despeje ejecutados hasta km 207",
+"DOCUMENTO": "Ruta 1 trabajos de despeje ejecutados hasta km 207",
+"SIMBOLOGIA": "No Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423481000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423481000,
+"GlobalID": "{E6572196-954F-4374-926F-6C14F3F63161}"
+}
+},
+{
+"attributes": {
+"OBJECTID": 66670,
+"CORRELATIVO": 17019,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1786965341000,
+"FECHA_EMERGENCIA": 1786960800000,
+"RESUMEN_EMERGENCIA": "caida de rocas en calzada",
+"NIVEL_DE_GRAVEDAD": "Leve",
+"DESCRIPCION_DETALLADA": null,
+"CAMINO": "62C10700",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Varillas) - Cruce Ruta 1 (Caleta El Cobre)",
+"ROL": "B-700",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 50,
+"KM_FIN_SEGMENTO": 57.417,
+"TRANSITO": "No Operativo",
+"RESTRICCION": null,
+"INFORMADO_POR": "MAURICIO.FATIGATTI",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Derrumbe",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.FATIGATTI",
+"FECHA": 1787496714000,
+"TIPO": "ACTUALIZACION",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Bajada con derrumbes y rocas; tránsito restringido a vehículos autorizados.",
+"DETALLE": "Los últimos kilómetros presentan derrumbes de piedras y rocas, con acumulaciones que superan los 2 metros de altura. Se mantiene una conectividad reducida, habilitada únicamente al ancho de un cargador frontal.\n\nEl camino continúa cerrado al tránsito normal, permitiéndose el paso exclusivamente a maquinaria de Global Antofagasta-Taltal, vehículos de emergencia y residentes del sector.",
+"IMAGEN": "Bajada con derrumbes y rocas; tránsito restringido a vehículos autorizados.",
+"DOCUMENTO": "Bajada con derrumbes y rocas; tránsito restringido a vehículos autorizados.",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423481000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423481000,
+"GlobalID": "{64019D22-3E78-43C9-9F0C-FE14DD4A143D}"
+}
+},
+{
+"attributes": {
+"OBJECTID": 66736,
+"CORRELATIVO": 17266,
+"ESTADO": "NUEVO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1787421773000,
+"FECHA_EMERGENCIA": 1787137200000,
+"RESUMEN_EMERGENCIA": "En el sector Hornitos, el acceso sur se encuentra despejado y habilitado al tránsito.",
+"NIVEL_DE_GRAVEDAD": "Leve",
+"DESCRIPCION_DETALLADA": "En el sector Hornitos, el acceso sur se encuentra despejado y habilitado al tránsito.\n\nEn tanto, el acceso norte permanece cerrado a la altura del km 7, debido a la presencia de material de arrastre que cubre la totalidad de la faja vial, impidiendo el paso seguro de vehículos.\n\nAcceso Sur: Habilitado.\nAcceso Norte: Cerrado en km 7.\nAfectación: Material de arrastre en toda la faja vial.\nTrabajos en ejecución: Despeje y recuperación de la transitabilidad.\nRecomendación: No ingresar por el acceso norte y respetar la señalización instalada.",
+"CAMINO": "62Z10220",
+"NOMBRE_CAMINO": "Cruce Ruta 1 - Hornito - Cruce Ruta 1",
+"ROL": "ZB-220",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 0,
+"KM_FIN_SEGMENTO": 5,
+"TRANSITO": "Parcialmente Operativo",
+"RESTRICCION": "Velocidad Restringida",
+"INFORMADO_POR": "NATALIA.GUTIERREZ",
+"COMPETENCIA": "No",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.BARRIOS",
+"FECHA": 1787743950000,
+"TIPO": "OBSERVACIONES",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Cuadrilla de AD en labores de despeje con cargador frontal y motoniveladora",
+"DETALLE": "Ruta 220, cuadrilla de administración directa se encuentra trabajando en labores de despeje, utilizando cargador frontal y motoniveladora",
+"IMAGEN": "Cuadrilla de AD en labores de despeje con cargador frontal y motoniveladora",
+"DOCUMENTO": "Cuadrilla de AD en labores de despeje con cargador frontal y motoniveladora",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423481000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423481000,
+"GlobalID": "{D76BF5E7-D90A-444F-B8F1-54F2C661270A}"
+}
+},
+{
+"attributes": {
+"OBJECTID": 66919,
+"CORRELATIVO": 17142,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1787159959000,
+"FECHA_EMERGENCIA": 1787159884000,
+"RESUMEN_EMERGENCIA": "material en calzada",
+"NIVEL_DE_GRAVEDAD": "Moderado",
+"DESCRIPCION_DETALLADA": "Ruta B-510 desplazamiento de material en calzada aproximadamente desde el km 10 hasta llegar a ruta 1, se recomienda transito solo vehiculos 4x4",
+"CAMINO": "62C10510",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (El Way) - Cruce Ruta 1 (Coloso)",
+"ROL": "B-510",
+"ELEMENTO": null,
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 10,
+"KM_FIN_SEGMENTO": 21.43,
+"TRANSITO": "Parcialmente Operativo",
+"RESTRICCION": "Sólo Vehículos Doble Tracción",
+"INFORMADO_POR": "KATHERINE.SOTO",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.FATIGATTI",
+"FECHA": 1787501128000,
+"TIPO": "ACTUALIZACION",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Copilot said:  Calzada despejada, tránsito restringido por condiciones operacionales.",
+"DETALLE": "La Ruta B-510 se encuentra habilitada para el tránsito vehicular con máxima precaución. Se ha despejado la calzada, restando labores de limpieza en sectores puntuales. La vía presenta ancho reducido y ausencia de bermas. Adicionalmente, el polvo en suspensión generado por el tránsito provoca visibilidad reducida, afectando las condiciones de circulación.",
+"IMAGEN": "Copilot said:  Calzada despejada, tránsito restringido por condiciones operacionales.",
+"DOCUMENTO": "Copilot said:  Calzada despejada, tránsito restringido por condiciones operacionales.",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423481000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423481000,
+"GlobalID": "{74BA6A90-70F6-41C7-BEDA-9EE0E715F36C}"
+}
+},
+{
+"attributes": {
+"OBJECTID": 67128,
+"CORRELATIVO": 17036,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1786993716000,
+"FECHA_EMERGENCIA": 1786960800000,
+"RESUMEN_EMERGENCIA": "Dsprendimento de material (lodo) en calzada ruta 1 km 131,200",
+"NIVEL_DE_GRAVEDAD": "Grave",
+"DESCRIPCION_DETALLADA": "Con fecha 17-08-2026, realizada inspección de rutas una vez calmadas las precipitaciones, se indica lo siguiente:\n\nRuta 1.\n\nDesprendimiento de material ocupación media calzada derecha.\n\nKm 147.000\nKm 162,900.\nKm 165,300.\nKm 167,000.\nKm 175,900.\nKm 176,800.\nKm 177,100.\nKm 177,300.\nKm 177,700.\nKm 178,400.\nKm 178,500.\n\nDesprendimiento de material (lodo) ocupación calzada completa, transitable.\n\nKm 136,000.\nKm 143.000.\nKm 144.000.\n\nDesprendimiento de material (lodo) ocupación calzada completa, intransitable.\n\nKm 132,100\n\nEn este punto se cortó totalmente la calzada. Por los mismo usuarios que transitaban se habilitó un bypass al costado de la ruta.\n\nLa ruta se transita con \"maxima precaución\" por bypass en este punto.",
+"CAMINO": "62A00001",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Las Breas) - Taltal - Río Loa - Iquique, Sector: Antofagasta - Río Loa",
+"ROL": "Ruta 1",
+"ELEMENTO": null,
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 117,
+"KM_FIN_SEGMENTO": 179,
+"TRANSITO": "Parcialmente Operativo",
+"RESTRICCION": "Peso Restringido",
+"INFORMADO_POR": "GONZALO.ESPARZA",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Derrumbe",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.FATIGATTI",
+"FECHA": 1787497362000,
+"TIPO": "ACTUALIZACION",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Múltiples bajadas de barro, agua y rocas en la ruta.",
+"DETALLE": "Producto de las precipitaciones registradas en el sector, se produjeron múltiples bajadas de barro, agua y rocas entre los km 117 y 179 aprox., generando interrupciones y restricciones al tránsito en diversos puntos de la ruta. Los fosos longitudinales se mantienen operativos y conduciendo adecuadamente las aguas, aunque presentan altos niveles de acumulación. Mediante trabajos de despeje ejecutados con maquinaria desplegada desde Tocopilla hacia Antofagasta y desde Antofagasta hacia Tocopilla, se logró restablecer una conectividad reducida, dejando la calzada en condiciones para el tránsito controlado de vehículos.",
+"IMAGEN": "Múltiples bajadas de barro, agua y rocas en la ruta.",
+"DOCUMENTO": "Múltiples bajadas de barro, agua y rocas en la ruta.",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423481000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423481000,
+"GlobalID": "{4017E752-DA7E-4477-9F0D-92CC9CC6F841}"
+}
+},
+{
+"attributes": {
+"OBJECTID": 67157,
+"CORRELATIVO": 17267,
+"ESTADO": "NUEVO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1787422401000,
+"FECHA_EMERGENCIA": 1787137200000,
+"RESUMEN_EMERGENCIA": "accesos a los sectores de Chacaya presentan restricciones de conectividad.",
+"NIVEL_DE_GRAVEDAD": "Grave",
+"DESCRIPCION_DETALLADA": "se encuentra cerrado el acceso sur a los sectores de Chacaya e Itata.\n\nSe informa a los residentes de chacaya que el tránsito puede realizarse con extrema precaución utilizando las rutas habilitadas y respetando la señalización existente.\n\nAsimismo, en el km 2,6 del acceso a Chacaya, el camino permanece cerrado debido a la presencia de un socavón de gran magnitud, que impide el tránsito seguro por la vía.\n\nComo alternativa, el ingreso y salida de los residentes debe efectuarse por el sector de Hornitos, manteniendo las medidas de seguridad establecidas.\n\nEstado actual:\n\nAcceso sur: Cerrado por cierre de Ruta 1.\nChacaya km 2,6: Cerrado por socavón de gran magnitud.\nItata: Conectividad afectada por cierre de Ruta 1.\nAcceso alternativo: Hornitos.\nTránsito para residentes: Permitido con extrema precaución.",
+"CAMINO": "62Z10226",
+"NOMBRE_CAMINO": "Cruce Ruta 1 - Chacaya - Cruce ZB-220",
+"ROL": "ZB-226",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 0,
+"KM_FIN_SEGMENTO": 2.6,
+"TRANSITO": "Parcialmente Operativo",
+"RESTRICCION": "Velocidad Restringida",
+"INFORMADO_POR": "NATALIA.GUTIERREZ",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": null,
+"CREADO_POR": null,
+"FECHA": null,
+"TIPO": null,
+"OPERATIVIDAD": null,
+"RESUMEN": null,
+"DETALLE": null,
+"IMAGEN": null,
+"DOCUMENTO": null,
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423481000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423481000,
+"GlobalID": "{4DD659F2-BC07-46FB-BFA8-566CC3D114FA}"
+}
+},
+{
+"attributes": {
+"OBJECTID": 67232,
+"CORRELATIVO": 17265,
+"ESTADO": "NUEVO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1787421272000,
+"FECHA_EMERGENCIA": 1787137200000,
+"RESUMEN_EMERGENCIA": "ruta 1- desde km 77 al km 120",
+"NIVEL_DE_GRAVEDAD": "Moderado",
+"DESCRIPCION_DETALLADA": "Reporte Ruta 1\n\nDurante la inspección de la Ruta 1 se identifican las siguientes afectaciones por presencia de material en la calzada:\n\nKm 79,500: material de arrastre en calzada derecha.\nKm 80,500: material rocoso en pista derecha.\nKm 97,900: material de arrastre en calzada derecha.\nKm 117,600: material de arrastre en pista derecha.\nKm 199,000: material de arrastre en pista derecha.\n\nTodos los sectores afectados se encuentran debidamente señalizados. Personal de Administración Directa mantiene labores de despeje y recuperación de la transitabilidad, con el propósito de restablecer las condiciones normales de circulación.\n\nActualmente, el tránsito se encuentra habilitado con precaución por la pista izquierda en dirección a Tocopilla, recomendándose a los usuarios conducir a velocidad reducida y atender la señalización preventiva instalada en los sectores intervenidos.\n\nEstado de la ruta: Habilitada con precaución.\n Trabajos en ejecución: Despeje de material y recuperación de la plataforma.\n Condición del tránsito: Circulación por pista izquierda hacia Tocopilla.",
+"CAMINO": "62A00100",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Las Breas) - Taltal - Río Loa - Iquique, Sector: Las Breas - Tal Tal - Paposo - Cruce B-700 (Caleta El Cobre)",
+"ROL": "Ruta 1",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 0,
+"KM_FIN_SEGMENTO": 120,
+"TRANSITO": "Operativo",
+"RESTRICCION": null,
+"INFORMADO_POR": "NATALIA.GUTIERREZ",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": null,
+"CREADO_POR": null,
+"FECHA": null,
+"TIPO": null,
+"OPERATIVIDAD": null,
+"RESUMEN": null,
+"DETALLE": null,
+"IMAGEN": null,
+"DOCUMENTO": null,
+"SIMBOLOGIA": "Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423481000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423481000,
+"GlobalID": "{16F0A519-E0EA-4B28-8698-12901C304D66}"
+}
+}
+]
+},
+"1": {
+"displayFieldName": "ESTADO",
+"fieldAliases": {
+"OBJECTID": "OBJECTID",
+"CORRELATIVO": "CORRELATIVO",
+"ESTADO": "ESTADO",
+"DIRECCION": "DIRECCION",
+"FECHA_INGRESO": "FECHA_INGRESO",
+"FECHA_EMERGENCIA": "FECHA_EMERGENCIA",
+"RESUMEN_EMERGENCIA": "RESUMEN_EMERGENCIA",
+"NIVEL_DE_GRAVEDAD": "NIVEL_DE_GRAVEDAD",
+"DESCRIPCION_DETALLADA": "DESCRIPCION_DETALLADA",
+"CAMINO": "CAMINO",
+"NOMBRE_CAMINO": "NOMBRE_CAMINO",
+"ROL": "ROL",
+"ELEMENTO": "ELEMENTO",
+"REGION": "REGION",
+"KM_INICIO_SEGMENTO": "KM_INICIO_SEGMENTO",
+"KM_FIN_SEGMENTO": "KM_FIN_SEGMENTO",
+"TRANSITO": "TRANSITO",
+"RESTRICCION": "RESTRICCION",
+"INFORMADO_POR": "INFORMADO_POR",
+"COMPETENCIA": "COMPETENCIA",
+"EVENTO_ASOCIADO": "EVENTO_ASOCIADO",
+"EVENTO": "EVENTO",
+"CLASE": "CLASE",
+"CREADO_POR": "CREADO_POR",
+"FECHA": "FECHA",
+"TIPO": "TIPO",
+"OPERATIVIDAD": "OPERATIVIDAD",
+"RESUMEN": "RESUMEN",
+"DETALLE": "DETALLE",
+"IMAGEN": "IMAGEN",
+"DOCUMENTO": "DOCUMENTO",
+"SIMBOLOGIA": "SIMBOLOGIA",
+"CAPA": "CAPA",
+"created_user": "created_user\n",
+"created_date": "created_date",
+"last_edited_user": "last_edited_user",
+"last_edited_date": "last_edited_date",
+"GlobalID": "GlobalID"
+},
+"fields": [
+{
+"name": "OBJECTID",
+"type": "esriFieldTypeOID",
+"alias": "OBJECTID"
+},
+{
+"name": "CORRELATIVO",
+"type": "esriFieldTypeDouble",
+"alias": "CORRELATIVO"
+},
+{
+"name": "ESTADO",
+"type": "esriFieldTypeString",
+"alias": "ESTADO",
+"length": 10
+},
+{
+"name": "DIRECCION",
+"type": "esriFieldTypeString",
+"alias": "DIRECCION",
+"length": 8
+},
+{
+"name": "FECHA_INGRESO",
+"type": "esriFieldTypeDate",
+"alias": "FECHA_INGRESO",
+"length": 36
+},
+{
+"name": "FECHA_EMERGENCIA",
+"type": "esriFieldTypeDate",
+"alias": "FECHA_EMERGENCIA",
+"length": 36
+},
+{
+"name": "RESUMEN_EMERGENCIA",
+"type": "esriFieldTypeString",
+"alias": "RESUMEN_EMERGENCIA",
+"length": 100
+},
+{
+"name": "NIVEL_DE_GRAVEDAD",
+"type": "esriFieldTypeString",
+"alias": "NIVEL_DE_GRAVEDAD",
+"length": 30
+},
+{
+"name": "DESCRIPCION_DETALLADA",
+"type": "esriFieldTypeString",
+"alias": "DESCRIPCION_DETALLADA",
+"length": 3000
+},
+{
+"name": "CAMINO",
+"type": "esriFieldTypeString",
+"alias": "CAMINO",
+"length": 12
+},
+{
+"name": "NOMBRE_CAMINO",
+"type": "esriFieldTypeString",
+"alias": "NOMBRE_CAMINO",
+"length": 250
+},
+{
+"name": "ROL",
+"type": "esriFieldTypeString",
+"alias": "ROL",
+"length": 15
+},
+{
+"name": "ELEMENTO",
+"type": "esriFieldTypeString",
+"alias": "ELEMENTO",
+"length": 50
+},
+{
+"name": "REGION",
+"type": "esriFieldTypeString",
+"alias": "REGION",
+"length": 36
+},
+{
+"name": "KM_INICIO_SEGMENTO",
+"type": "esriFieldTypeDouble",
+"alias": "KM_INICIO_SEGMENTO"
+},
+{
+"name": "KM_FIN_SEGMENTO",
+"type": "esriFieldTypeDouble",
+"alias": "KM_FIN_SEGMENTO"
+},
+{
+"name": "TRANSITO",
+"type": "esriFieldTypeString",
+"alias": "TRANSITO",
+"length": 133
+},
+{
+"name": "RESTRICCION",
+"type": "esriFieldTypeString",
+"alias": "RESTRICCION",
+"length": 40
+},
+{
+"name": "INFORMADO_POR",
+"type": "esriFieldTypeString",
+"alias": "INFORMADO_POR",
+"length": 62
+},
+{
+"name": "COMPETENCIA",
+"type": "esriFieldTypeString",
+"alias": "COMPETENCIA",
+"length": 40
+},
+{
+"name": "EVENTO_ASOCIADO",
+"type": "esriFieldTypeString",
+"alias": "EVENTO_ASOCIADO",
+"length": 40
+},
+{
+"name": "EVENTO",
+"type": "esriFieldTypeString",
+"alias": "EVENTO",
+"length": 30
+},
+{
+"name": "CLASE",
+"type": "esriFieldTypeString",
+"alias": "CLASE",
+"length": 16
+},
+{
+"name": "CREADO_POR",
+"type": "esriFieldTypeString",
+"alias": "CREADO_POR",
+"length": 30
+},
+{
+"name": "FECHA",
+"type": "esriFieldTypeDate",
+"alias": "FECHA",
+"length": 36
+},
+{
+"name": "TIPO",
+"type": "esriFieldTypeString",
+"alias": "TIPO",
+"length": 16
+},
+{
+"name": "OPERATIVIDAD",
+"type": "esriFieldTypeString",
+"alias": "OPERATIVIDAD",
+"length": 40
+},
+{
+"name": "RESUMEN",
+"type": "esriFieldTypeString",
+"alias": "RESUMEN",
+"length": 100
+},
+{
+"name": "DETALLE",
+"type": "esriFieldTypeString",
+"alias": "DETALLE",
+"length": 3000
+},
+{
+"name": "IMAGEN",
+"type": "esriFieldTypeString",
+"alias": "IMAGEN",
+"length": 100
+},
+{
+"name": "DOCUMENTO",
+"type": "esriFieldTypeString",
+"alias": "DOCUMENTO",
+"length": 100
+},
+{
+"name": "SIMBOLOGIA",
+"type": "esriFieldTypeString",
+"alias": "SIMBOLOGIA",
+"length": 50
+},
+{
+"name": "CAPA",
+"type": "esriFieldTypeSmallInteger",
+"alias": "CAPA"
+},
+{
+"name": "created_user",
+"type": "esriFieldTypeString",
+"alias": "created_user\n",
+"length": 255
+},
+{
+"name": "created_date",
+"type": "esriFieldTypeDate",
+"alias": "created_date",
+"length": 36
+},
+{
+"name": "last_edited_user",
+"type": "esriFieldTypeString",
+"alias": "last_edited_user",
+"length": 255
+},
+{
+"name": "last_edited_date",
+"type": "esriFieldTypeDate",
+"alias": "last_edited_date",
+"length": 36
+},
+{
+"name": "GlobalID",
+"type": "esriFieldTypeGlobalID",
+"alias": "GlobalID",
+"length": 38
+},
+{
+"name": "GlobalID",
+"type": "esriFieldTypeGlobalID",
+"alias": "GlobalID",
+"length": 38
+}
+],
+"features": []
+},
+"2": {
+"displayFieldName": "ESTADO",
+"fieldAliases": {
+"OBJECTID": "OBJECTID",
+"CORRELATIVO": "CORRELATIVO",
+"ESTADO": "ESTADO",
+"DIRECCION": "DIRECCION",
+"FECHA_INGRESO": "FECHA_INGRESO",
+"FECHA_EMERGENCIA": "FECHA_EMERGENCIA",
+"RESUMEN_EMERGENCIA": "RESUMEN_EMERGENCIA",
+"NIVEL_DE_GRAVEDAD": "NIVEL_DE_GRAVEDAD",
+"DESCRIPCION_DETALLADA": "DESCRIPCION_DETALLADA",
+"CAMINO": "CAMINO",
+"NOMBRE_CAMINO": "NOMBRE_CAMINO",
+"ROL": "ROL",
+"ELEMENTO": "ELEMENTO",
+"REGION": "REGION",
+"KM_INICIO_SEGMENTO": "KM_INICIO_SEGMENTO",
+"KM_FIN_SEGMENTO": "KM_FIN_SEGMENTO",
+"TRANSITO": "TRANSITO",
+"RESTRICCION": "RESTRICCION",
+"INFORMADO_POR": "INFORMADO_POR",
+"COMPETENCIA": "COMPETENCIA",
+"EVENTO_ASOCIADO": "EVENTO_ASOCIADO",
+"EVENTO": "EVENTO",
+"CLASE": "CLASE",
+"CREADO_POR": "CREADO_POR",
+"FECHA": "FECHA",
+"TIPO": "TIPO",
+"OPERATIVIDAD": "OPERATIVIDAD",
+"RESUMEN": "RESUMEN",
+"DETALLE": "DETALLE",
+"IMAGEN": "IMAGEN",
+"DOCUMENTO": "DOCUMENTO",
+"SIMBOLOGIA": "SIMBOLOGIA",
+"CAPA": "CAPA",
+"created_user": "created_user",
+"created_date": "created_date",
+"last_edited_user": "last_edited_user",
+"last_edited_date": "last_edited_date",
+"GlobalID": "GlobalID",
+"Shape.STLength()": "Shape.STLength()"
+},
+"fields": [
+{
+"name": "OBJECTID",
+"type": "esriFieldTypeOID",
+"alias": "OBJECTID"
+},
+{
+"name": "CORRELATIVO",
+"type": "esriFieldTypeDouble",
+"alias": "CORRELATIVO"
+},
+{
+"name": "ESTADO",
+"type": "esriFieldTypeString",
+"alias": "ESTADO",
+"length": 10
+},
+{
+"name": "DIRECCION",
+"type": "esriFieldTypeString",
+"alias": "DIRECCION",
+"length": 8
+},
+{
+"name": "FECHA_INGRESO",
+"type": "esriFieldTypeDate",
+"alias": "FECHA_INGRESO",
+"length": 36
+},
+{
+"name": "FECHA_EMERGENCIA",
+"type": "esriFieldTypeDate",
+"alias": "FECHA_EMERGENCIA",
+"length": 36
+},
+{
+"name": "RESUMEN_EMERGENCIA",
+"type": "esriFieldTypeString",
+"alias": "RESUMEN_EMERGENCIA",
+"length": 100
+},
+{
+"name": "NIVEL_DE_GRAVEDAD",
+"type": "esriFieldTypeString",
+"alias": "NIVEL_DE_GRAVEDAD",
+"length": 30
+},
+{
+"name": "DESCRIPCION_DETALLADA",
+"type": "esriFieldTypeString",
+"alias": "DESCRIPCION_DETALLADA",
+"length": 3000
+},
+{
+"name": "CAMINO",
+"type": "esriFieldTypeString",
+"alias": "CAMINO",
+"length": 12
+},
+{
+"name": "NOMBRE_CAMINO",
+"type": "esriFieldTypeString",
+"alias": "NOMBRE_CAMINO",
+"length": 250
+},
+{
+"name": "ROL",
+"type": "esriFieldTypeString",
+"alias": "ROL",
+"length": 15
+},
+{
+"name": "ELEMENTO",
+"type": "esriFieldTypeString",
+"alias": "ELEMENTO",
+"length": 50
+},
+{
+"name": "REGION",
+"type": "esriFieldTypeString",
+"alias": "REGION",
+"length": 36
+},
+{
+"name": "KM_INICIO_SEGMENTO",
+"type": "esriFieldTypeDouble",
+"alias": "KM_INICIO_SEGMENTO"
+},
+{
+"name": "KM_FIN_SEGMENTO",
+"type": "esriFieldTypeDouble",
+"alias": "KM_FIN_SEGMENTO"
+},
+{
+"name": "TRANSITO",
+"type": "esriFieldTypeString",
+"alias": "TRANSITO",
+"length": 133
+},
+{
+"name": "RESTRICCION",
+"type": "esriFieldTypeString",
+"alias": "RESTRICCION",
+"length": 40
+},
+{
+"name": "INFORMADO_POR",
+"type": "esriFieldTypeString",
+"alias": "INFORMADO_POR",
+"length": 62
+},
+{
+"name": "COMPETENCIA",
+"type": "esriFieldTypeString",
+"alias": "COMPETENCIA",
+"length": 40
+},
+{
+"name": "EVENTO_ASOCIADO",
+"type": "esriFieldTypeString",
+"alias": "EVENTO_ASOCIADO",
+"length": 40
+},
+{
+"name": "EVENTO",
+"type": "esriFieldTypeString",
+"alias": "EVENTO",
+"length": 30
+},
+{
+"name": "CLASE",
+"type": "esriFieldTypeString",
+"alias": "CLASE",
+"length": 16
+},
+{
+"name": "CREADO_POR",
+"type": "esriFieldTypeString",
+"alias": "CREADO_POR",
+"length": 30
+},
+{
+"name": "FECHA",
+"type": "esriFieldTypeDate",
+"alias": "FECHA",
+"length": 36
+},
+{
+"name": "TIPO",
+"type": "esriFieldTypeString",
+"alias": "TIPO",
+"length": 16
+},
+{
+"name": "OPERATIVIDAD",
+"type": "esriFieldTypeString",
+"alias": "OPERATIVIDAD",
+"length": 40
+},
+{
+"name": "RESUMEN",
+"type": "esriFieldTypeString",
+"alias": "RESUMEN",
+"length": 100
+},
+{
+"name": "DETALLE",
+"type": "esriFieldTypeString",
+"alias": "DETALLE",
+"length": 3000
+},
+{
+"name": "IMAGEN",
+"type": "esriFieldTypeString",
+"alias": "IMAGEN",
+"length": 100
+},
+{
+"name": "DOCUMENTO",
+"type": "esriFieldTypeString",
+"alias": "DOCUMENTO",
+"length": 100
+},
+{
+"name": "SIMBOLOGIA",
+"type": "esriFieldTypeString",
+"alias": "SIMBOLOGIA",
+"length": 50
+},
+{
+"name": "CAPA",
+"type": "esriFieldTypeSmallInteger",
+"alias": "CAPA"
+},
+{
+"name": "created_user",
+"type": "esriFieldTypeString",
+"alias": "created_user",
+"length": 255
+},
+{
+"name": "created_date",
+"type": "esriFieldTypeDate",
+"alias": "created_date",
+"length": 36
+},
+{
+"name": "last_edited_user",
+"type": "esriFieldTypeString",
+"alias": "last_edited_user",
+"length": 255
+},
+{
+"name": "last_edited_date",
+"type": "esriFieldTypeDate",
+"alias": "last_edited_date",
+"length": 36
+},
+{
+"name": "GlobalID",
+"type": "esriFieldTypeGlobalID",
+"alias": "GlobalID",
+"length": 38
+},
+{
+"name": "Shape.STLength()",
+"type": "esriFieldTypeDouble",
+"alias": "Shape.STLength()"
+},
+{
+"name": "Shape.STLength()",
+"type": "esriFieldTypeDouble",
+"alias": "Shape.STLength()"
+}
+],
+"features": [
+{
+"attributes": {
+"OBJECTID": 54662,
+"CORRELATIVO": 17265,
+"ESTADO": "NUEVO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1787421272000,
+"FECHA_EMERGENCIA": 1787137200000,
+"RESUMEN_EMERGENCIA": "ruta 1- desde km 77 al km 120",
+"NIVEL_DE_GRAVEDAD": "Moderado",
+"DESCRIPCION_DETALLADA": "Reporte Ruta 1\n\nDurante la inspección de la Ruta 1 se identifican las siguientes afectaciones por presencia de material en la calzada:\n\nKm 79,500: material de arrastre en calzada derecha.\nKm 80,500: material rocoso en pista derecha.\nKm 97,900: material de arrastre en calzada derecha.\nKm 117,600: material de arrastre en pista derecha.\nKm 199,000: material de arrastre en pista derecha.\n\nTodos los sectores afectados se encuentran debidamente señalizados. Personal de Administración Directa mantiene labores de despeje y recuperación de la transitabilidad, con el propósito de restablecer las condiciones normales de circulación.\n\nActualmente, el tránsito se encuentra habilitado con precaución por la pista izquierda en dirección a Tocopilla, recomendándose a los usuarios conducir a velocidad reducida y atender la señalización preventiva instalada en los sectores intervenidos.\n\nEstado de la ruta: Habilitada con precaución.\n Trabajos en ejecución: Despeje de material y recuperación de la plataforma.\n Condición del tránsito: Circulación por pista izquierda hacia Tocopilla.",
+"CAMINO": "62A00100",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Las Breas) - Taltal - Río Loa - Iquique, Sector: Las Breas - Tal Tal - Paposo - Cruce B-700 (Caleta El Cobre)",
+"ROL": "Ruta 1",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 0,
+"KM_FIN_SEGMENTO": 120,
+"TRANSITO": "Operativo",
+"RESTRICCION": null,
+"INFORMADO_POR": "NATALIA.GUTIERREZ",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": null,
+"CREADO_POR": null,
+"FECHA": null,
+"TIPO": null,
+"OPERATIVIDAD": null,
+"RESUMEN": null,
+"DETALLE": null,
+"IMAGEN": null,
+"DOCUMENTO": null,
+"SIMBOLOGIA": "Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423493000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423493000,
+"GlobalID": "{B84443C2-97AF-402E-AF32-5701230E6852}",
+"Shape.STLength()": 1.1103684015091826
+}
+},
+{
+"attributes": {
+"OBJECTID": 54708,
+"CORRELATIVO": 16864,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1786649946000,
+"FECHA_EMERGENCIA": 1786618800000,
+"RESUMEN_EMERGENCIA": "Cierre total por socavación e inundación de la plataforma.",
+"NIVEL_DE_GRAVEDAD": "Leve",
+"DESCRIPCION_DETALLADA": "Se verifica afectación severa de la plataforma de la Ruta B-902 producto de escurrimientos aluvionales que atraviesan la vía, generando inundación de la superficie de rodadura, arrastre y deposición de material fino y pétreo, embancamiento, erosión superficial y pérdida local de la rasante. La magnitud y extensión del flujo impiden la habilitación de desvíos seguros para mantener la circulación vehicular. En consecuencia, se dispuso la suspensión total del tránsito desde el Km 0 de la Ruta B-902, manteniéndose el camino fuera de servicio hasta la evaluación de daños y ejecución de las labores de despeje, reconformación y restitución de la plataforma vial.",
+"CAMINO": "62C10902",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Agua Verdes) - Cruce Ruta 1 (Las Breas)",
+"ROL": "B-902",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 28,
+"KM_FIN_SEGMENTO": 32,
+"TRANSITO": "No Operativo",
+"RESTRICCION": null,
+"INFORMADO_POR": "MAURICIO.FATIGATTI",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Crecida de Quebrada",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.FATIGATTI",
+"FECHA": 1787511173000,
+"TIPO": "OBSERVACIONES",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Se habilita tránsito restringido para 4x4 y residentes.",
+"DETALLE": "Se informa que la Ruta B-902 se mantiene cerrada al tránsito general debido a daños en la plataforma y condiciones de seguridad aún desfavorables. Sin perjuicio de lo anterior, se efectuó un recorrido completo de la ruta en camioneta 4x4, verificándose conectividad restringida. En consecuencia, se autoriza el tránsito controlado de vehículos 4x4 y residentes, manteniéndose la restricción para el resto de los usuarios.",
+"IMAGEN": "Se habilita tránsito restringido para 4x4 y residentes.",
+"DOCUMENTO": "Se habilita tránsito restringido para 4x4 y residentes.",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423493000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423493000,
+"GlobalID": "{9FED6BCF-BCB8-4323-812E-B579CB25C52E}",
+"Shape.STLength()": 0.4399668388875405
+}
+},
+{
+"attributes": {
+"OBJECTID": 54951,
+"CORRELATIVO": 17142,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1787159959000,
+"FECHA_EMERGENCIA": 1787159884000,
+"RESUMEN_EMERGENCIA": "material en calzada",
+"NIVEL_DE_GRAVEDAD": "Moderado",
+"DESCRIPCION_DETALLADA": "Ruta B-510 desplazamiento de material en calzada aproximadamente desde el km 10 hasta llegar a ruta 1, se recomienda transito solo vehiculos 4x4",
+"CAMINO": "62C10510",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (El Way) - Cruce Ruta 1 (Coloso)",
+"ROL": "B-510",
+"ELEMENTO": null,
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 10,
+"KM_FIN_SEGMENTO": 21.43,
+"TRANSITO": "Parcialmente Operativo",
+"RESTRICCION": "Sólo Vehículos Doble Tracción",
+"INFORMADO_POR": "KATHERINE.SOTO",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.FATIGATTI",
+"FECHA": 1787501128000,
+"TIPO": "ACTUALIZACION",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Copilot said:  Calzada despejada, tránsito restringido por condiciones operacionales.",
+"DETALLE": "La Ruta B-510 se encuentra habilitada para el tránsito vehicular con máxima precaución. Se ha despejado la calzada, restando labores de limpieza en sectores puntuales. La vía presenta ancho reducido y ausencia de bermas. Adicionalmente, el polvo en suspensión generado por el tránsito provoca visibilidad reducida, afectando las condiciones de circulación.",
+"IMAGEN": "Copilot said:  Calzada despejada, tránsito restringido por condiciones operacionales.",
+"DOCUMENTO": "Copilot said:  Calzada despejada, tránsito restringido por condiciones operacionales.",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423493000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423493000,
+"GlobalID": "{4F4115CF-7A68-4144-970E-3AA399DE8AE4}",
+"Shape.STLength()": 0.029680911870013555
+}
+},
+{
+"attributes": {
+"OBJECTID": 55180,
+"CORRELATIVO": 17036,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1786993716000,
+"FECHA_EMERGENCIA": 1786960800000,
+"RESUMEN_EMERGENCIA": "Dsprendimento de material (lodo) en calzada ruta 1 km 131,200",
+"NIVEL_DE_GRAVEDAD": "Grave",
+"DESCRIPCION_DETALLADA": "Con fecha 17-08-2026, realizada inspección de rutas una vez calmadas las precipitaciones, se indica lo siguiente:\n\nRuta 1.\n\nDesprendimiento de material ocupación media calzada derecha.\n\nKm 147.000\nKm 162,900.\nKm 165,300.\nKm 167,000.\nKm 175,900.\nKm 176,800.\nKm 177,100.\nKm 177,300.\nKm 177,700.\nKm 178,400.\nKm 178,500.\n\nDesprendimiento de material (lodo) ocupación calzada completa, transitable.\n\nKm 136,000.\nKm 143.000.\nKm 144.000.\n\nDesprendimiento de material (lodo) ocupación calzada completa, intransitable.\n\nKm 132,100\n\nEn este punto se cortó totalmente la calzada. Por los mismo usuarios que transitaban se habilitó un bypass al costado de la ruta.\n\nLa ruta se transita con \"maxima precaución\" por bypass en este punto.",
+"CAMINO": "62A00001",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Las Breas) - Taltal - Río Loa - Iquique, Sector: Antofagasta - Río Loa",
+"ROL": "Ruta 1",
+"ELEMENTO": null,
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 117,
+"KM_FIN_SEGMENTO": 179,
+"TRANSITO": "Parcialmente Operativo",
+"RESTRICCION": "Peso Restringido",
+"INFORMADO_POR": "GONZALO.ESPARZA",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Derrumbe",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.FATIGATTI",
+"FECHA": 1787497362000,
+"TIPO": "ACTUALIZACION",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Múltiples bajadas de barro, agua y rocas en la ruta.",
+"DETALLE": "Producto de las precipitaciones registradas en el sector, se produjeron múltiples bajadas de barro, agua y rocas entre los km 117 y 179 aprox., generando interrupciones y restricciones al tránsito en diversos puntos de la ruta. Los fosos longitudinales se mantienen operativos y conduciendo adecuadamente las aguas, aunque presentan altos niveles de acumulación. Mediante trabajos de despeje ejecutados con maquinaria desplegada desde Tocopilla hacia Antofagasta y desde Antofagasta hacia Tocopilla, se logró restablecer una conectividad reducida, dejando la calzada en condiciones para el tránsito controlado de vehículos.",
+"IMAGEN": "Múltiples bajadas de barro, agua y rocas en la ruta.",
+"DOCUMENTO": "Múltiples bajadas de barro, agua y rocas en la ruta.",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423493000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423493000,
+"GlobalID": "{7F3DEA3C-42F0-4FDB-97C2-8D4F0E1F7291}",
+"Shape.STLength()": 0.566366556304154
+}
+},
+{
+"attributes": {
+"OBJECTID": 55204,
+"CORRELATIVO": 17267,
+"ESTADO": "NUEVO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1787422401000,
+"FECHA_EMERGENCIA": 1787137200000,
+"RESUMEN_EMERGENCIA": "accesos a los sectores de Chacaya presentan restricciones de conectividad.",
+"NIVEL_DE_GRAVEDAD": "Grave",
+"DESCRIPCION_DETALLADA": "se encuentra cerrado el acceso sur a los sectores de Chacaya e Itata.\n\nSe informa a los residentes de chacaya que el tránsito puede realizarse con extrema precaución utilizando las rutas habilitadas y respetando la señalización existente.\n\nAsimismo, en el km 2,6 del acceso a Chacaya, el camino permanece cerrado debido a la presencia de un socavón de gran magnitud, que impide el tránsito seguro por la vía.\n\nComo alternativa, el ingreso y salida de los residentes debe efectuarse por el sector de Hornitos, manteniendo las medidas de seguridad establecidas.\n\nEstado actual:\n\nAcceso sur: Cerrado por cierre de Ruta 1.\nChacaya km 2,6: Cerrado por socavón de gran magnitud.\nItata: Conectividad afectada por cierre de Ruta 1.\nAcceso alternativo: Hornitos.\nTránsito para residentes: Permitido con extrema precaución.",
+"CAMINO": "62Z10226",
+"NOMBRE_CAMINO": "Cruce Ruta 1 - Chacaya - Cruce ZB-220",
+"ROL": "ZB-226",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 0,
+"KM_FIN_SEGMENTO": 2.6,
+"TRANSITO": "Parcialmente Operativo",
+"RESTRICCION": "Velocidad Restringida",
+"INFORMADO_POR": "NATALIA.GUTIERREZ",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": null,
+"CREADO_POR": null,
+"FECHA": null,
+"TIPO": null,
+"OPERATIVIDAD": null,
+"RESUMEN": null,
+"DETALLE": null,
+"IMAGEN": null,
+"DOCUMENTO": null,
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423493000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423493000,
+"GlobalID": "{AC7DD3AA-B6D7-4388-9230-A5CA4A7A2FB7}",
+"Shape.STLength()": 0.023879883452521036
+}
+},
+{
+"attributes": {
+"OBJECTID": 55232,
+"CORRELATIVO": 17266,
+"ESTADO": "NUEVO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1787421773000,
+"FECHA_EMERGENCIA": 1787137200000,
+"RESUMEN_EMERGENCIA": "En el sector Hornitos, el acceso sur se encuentra despejado y habilitado al tránsito.",
+"NIVEL_DE_GRAVEDAD": "Leve",
+"DESCRIPCION_DETALLADA": "En el sector Hornitos, el acceso sur se encuentra despejado y habilitado al tránsito.\n\nEn tanto, el acceso norte permanece cerrado a la altura del km 7, debido a la presencia de material de arrastre que cubre la totalidad de la faja vial, impidiendo el paso seguro de vehículos.\n\nAcceso Sur: Habilitado.\nAcceso Norte: Cerrado en km 7.\nAfectación: Material de arrastre en toda la faja vial.\nTrabajos en ejecución: Despeje y recuperación de la transitabilidad.\nRecomendación: No ingresar por el acceso norte y respetar la señalización instalada.",
+"CAMINO": "62Z10220",
+"NOMBRE_CAMINO": "Cruce Ruta 1 - Hornito - Cruce Ruta 1",
+"ROL": "ZB-220",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 0,
+"KM_FIN_SEGMENTO": 5,
+"TRANSITO": "Parcialmente Operativo",
+"RESTRICCION": "Velocidad Restringida",
+"INFORMADO_POR": "NATALIA.GUTIERREZ",
+"COMPETENCIA": "No",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.BARRIOS",
+"FECHA": 1787743950000,
+"TIPO": "OBSERVACIONES",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Cuadrilla de AD en labores de despeje con cargador frontal y motoniveladora",
+"DETALLE": "Ruta 220, cuadrilla de administración directa se encuentra trabajando en labores de despeje, utilizando cargador frontal y motoniveladora",
+"IMAGEN": "Cuadrilla de AD en labores de despeje con cargador frontal y motoniveladora",
+"DOCUMENTO": "Cuadrilla de AD en labores de despeje con cargador frontal y motoniveladora",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423493000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423493000,
+"GlobalID": "{5E6D5B53-800C-4385-887D-F6898C9D2760}",
+"Shape.STLength()": 0.046547893908286585
+}
+},
+{
+"attributes": {
+"OBJECTID": 55258,
+"CORRELATIVO": 17019,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1786965341000,
+"FECHA_EMERGENCIA": 1786960800000,
+"RESUMEN_EMERGENCIA": "caida de rocas en calzada",
+"NIVEL_DE_GRAVEDAD": "Leve",
+"DESCRIPCION_DETALLADA": null,
+"CAMINO": "62C10700",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Varillas) - Cruce Ruta 1 (Caleta El Cobre)",
+"ROL": "B-700",
+"ELEMENTO": "Carpeta de Rodadura",
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 50,
+"KM_FIN_SEGMENTO": 57.417,
+"TRANSITO": "No Operativo",
+"RESTRICCION": null,
+"INFORMADO_POR": "MAURICIO.FATIGATTI",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Derrumbe",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.FATIGATTI",
+"FECHA": 1787496714000,
+"TIPO": "ACTUALIZACION",
+"OPERATIVIDAD": "Parcialmente Operativo",
+"RESUMEN": "Bajada con derrumbes y rocas; tránsito restringido a vehículos autorizados.",
+"DETALLE": "Los últimos kilómetros presentan derrumbes de piedras y rocas, con acumulaciones que superan los 2 metros de altura. Se mantiene una conectividad reducida, habilitada únicamente al ancho de un cargador frontal.\n\nEl camino continúa cerrado al tránsito normal, permitiéndose el paso exclusivamente a maquinaria de Global Antofagasta-Taltal, vehículos de emergencia y residentes del sector.",
+"IMAGEN": "Bajada con derrumbes y rocas; tránsito restringido a vehículos autorizados.",
+"DOCUMENTO": "Bajada con derrumbes y rocas; tránsito restringido a vehículos autorizados.",
+"SIMBOLOGIA": "Parcialmente Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423493000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423493000,
+"GlobalID": "{FCD335C0-D270-4BF1-B4C5-DD46AECA375C}",
+"Shape.STLength()": 0.06870602011298552
+}
+},
+{
+"attributes": {
+"OBJECTID": 55299,
+"CORRELATIVO": 16990,
+"ESTADO": "INFORMADO",
+"DIRECCION": "VIALIDAD",
+"FECHA_INGRESO": 1786752503000,
+"FECHA_EMERGENCIA": 1786739400000,
+"RESUMEN_EMERGENCIA": "Rodados material en ruta 1 sector km 199 a km 267",
+"NIVEL_DE_GRAVEDAD": "Moderado",
+"DESCRIPCION_DETALLADA": "Se realiza cierre preventivo en ruta 1 km 191 a km 267 por rodados y material (arena) en calzada producto de las precipitaciones en la comuna de Tocopilla.\n\n- Km 207.500 desprendimiento de material en calzada.\n- km 199 a km 236,900 ejecución de trabajos de mejoramiento de ruta cuyas obras utilizan desvios y producto de las precipitaciones la carpeta de rodado se vuelve peligrosa para usuarios que transitan la ruta.\n- km 256 escurrimiento de arena en calzada derecha.\n\nEmpresas contratistas en conocimiento y a la espera que acabe la contingencia para iniciar las labores de despeje.",
+"CAMINO": "62A00001",
+"NOMBRE_CAMINO": "Cruce Ruta 5 (Las Breas) - Taltal - Río Loa - Iquique, Sector: Antofagasta - Río Loa",
+"ROL": "Ruta 1",
+"ELEMENTO": null,
+"REGION": "02",
+"KM_INICIO_SEGMENTO": 192,
+"KM_FIN_SEGMENTO": 267,
+"TRANSITO": "No Operativo",
+"RESTRICCION": null,
+"INFORMADO_POR": "GONZALO.ESPARZA",
+"COMPETENCIA": "Si",
+"EVENTO_ASOCIADO": "Climático",
+"EVENTO": null,
+"CLASE": "SR",
+"CREADO_POR": "MAURICIO.BARRIOS",
+"FECHA": 1787742238000,
+"TIPO": "OBSERVACIONES",
+"OPERATIVIDAD": "No Operativo",
+"RESUMEN": "Ruta 1 trabajos de despeje ejecutados hasta km 207",
+"DETALLE": "Ruta 1 continúan trabajos de despeje en sector señalado en emergencia, actualmente ejecutados hasta el km 207",
+"IMAGEN": "Ruta 1 trabajos de despeje ejecutados hasta km 207",
+"DOCUMENTO": "Ruta 1 trabajos de despeje ejecutados hasta km 207",
+"SIMBOLOGIA": "No Operativo",
+"CAPA": null,
+"created_user": "RODRIGO.LAGOS.C",
+"created_date": 1794423493000,
+"last_edited_user": "RODRIGO.LAGOS.C",
+"last_edited_date": 1794423493000,
+"GlobalID": "{A742D38C-16BE-4B92-9587-5B552923A710}",
+"Shape.STLength()": 0.6851211304952508
+}
+}
+]
+}
+}

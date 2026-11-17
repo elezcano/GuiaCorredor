@@ -29,6 +29,7 @@
 //   node scripts/vigilante.mjs --github --prueba   abre una incidencia de prueba con lo leído, para comprobar el correo
 //   node scripts/vigilante.mjs --autoprueba    comprueba el lector con un ejemplo, sin red
 import fs from 'node:fs';
+import { aplicar, antiguedadHoras, configTablaAR, incidenciaAR, incidenciaCL, leerAR, leerCL } from './carreteras.mjs';
 
 const PAGINAS = [
   { paso: 'jama', fuente: 'ar-seguridad-paso-jama' },
@@ -281,6 +282,46 @@ function autoprueba() {
   ok(d.paso.estado.valor === 'restricciones' && pv.valor === 'cerrado' && pv.texto === 'Corte total: RN 52 tramo Susques - Lte. con Chile.', `corte total de Vialidad con el paso abierto: con restricciones (${pv.texto}).`);
   const otroHorario = conPag([["'09:00-19:15'", "'08:00-20:00'"]]);
   ok(decidir(base, otroHorario, 'f', A('17:00')).avisos.some((a) => /08:00–20:00/.test(a)), 'un cambio de horario se avisa.');
+
+  // HU-130 fase 2: carreteras, con las copias de las fuentes del 17/11/2026.
+  const fx = (n) => JSON.parse(fs.readFileSync(new URL(`../pruebas/vigilante/${n}-2026-11-17.json`, import.meta.url), 'utf8'));
+  const ar = fx('vialidad-ar');
+  const incAR = leerAR(ar).map((r) => incidenciaAR(r, 'ar')).filter(Boolean);
+  const lipan = incAR.find((i) => /Cuesta de Lipan/.test(i.descripcion));
+  ok(incAR.length === 9 && incAR.every((i) => i.gravedad === 'info') && new Set(incAR.map((i) => i.id)).size === 9, `Vialidad Nacional: 9 avisos informativos en las rutas del corredor (${incAR.length}).`);
+  ok(lipan?.paso === 'jama' && lipan.descripcion.startsWith('RN 52 (Purmamarca - Emp. RP 79): Circular con extrema precaución') && lipan.horaFuente === '2026-11-17T12:00:00.000Z', `RN 52, Cuesta de Lipán: en la variante por Jama, con hora de la fuente (${lipan?.descripcion?.slice(0, 60)}).`);
+  ok(incAR.filter((i) => i.paso === 'sico').length === 3 && incAR.filter((i) => i.tramos?.[0] === 'pozo-hondo').length === 5, 'RN 51 → Sico; RN 34 → Pozo Hondo.');
+  const arCorte = structuredClone(ar);
+  arCorte.values.find((r) => r[1] === '52' && /Susques - Lte/.test(r[2]))[3] = "<span class='label'>CORTE TOTAL</span>";
+  const corteAR = leerAR(arCorte).map((r) => incidenciaAR(r, 'ar')).filter(Boolean).find((i) => /Susques/.test(i.ubicacion));
+  ok(corteAR?.gravedad === 'rojo' && corteAR.tipo === 'corte' && corteAR.paso === 'jama', 'corte total de Vialidad Nacional: rojo.');
+  let cambiada = false;
+  try {
+    leerAR({ values: [['a', 'b'], ['c']] });
+  } catch {
+    cambiada = true;
+  }
+  ok(cambiada, 'si la tabla cambia de columnas, la lectura falla (no se publica nada).');
+  const cfg = configTablaAR(`ponchoTable({"hojaNombre":"tablavisible","idSpread":"17AqjqeNvM4nG6cOUsUFKFaKXMiNmztYfzHIxeM9FcXk"})`, 'gapi_key:"AIzaSyCq2wEEKL9-6RmX-TkW23qJsrmnFHFf5tY",gapi_uri');
+  ok(cfg.hoja?.startsWith('17Aq') && cfg.pestana === 'tablavisible' && cfg.clave?.startsWith('AIza'), 'la hoja, la pestaña y la clave se leen de la página oficial.');
+  const cl = fx('vialidad-cl')['0'];
+  ok(leerCL(cl).length === 0, 'Vialidad Chile: hoy ninguna emergencia en carreteras del corredor (las 8 de la región son de la Ruta 1 y caminos B).');
+  const emerg = (extra) => ({ features: [{ attributes: { OBJECTID: 1, CORRELATIVO: '62X', ROL: '27-CH', NOMBRE_CAMINO: 'San Pedro de Atacama - Paso Jama', KM_INICIO_SEGMENTO: 100, KM_FIN_SEGMENTO: 120, TRANSITO: 'Parcialmente Operativo', RESTRICCION: null, RESUMEN_EMERGENCIA: 'Nieve en calzada', FECHA_EMERGENCIA: Date.parse('2026-11-16T10:00:00Z'), last_edited_date: Date.parse('2026-11-16T15:00:00Z'), ...extra } }] });
+  const peso = incidenciaCL(leerCL(emerg({ RESTRICCION: 'Peso Restringido' }))[0], 'cl');
+  ok(peso.paso === 'jama' && peso.gravedad === 'rojo' && peso.afecta === 'carga' && peso.tipo === 'peso' && /^27-CH \(km 100–120\): No habilitado para carga/.test(peso.descripcion), `«Peso restringido» en la CH-27: no habilitado para carga (${peso.descripcion.slice(0, 70)}).`);
+  ok(incidenciaCL(leerCL(emerg({}))[0], 'cl').gravedad === 'ambar' && incidenciaCL(leerCL(emerg({ TRANSITO: 'No Operativo' }))[0], 'cl').gravedad === 'rojo', 'parcialmente operativo: ámbar; no operativo: rojo.');
+  // Aplicar sobre data/incidencias.json.
+  const aMano = { id: incAR[0].id, descripcion: 'a mano', estado: 'activa', fuente: 'ar', verificacion: null };
+  const t1 = new Date('2026-11-17T20:00:00Z');
+  let r1 = aplicar([aMano], incAR, 'ar', t1);
+  ok(r1.cambios.length === 8 && r1.incidencias.find((i) => i.id === aMano.id).descripcion === 'a mano', 'publica los avisos nuevos y no toca lo cargado a mano.');
+  ok(r1.incidencias.filter((i) => i.verificacion?.verificadoPor === 'vigilante').length === 8, 'lo publicado va firmado por el vigilante.');
+  ok(aplicar(r1.incidencias, incAR, 'ar', t1).cambios.length === 0, 'releer lo mismo no cambia nada.');
+  const r2 = aplicar(r1.incidencias, incAR.slice(0, 5), 'ar', t1);
+  ok(r2.cambios.filter((c) => c.startsWith('Resuelto')).length === 4 && r2.incidencias.filter((i) => i.estado === 'resuelta').length === 4, 'lo que la fuente deja de listar se da por resuelto.');
+  const viejas = incAR.map((i) => ({ ...i, descripcion: 'otra', horaFuente: '2026-11-10T12:00:00.000Z' }));
+  ok(aplicar(r1.incidencias, viejas, 'ar', t1).descartada === true, 'nunca marcha atrás: una copia más antigua de la fuente se descarta.');
+  ok(aplicar(r2.incidencias, incAR, 'ar', new Date('2026-12-20T12:00:00Z')).incidencias.filter((i) => i.estado === 'resuelta').length === 0, 'las resueltas se retiran a los 15 días.');
   process.exit(fallos ? 1 : 0);
 }
 
@@ -334,6 +375,72 @@ async function revisar(ahora = new Date()) {
     if (d.cambios.length || d.avisos.length) publicados.push({ paso: { id: paso.id, nombre: paso.nombre }, url, cambios: d.cambios, avisos: d.avisos });
   }
   return { lecturas, errores, resultados, publicados, pasos };
+}
+
+// ---------- HU-130 fase 2: carreteras ----------
+const UA = { 'User-Agent': 'GuiaCorredor-vigilante (+https://elezcano.github.io/GuiaCorredor/)' };
+const traer = async (url, opciones = {}) => {
+  const r = await fetch(url, { ...opciones, headers: { ...UA, ...(opciones.headers || {}) }, signal: AbortSignal.timeout(45000) });
+  if (!r.ok) throw new Error(`HTTP ${r.status} en ${url.split('?')[0]}`);
+  return r;
+};
+// Chile publica una vez a la semana (lunes): más de 8 días sin cambios es que la fuente se ha parado.
+const MAX_HORAS = { 'cl-vialidad-siemop': 8 * 24 };
+const CL_CAPA = 'https://rest-sit.mop.gob.cl/arcgis/rest/services/VIALIDAD/Emergencias_Vialidad/MapServer/0/query';
+
+async function leerFuenteAR() {
+  const pagina = 'https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas';
+  const html = await (await traer(pagina)).text();
+  const js = [...html.matchAll(/<script[^>]+src="([^"]*poncho[^"]*\.js[^"]*)"/g)].map((m) => new URL(m[1], pagina).href);
+  let codigo = '';
+  for (const u of js) {
+    try {
+      codigo += await (await traer(u)).text();
+    } catch {}
+  }
+  const { hoja, pestana, clave } = configTablaAR(html, codigo);
+  if (!hoja || !pestana || !clave) throw new Error(`no encuentro la tabla en la página de Vialidad Nacional (hoja ${!!hoja}, pestaña ${!!pestana}, clave ${!!clave})`);
+  const datos = await (await traer(`https://sheets.googleapis.com/v4/spreadsheets/${hoja}/values/${encodeURIComponent(pestana)}?key=${clave}&alt=json`, { headers: { Referer: 'https://www.argentina.gob.ar/' } })).json();
+  return leerAR(datos).map((r) => incidenciaAR(r, 'ar-vialidad-estado-rutas')).filter(Boolean);
+}
+async function leerFuenteCL() {
+  const q = `${CL_CAPA}?where=${encodeURIComponent("REGION='02'")}&outFields=*&returnGeometry=false&f=json`;
+  const datos = await (await traer(q)).json();
+  if (datos.error) throw new Error(`ArcGIS: ${JSON.stringify(datos.error).slice(0, 200)}`);
+  // La antigüedad se mide sobre toda la región (aunque hoy no haya nada en el corredor).
+  const region = (datos.features || []).map((f) => f.attributes?.last_edited_date).filter(Boolean).sort().pop();
+  return { inc: leerCL(datos).map((x) => incidenciaCL(x, 'cl-vialidad-siemop')), ultimaEdicion: region ? new Date(region).toISOString() : null };
+}
+
+/** Lee las fuentes de carreteras y decide los cambios en data/incidencias.json. */
+async function revisarCarreteras(ahora = new Date()) {
+  const archivo = json('data/incidencias.json');
+  let lista = archivo.incidencias;
+  const resultados = [];
+  const publicados = [];
+  const fuentes = [
+    { id: 'ar-vialidad-estado-rutas', nombre: 'Carreteras de Argentina (Vialidad Nacional)', url: 'https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas', leer: async () => ({ inc: await leerFuenteAR() }) },
+    { id: 'cl-vialidad-siemop', nombre: 'Carreteras de Chile (Vialidad, MOP)', url: 'https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0', leer: leerFuenteCL },
+  ];
+  for (const f of fuentes) {
+    let leido;
+    try {
+      leido = await f.leer();
+    } catch (e) {
+      console.log(`⚠ ${f.nombre}: ${e.message}`);
+      resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: false, error: e.message });
+      continue;
+    }
+    const horas = leido.ultimaEdicion ? (ahora - new Date(leido.ultimaEdicion)) / 36e5 : antiguedadHoras(leido.inc, ahora);
+    const parada = MAX_HORAS[f.id] && horas != null && horas > MAX_HORAS[f.id];
+    const error = parada ? `la fuente no se actualiza desde hace ${Math.floor(horas / 24)} días` : null;
+    resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: !parada, error });
+    const { incidencias, cambios, descartada } = aplicar(lista, leido.inc, f.id, ahora);
+    console.log(`${f.nombre}: ${leido.inc.length} avisos en el corredor${descartada ? ' (copia antigua: descartada)' : ''}${error ? ` · ⚠ ${error}` : ''}`);
+    lista = incidencias;
+    if (cambios.length) publicados.push({ paso: { id: f.id, nombre: f.nombre }, url: f.url, cambios, avisos: [] });
+  }
+  return { archivo: { ...archivo, incidencias: lista }, resultados, publicados };
 }
 
 // ---------- Estado de la vigilancia (HU-129) ----------
@@ -433,6 +540,9 @@ async function principal() {
   }
 
   const { lecturas, errores, resultados, publicados, pasos } = await revisar();
+  // HU-130 fase 2: carreteras (Vialidad Nacional y Vialidad de Chile).
+  const carreteras = args.has('--sin-carreteras') ? null : await revisarCarreteras();
+  if (carreteras) resultados.push(...carreteras.resultados), publicados.push(...carreteras.publicados);
   // HU-129: estado de la vigilancia (si se indica dónde guardarlo).
   const archivoEstado = process.env.VIGILANCIA_ARCHIVO;
   let estado = null;
@@ -453,7 +563,8 @@ async function principal() {
 
   // HU-130: escribe los datos y el resumen. El flujo comprueba (npm run check), sube a main y publica.
   if (args.has('--escribir')) {
-    if (publicados.some((p) => p.cambios.length)) fs.writeFileSync('data/pasos.json', JSON.stringify(pasos, null, 2) + '\n');
+    if (publicados.some((p) => p.cambios.length && !p.paso.id.includes('vialidad'))) fs.writeFileSync('data/pasos.json', JSON.stringify(pasos, null, 2) + '\n');
+    if (carreteras?.publicados.length) fs.writeFileSync('data/incidencias.json', JSON.stringify(carreteras.archivo, null, 2) + '\n');
     if (archivoCambios) fs.writeFileSync(archivoCambios, JSON.stringify(publicados, null, 1) + '\n');
   }
 
