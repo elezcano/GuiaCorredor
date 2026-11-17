@@ -28,6 +28,15 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   const avisosAlt = await p.$$eval('#det-alternativa .pl-tramo-aviso', (l) => l.map((x) => x.textContent));
   ok(avisosAlt.some((t) => t.includes('RN51')) && !avisosAlt.some((t) => t.includes('CH-27')), 'avisos de Sico mal asignados: ' + avisosAlt);
   ok((await p.$$eval('.pl-detalle:not([hidden]) .pl-tramo-datos > span:first-child', (l) => l.map((x) => x.textContent))).every((t) => /^(Sin confirmar|No habilitado|Con restricciones|Abierto)/.test(t)), 'tramo a tramo con estados inesperados');
+  // Tipo de carga: fuera de la búsqueda; dentro de «Papeles» cambia la lista
+  ok(!(await p.$('.buscador input[name="carga"]')), 'el tipo de carga no debe estar en la búsqueda');
+  await p.goto(B + '/planificador/?desde=0&hasta=8&carga=general');
+  const docsGeneral = await p.$$eval('#det-principal .pl-papeles li', (l) => l.length);
+  await p.evaluate(() => (document.querySelector('#det-principal .pl-carga').closest('details').open = true));
+  await p.check('#det-principal .pl-carga input[value="refrigerada"]');
+  const docsRefri = await p.$$eval('#det-principal .pl-papeles li', (l) => l.map((x) => x.textContent));
+  ok(docsRefri.length === docsGeneral + 1 && docsRefri.some((t) => /sanitario/i.test(t)), 'refrigerada debe añadir los certificados sanitarios');
+  ok(p.url().includes('carga=refrigerada'), 'el tipo de carga no queda en la URL');
   // Ruta sin fronteras y en sentido contrario: sin errores y sin papeles
   await p.goto(B + '/planificador/?desde=7&hasta=6');
   ok((await p.textContent('.pl-cabeza')).includes('Calama → San Pedro de Atacama'), 'ruta corta en sentido contrario');

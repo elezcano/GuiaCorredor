@@ -390,12 +390,6 @@ const opcionesNodos = (sel) =>
 
 const buscador = (clase = '') => `
 <form class="buscador ${clase}" action="${u('/planificador/')}" method="get" role="search" aria-label="Buscar ruta">
-  <fieldset>
-    <legend>Tipo de carga</legend>
-    <div class="chips chips-carga">${rutas.tiposCarga
-      .map((c, i) => `<label class="chip chip-radio"><input type="radio" name="carga" value="${esc(c.id)}"${i === 0 ? ' checked' : ''}>${esc(c.nombre)}</label>`)
-      .join('')}</div>
-  </fieldset>
   <div class="campos">
     <label class="campo campo-desde"><span>Desde</span><select name="desde" id="origen">${opcionesNodos(0)}</select></label>
     <button class="intercambiar" type="button" id="intercambiar" aria-label="Intercambiar origen y destino">${icono('intercambiar')}</button>
@@ -1157,7 +1151,7 @@ ${seccion({
       datos: datosRutas({ empresas: emp }),
       cuerpo: `
 <div class="contenedor">
-  <header class="cabeza-pagina"><h1>Planificar ruta</h1><p>¿Se puede hacer tu ruta hoy, y por dónde? Elige el tipo de carga, el origen y el destino.</p></header>
+  <header class="cabeza-pagina"><h1>Planificar ruta</h1><p>¿Se puede hacer tu ruta hoy, y por dónde? Elige el origen y el destino.</p></header>
   ${buscador('buscador-compacto')}
   <div id="resultado" aria-live="polite"></div>
   <noscript><p class="aviso">Activa JavaScript para ver las opciones de ruta.</p></noscript>

@@ -26,12 +26,10 @@
   };
   origen.value = String(entero('desde') ?? (guardada?.desde <= max ? guardada.desde : null) ?? 0);
   destino.value = String(entero('hasta') ?? (guardada?.hasta <= max ? guardada.hasta : null) ?? datos.tramos.filter((t) => !t.ramal).length);
-  const cargaInicial = params.get('carga') || guardada?.carga;
-  if (cargaInicial) {
-    const c = form.querySelector(`input[name="carga"][value="${CSS.escape(cargaInicial)}"]`);
-    if (c) c.checked = true;
-  }
-  const carga = () => form.querySelector('input[name="carga"]:checked')?.value || 'general';
+  // El tipo de carga solo cambia los papeles: se elige dentro de «Papeles para cruzar», no en la búsqueda.
+  const cargaValida = (c) => (datos.tiposCarga.some((t) => t.id === c) ? c : null);
+  let cargaActual = cargaValida(params.get('carga')) || cargaValida(guardada?.carga) || 'general';
+  const carga = () => cargaActual;
   const nombreCarga = () => (datos.tiposCarga.find((c) => c.id === carga())?.nombre || 'carga').toLowerCase();
 
   // --- Utilidades ---
@@ -176,6 +174,11 @@
     return (datos.festivos || []).filter((f) => ps.has(f.pais) && f.fecha >= hoy && f.fecha <= limite);
   }
 
+  const papelesLista = () =>
+    datos.documentosCruce
+      .filter((d) => !d.cargas || d.cargas.includes(carga()))
+      .map((d) => `<li><label><input type="checkbox"><span>${esc(d.nombre)}</span></label></li>`)
+      .join('');
   const plegable = (titulo, resumen, cuerpo, abierta = false) =>
     `<details class="plegable"${abierta ? ' open' : ''}><summary><span class="plegable-titulo">${titulo}</span><span class="plegable-resumen">${resumen}</span></summary><div class="plegable-cuerpo">${cuerpo}</div></details>`;
 
@@ -198,8 +201,11 @@
           pasos
             ? plegable(
                 'Papeles para cruzar',
-                `${GC.plural(docs.length, 'documento', 'documentos')} para ${esc(nombreCarga())}`,
-                `<ul class="pl-papeles">${docs.map((d) => `<li><label><input type="checkbox"><span>${esc(d.nombre)}</span></label></li>`).join('')}</ul>
+                `<span class="pl-papeles-resumen">${GC.plural(docs.length, 'documento', 'documentos')} para ${esc(nombreCarga())}</span>`,
+                `<fieldset class="pl-carga"><legend>¿Qué llevas?</legend><div class="chips">${datos.tiposCarga
+                  .map((c) => `<label class="chip chip-radio"><input type="radio" name="carga-${op.id}" value="${esc(c.id)}"${c.id === carga() ? ' checked' : ''}>${esc(c.nombre)}</label>`)
+                  .join('')}</div></fieldset>
+                 <ul class="pl-papeles">${papelesLista()}</ul>
                  <p class="pl-nota">${esc(datos.avisoDocumentos)}</p>
                  <button type="button" class="btn btn-borde btn-pequeno no-imprimir" data-imprimir>${I_IMPRIMIR}Imprimir lista</button>`
               )
@@ -235,12 +241,12 @@
     const dg = dgs[op.id];
     const desde = datos.nodos[a].nombre;
     const hasta = datos.nodos[b].nombre;
-    const texto = `${desde} → ${hasta} (${op.nombre.toLowerCase()}, ${nombreCarga()}): ${{ rojo: 'hoy no se puede hacer entera', ambar: 'se puede hoy, con dudas', verde: dg.sinParte ? 'sin problemas conocidos' : 'se puede hoy' }[dg.nivel]}. ${distanciaTexto(op.distancia)}. Confirma antes de salir. ${location.href}`;
+    const texto = `${desde} → ${hasta} (${op.nombre.toLowerCase()}): ${{ rojo: 'hoy no se puede hacer entera', ambar: 'se puede hoy, con dudas', verde: dg.sinParte ? 'sin problemas conocidos' : 'se puede hoy' }[dg.nivel]}. ${distanciaTexto(op.distancia)}. Confirma antes de salir. ${location.href}`;
     const hoy = new Date().toISOString().slice(0, 10);
     salida.innerHTML = `
       <header class="pl-cabeza">
         <div><h2>${esc(desde)} → ${esc(hasta)}</h2>
-        <p>${esc(nombreCarga()[0].toUpperCase() + nombreCarga().slice(1))} · ${ops.length > 1 ? `${ops.length} opciones` : esc(op.nombre)}</p></div>
+        <p>${ops.length > 1 ? `${ops.length} opciones` : esc(op.nombre)}</p></div>
         <button type="button" class="btn btn-borde btn-pequeno no-imprimir" id="cambiar-busqueda" aria-expanded="${!form.hidden}" aria-controls="buscador-plan">${form.hidden ? 'Cambiar' : 'Ocultar búsqueda'}</button>
       </header>
       ${veredicto(op, dg)}
@@ -268,6 +274,20 @@
   }
 
   // --- Eventos ---
+  // Cambiar el tipo de carga solo rehace la lista de papeles (sin cerrar lo que está abierto).
+  salida.addEventListener('change', (e) => {
+    const r = e.target.closest('.pl-carga input[type="radio"]');
+    if (!r) return;
+    cargaActual = r.value;
+    const url = new URL(location.href);
+    url.searchParams.set('carga', carga());
+    history.replaceState(null, '', url);
+    GC.guardarRuta(Number(origen.value), Number(destino.value), carga());
+    const n = datos.documentosCruce.filter((d) => !d.cargas || d.cargas.includes(carga())).length;
+    salida.querySelectorAll('.pl-papeles').forEach((ul) => (ul.innerHTML = papelesLista()));
+    salida.querySelectorAll('.pl-papeles-resumen').forEach((x) => (x.textContent = `${GC.plural(n, 'documento', 'documentos')} para ${nombreCarga()}`));
+    salida.querySelectorAll('.pl-carga input').forEach((x) => (x.checked = x.value === carga()));
+  });
   salida.addEventListener('click', (e) => {
     const t = e.target.closest('.pl-opcion');
     if (t) {
