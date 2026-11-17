@@ -65,3 +65,53 @@
   pintar();
   setInterval(pintar, 60000);
 })();
+
+// HU-105: sentido del cruce. El botón «⇄» da la vuelta a la ficha: banderas, orden de los
+// controles (primero lo común a los dos países, después la salida y al final la entrada),
+// orden de los partes y datos que solo valen para un sentido. El sentido va en la URL (?sentido=CL-AR).
+(function () {
+  const caja = document.querySelector('.sentido[data-sentido-paso]');
+  if (!caja) return;
+  const [a, b] = caja.dataset.sentidoPaso.split('-');
+  const nombres = JSON.parse(caja.dataset.nombres || '{}');
+  const url = new URL(location.href);
+  let s = url.searchParams.get('sentido');
+  if (s !== `${a}-${b}` && s !== `${b}-${a}`) s = `${a}-${b}`;
+  const ruta = caja.querySelector('.sentido-ruta');
+  const ladoA = caja.querySelector('.sentido-a');
+  const ladoB = caja.querySelector('.sentido-b');
+  const nota = caja.querySelector('.sentido-nota');
+  function aplicar(cambiarUrl) {
+    const [sal, ent] = s.split('-');
+    // Banderas y nombres
+    const [primero, segundo] = sal === a ? [ladoA, ladoB] : [ladoB, ladoA];
+    ruta.replaceChildren(primero, document.createTextNode(' → '), segundo);
+    nota.textContent = `Sales de ${nombres[sal]} y entras en ${nombres[ent]}. Los controles van en ese orden.`;
+    // Controles: primero lo común a los dos países (control integrado), después la salida y al final la entrada
+    const lista = document.querySelector('.controles');
+    if (lista) {
+      const grupo = (li) => (li.dataset.lado === sal ? 1 : li.dataset.lado === ent ? 2 : 0);
+      [...lista.children]
+        .sort((x, y) => grupo(x) - grupo(y) || Number(x.dataset.orden) - Number(y.dataset.orden))
+        .forEach((li) => lista.appendChild(li));
+    }
+    // Partes: primero el país de salida
+    const grid = document.querySelector('.partes-grid');
+    if (grid) {
+      const bloques = [...grid.children];
+      bloques.sort((x, y) => (x.dataset.pais === sal ? -1 : y.dataset.pais === sal ? 1 : 0)).forEach((el) => grid.appendChild(el));
+    }
+    // Datos que solo valen para un sentido
+    document.querySelectorAll('[data-sentido]').forEach((el) => (el.hidden = el.dataset.sentido !== s));
+    if (cambiarUrl) {
+      url.searchParams.set('sentido', s);
+      history.replaceState(null, '', url);
+    }
+  }
+  caja.querySelector('.btn-sentido').addEventListener('click', () => {
+    const [x, y] = s.split('-');
+    s = `${y}-${x}`;
+    aplicar(true);
+  });
+  aplicar(false);
+})();

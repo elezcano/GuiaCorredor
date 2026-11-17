@@ -1147,3 +1147,13 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .tabla-fiab thead th { font-size: 13px; color: var(--muted-foreground); }
 /* Que una tabla ancha (con su propio scroll) no ensanche la ficha en el móvil */
 .articulo, .ficha-operativa { min-width: 0; }
+
+/* ---------- Sentido del cruce (HU-105) ---------- */
+.sentido { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--muted); }
+.sentido-texto { margin: 0; font-size: 16px; flex: 1 1 220px; }
+.sentido-label { color: var(--muted-foreground); font-size: 14px; display: block; }
+.sentido-ruta { font-weight: 700; }
+.sentido-ruta .pais-bandera { display: inline-block; vertical-align: -2px; }
+.btn-sentido { min-height: 44px; font-weight: 700; }
+.sentido-nota { margin: 0; flex-basis: 100%; font-size: 14px; color: var(--foreground); }
+.solo-sentido { font-weight: 700; }

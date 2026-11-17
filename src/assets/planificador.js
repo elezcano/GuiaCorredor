@@ -55,7 +55,15 @@
     const dato = v.ultimo === 'pendiente' ? 'Sin estado confirmado' : `Último dato: ${(datos.estados[v.ultimo] || v.ultimo).toLowerCase()}`;
     return `${estado('pendiente')}<span class="estado-fecha">${esc(dato)}, ${v.publicado ? esc(fechaCorta(v.publicado)) : 'sin fecha'}${esc(origen)}</span>`;
   }
-  const enlace = (g, txt) => (g ? `<a href="${datos.base}/guia/${g}/">${esc(txt)}</a>` : esc(txt));
+  const enlace = (g, txt, q = '') => (g ? `<a href="${datos.base}/guia/${g}/${q}">${esc(txt)}</a>` : esc(txt));
+  // HU-105: la ficha del paso se abre en el sentido del viaje.
+  const qSentido = (t) => {
+    const l = datos.ladosPaso?.[t.paso?.id];
+    if (!l) return '';
+    const pos = (id) => datos.nodos.findIndex((n) => n.id === id);
+    const haciaChile = pos(t.a) > pos(t.de);
+    return `?sentido=${haciaChile ? l.join('-') : [...l].reverse().join('-')}`;
+  };
   const nodo = (id) => datos.nodos.find((n) => n.id === id);
 
   function ayuda(id, nombre) {
@@ -125,7 +133,7 @@
         ${fila(
           'Pasos fronterizos',
           pasos.length
-            ? `<ul>${pasos.map((t) => `<li>${enlace(t.paso.guia, t.paso.nombre)} ${vista(t.vista)} ${tag(t.vista?.confirmado ? 'verificado' : 'sin-verificar')}</li>`).join('')}</ul>`
+            ? `<ul>${pasos.map((t) => `<li>${enlace(t.paso.guia, t.paso.nombre, qSentido(t))} ${vista(t.vista)} ${tag(t.vista?.confirmado ? 'verificado' : 'sin-verificar')}</li>`).join('')}</ul>`
             : 'Ninguno'
         )}
         ${fila(
@@ -183,7 +191,7 @@
               ? `<span class="it-km-falta">≈ ${GC.km(t.estimacion.km)}</span>${tag('estimado')}`
               : `<span class="it-km-falta">Distancia sin fuente</span>${tag('sin-dato')}`
         }<span class="it-estado">${vista(t.vista)}</span></div>
-        ${t.paso ? `<p class="it-frontera">Frontera: ${enlace(t.paso.guia, t.paso.nombre)}</p>` : ''}
+        ${t.paso ? `<p class="it-frontera">Frontera: ${enlace(t.paso.guia, t.paso.nombre, qSentido(t))}</p>` : ''}
         ${t.paso ? cruce(t) : ''}
         ${typeof t.km !== 'number' && t.estimacion ? `<p class="it-nota it-estimacion">${esc(t.estimacion.aviso)}</p>` : ''}
         ${avisosTramo(op, t)}
