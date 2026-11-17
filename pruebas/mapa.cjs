@@ -31,8 +31,8 @@ const f = []; const ok = (c, m) => c || f.push(m);
     if (await p.$('.mapa-vivo-marco')) {
       ok(await p.isHidden('#mapa-vivo'), 'portada: el mapa no debe cargarse antes de llegar a él');
       await p.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
-      await p.waitForFunction(() => document.querySelector('#mapa-vivo')?.dataset.listo === 'true' || document.querySelector('#mapa-vivo')?.hidden === false, null, { timeout: 20000 }).catch(() => {});
-      await p.waitForFunction(() => document.querySelector('#mapa-vivo')?.dataset.listo === 'true' || !document.querySelector('.mapa-respaldo')?.hidden, null, { timeout: 20000 }).catch(() => {});
+      // Estado final: mapa cargado, o esquema de vuelta (sin MapLibre o sin teselas).
+      await p.waitForFunction(() => document.querySelector('#mapa-vivo')?.dataset.listo === 'true' || (window.maplibregl && document.querySelector('#mapa-vivo')?.hidden), null, { timeout: 25000 }).catch(() => {});
       const vivo = await p.isVisible('#mapa-vivo');
       ok(vivo !== (await p.isVisible('.mapa-respaldo')), 'portada: mapa y esquema a la vez o ninguno');
       console.log(`  portada ${tema}: ${vivo ? 'MapLibre con teselas' : 'esquema SVG'}`);
