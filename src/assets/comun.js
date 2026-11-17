@@ -74,6 +74,13 @@
         localStorage.removeItem(CLAVE_RUTA);
       } catch {}
     },
+    /** HU-116: distancia de un tramo con su tipo: con fuente, calculada (OpenStreetMap u otra), estimada o null. */
+    kmTramo(t) {
+      if (typeof t.km === 'number') return { km: t.km, tipo: t.kmTipo === 'calculado' ? 'calculado' : 'fuente' };
+      if (typeof t.kmCalc === 'number') return { km: t.kmCalc, tipo: 'osm' };
+      if (t.estimacion) return { km: t.estimacion.km, tipo: 'estimado' };
+      return null;
+    },
     /** Opciones de ruta entre dos nodos. Si un tramo tiene paso alternativo, devuelve dos opciones comparables. */
     opciones(datos, a, b) {
       // HU-115: la red es un árbol (ruta principal + ramales). Se busca el único camino entre los dos nodos.
@@ -106,7 +113,7 @@
         variantes[0].via = sinParentesis(t.paso.nombre);
         const alt = base.map((x, k) =>
           k === conAlternativa
-            ? { ...x, paso: { id: t.alternativa.id, nombre: t.alternativa.nombre, guia: t.alternativa.guia }, estado: t.alternativa.estado || x.estado, vista: t.alternativa.vista || x.vista, estimacion: t.alternativa.estimacion || null, alternativa: null, nota: null }
+            ? { ...x, paso: { id: t.alternativa.id, nombre: t.alternativa.nombre, guia: t.alternativa.guia }, estado: t.alternativa.estado || x.estado, vista: t.alternativa.vista || x.vista, estimacion: t.alternativa.estimacion || null, kmCalc: t.alternativa.kmCalc ?? null, alternativa: null, nota: null }
             : x
         );
         variantes.push({ tramos: alt, via: sinParentesis(t.alternativa.nombre) });
@@ -130,7 +137,16 @@
           if (t.paso) fronteras.push(sinParentesis(t.paso.nombre));
           incDe(t).forEach((x) => problemas.includes(x) || problemas.push(x));
         });
+        // HU-116: distancia por tipo (con fuente, calculada, estimada en línea recta o sin dato).
+        const distancia = { total: 0, fuente: 0, calculado: 0, estimado: 0, sinDato: 0 };
+        v.tramos.forEach((t) => {
+          const d = GC.kmTramo(t);
+          if (!d) return void distancia.sinDato++;
+          distancia.total += d.km;
+          distancia[d.tipo === 'fuente' ? 'fuente' : d.tipo === 'estimado' ? 'estimado' : 'calculado'] += d.km;
+        });
         return {
+          distancia,
           id: k === 0 ? 'principal' : 'alternativa',
           nombre: v.via ? `Por ${v.via}` : 'Ruta directa',
           fronteras,

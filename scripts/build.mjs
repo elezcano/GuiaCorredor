@@ -34,6 +34,15 @@ const hayMapLibre = (() => {
     return false;
   }
 })();
+// HU-115: trazados y km calculados con OpenStreetMap (data/trazados.json), si existen.
+const TRAZADOS = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'trazados.json'), 'utf8'));
+  } catch {
+    return null;
+  }
+})();
+const kmCalc = (t, via) => TRAZADOS?.tramos?.[`${t.id}${via ? `@${via.id}` : ''}`]?.km ?? null;
 const hayFuente = (() => {
   try {
     createRequire(import.meta.url).resolve('@fontsource-variable/overpass/package.json');
@@ -368,7 +377,16 @@ function rutaHTML() {
   return `<div class="carretera-marco"><ol class="ruta" id="ruta-corredor" aria-label="Recorrido del corredor de este a oeste">${items.join('')}</ol>${nota}</div>`;
 }
 
-const opcionesNodos = (sel) => rutas.nodos.map((n, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${esc(n.nombre)}</option>`).join('');
+// HU-116: puntos agrupados por país, en el orden del corredor (el valor sigue siendo el índice del nodo).
+const opcionesNodos = (sel) =>
+  [...new Set(rutas.nodos.map((n) => n.pais))]
+    .map(
+      (pais) =>
+        `<optgroup label="${esc(PAISES[pais])}">${rutas.nodos
+          .map((n, i) => (n.pais === pais ? `<option value="${i}"${i === sel ? ' selected' : ''}>${esc(n.nombre)}</option>` : ''))
+          .join('')}</optgroup>`
+    )
+    .join('');
 
 const buscador = (clase = '') => `
 <form class="buscador ${clase}" action="${u('/planificador/')}" method="get" role="search" aria-label="Buscar ruta">
@@ -432,7 +450,8 @@ const pasosArr = () => (Array.isArray(D.pasos) ? D.pasos : D.pasos.pasos);
 const datosRutas = (extra = {}) =>
   `<script type="application/json" id="datos-rutas">${JSON.stringify({
     nodos: rutas.nodos,
-    tramos: rutas.tramos,
+    // HU-116: km calculados con OpenStreetMap por tramo (y por el paso alternativo), para el planificador.
+    tramos: rutas.tramos.map((t) => ({ ...t, kmCalc: kmCalc(t, t.paso), alternativa: t.alternativa ? { ...t.alternativa, kmCalc: kmCalc(t, t.alternativa) } : t.alternativa })),
     ladosPaso: Object.fromEntries(pasosArr().map((q) => [q.id, Object.keys(q.lados)])),
     documentosCruce: rutas.documentosCruce,
     avisoDocumentos: rutas.avisoDocumentos,
@@ -1021,13 +1040,7 @@ function datosMapa() {
     return { lon: (a.lon + b.lon) / 2, lat: (a.lat + b.lat) / 2, esquematica: true };
   };
   // Trazados calculados con OpenStreetMap (scripts/trazados.mjs), si los hay. Si no, línea recta entre puntos.
-  const trazados = (() => {
-    try {
-      return JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'trazados.json'), 'utf8'));
-    } catch {
-      return null;
-    }
-  })();
+  const trazados = TRAZADOS;
   const lineas = [];
   for (const t of rutas.tramos) {
     for (const alt of [false, true]) {
@@ -1144,7 +1157,7 @@ ${seccion({
       datos: datosRutas({ empresas: emp }),
       cuerpo: `
 <div class="contenedor">
-  <header class="cabeza-pagina"><h1>Planificar ruta</h1><p>Compara las opciones, revisa cada tramo y comparte la ruta con tu equipo.</p></header>
+  <header class="cabeza-pagina"><h1>Planificar ruta</h1><p>¿Se puede hacer tu ruta hoy, y por dónde? Elige el tipo de carga, el origen y el destino.</p></header>
   ${buscador('buscador-compacto')}
   <div id="resultado" aria-live="polite"></div>
   <noscript><p class="aviso">Activa JavaScript para ver las opciones de ruta.</p></noscript>
