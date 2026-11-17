@@ -313,6 +313,18 @@
                     "texto": {
                       "type": "string",
                       "minLength": 3
+                    },
+                    "hora": {
+                      "type": "string",
+                      "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                      "description": "Hora local del país (HH:MM), para ordenar varios cambios del mismo día."
+                    },
+                    "afecta": {
+                      "enum": [
+                        "todo",
+                        "carga"
+                      ],
+                      "description": "A quién afecta un cierre o restricción: todo el tránsito (por defecto) o solo la carga."
                     }
                   }
                 }
@@ -403,6 +415,13 @@
                     "hora": {
                       "type": "string",
                       "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                    },
+                    "afecta": {
+                      "enum": [
+                        "todo",
+                        "carga"
+                      ],
+                      "description": "A quién afecta un cierre o restricción: todo el tránsito (por defecto) o solo la carga."
                     }
                   }
                 }

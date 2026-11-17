@@ -444,12 +444,215 @@
       "horariosEspeciales": [],
       "historial": [
         {
+          "fecha": "2026-08-22",
+          "valor": "cerrado",
+          "texto": "No habilitado por nieve (parte de Defensa Civil de Salta).",
+          "fuente": "saltanews-jama-sico-22-08-2026",
+          "publicado": "2026-08-22",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-08-29",
+          "valor": "operativo",
+          "texto": "Habilitado en ambos sentidos para todo tránsito, tras varios días de restricciones.",
+          "hora": "09:30",
+          "fuente": "el-tribuno-jujuy-jama-29-08-2026",
+          "publicado": "2026-08-29",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-08-31",
+          "valor": "cerrado",
+          "texto": "Cierre preventivo por la mañana por fuertes ráfagas de viento.",
+          "hora": "09:00",
+          "fuente": "el-tribuno-jujuy-jama-31-08-2026",
+          "publicado": "2026-08-31",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-08-31",
+          "valor": "operativo",
+          "texto": "Habilitado de nuevo a las 17:30 (reporte diario N.º 4 de la Provincia El Loa).",
+          "hora": "17:30",
+          "fuente": "el-tribuno-jujuy-jama-31-08-2026",
+          "publicado": "2026-08-31",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-01",
+          "valor": "operativo",
+          "texto": "Habilitado en ambos sentidos, con viento fuerte y hielo en la CH-27.",
+          "fuente": "la-voz-de-jujuy-jama-01-09-2026",
+          "publicado": "2026-09-01",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-17",
+          "valor": "cerrado",
+          "texto": "No habilitado desde las 15:00 por cierre preventivo de la CH-27 (alerta meteorológica).",
+          "hora": "15:00",
+          "fuente": "somos-jujuy-jama-17-09-2026",
+          "publicado": "2026-09-17",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-18",
+          "valor": "cerrado",
+          "texto": "Cerrado por acumulación de nieve en la calzada.",
+          "fuente": "el-tribuno-jujuy-jama-18-09-2026",
+          "publicado": "2026-09-18",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-19",
+          "valor": "cerrado",
+          "texto": "No habilitado por intensa nevada en la CH-27.",
+          "fuente": "el-tribuno-jujuy-jama-19-09-2026",
+          "publicado": "2026-09-19",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
           "fecha": "2026-09-20",
           "valor": "cerrado",
           "texto": "No habilitado: la CH-27 queda cortada por acumulación de nieve.",
           "fuente": "24horas-pasos-el-loa-20-09-2026",
           "publicado": "2026-09-20",
           "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-23",
+          "valor": "operativo",
+          "texto": "Habilitado en ambos sentidos para todo tipo de tránsito, de 8 a 20.",
+          "fuente": "todojujuy-jama-23-09-2026",
+          "publicado": "2026-09-23",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-29",
+          "valor": "cerrado",
+          "texto": "Cerrado de forma preventiva desde las 14:00 por un evento meteorológico en la CH-27.",
+          "hora": "14:00",
+          "fuente": "somos-jujuy-jama-29-09-2026",
+          "publicado": "2026-09-29",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-30",
+          "valor": "cerrado",
+          "texto": "Sigue cerrado por nieve del lado chileno.",
+          "fuente": "el-submarino-jama-30-09-2026",
+          "publicado": "2026-09-30",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-12",
+          "valor": "cerrado",
+          "texto": "Cerrado de forma preventiva por nevadas y ráfagas de 80 a 100 km/h.",
+          "fuente": "el-monterizo-jama-12-10-2026",
+          "publicado": "2026-10-12",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-13",
+          "valor": "cerrado",
+          "texto": "No habilitado por nevadas y fuertes vientos.",
+          "fuente": "el-tribuno-jujuy-jama-13-10-2026",
+          "publicado": "2026-10-13",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-24",
+          "valor": "cerrado",
+          "texto": "No habilitado en ambos sentidos por hielo y nieve en la calzada.",
+          "fuente": "todojujuy-jama-24-10-2026",
+          "publicado": "2026-10-24",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-26",
+          "valor": "cerrado",
+          "texto": "Cierre preventivo durante la jornada.",
+          "fuente": "examedia-jama-27-10-2026",
+          "publicado": "2026-10-26",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-27",
+          "valor": "cerrado",
+          "texto": "Continúa cerrado por nevadas del lado chileno.",
+          "fuente": "el-tribuno-jujuy-jama-27-10-2026",
+          "publicado": "2026-10-27",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-29",
+          "valor": "cerrado",
+          "texto": "Sigue cerrado por nevadas en las rutas chilenas CH-23 y CH-27.",
+          "fuente": "todojujuy-jama-sico-29-10-2026",
+          "publicado": "2026-10-29",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-11-01",
+          "valor": "operativo",
+          "texto": "Habilitado para todo tipo de vehículos, de 8 a 20.",
+          "fuente": "todojujuy-jama-01-11-2026",
+          "publicado": "2026-11-01",
+          "actualizado": "2026-11-17",
           "evidencia": "tercero",
           "validacion": "por-verificar",
           "verificacion": null
@@ -511,7 +714,9 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-17",
             "alcance": "Ernesto confirmó el 17/11/2026, con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Provincia El Loa, 16/11/2026 a las 18:25, hora de Chile), que Jama no estaba habilitado para transporte de carga por fuertes ráfagas de viento, con atención normal para turismo."
-          }
+          },
+          "afecta": "carga",
+          "hora": "18:25"
         }
       ],
       "controles": [
@@ -646,7 +851,8 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-17",
             "alcance": "Ernesto confirmó el 17/11/2026, con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Provincia El Loa, 16/11/2026 a las 18:25, hora de Chile), que Jama no estaba habilitado para transporte de carga por fuertes ráfagas de viento, con atención normal para turismo."
-          }
+          },
+          "afecta": "carga"
         }
       ]
     },
@@ -810,12 +1016,56 @@
           "verificacion": null
         },
         {
+          "fecha": "2026-08-22",
+          "valor": "cerrado",
+          "texto": "No habilitado por nieve (parte de Defensa Civil de Salta).",
+          "fuente": "saltanews-jama-sico-22-08-2026",
+          "publicado": "2026-08-22",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-10",
+          "valor": "operativo",
+          "texto": "Habilitado de 9 a 19, con nieve y vientos fuertes.",
+          "fuente": "voces-criticas-sico-10-09-2026",
+          "publicado": "2026-09-10",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-09-19",
+          "valor": "operativo",
+          "texto": "Habilitado de 9 a 19, con fuertes vientos.",
+          "fuente": "voces-criticas-jama-sico-19-09-2026",
+          "publicado": "2026-09-19",
+          "actualizado": "2026-11-17",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
           "fecha": "2026-09-20",
           "valor": "cerrado",
           "texto": "No habilitado: la CH-23 queda cortada por acumulación de nieve.",
           "fuente": "24horas-pasos-el-loa-20-09-2026",
           "publicado": "2026-09-20",
           "actualizado": "2026-11-15",
+          "evidencia": "tercero",
+          "validacion": "por-verificar",
+          "verificacion": null
+        },
+        {
+          "fecha": "2026-10-29",
+          "valor": "cerrado",
+          "texto": "No habilitado, igual que Jama e Hito Cajón (nevadas).",
+          "fuente": "todojujuy-jama-sico-29-10-2026",
+          "publicado": "2026-10-29",
+          "actualizado": "2026-11-17",
           "evidencia": "tercero",
           "validacion": "por-verificar",
           "verificacion": null
