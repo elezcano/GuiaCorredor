@@ -12,7 +12,15 @@
       },
       "ubicacion": {
         "texto": "Sobre el río Paraguay, entre Porto Murtinho (Mato Grosso do Sul) y Carmelo Peralta (Alto Paraguay).",
-        "coordenadas": null,
+        "coordenadas": {
+          "lat": -21.6443,
+          "lon": -57.9329,
+          "fuente": "osm-nominatim",
+          "evidencia": "tercero",
+          "precision": "paso",
+          "consultado": "2026-11-17",
+          "nota": "Ponte da Bioceânica en OpenStreetMap (vía 1103852228, en construcción). Contrastado con Google Maps (17/11/2026)."
+        },
         "coordenadasNota": "Sin coordenadas con fuente; el mapa dibuja el paso entre sus dos localidades."
       },
       "estado": {
@@ -91,7 +99,15 @@
       },
       "ubicacion": {
         "texto": "Sobre el río Pilcomayo, entre Pozo Hondo (Boquerón) y Misión La Paz (Salta).",
-        "coordenadas": null,
+        "coordenadas": {
+          "lat": -22.3787,
+          "lon": -62.5187,
+          "fuente": "osm-nominatim",
+          "evidencia": "tercero",
+          "precision": "paso",
+          "consultado": "2026-11-17",
+          "nota": "Puente Pozo Hondo – Misión La Paz en OpenStreetMap (vía 133868677). Contrastado con Google Maps (17/11/2026)."
+        },
         "coordenadasNota": "Sin coordenadas propias del paso; el mapa usa la localidad de Pozo Hondo."
       },
       "estado": {

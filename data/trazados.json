@@ -1117,8 +1117,6 @@
   }
  },
  "descartados": {
-  "puente@puente-bioceanica": "ruta de 5.3 km frente a 1.3 km con fuente: no cuadra (rodeo por una carretera aún no trazada en OpenStreetMap o puntos distintos); manda el dato con fuente",
-  "cp-me": "ruta de 379.4 km frente a 307 km con fuente: no cuadra (rodeo por una carretera aún no trazada en OpenStreetMap o puntos distintos); manda el dato con fuente",
   "me-ph": "ruta de 369.5 km frente a 224 km con fuente: no cuadra (rodeo por una carretera aún no trazada en OpenStreetMap o puntos distintos); manda el dato con fuente"
  }
 }

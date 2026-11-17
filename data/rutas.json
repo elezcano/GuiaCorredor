@@ -163,25 +163,22 @@
       "id": "puente",
       "desde": "porto-murtinho",
       "hasta": "carmelo-peralta",
-      "km": 1.3,
+      "km": null,
       "paso": {
         "id": "puente-bioceanica",
         "nombre": "Puente de la Bioceánica (BR–PY)",
         "guia": "pasos/carmelo-peralta-porto-murtinho"
       },
-      "nota": "Puente de 1.294 m sobre el río Paraguay.",
-      "kmTipo": "fuente",
-      "kmFuente": "abc-color",
-      "kmEvidencia": "tercero"
+      "nota": "El puente mide 1,3 km (ABC Color). La distancia por carretera entre Porto Murtinho y Carmelo Peralta queda pendiente de un dato oficial."
     },
     {
       "id": "cp-me",
       "desde": "carmelo-peralta",
       "hasta": "mariscal-estigarribia",
-      "km": 307,
+      "km": 379.4,
       "guia": "tramos/py15-chaco",
       "kmTipo": "calculado",
-      "kmNota": "531 km de la PY15 menos los 224 km del lote 3.",
+      "kmNota": "Ruta por carretera por la PY15 calculada con OSRM sobre OpenStreetMap (17/11/2026). Contrastada con Google Maps: 377 km. Sustituye a 307 km, que era una resta (531 − 224) sin fuente directa.",
       "kmEvidencia": "calculo"
     },
     {
