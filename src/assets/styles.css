@@ -1527,3 +1527,21 @@ html[lang^="pt"] .contenido-es::before { content: "Conteúdo do guia em espanhol
 .fuente-datos dt { font-weight: 700; font-size: 15px; color: var(--muted-foreground); }
 .fuente-datos dd { margin: 0; font-size: 16px; }
 @media (max-width: 760px) { .fuentes-lista { grid-template-columns: 1fr; } .fuente-datos div { grid-template-columns: 1fr; gap: 0; } }
+
+/* ---------- HU-136: Avisos (V2) ---------- */
+.inc-lista { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.inc-grupo { grid-column: 1 / -1; margin: 18px 0 0; }
+.inc-grupo h3 { margin: 0; font-size: 21px; display: flex; align-items: center; gap: 10px; }
+.inc-cuenta { display: inline-flex; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 14px; background: var(--muted); font-size: 15px; align-items: center; justify-content: center; }
+.inc-tarjeta { border: 1px solid var(--border); border-left-width: 6px; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.inc-rojo { border-left-color: var(--corte); }
+.inc-ambar { border-left-color: var(--obras-dot); }
+.inc-info { border-left-color: var(--sin-dato); }
+.inc-resuelta { border-left-color: var(--ok); opacity: 0.85; }
+.inc-tarjeta h3 { margin: 0; font-size: 18px; }
+.inc-cabeza { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.inc-texto { margin: 0; font-size: 16px; }
+.inc-mas summary { cursor: pointer; font-weight: 700; font-size: 15px; min-height: 36px; display: flex; align-items: center; }
+.chip svg { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; }
+.chip-rojo svg { color: var(--corte); } .chip-ambar svg { color: var(--obras-dot); } .chip-info svg { color: var(--sin-dato); } .chip-resuelta svg { color: var(--ok); }
+@media (max-width: 900px) { .inc-lista { grid-template-columns: 1fr; } }

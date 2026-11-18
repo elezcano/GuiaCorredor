@@ -1837,27 +1837,41 @@ ${seccion({
 {
   const paisesI = [...new Set(incidencias.flatMap((i) => i.paises))];
   const tiposI = [...new Set(incidencias.map((i) => i.tipo))];
-  const tarjetaInc = (i) => `<li class="inc-tarjeta" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-tipo="${esc(i.tipo)}">
-  <div class="inc-cabeza">${tipoIncidencia(i.tipo)}<span class="inc-estado">${i.estado === 'activa' ? 'Activa' : 'Resuelta'}</span>${paises(i.paises)}</div>
+  // HU-136 (V2): agrupados por lo que significan para el camión. Color + forma + palabra; sello único.
+  const GRAV = {
+    rojo: ['cerrado', 'Impiden pasar'],
+    ambar: ['restricciones', 'Con restricciones o sin confirmar'],
+    info: ['sin-confirmar', 'Informativos: no cambian el veredicto'],
+    resuelta: ['abierto', 'Resueltos en los últimos 15 días'],
+  };
+  const grav = (i) => (i.estado !== 'activa' ? 'resuelta' : i.gravedad || 'ambar');
+  const tarjetaInc = (i) => {
+    const g = grav(i);
+    const op = GRAV[g][0];
+    return `<li class="inc-tarjeta inc-${g}" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-gravedad="${g}">
+  <div class="inc-cabeza"><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</span></span>${i.estado !== 'activa' ? '<span class="etiqueta-suave">Resuelta</span>' : ''}${paises(i.paises)}</div>
   <h3>${esc(i.ubicacion)}</h3>
-  <p class="inc-tramo">${esc(i.tramo)}</p>
-  <p>${txtOf(i.descripcion)}</p>
+  <p class="inc-texto">${txtOf(i.descripcion)}</p>
+  <details class="inc-mas"><summary>Fechas, impacto y tramos</summary>
   <dl class="inc-datos">
     <div><dt>Inicio</dt><dd>${i.inicio ? fecha(i.inicio) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
-    <div><dt>Fin previsto</dt><dd>${i.finPrevista ? esc(i.finPrevista) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
-    <div class="inc-impacto"><dt>Transporte pesado</dt><dd>${i.impacto ? esc(i.impacto) : '<span class="sin-dato">Sin datos verificados</span>'}</dd></div>
-    <div><dt>Fuente</dt><dd>${fuenteEnlace(i.fuente)} (${TIPO_FUENTE[i.fuente.tipo] || 'fuente'})${i.publicado ? `, ${fecha(i.publicado)}` : ', sin fecha'}${otras(i)}</dd></div>
+    <div><dt>Fin previsto</dt><dd>${i.finPrevista ? txtEs(i.finPrevista) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
+    <div class="inc-impacto"><dt>Transporte pesado</dt><dd>${i.impacto ? txtEs(i.impacto) : '<span class="sin-dato">Sin datos verificados</span>'}</dd></div>
     <div><dt>Tramos afectados</dt><dd>${(i.tramos || [])
       .map((id) => tramoPorId[id])
       .filter(Boolean)
       .map((t) => {
-        const g = t.paso?.guia || t.guia;
-        return g ? `<a href="${u(`/guia/${g}/`)}">${esc(nombreTramo(t))}</a>` : esc(nombreTramo(t));
+        const gg = t.paso?.guia || t.guia;
+        return gg ? `<a href="${u(`/guia/${gg}/`)}">${esc(nombreTramo(t))}</a>` : esc(nombreTramo(t));
       })
-      .join('<br>') || '<span class="sin-dato">Sin asignar</span>'}</dd></div>
-  </dl>
-  <p class="inc-revisado">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente)}</p>
+      .join('<br>') || (i.paso && fichaPaso[i.paso] ? esc(fichaPaso[i.paso].nombre) : '<span class="sin-dato">Sin asignar</span>')}</dd></div>
+  </dl></details>
+  <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}${otras(i)}</p>
 </li>`;
+  };
+  const ordenG = ['rojo', 'ambar', 'info', 'resuelta'];
+  const grupos = ordenG.map((g) => [g, incidencias.filter((i) => grav(i) === g)]).filter(([, l]) => l.length);
+  const listaInc = grupos.map(([g, l]) => `<li class="inc-grupo" data-cabecera id="g-${g}"><h3>${GRAV[g][1]} <span class="inc-cuenta">${l.length}</span></h3></li>${l.map(tarjetaInc).join('')}`).join('');
   const porPais = Object.keys(PAISES).map((k) => {
     const de = (t) => organismos.filter((o) => o.pais === k && t.includes(o.tipo));
     return `<tr><th scope="row">${esc(PAISES[k])}</th>
@@ -1878,19 +1892,19 @@ ${seccion({
 ${seccion({
   id: 'obras',
   titulo: 'Obras y restricciones',
-  contexto: `${plural(activas.length, 'incidencia activa', 'incidencias activas')} en la ruta.`,
+  contexto: `${plural(activas.length, 'aviso activo', 'avisos activos')} en el corredor.`,
   cuerpo: `<div class="filtros-noticias" data-filtros="#lista-inc">
+    <div class="filtro-linea" role="group" aria-label="Qué significan"><span class="filtro-etiqueta">Qué significan</span>
+      <button class="chip" type="button" data-filtro="gravedad" data-valor="" aria-pressed="true">Todos ${incidencias.length}</button>
+      ${grupos.map(([g, l]) => `<button class="chip chip-${g}" type="button" data-filtro="gravedad" data-valor="${g}" aria-pressed="false">${OPERATIVA[GRAV[g][0]].icono}${{ rojo: 'Impiden pasar', ambar: 'Con restricciones', info: 'Informativos', resuelta: 'Resueltos' }[g]} ${l.length}</button>`).join('')}
+    </div>
     <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>
       <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
-      ${paisesI.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false">${esc(PAISES[p])}</button>`).join('')}
-    </div>
-    <div class="filtro-linea" role="group" aria-label="Tipo"><span class="filtro-etiqueta">Tipo</span>
-      <button class="chip" type="button" data-filtro="tipo" data-valor="" aria-pressed="true">Todos</button>
-      ${tiposI.map((t) => `<button class="chip" type="button" data-filtro="tipo" data-valor="${esc(t)}" aria-pressed="false">${esc(TIPOS_INCIDENCIA[t]?.[0] || t)}</button>`).join('')}
+      ${paisesI.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false">${bandera(p)} ${esc(PAISES[p])}</button>`).join('')}
     </div>
   </div>
-  <ul class="inc-lista" id="lista-inc">${incidencias.map(tarjetaInc).join('')}</ul>
-  <div class="vacio" data-vacio hidden><p>No hay incidencias con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>`,
+  <ul class="inc-lista" id="lista-inc">${listaInc}</ul>
+  <div class="vacio" data-vacio hidden><p>No hay avisos con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>`,
 })}
 ${seccion({
   id: 'meteorologia',
