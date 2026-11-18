@@ -883,25 +883,6 @@
           }
         },
         {
-          "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
-          "hora": "16:13",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-17",
-          "actualizado": "2026-11-17",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "responsable-editorial",
-            "rol": "responsable-editorial",
-            "fecha": "2026-11-17",
-            "alcance": "Corrección del 17/11/2026: la página oficial leída con un navegador en hora de Argentina (16:58) muestra Jama «Abierto», horario 09:00–19:15, parte de Gendarmería de las 16:13. El «Cerrado» de la captura de las 20:51 (España) lo calculaba la propia web con la hora del móvil, no era un cierre."
-          }
-        },
-        {
           "lado": "CL",
           "emisor": "Unidad de Pasos Fronterizos de Chile (Provincia El Loa)",
           "valor": "cerrado",
@@ -919,6 +900,25 @@
             "alcance": "Comprobado el 17/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Provincia El Loa, 16/11/2026 a las 18:25, hora de Chile), que Jama no estaba habilitado para transporte de carga por fuertes ráfagas de viento, con atención normal para turismo."
           },
           "afecta": "carga"
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": null,
+          "texto": "Cierre de la jornada (fuera del horario 09:00–19:15, hora de Argentina).",
+          "hora": "20:20",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-17",
+          "actualizado": "2026-11-17",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-17",
+            "alcance": "Leído automáticamente de la web oficial el 17/11 a las 21:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:15."
+          }
         }
       ]
     },
