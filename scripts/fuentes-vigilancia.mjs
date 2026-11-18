@@ -20,7 +20,7 @@ export const COLUMNAS = ['id', 'pais', 'tramo', 'carretera_o_paso', 'fuente', 'o
 export const ESTADOS = ['activa', 'pausada', 'pendiente', 'manual', 'sin-fuente'];
 export const LECTORES = ['gendarmeria-paso', 'vialidad-ar', 'siemop-cl', 'mopc-pdf', 'dnit-alertas', 'siemop-pasos', 'whatsapp', 'manual', 'ninguno'];
 /** Lectores que el vigilante sabe ejecutar hoy. */
-export const LECTORES_AUTOMATICOS = ['gendarmeria-paso', 'vialidad-ar', 'siemop-cl', 'mopc-pdf'];
+export const LECTORES_AUTOMATICOS = ['gendarmeria-paso', 'vialidad-ar', 'siemop-cl', 'mopc-pdf', 'dnit-alertas'];
 export const TIPOS = ['automatico', 'semiautomatico', 'manual', 'whatsapp', 'sin-fuente'];
 
 /** CSV (RFC 4180: comas, comillas dobles, saltos de línea dentro de comillas) → filas de texto. */
@@ -104,6 +104,7 @@ export function validar({ cabecera, filas }, { fuentes = new Map(), pasos = new 
     if (f.lector === 'gendarmeria-paso' && !leerDestino(f.destino)?.paso) e.push(`${d}: gendarmeria-paso necesita destino paso:<id>.`);
     if (f.lector === 'vialidad-ar' && (!flt.provincia || !flt.ruta || !flt.tramos)) e.push(`${d}: vialidad-ar necesita filtro provincia=…;ruta=…;tramos=… (tramos=* para todos).`);
     if (f.lector === 'mopc-pdf' && !flt.localidades) e.push(`${d}: mopc-pdf necesita filtro localidades=…|… (lo que se busca en el informe del MOPC).`);
+    if (f.lector === 'dnit-alertas' && (!/^BR-\d{3}(\|BR-\d{3})*$/.test(flt.rodovias || '') || !/^[A-Z]{2}$/.test(flt.uf || ''))) e.push(`${d}: dnit-alertas necesita filtro rodovias=BR-267;uf=MS (rodovía con tres cifras).`);
     if (f.lector === 'siemop-cl') {
       if (!/^\d\d(\|\d\d)*$/.test(flt.regiones || '')) e.push(`${d}: siemop-cl necesita regiones=01|02.`);
       for (const k of ['km', 'dias_sin_novedad', 'max_horas']) if (!(Number(flt[k]) > 0)) e.push(`${d}: siemop-cl necesita ${k} con un número mayor que 0.`);
@@ -128,6 +129,8 @@ export function configuracion({ filas } = cargar()) {
     }),
     // HU-134: informe del MOPC (Paraguay). Qué localidades del informe cuentan para cada tramo de la Guía.
     mopc: de('mopc-pdf').map((f) => ({ guia: leerDestino(f.destino), localidades: leerFiltro(f.filtro).localidades.split('|').map((t) => t.trim()).filter(Boolean), fuente: f.fuente_id, fila: f.id })),
+    // HU-138: Alertas DNIT (Brasil). Qué rodovías y estado cuentan para cada tramo de la Guía.
+    dnit: de('dnit-alertas').map((f) => ({ guia: leerDestino(f.destino), rodovias: leerFiltro(f.filtro).rodovias.split('|').map((t) => t.trim()), uf: leerFiltro(f.filtro).uf, fuente: f.fuente_id, fila: f.id })),
     chile: cl ? { regiones: cl.regiones.split('|'), km: Number(cl.km), diasSinNovedad: Number(cl.dias_sin_novedad), maxHoras: Number(cl.max_horas) } : null,
   };
 }

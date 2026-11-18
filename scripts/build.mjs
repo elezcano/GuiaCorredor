@@ -9,6 +9,12 @@ import { cargar as cargarFuentesVigilancia } from './fuentes-vigilancia.mjs';
 import { ROOT, readJSON, loadGuia, parseFrontMatter, esc, ESTADOS, SECCIONES, PAISES, OPERATIVA, operativaDe } from './lib.mjs';
 const txtEs = (t) => `<span lang="es" class="txt-es">${esc(t)}</span>`;
 const txtOf = (t) => `<span lang="es" class="txt-es txt-oficial">${esc(t)}</span>`;
+// HU-138: los avisos del DNIT llevan una cita del texto oficial en portugués («Texto oficial: «…»»): esa parte va
+// marcada como portugués, para que no se traduzca ni se rotule como «texto oficial em espanhol».
+const descInc = (t) => {
+  const k = String(t).indexOf('Texto oficial: «');
+  return k < 0 ? txtOf(t) : `${txtEs(String(t).slice(0, k + 'Texto oficial:'.length))} <span lang="pt-BR" class="txt-pt">${esc(String(t).slice(k + 'Texto oficial: '.length))}</span>`;
+};
 import { nivel, peor, estadoMostrable, NIVELES, diasEntre, registroGuia, EVIDENCIAS } from './validacion.mjs';
 import { cargar } from './datos.mjs';
 import { generarApi } from './api.mjs';
@@ -636,7 +642,7 @@ function tablero() {
     <p>${plural(activas.length, 'incidencia activa', 'incidencias activas')}, sin verificar salvo indicación. Última publicada el ${fecha(ultimaInc)}.</p>
     <ul class="lista-inc">${activas
       .slice(0, 3)
-      .map((i) => `<li>${tipoIncidencia(i.tipo)}<strong>${esc(i.ubicacion)}</strong><span>${txtOf(i.descripcion)}</span></li>`)
+      .map((i) => `<li>${tipoIncidencia(i.tipo)}<strong>${esc(i.ubicacion)}</strong><span>${descInc(i.descripcion)}</span></li>`)
       .join('')}</ul>
     <a class="enlace-mas" href="${u('/avisos/#obras')}">Ver obras y restricciones</a>
   </section>
@@ -1014,7 +1020,7 @@ function fichaOperativa(p, guiaPag) {
     'avisos-paso',
     'Obras y avisos',
     nAvisos ? `${plural(inc.length, 'aviso activo', 'avisos activos')}${p.restricciones?.length ? ` · ${plural(p.restricciones.length, 'norma', 'normas')} para camiones` : ''}` : 'Ninguno registrado',
-    `${inc.length ? `<ul class="lista-datos">${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${txtOf(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a>${selloHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</li>`).join('')}</ul>` : '<p class="sin-dato">Ninguna incidencia registrada.</p>'}
+    `${inc.length ? `<ul class="lista-datos">${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${descInc(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a>${selloHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</li>`).join('')}</ul>` : '<p class="sin-dato">Ninguna incidencia registrada.</p>'}
      ${p.restricciones?.length ? `<h4>Transporte pesado</h4>${lista(p.restricciones)}` : ''}`
   );
   const nov = novedadesPaso(p);
@@ -1123,7 +1129,7 @@ function bloqueTramos(ruta) {
         <div class="dato-estado">${vistaHTML(t.vista)}</div>
         ${t.vista.fuente ? `<span class="dato-fuente">${fuenteEnlace(t.vista.fuente)}</span>` : ''}
         <p class="tramo-km">Distancia: ${km}</p>
-        ${inc.map((i) => `<p class="it-aviso">${tipoIncidencia(i.tipo)} ${txtOf(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></p>`).join('')}
+        ${inc.map((i) => `<p class="it-aviso">${tipoIncidencia(i.tipo)} ${descInc(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></p>`).join('')}
       </dd></div>`;
     })
     .join('');
@@ -1211,7 +1217,7 @@ const avisoHoy = (i) => {
   const forma = g === 'rojo' ? 'cerrado' : 'restricciones';
   return `<li class="aviso-hoy aviso-${g}" id="hoy-inc-${esc(i.id)}">${OPERATIVA[forma].icono.replace('<svg', `<svg class="op-${forma}"`)}<div>
     <p class="aviso-hoy-titulo"><strong>${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</strong> · ${esc(i.ubicacion)} ${paises(i.paises || [])}</p>
-    <p class="aviso-hoy-texto">${txtOf(i.descripcion)}</p>
+    <p class="aviso-hoy-texto">${descInc(i.descripcion)}</p>
     <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</p>
   </div></li>`;
 };
@@ -1867,7 +1873,7 @@ ${seccion({
     return `<li class="inc-tarjeta inc-${g}" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-gravedad="${g}">
   <div class="inc-cabeza"><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</span></span>${i.estado !== 'activa' ? '<span class="etiqueta-suave">Resuelta</span>' : ''}${paises(i.paises)}</div>
   <h3>${esc(i.ubicacion)}</h3>
-  <p class="inc-texto">${txtOf(i.descripcion)}</p>
+  <p class="inc-texto">${descInc(i.descripcion)}</p>
   <details class="inc-mas"><summary>Fechas, impacto y tramos</summary>
   <dl class="inc-datos">
     <div><dt>Inicio</dt><dd>${i.inicio ? fecha(i.inicio) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>

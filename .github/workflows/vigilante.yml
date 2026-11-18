@@ -19,7 +19,7 @@ on:
   # En una PR que toque el vigilante: comprueba el lector. Con la etiqueta «prueba-vigilante», además abre una incidencia de prueba.
   pull_request:
     types: [opened, synchronize, labeled]
-    paths: ['scripts/vigilante.mjs', 'scripts/carreteras.mjs', 'scripts/mopc.mjs', 'scripts/fuentes-vigilancia.mjs', 'data/fuentes-vigilancia.csv', '.github/workflows/vigilante.yml']
+    paths: ['scripts/vigilante.mjs', 'scripts/carreteras.mjs', 'scripts/mopc.mjs', 'scripts/dnit.mjs', 'scripts/fuentes-vigilancia.mjs', 'data/fuentes-vigilancia.csv', '.github/workflows/vigilante.yml']
 
 permissions:
   contents: write # HU-129: estado en la rama datos-vigilancia. HU-130: sube a main lo leído de la web oficial

@@ -5,7 +5,7 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 | Columna | Para qué | Valores |
 |---|---|---|
 | `estado` | Si el vigilante la lee | `activa`, `pausada`, `pendiente`, `manual`, `sin-fuente` |
-| `lector` | Cómo se lee | `gendarmeria-paso`, `vialidad-ar`, `siemop-cl`, `mopc-pdf` (los cuatro que existen hoy); `dnit-alertas`, `siemop-pasos` (pendientes); `whatsapp`, `manual`, `ninguno` |
+| `lector` | Cómo se lee | `gendarmeria-paso`, `vialidad-ar`, `siemop-cl`, `mopc-pdf`, `dnit-alertas` (los cinco que existen hoy); `siemop-pasos` (pendiente); `whatsapp`, `manual`, `ninguno` |
 | `fuente_id` | Fuente de `data/fuentes.json` (de ahí sale la dirección; tiene que ser oficial) | p. ej. `ar-vialidad-estado-rutas` |
 | `destino` | Dónde cuenta en la Guía | `paso:jama`, `tramo:pozo-hondo`… |
 | `filtro` | Qué parte de la fuente | Vialidad: `provincia=Jujuy;ruta=9;tramos=A|B` (`tramos=*`, todos). Chile: `regiones=01|02;km=3;dias_sin_novedad=14;max_horas=192`. Brasil (DNIT, pendiente): `rodovias=BR-267;uf=MS` |
@@ -63,3 +63,12 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 - **Reglas:** «Clausurada» + «P/V/P» (Para Vehículos Pesados) o «vehículos pesados» → no habilitado para carga; «Clausurada» → corte; «precaución» → ámbar; «Habilitada» o sin mención → nada.
 - **Un informe solo se aplica una vez** (`ultimoInforme` en el estado de la vigilancia): un aviso se retira cuando falta en dos informes seguidos, no en dos pasadas del vigilante.
 - **Antigüedad:** «parada» si a partir de las 10:00 de un día laborable no hay informe de ese día. Los feriados de Paraguay no se descuentan: un feriado puede dar un aviso de más.
+
+## Alertas DNIT (Brasil) · HU-138
+
+- **Fuente:** https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos. Lista de alertas de todo Brasil, de la más nueva a la más vieja, 30 por página (`?b_start:int=30`, `60`…). Cada una: título con la rodovía y el estado («… na BR-471/RS …»), etiqueta del estado y «publicado DD/MM/AAAA HHhMM».
+- **Qué se lee:** las páginas de la lista hasta 30 días atrás (como mucho 8) y, de ellas, solo se abren las alertas de las rodovías y el estado del filtro (`rodovias=BR-267;uf=MS`). La misma rodovía en otro estado (la BR-267 también pasa por MG y SP) no cuenta.
+- **Reglas:** «liberação» → cierra lo anterior de esa rodovía; «interdição/bloqueio total» → rojo; restricción por peso o a camiones → no habilitado para carga; parcial, «pare e siga», desvío, bloqueo, «alterações no trânsito» → ámbar. Lo que no encaja en ninguna no se publica: llega un aviso «Revisa» para mirarlo a mano (semiautomático).
+- **Vigencia:** las alertas anuncian casi siempre algo programado (una madrugada, un lunes). Cuentan 3 días desde su publicación; si dicen «a partir de», «por tempo indeterminado», «até nova ordem» o «sem previsão», hasta 30 días o hasta una «liberação» posterior.
+- **En la web:** «Obra» (o «Desvío» / «Límite de peso») con la gravedad que toque, una frase en castellano y la primera frase del texto oficial en portugués, marcada como portugués (no se traduce).
+- **Antigüedad:** el DNIT publica alertas de todo Brasil casi a diario; si la más nueva de la lista tiene más de 7 días, la fuente se da por parada.

@@ -464,6 +464,12 @@
       "nombre": "MOPC (Paraguay): informe diario «Estado de las rutas nacionales»",
       "url": "https://mopc.gov.py/servicios/estado-de-las-rutas/",
       "tipo": "oficial"
+    },
+    {
+      "id": "br-dnit-alertas",
+      "nombre": "DNIT (Brasil): Alertas DNIT",
+      "url": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos",
+      "tipo": "oficial"
     }
   ]
 }

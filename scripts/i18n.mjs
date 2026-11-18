@@ -55,7 +55,7 @@ export function traducirHTML(html, tr, { B, urlBase, ruta = '/' }) {
     .replace(/<!--pt-->[\s\S]*?<!--\/pt-->/g, guardar)
     .replace(/<script\b[\s\S]*?<\/script>/g, (m) => (/type="application\/json"/.test(m) ? m : guardar(m)))
     .replace(/<style\b[\s\S]*?<\/style>/g, guardar)
-    .replace(/<(span|p|strong|em|td|li|div)\b[^>]*\blang="es"[^>]*>[^<]*<\/\1>/g, guardar);
+    .replace(/<(span|p|strong|em|td|li|div)\b[^>]*\blang="(?:es|pt-BR)"[^>]*>[^<]*<\/\1>/g, guardar);
   // Los JSON de datos llevan textos de la interfaz que pinta el navegador: allí los traduce comun.js.
   h = h.replace(/<script type="application\/json"[\s\S]*?<\/script>/g, guardar);
   h = h

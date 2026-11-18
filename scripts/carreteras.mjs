@@ -28,7 +28,7 @@ const ZONA_AR = '-03:00';
 // fuentes (data/fuentes-vigilancia.csv, filas «activa»). Ahí se pausa una fuente o se mueve una ruta de tramo.
 const CFG = configuracion();
 /** Tramos oficiales de cada tramo de la Guía. paso: la incidencia solo cuenta en la variante por ese paso. */
-export const CORRESPONDENCIAS = { ar: CFG.correspondenciasAR, py: CFG.mopc };
+export const CORRESPONDENCIAS = { ar: CFG.correspondenciasAR, py: CFG.mopc, br: CFG.dnit };
 // Chile: no por número de carretera sino por posición (ver leerCL).
 export const CHILE = CFG.chile;
 

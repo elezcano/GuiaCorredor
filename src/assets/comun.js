@@ -280,7 +280,7 @@
     const re = new RegExp(`(?<![${L}])(?:${claves.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![${L}])`, 'g');
     const tr = (t) => (t && /[A-Za-zÀ-ÿ]/.test(t) ? t.replace(re, (m) => frases[m]) : t);
     GC.tr = tr;
-    const fuera = (el) => !el || !el.closest('[lang="es"]:not(html), script, style');
+    const fuera = (el) => !el || !el.closest('[lang="es"]:not(html), [lang="pt-BR"]:not(html), script, style');
     const tieneRuta = (r) => (rutas.includes('*') ? !/\.\w+$/.test(r) && !r.startsWith('/api/') : r === '/' || rutas.some((x) => x !== '/' && r.startsWith(x)));
     const enlace = (a) => {
       const h = a.getAttribute('href');
