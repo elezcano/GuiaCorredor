@@ -1499,3 +1499,4 @@ body { font-size: 17px; line-height: 1.5; }
   .cats-mas { display: inline-flex; }
 }
 .cats-lista .cat { border-radius: 18px; }
+.banda-sin-red { margin: 0; padding: 12px 16px; background: #5b646c; color: #fff; font-weight: 700; font-size: 15px; text-align: center; }

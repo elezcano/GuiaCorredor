@@ -259,6 +259,27 @@
   };
   window.GC = GC;
 
+  // HU-133 (R10): sin conexión se ve lo último guardado, siempre con la hora de esos datos. Al volver la red, se actualiza.
+  const base = raiz.dataset.base || '';
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register(`${base}/sw.js`, { scope: `${base}/` }).catch(() => {});
+  const generado = document.querySelector('meta[name="generado"]')?.content;
+  const horaZona = (z) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: z }).format(new Date(generado));
+  function sinRed() {
+    if (document.getElementById('banda-sin-red') || !generado) return;
+    const b = document.createElement('p');
+    b.id = 'banda-sin-red';
+    b.className = 'banda-sin-red';
+    b.setAttribute('role', 'status');
+    const dia = new Date(generado).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', timeZone: 'America/Argentina/Salta' }).replace('.', '');
+    b.textContent = `Sin conexión. Ves los datos guardados del ${dia} a las ${horaZona('America/Argentina/Salta')} en Argentina (${horaZona('Europe/Madrid')} en España).`;
+    document.querySelector('main')?.prepend(b);
+  }
+  if (!navigator.onLine) sinRed();
+  addEventListener('offline', sinRed);
+  addEventListener('online', () => {
+    if (document.getElementById('banda-sin-red')) location.reload();
+  });
+
   // Buscador de rutas: intercambiar origen y destino
   document.getElementById('intercambiar')?.addEventListener('click', () => {
     const o = document.getElementById('origen');

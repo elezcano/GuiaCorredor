@@ -158,8 +158,12 @@
       elegir(tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length], true);
     }
   });
-  const inicial = tabs.find((t) => `#${t.id.replace('tab-', '')}` === location.hash);
-  if (inicial) elegir(inicial);
+  const porHash = () => {
+    const t = tabs.find((x) => `#${x.id.replace('tab-', '')}` === location.hash);
+    if (t) elegir(t);
+  };
+  porHash();
+  addEventListener('hashchange', porHash);
 })();
 
 // HU-133 (R7): papeles según la carga; lo marcado se guarda en este dispositivo.

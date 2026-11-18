@@ -25,6 +25,7 @@ const site = readJSON('data/site.json');
 if (process.env.SITE_URL) site.url = process.env.SITE_URL;
 if (process.env.BASE_PATH) site.basePath = process.env.BASE_PATH === '/' ? '' : process.env.BASE_PATH;
 const B = (site.basePath || '').replace(/\/$/, '');
+const GENERADO_ISO = new Date().toISOString();
 const u = (p) => `${B}${p}`;
 const hayMapLibre = (() => {
   try {
@@ -317,9 +318,10 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', e
   const nav = secciones.map(([href, txt, , activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${txt}</a>`).join('');
   const barra = secciones.map(([href, txt, ic, activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${icono(ic)}<span>${txt}</span></a>`).join('');
   return `<!DOCTYPE html>
-<html lang="${site.idioma}">
+<html lang="${site.idioma}" data-base="${B}">
 <head>
 <meta charset="utf-8">
+<meta name="generado" content="${GENERADO_ISO}">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(t)}</title>
 <meta name="description" content="${esc(descripcion || site.lema)}">
@@ -1170,7 +1172,7 @@ const mapaVivoHTML = () => `<div class="mapa-vivo-marco" data-estado="esquema">
 const datosMapaScript = () => `<script type="application/json" id="datos-mapa">${JSON.stringify(datosMapa()).replace(/</g, '\\u003c')}</script>`;
 
 // Inicio · HU-133 (R5): «Hoy». Tu ruta con su veredicto, tus pasos, lo que impide o limita el paso y el mapa.
-const GENERADO = new Date();
+const GENERADO = new Date(GENERADO_ISO);
 const horaEn = (zona, d = GENERADO) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zona }).format(d);
 const graveOrden = { rojo: 0, ambar: 1 };
 const avisoHoy = (i) => {
@@ -2101,6 +2103,56 @@ try {
   }
 } catch {
   console.warn('Aviso: no está instalada la tipografía Overpass; se usará la de sustitución.');
+}
+
+// HU-133 (R10): service worker para ver la Guía sin cobertura. Páginas: primero la red y, si no hay, lo último guardado.
+// Archivos de la web: lo guardado y se actualiza por detrás. Cada publicación cambia la versión y limpia lo viejo.
+{
+  const version = GENERADO.toISOString();
+  const precarga = ['/', '/planificador/', '/pasos/', '/directorio/', '/avisos/', ...guia.filter((g) => pasoPorGuia[`${g.seccion}/${g.slug}`]).map((g) => g.ruta), '/assets/styles.css', '/assets/comun.js', '/assets/inicio.js', '/assets/planificador.js', '/assets/ahora.js'].map(u);
+  fs.writeFileSync(
+    path.join(DIST, 'sw.js'),
+    `// Generado por scripts/build.mjs (HU-133). Versión ${version}
+const CACHE = 'guia-${version}';
+const PRECARGA = ${JSON.stringify(precarga)};
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => Promise.allSettled(PRECARGA.map((x) => c.add(x)))).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', (e) => {
+  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('guia-') && k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+});
+self.addEventListener('fetch', (e) => {
+  const r = e.request;
+  if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
+  if (r.mode === 'navigate') {
+    e.respondWith(
+      fetch(r)
+        .then((res) => {
+          const copia = res.clone();
+          caches.open(CACHE).then((c) => c.put(r, copia));
+          return res;
+        })
+        .catch(() => caches.match(r, { ignoreSearch: true }).then((m) => m || caches.match(PRECARGA[0])))
+    );
+    return;
+  }
+  e.respondWith(
+    caches.match(r).then((m) => {
+      const red = fetch(r)
+        .then((res) => {
+          if (res.ok) {
+            const copia = res.clone();
+            caches.open(CACHE).then((c) => c.put(r, copia));
+          }
+          return res;
+        })
+        .catch(() => m);
+      return m || red;
+    })
+  );
+});
+`
+  );
 }
 
 const urlBase = site.url.replace(/\/$/, '') + B;
