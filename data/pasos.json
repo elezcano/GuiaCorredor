@@ -885,25 +885,6 @@
         },
         {
           "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
-          "hora": "08:11",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-18",
-          "actualizado": "2026-11-18",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-18",
-            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Vialidad Nacional",
           "valor": null,
           "texto": "RN 52 tramo Susques - Lte. con Chile.",
@@ -918,6 +899,25 @@
             "rol": "vigilante",
             "fecha": "2026-11-18",
             "alcance": "Leído automáticamente de la web oficial el 18/11 a las 11:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 52 tramo Susques - Lte. con Chile."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "12:26",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-18",
+          "actualizado": "2026-11-18",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-18",
+            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 14:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
