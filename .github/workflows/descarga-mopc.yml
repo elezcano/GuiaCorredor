@@ -1,0 +1,27 @@
+# Uso único (HU-134): baja los informes del MOPC a esta rama. Se borra al terminar la HU.
+name: Descarga MOPC
+on:
+  push:
+    branches: [descarga-mopc]
+    paths: [scripts/tmp/descarga-mopc.mjs, .github/workflows/descarga-mopc.yml]
+permissions:
+  contents: write
+jobs:
+  bajar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/tmp/descarga-mopc.mjs
+      - run: |
+          sudo apt-get install -y poppler-utils >/dev/null
+          for f in pruebas/vigilante/mopc/*.pdf; do [ -f "$f" ] && pdftotext -layout "$f" "${f%.pdf}.txt" || true; done
+          ls -la pruebas/vigilante/mopc | head -80
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898732+github-actions[bot]@users.noreply.github.com"
+          git add pruebas/vigilante/mopc
+          git commit -m "Informes del MOPC de noviembre (descarga de uso único, HU-134)" || exit 0
+          git push
