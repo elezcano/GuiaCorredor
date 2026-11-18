@@ -47,7 +47,10 @@ async function comprobarMapa(p, ok, donde) {
       await q.addInitScript((t) => { try { localStorage.setItem('tema', t); } catch {} }, tema);
       await q.goto(B + '/');
       if (await q.$('.mapa-vivo-marco')) {
-        ok((await q.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
+        // HU-136: en «Hoy» (V2) el mapa está en la primera pantalla y se carga enseguida; si quedara más abajo,
+        // seguiría cargándose solo al llegar a él.
+        const lejos = await q.$eval('.mapa-vivo-marco', (e) => e.getBoundingClientRect().top > innerHeight + 400);
+        if (lejos) ok((await q.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
         await q.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
         // Primero tiene que arrancar la carga perezosa (el estado deja de ser «esquema»).
         if (await q.$('script[src$="/assets/mapa-perezoso.js"]')) {
