@@ -55,8 +55,7 @@ jobs:
         env:
           BASE_PATH: ${{ vars.BASE_PATH }}
       - uses: actions/upload-pages-artifact@v3
-        # Nunca desde un PR (aunque ya esté fusionado): solo push, cron o lanzamiento manual en main.
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.PUBLICAR != 'false'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.PUBLICAR != 'false'
         with:
           path: dist
 
