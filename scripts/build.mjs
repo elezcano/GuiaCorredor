@@ -280,15 +280,16 @@ const minutosDesfase = (zona, dia) => {
   const [, sg, h, m] = v.match(/GMT([+-])(\d\d):(\d\d)/);
   return (sg === '-' ? -1 : 1) * (Number(h) * 60 + Number(m));
 };
-const ZONA_PAIS = { 'America/Argentina/Salta': 'Argentina', 'America/Argentina/Buenos_Aires': 'Argentina', 'America/Argentina/Jujuy': 'Argentina', 'America/Santiago': 'Chile', 'America/Asuncion': 'Paraguay', 'America/Campo_Grande': 'Brasil' };
+const ZONA_PAIS = { 'America/Argentina/Salta': 'Argentina', 'America/Argentina/Catamarca': 'Argentina', 'America/Argentina/Cordoba': 'Argentina', 'America/Argentina/Buenos_Aires': 'Argentina', 'America/Argentina/Jujuy': 'Argentina', 'America/Santiago': 'Chile', 'America/Asuncion': 'Paraguay', 'America/Campo_Grande': 'Brasil' };
 function enEspana(hhmm, zona, dia = HOY) {
   const [h, m] = hhmm.split(':').map(Number);
   let t = h * 60 + m - minutosDesfase(zona, dia) + minutosDesfase(ZONA_ES, dia);
   t = ((t % 1440) + 1440) % 1440;
   return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 }
-const rangoDosHoras = (a, c, zona, dia = HOY) => `${a}–${c} en ${ZONA_PAIS[zona] || 'hora local'} (${enEspana(a, zona, dia)}–${enEspana(c, zona, dia)} en España)`;
-const dosHoras = (hhmm, zona, dia = HOY) => `${hhmm} en ${ZONA_PAIS[zona] || 'hora local'} (${enEspana(hhmm, zona, dia)} en España)`;
+const rangoDosHoras = (a, c, zona, dia = HOY) => `${a}–${c} en ${paisDeZona(zona)} (${enEspana(a, zona, dia)}–${enEspana(c, zona, dia)} en España)`;
+const paisDeZona = (z) => ZONA_PAIS[z] || (/^America\/Argentina\//.test(z) ? 'Argentina' : 'hora local');
+const dosHoras = (hhmm, zona, dia = HOY) => `${hhmm} en ${paisDeZona(zona)} (${enEspana(hhmm, zona, dia)} en España)`;
 
 const marca = `<span class="placa"><span class="placa-l1">Guía del</span><span class="placa-l2">Corredor</span></span>`;
 
@@ -993,9 +994,13 @@ function fichaOperativa(p, guiaPag) {
     </dl>
     <button class="btn btn-borde btn-pequeno no-imprimir" type="button" onclick="document.querySelectorAll('.ficha-operativa details').forEach((d) => (d.open = true)); window.print()">${icono('imprimir')}Imprimir ficha completa</button>`
   );
+  // HU-133 (R7): tres pestañas. El sentido del cruce vale para las tres.
+  const pest = (id, txt, on) => `<button type="button" role="tab" id="tab-${id}" aria-controls="pane-${id}" aria-selected="${on}" tabindex="${on ? 0 : -1}">${txt}</button>`;
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
   <h2 id="t-ficha" class="sr-only">Situación operativa</h2>
   ${sentidoHTML(p)}
+  <div class="pestanas" role="tablist" aria-label="Ficha del paso">${pest('hoy', 'Hoy', true)}${pest('papeles', 'Papeles', false)}${pest('calendario', 'Calendario', false)}</div>
+  <div class="pestana" role="tabpanel" id="pane-hoy" aria-labelledby="tab-hoy">
   ${respuesta}
   ${partesHTML(p, op)}
   ${fiabilidadHTML(p)}
@@ -1003,7 +1008,50 @@ function fichaOperativa(p, guiaPag) {
   <div class="plegables">
     ${secControles}${secHorarios}${secTel}${secAvisos}${secHist}${secSobre}
   </div>
+  </div>
+  <div class="pestana" role="tabpanel" id="pane-papeles" aria-labelledby="tab-papeles" hidden>${papelesPaso(p)}</div>
+  <div class="pestana" role="tabpanel" id="pane-calendario" aria-labelledby="tab-calendario" hidden>${calendarioPaso(p)}</div>
 </section>`;
+}
+
+/** HU-133 (R7): pestaña «Papeles» del paso. Lista de comprobación según la carga, marcable y guardada en el dispositivo. */
+function papelesPaso(p) {
+  const chips = rutas.tiposCarga
+    .map((c, i) => `<label class="chip chip-radio"><input type="radio" name="carga-paso" value="${esc(c.id)}"${i === 0 ? ' checked' : ''}>${esc(c.nombre)}</label>`)
+    .join('');
+  const docs = rutas.documentosCruce
+    .map((d) => `<li data-cargas="${esc((d.cargas || []).join(' '))}"><label class="papel"><input type="checkbox" data-doc="${esc(d.id)}"><span class="papel-caja" aria-hidden="true"></span><span>${esc(d.nombre)}</span></label></li>`)
+    .join('');
+  return `<div class="papeles-paso" data-papeles>
+    <fieldset class="pl-carga"><legend>¿Qué llevas?</legend><div class="chips">${chips}</div></fieldset>
+    <p class="papeles-cuenta"><strong data-total></strong> <span data-listos></span></p>
+    <ul class="papeles-lista">${docs}</ul>
+    <p class="dato-fuente">${esc(rutas.avisoDocumentos)} Lo que marcas se guarda solo en este dispositivo.</p>
+    <p class="papeles-mas">Tránsito aduanero y controles sanitarios de ${esc(listaY(Object.keys(p.lados).map((k) => PAISES[k])))}: <a href="${u('/papeles/')}">ver papeles por país</a>.</p>
+    <div class="barra-accion"><a class="btn btn-borde btn-grande" href="${u('/directorio/?categoria=despachante')}">Buscar despachante</a><button class="btn btn-borde btn-grande" type="button" onclick="window.print()">Imprimir lista</button></div>
+  </div>`;
+}
+/** HU-133 (R7): pestaña «Calendario» del paso. ¿Cuándo cruzas? y festivos de los dos países. No inventa horarios especiales. */
+function calendarioPaso(p) {
+  const ps = Object.keys(p.lados);
+  const fest = festivos.filter((f) => ps.includes(f.pais));
+  const datos = {
+    paises: Object.fromEntries(ps.map((k) => [k, PAISES[k]])),
+    festivos: fest.map((f) => ({ fecha: f.fecha, pais: f.pais, nombre: f.nombre, tipo: TIPOS_FESTIVO[f.tipo] || f.tipo, porConfirmar: f.validacion !== 'verificado' })),
+    especiales: (p.horariosEspeciales || []).map((h) => ({ desde: h.desde, hasta: h.hasta, texto: h.texto })),
+    hoy: HOY,
+  };
+  const proximos = fest.slice(0, 6);
+  return `<div class="calendario-paso" data-cal-paso="${esc(JSON.stringify(datos))}">
+    <fieldset class="cal-cuando"><legend>¿Cuándo cruzas?</legend>
+      <div class="chips"><label class="chip chip-radio"><input type="radio" name="cuando" value="0" checked>Hoy</label><label class="chip chip-radio"><input type="radio" name="cuando" value="1">Mañana</label>
+      <label class="campo-fecha"><span class="sr-only">Otra fecha</span><input type="date" name="fecha" min="${HOY}" value="${HOY}"></label></div>
+    </fieldset>
+    <div class="cal-respuesta" aria-live="polite"></div>
+    <h3>Próximos festivos en ${esc(listaY(ps.map((k) => PAISES[k])))}</h3>
+    ${proximos.length ? `<ul class="lista-fest">${proximos.map(filaFestivo).join('')}</ul>` : '<p class="sin-dato">Ninguno cargado.</p>'}
+    <p class="dato-fuente">Un festivo no implica que la aduana cierre. Si nadie ha publicado horario especial, lo decimos tal cual. <a href="${u('/calendario/')}">Calendario completo</a></p>
+  </div>`;
 }
 
 /** Aviso de ficha según su nivel de validación (mismo sistema que los estados). */
@@ -1644,8 +1692,13 @@ add(
     <p>${Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(v)}`).join(' – ')}</p>
   </div>
   <div class="paso-tarjeta-estado">${estadoPasoHTML(p.id)}</div>
+  ${(() => {
+    // HU-133 (R7): festivo en los próximos 7 días en alguno de los dos lados, en azul.
+    const f = festivos.find((x) => Object.keys(p.lados).includes(x.pais) && diasDesde(x.fecha) >= -7);
+    return f ? `<a class="etiqueta-festivo" href="${href}#calendario">${esc(diaSemana(f.fecha))} ${esc(fechaCorta(f.fecha))} · festivo en ${esc(PAISES[f.pais])}</a>` : '';
+  })()}
   <dl class="paso-tarjeta-datos">
-    <div><dt>Horario</dt><dd>${h ? `${esc(h.texto)}${h.lado ? ` <span class="dato-fuente">${conBanderas(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin verificar</span>'}</dd></div>
+    <div><dt>Horario</dt><dd>${h ? `${h.apertura && h.cierre && h.zona ? `${rangoDosHoras(h.apertura, h.cierre, h.zona)}<span class="dato-fuente">${esc(h.texto)}</span>` : esc(h.texto)}${h.lado ? ` <span class="dato-fuente">${conBanderas(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin verificar</span>'}</dd></div>
     <div><dt>Tiempo de cruce</dt><dd>${cruceCorto(p.id).replace(/<[^>]+>/g, '').replace('Cruce ', '') || '<span class="sin-dato">Sin datos suficientes</span>'}</dd></div>
     <div><dt>Incidencias</dt><dd>${inc ? plural(inc, 'activa', 'activas') : 'Ninguna'}</dd></div>
   </dl>

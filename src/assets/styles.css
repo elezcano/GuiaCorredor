@@ -1450,3 +1450,30 @@ body { font-size: 17px; line-height: 1.5; }
 .pl-veredicto .veredicto-porque { font-size: 17px; margin: 0; }
 @media (max-width: 760px) { .pl-veredicto .veredicto-titulo { font-size: 26px; } }
 .pl-opcion .etiqueta { background: var(--primary); color: var(--primary-foreground); }
+
+/* ---------- Ficha del paso: pestañas ---------- */
+.pestanas { display: flex; gap: 4px; padding: 4px; border-radius: 16px; background: var(--muted); margin: 16px 0; }
+.pestanas [role="tab"] { flex: 1; min-height: 48px; border: 0; border-radius: 12px; background: transparent; font: inherit; font-size: 17px; font-weight: 800; color: var(--muted-foreground); cursor: pointer; }
+.pestanas [role="tab"][aria-selected="true"] { background: var(--background); color: var(--foreground); box-shadow: 0 1px 3px rgb(20 24 27 / 0.15); }
+.pestanas [role="tab"]:focus-visible { outline: 3px solid var(--ring-halo); outline-offset: 2px; }
+.papeles-cuenta { font-size: 18px; margin: 12px 0 4px; }
+.papeles-cuenta span { color: var(--ok); font-weight: 700; }
+.papeles-lista { list-style: none; margin: 0 0 12px; padding: 0; }
+.papel { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 17px; }
+.papel input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.papel-caja { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--sin-dato); flex: none; display: flex; align-items: center; justify-content: center; }
+.papel input:checked + .papel-caja { background: var(--ok); border-color: var(--ok); }
+.papel input:checked + .papel-caja::after { content: "✓"; color: #fff; font-weight: 800; }
+.papel input:focus-visible + .papel-caja { outline: 3px solid var(--ring-halo); outline-offset: 2px; }
+.cal-respuesta { margin: 12px 0 20px; }
+.cal-festivo { padding: 16px; border-radius: 18px; background: #e6ecf8; color: #1d3f8f; border-left: 6px solid #1d3f8f; }
+.cal-festivo p { margin: 6px 0 0; }
+.cal-festivo-titulo { font-size: 22px; font-weight: 800; margin: 0 !important; }
+.cal-ok { padding: 14px 16px; border-radius: 16px; background: var(--muted); margin: 0; }
+:root[data-tema="oscuro"] .cal-festivo { background: #1a2540; color: #c9d6f5; border-left-color: #8fa9e6; }
+.cal-cuando, .papeles-paso .pl-carga { border: 0; padding: 0; margin: 0; } .cal-cuando legend, .papeles-paso legend { font-weight: 800; font-size: 18px; margin-bottom: 8px; padding: 0; }
+.etiqueta-festivo { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 10px; background: #e6ecf8; color: #1d3f8f; font-size: 15px; font-weight: 800; text-decoration: none; }
+.etiqueta-festivo::before { content: ""; width: 12px; height: 12px; border: 2px solid currentColor; border-top-width: 4px; border-radius: 3px; box-sizing: border-box; }
+:root[data-tema="oscuro"] .etiqueta-festivo { background: #1a2540; color: #c9d6f5; }
+.paso-tarjeta { border-radius: 20px; }
+.papeles-paso .papeles-lista { padding-left: 0; } .papeles-paso .papeles-lista li { margin: 0; } .papeles-paso .papeles-lista li::before { content: none; }
