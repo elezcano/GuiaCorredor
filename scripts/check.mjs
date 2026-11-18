@@ -1,7 +1,9 @@
 // Revisa los datos y el contenido antes de publicar.
 // Errores = no se puede publicar. Avisos = se puede, pero hay que mirarlo.
 // Orden: 1) esquemas JSON (estructura), 2) reglas de contenido y referencias, 3) calidad.
-import { readJSON, loadGuia, CAMPOS_OBLIGATORIOS, ESTADOS, SECCIONES, PAISES } from './lib.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { ROOT, readJSON, loadGuia, CAMPOS_OBLIGATORIOS, ESTADOS, SECCIONES, PAISES } from './lib.mjs';
 import { configEnvio, CAMPOS_SOLICITUD } from './cruces.mjs';
 import { erroresRegistro, nivel, tipoEstado, VERIFICADORES } from './validacion.mjs';
 import { cargar } from './datos.mjs';
@@ -288,6 +290,12 @@ function coordenadas(c, donde, nota) {
   }
   if (!idsFuente.has(c.fuente)) errores.push(`${donde}: coordenadas sin fuente válida.`);
   if (c.lat < -35 || c.lat > -15 || c.lon < -75 || c.lon > -45) errores.push(`${donde}: coordenadas fuera del ámbito del corredor (${c.lat}, ${c.lon}).`);
+}
+
+// HU-135: cada frase del diccionario portugués tiene su traducción (texto no vacío).
+{
+  const dic = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'i18n', 'pt-BR.json'), 'utf8'));
+  for (const [es, pt] of Object.entries(dic.frases || {})) if (typeof pt !== 'string' || !pt.trim()) errores.push(`src/i18n/pt-BR.json: «${es}» no tiene traducción.`);
 }
 
 for (const a of avisos) console.log(`AVISO  ${a}`);

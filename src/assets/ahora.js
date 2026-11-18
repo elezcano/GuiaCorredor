@@ -24,14 +24,22 @@
     return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
   };
   const paisZona = (z) => PAIS_ZONA[z] || (/^America\/Argentina\//.test(z) ? 'Argentina' : 'hora local');
-  const doble = (hhmm, zona) => `${hhmm} en ${paisZona(zona)} (${enEspana(hhmm, zona)} en España)`;
+  // HU-135: en portugués, la hora de referencia es la de Campo Grande (Brasil).
+  const PT = document.documentElement.lang.startsWith('pt');
+  const REF = PT ? 'America/Campo_Grande' : 'Europe/Madrid';
+  const enRef = (hhmm, zona) => {
+    let t = minutos(hhmm) - desfase(zona) + desfase(REF);
+    t = ((t % 1440) + 1440) % 1440;
+    return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+  };
+  const doble = (hhmm, zona) => `${hhmm} en ${paisZona(zona)} (${enRef(hhmm, zona)} ${PT ? 'em Campo Grande' : 'en España'})`;
   function pintar() {
     d.paises.forEach((p) => {
       const r = el.querySelector(`.ahora-reloj[data-pais="${p.pais}"] .ahora-hora`);
       if (r) r.textContent = `${hora(p.zona)} en ${p.nombre}`;
     });
     el.querySelectorAll('.ahora-reloj-es .ahora-hora').forEach((r) => {
-      r.textContent = `${hora('Europe/Madrid')} en España`;
+      r.textContent = document.documentElement.lang.startsWith('pt') ? `${hora('America/Campo_Grande')} em Campo Grande` : `${hora('Europe/Madrid')} en España`;
     });
     const habitual = d.horario ? ` (de ${doble(d.horario.apertura, d.horario.zona)} a ${doble(d.horario.cierre, d.horario.zona)})` : '';
     if (d.op === 'cerrado') {
@@ -233,7 +241,7 @@
     const esp = d.especiales.filter((h) => h.desde <= dia && dia <= h.hasta);
     const D = largo(dia);
     if (!fs.length) {
-      salida.innerHTML = `<p class="cal-ok"><strong>${esc(D[0].toUpperCase() + D.slice(1))}:</strong> no es festivo ${Object.keys(d.paises).map((p) => `en ${esc(d.paises[p])}`).join(' ni ')}.${esp.length ? ` Horario especial publicado: ${esp.map((h) => esc(h.texto)).join(' ')}` : ''}</p>`;
+      salida.innerHTML = `<p class="cal-ok"><strong>${esc(D[0].toUpperCase() + D.slice(1))}:</strong> no es festivo ${Object.keys(d.paises).map((p) => `en ${esc(d.paises[p])}`).join(' ni ')}.${esp.length ? ` Horario especial publicado: ${esp.map((h) => `<span lang="es" class="txt-es">${esc(h.texto)}</span>`).join(' ')}` : ''}</p>`;
       return;
     }
     const ps = [...new Set(fs.map((f) => f.pais))];
@@ -241,7 +249,7 @@
     salida.innerHTML = `<div class="cal-festivo" role="status">
       <p class="cal-festivo-titulo">${dos ? 'Festivo en los dos lados' : `Festivo en ${esc(nombres(ps))}`}</p>
       <p>${esc(D[0].toUpperCase() + D.slice(1))}: ${fs.map((f) => `${esc(f.nombre)} (${esc(d.paises[f.pais])}${f.tipo !== 'Feriado' ? `, ${esc(f.tipo.toLowerCase())}` : ''}${f.porConfirmar ? ', por confirmar' : ''})`).join('; ')}.</p>
-      <p>${esp.length ? `Horario especial publicado: ${esp.map((h) => esc(h.texto)).join(' ')}` : 'Nadie ha publicado horario especial. Antes de salir, confirma si la aduana atiende carga ese día.'}</p>
+      <p>${esp.length ? `Horario especial publicado: ${esp.map((h) => `<span lang="es" class="txt-es">${esc(h.texto)}</span>`).join(' ')}` : 'Nadie ha publicado horario especial. Antes de salir, confirma si la aduana atiende carga ese día.'}</p>
     </div>`;
   }
   caja.addEventListener('change', (e) => {

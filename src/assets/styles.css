@@ -1503,3 +1503,11 @@ body { font-size: 17px; line-height: 1.5; }
 /* Tema oscuro: el amarillo sigue siendo solo para negocio; lo principal va en blanco. */
 :root[data-tema="oscuro"] .btn-principal, :root[data-tema="oscuro"] .nav a[aria-current="page"], :root[data-tema="oscuro"] .barra-inferior a[aria-current="page"] .icono, :root[data-tema="oscuro"] .pl-opcion .etiqueta { background: #f2f4f5; color: #14181b; }
 :root[data-tema="oscuro"] .btn-principal:hover { background: #ffffff; color: #14181b; }
+
+/* ---------- HU-135: idioma ---------- */
+.idiomas { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 999px; overflow: hidden; height: 40px; }
+.idiomas a { display: flex; align-items: center; padding: 0 12px; font-weight: 800; font-size: 15px; text-decoration: none; color: var(--muted-foreground); }
+.idiomas a[aria-current="true"] { background: var(--foreground); color: var(--background); }
+.idiomas a:focus-visible { outline: 3px solid var(--ring-halo); outline-offset: -3px; }
+html[lang^="pt"] .txt-oficial::after { content: " · texto oficial em espanhol"; font-size: 13px; font-style: italic; color: var(--muted-foreground); }
+html[lang^="pt"] .contenido-es::before { content: "Conteúdo do guia em espanhol"; display: inline-block; margin-bottom: 8px; padding: 2px 10px; border-radius: 8px; background: var(--muted); font-size: 14px; font-weight: 700; }
