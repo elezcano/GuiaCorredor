@@ -1500,3 +1500,6 @@ body { font-size: 17px; line-height: 1.5; }
 }
 .cats-lista .cat { border-radius: 18px; }
 .banda-sin-red { margin: 0; padding: 12px 16px; background: #5b646c; color: #fff; font-weight: 700; font-size: 15px; text-align: center; }
+/* Tema oscuro: el amarillo sigue siendo solo para negocio; lo principal va en blanco. */
+:root[data-tema="oscuro"] .btn-principal, :root[data-tema="oscuro"] .nav a[aria-current="page"], :root[data-tema="oscuro"] .barra-inferior a[aria-current="page"] .icono, :root[data-tema="oscuro"] .pl-opcion .etiqueta { background: #f2f4f5; color: #14181b; }
+:root[data-tema="oscuro"] .btn-principal:hover { background: #ffffff; color: #14181b; }
