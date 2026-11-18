@@ -35,6 +35,7 @@ import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { CARPETA_MOPC, FUENTE_MOPC, PAGINA_MOPC, archivoMOPC, candidatosMOPC, carpetaDelMes, incidenciasMOPC, leerInformeMOPC, listadoDrive, masReciente, mopcAtrasado } from './mopc.mjs';
+import { DIAS_ALERTA_ABIERTA, FUENTE_DNIT, PAGINA_DNIT, alertaDNIT, clasificarDNIT, incidenciasDNIT, listaDNIT, rodoviasDe } from './dnit.mjs';
 
 // HU-136: las páginas de pasos que se leen salen del CSV de fuentes (filas «activa» con lector gendarmeria-paso).
 const PAGINAS = configuracion().pasosAR;
@@ -375,6 +376,42 @@ function autoprueba() {
     roto = /cambiado de formato/.test(e.message);
   }
   ok(roto, 'MOPC: si falta una de las tres partes, la lectura falla y no se publica nada.');
+  // HU-138: Alertas DNIT, con copias del 18/11/2026 (lista y alertas reales de otros estados; las de MS, simuladas).
+  const dn = (n) => fs.readFileSync(new URL(`../pruebas/vigilante/dnit-${n}-2026-11-18.html`, import.meta.url), 'utf8');
+  const listaBR = listaDNIT(dn('lista-1'));
+  ok(listaBR.length === 30 && listaBR[0].instante === '2026-11-18T21:18:00.000Z' && listaBR[0].estados[0] === 'Santa Catarina' && rodoviasDe(listaBR[0].titulo)[0]?.br === 'BR-280', `DNIT: 30 alertas por página, con fecha, hora, estado y rodovía (${listaBR[0].titulo.slice(0, 50)}).`);
+  const corrBR = CORRESPONDENCIAS.br;
+  ok(corrBR.length === 2 && corrBR.every((c) => c.uf === 'MS' && c.guia.tramo === 'cg-pm') && corrBR.some((c) => c.rodovias.includes('BR-060')) && corrBR.some((c) => c.rodovias.includes('BR-267')), 'CSV de fuentes: el DNIT vigila la BR-060 y la BR-267 en MS (Campo Grande → Porto Murtinho).');
+  const conTexto = (n, cambio = (s) => s) => {
+    const h = cambio(dn(`alerta-${n}`));
+    return { ...alertaDNIT(h), url: `${PAGINA_DNIT}/${n}`, estados: [] };
+  };
+  const ahoraBR = new Date('2026-11-18T22:00:00Z');
+  const reales = ['total', 'paresiga', 'restricao', 'parcial'].map((n) => conTexto(n));
+  ok(incidenciasDNIT(reales, corrBR, ahoraBR).inc.length === 0, 'DNIT: las alertas de otras rodovías y estados (BR-471/RS, BR-280/SC…) no cuentan.');
+  const enMS = (n, br = 'BR-267/MS') => conTexto(n, (s) => s.replace(/BR-\d{3}\/[A-Z]{2}/g, br).replace(/br-\d{3}-[a-z]{2}/g, br.toLowerCase().replace('/', '-')));
+  const totalMS = enMS('total');
+  const [rojoBR] = incidenciasDNIT([totalMS], corrBR, ahoraBR).inc;
+  ok(rojoBR?.tramos?.[0] === 'cg-pm' && rojoBR.gravedad === 'rojo' && rojoBR.tipo === 'obra' && rojoBR.fuente === FUENTE_DNIT && rojoBR.horaFuente === '2026-11-17T17:16:00.000Z' && /^BR-267\/MS: Interdicción total, según el DNIT \(alerta del 17\/11\/2026, 14:16/.test(rojoBR.descripcion) && /«O DNIT alerta que o tráfego/.test(rojoBR.descripcion) && rojoBR.enlace, `DNIT: interdicción total en la BR-267/MS → Campo Grande–Porto Murtinho en rojo, con el texto oficial y la hora (${rojoBR?.descripcion?.slice(0, 90)}).`);
+  ok(incidenciasDNIT([enMS('total', 'BR-267/MG')], corrBR, ahoraBR).inc.length === 0, 'DNIT: la misma rodovía en otro estado (BR-267/MG) no cuenta.');
+  const cargaBR = incidenciasDNIT([enMS('restricao', 'BR-060/MS')], corrBR, new Date('2026-11-13T12:00:00Z')).inc[0];
+  ok(cargaBR?.afecta === 'carga' && cargaBR.gravedad === 'rojo', 'DNIT: restricción por peso («acima de 36 toneladas») → no habilitado para carga.');
+  ok(incidenciasDNIT([enMS('paresiga')], corrBR, ahoraBR).inc[0]?.gravedad === 'ambar', 'DNIT: «pare e siga» → ámbar.');
+  ok(incidenciasDNIT([totalMS], corrBR, new Date('2026-11-21T18:00:00Z')).inc.length === 0, 'DNIT: una alerta cuenta 3 días desde su publicación.');
+  const abierta = { ...totalMS, texto: totalMS.texto.replace('será totalmente bloqueado', 'será totalmente bloqueado a partir de segunda-feira') };
+  ok(incidenciasDNIT([abierta], corrBR, new Date('2026-11-30T18:00:00Z')).inc.length === 1 && incidenciasDNIT([abierta], corrBR, new Date('2026-12-20T18:00:00Z')).inc.length === 0, 'DNIT: «a partir de» (sin fecha de fin) cuenta hasta 30 días.');
+  const lib = { ...enMS('liberacao'), instante: '2026-11-18T12:00:00.000Z', dia: '2026-11-18' };
+  ok(incidenciasDNIT([abierta, lib], corrBR, ahoraBR).inc.length === 0, 'DNIT: una «liberação» posterior de la misma rodovía cierra lo anterior.');
+  const raro = { ...totalMS, titulo: 'DNIT informa sobre obras na BR-267/MS', texto: 'O DNIT informa sobre a manutenção na BR-267/MS.' };
+  const sinClase = incidenciasDNIT([raro], corrBR, ahoraBR);
+  ok(sinClase.inc.length === 0 && sinClase.revisar.length === 1, 'DNIT: lo que no se sabe clasificar no se publica: queda para revisar a mano.');
+  let rotoBR = false;
+  try {
+    alertaDNIT(dn('alerta-total').replace('rnews:articleBody', 'otra-cosa'));
+  } catch (e) {
+    rotoBR = /cambiado de formato/.test(e.message);
+  }
+  ok(rotoBR, 'DNIT: si la página de la alerta cambia de formato, la lectura falla.');
   // Antigüedad: sin informes el fin de semana; el lunes, hasta las 10:00 vale el del viernes.
   ok(!mopcAtrasado('2026-11-13', new Date('2026-11-15T15:00:00Z')) && !mopcAtrasado('2026-11-13', new Date('2026-11-16T12:59:00Z')) && mopcAtrasado('2026-11-13', new Date('2026-11-16T13:01:00Z')), 'MOPC: el fin de semana no cuenta; el lunes a las 10:00 (hora de Paraguay) ya tiene que estar el informe del día.');
   // Un informe ya aplicado no se vuelve a aplicar: la retirada cuenta informes, no pasadas.
@@ -464,7 +501,7 @@ const traer = async (url, opciones = {}) => {
   return r;
 };
 // Chile publica una vez a la semana (lunes): más de 8 días sin cambios es que la fuente se ha parado.
-const MAX_HORAS = { 'cl-vialidad-siemop': CHILE?.maxHoras ?? 8 * 24 };
+const MAX_HORAS = { 'cl-vialidad-siemop': CHILE?.maxHoras ?? 8 * 24, [FUENTE_DNIT]: 7 * 24 }; // HU-138: el DNIT publica alertas de todo Brasil casi a diario
 const CL_CAPA = 'https://rest-sit.mop.gob.cl/arcgis/rest/services/VIALIDAD/Emergencias_Vialidad/MapServer/0/query';
 
 async function leerFuenteAR() {
@@ -534,6 +571,24 @@ async function leerFuenteMOPC(ahora = new Date()) {
   return { inc: incidenciasMOPC(inf, CORRESPONDENCIAS.py, FUENTE_MOPC), ultimaEdicion: inf.instante, informe: inf.instante, dia: inf.dia, resumen: `informe del ${inf.dia.split('-').reverse().join('/')} de las ${inf.hora} («${inf.archivo}»)` };
 }
 
+// HU-138: Alertas DNIT. Se recorre la lista (30 por página) hasta 30 días atrás y se abren solo las alertas de nuestras
+// rodovías y estado.
+async function leerFuenteDNIT(ahora = new Date()) {
+  const lista = [];
+  for (let p = 0; p < 8; p++) {
+    const pag = listaDNIT(await (await traer(p ? `${PAGINA_DNIT}?b_start:int=${p * 30}` : PAGINA_DNIT)).text());
+    lista.push(...pag);
+    const vieja = pag.map((a) => a.instante).filter(Boolean).sort()[0];
+    if (vieja && (ahora - new Date(vieja)) / 864e5 > DIAS_ALERTA_ABIERTA) break;
+  }
+  const nuestras = lista.filter((a) => a.instante && (ahora - new Date(a.instante)) / 864e5 <= DIAS_ALERTA_ABIERTA && rodoviasDe(a.titulo).some((r) => CORRESPONDENCIAS.br.some((c) => c.rodovias.includes(r.br) && (!r.uf || r.uf === c.uf))));
+  const alertas = [];
+  for (const a of nuestras) alertas.push({ ...a, ...(clasificarDNIT(a.titulo)?.liberacao ? { texto: '' } : alertaDNIT(await (await traer(a.url)).text())), url: a.url, estados: a.estados });
+  const { inc, revisar } = incidenciasDNIT(alertas, CORRESPONDENCIAS.br, ahora, FUENTE_DNIT);
+  const ultima = lista.map((a) => a.instante).filter(Boolean).sort().pop();
+  return { inc, revisar, ultimaEdicion: ultima, resumen: `${lista.length} alertas leídas (${nuestras.length} de nuestras rodovías)` };
+}
+
 /** Lee las fuentes de carreteras y decide los cambios en data/incidencias.json. */
 async function revisarCarreteras(ahora = new Date(), previo = {}) {
   const archivo = json('data/incidencias.json');
@@ -545,6 +600,7 @@ async function revisarCarreteras(ahora = new Date(), previo = {}) {
   const fuentes = [
     CORRESPONDENCIAS.ar.length && { id: 'ar-vialidad-estado-rutas', nombre: 'Carreteras de Argentina (Vialidad Nacional)', url: 'https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas', leer: async () => ({ inc: await leerFuenteAR() }) },
     CORRESPONDENCIAS.py.length && { id: FUENTE_MOPC, nombre: 'Carreteras de Paraguay (MOPC)', url: PAGINA_MOPC, leer: () => leerFuenteMOPC(ahora) },
+    CORRESPONDENCIAS.br.length && { id: FUENTE_DNIT, nombre: 'Carreteras de Brasil (DNIT)', url: PAGINA_DNIT, leer: () => leerFuenteDNIT(ahora) },
     CHILE && { id: 'cl-vialidad-siemop', nombre: 'Carreteras de Chile (Vialidad, MOP)', url: 'https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0', leer: leerFuenteCL },
   ].filter(Boolean);
   for (const f of fuentes) {
@@ -552,7 +608,7 @@ async function revisarCarreteras(ahora = new Date(), previo = {}) {
     try {
       leido = await f.leer();
     } catch (e) {
-      console.log(`⚠ ${f.nombre}: ${e.message}`);
+      console.log(`${process.env.GITHUB_EVENT_NAME === 'pull_request' ? '::warning::' : ''}⚠ ${f.nombre}: ${e.message}`);
       resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: false, error: e.message });
       continue;
     }
@@ -570,9 +626,11 @@ async function revisarCarreteras(ahora = new Date(), previo = {}) {
     }
     const { incidencias, cambios, descartada, tocado } = aplicar(lista, leido.inc, f.id, ahora);
     if (tocado) hayQueEscribir = true;
-    console.log(`${f.nombre}: ${leido.resumen ? `${leido.resumen}, ` : ''}${leido.inc.length} avisos en el corredor${descartada ? ' (copia antigua: descartada)' : ''}${error ? ` · ⚠ ${error}` : ''}`);
+    // En una PR, la lectura real sale como nota en GitHub (los registros completos no siempre se pueden ver).
+    console.log(`${process.env.GITHUB_EVENT_NAME === 'pull_request' ? '::notice::' : ''}${f.nombre}: ${leido.resumen ? `${leido.resumen}, ` : ''}${leido.inc.length} avisos en el corredor${descartada ? ' (copia antigua: descartada)' : ''}${error ? ` · ⚠ ${error}` : ''}`);
     lista = incidencias;
-    if (cambios.length) publicados.push({ paso: { id: f.id, nombre: f.nombre }, url: f.url, cambios, avisos: [], carretera: true });
+    // HU-138: lo que no se sabe clasificar no se publica: se avisa para revisarlo a mano.
+    if (cambios.length || leido.revisar?.length) publicados.push({ paso: { id: f.id, nombre: f.nombre }, url: f.url, cambios, avisos: leido.revisar || [], carretera: true });
   }
   return { archivo: { ...archivo, incidencias: lista }, resultados, publicados, hayQueEscribir };
 }
