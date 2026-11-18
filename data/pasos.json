@@ -905,19 +905,19 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": null,
-          "texto": "Cierre de la jornada (fuera del horario 09:00–19:15, hora de Argentina).",
-          "hora": "20:20",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "08:11",
           "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-17",
-          "actualizado": "2026-11-17",
+          "publicado": "2026-11-18",
+          "actualizado": "2026-11-18",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "vigilante",
             "rol": "vigilante",
-            "fecha": "2026-11-17",
-            "alcance": "Leído automáticamente de la web oficial el 17/11 a las 21:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:15."
+            "fecha": "2026-11-18",
+            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
@@ -942,22 +942,19 @@
         }
       },
       "estado": {
-        "valor": "operativo",
-        "texto": "Habilitado de 09:00 a 19:00 (hora de Argentina), según Gendarmería (parte del 17/11/2026, 08:06). RN 51 con precaución por máquinas en badenes (Vialidad Nacional, 16/11/2026).",
+        "valor": "cerrado",
+        "texto": "Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:00), sin motivo publicado.",
         "fuente": "ar-seguridad-paso-sico",
         "publicado": "2026-11-17",
-        "validacion": "verificado",
-        "actualizado": "2026-11-17",
-        "verificacion": {
-          "verificadoPor": "responsable-editorial",
-          "rol": "responsable-editorial",
-          "fecha": "2026-11-17",
-          "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: Sico «Abierto», horario 09:00–19:00, parte de Gendarmería de las 08:06, y el aviso de Vialidad sobre la RN 51."
-        },
+        "actualizado": "2026-11-18",
         "evidencia": "oficial",
-        "otrasFuentes": [
-          "upf-chile-canal"
-        ]
+        "validacion": "verificado",
+        "verificacion": {
+          "verificadoPor": "vigilante",
+          "rol": "vigilante",
+          "fecha": "2026-11-18",
+          "alcance": "Leído automáticamente de la web oficial el 18/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+        }
       },
       "horarios": [
         {
@@ -1167,6 +1164,22 @@
           "evidencia": "tercero",
           "validacion": "por-verificar",
           "verificacion": null
+        },
+        {
+          "fecha": "2026-11-17",
+          "valor": "operativo",
+          "texto": "Habilitado de 09:00 a 19:00 (hora de Argentina), según Gendarmería (parte del 17/11/2026, 08:06). RN 51 con precaución por máquinas en badenes (Vialidad Nacional, 16/11/2026).",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-17",
+          "actualizado": "2026-11-17",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-17",
+            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: Sico «Abierto», horario 09:00–19:00, parte de Gendarmería de las 08:06, y el aviso de Vialidad sobre la RN 51."
+          }
         }
       ],
       "controles": [
@@ -1244,19 +1257,19 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": null,
-          "texto": "Cierre de la jornada (fuera del horario 09:00–19:00, hora de Argentina).",
+          "valor": "cerrado",
+          "texto": "Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.",
           "hora": "19:07",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-17",
-          "actualizado": "2026-11-17",
+          "actualizado": "2026-11-18",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "vigilante",
             "rol": "vigilante",
-            "fecha": "2026-11-17",
-            "alcance": "Leído automáticamente de la web oficial el 17/11 a las 20:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
+            "fecha": "2026-11-18",
+            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO» dentro del horario."
           }
         }
       ]
