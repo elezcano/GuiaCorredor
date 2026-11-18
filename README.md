@@ -50,6 +50,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 19/11/2026 | **Sin incidencias / Con incidencias / Sin vigilancia:** los tramos vigilados dejan de salir «Sin confirmar»; «Carreteras para llegar» en cada paso; portada con lo que impide primero y el resto en una línea; la página consulta en vivo cuándo se leyó cada fuente (decisión 22) | #173 |
 | 18/11/2026 | **Vigilante del DNIT (Brasil):** el vigilante lee las «Alertas DNIT» y publica las de la BR-060 y la BR-267 en MS (Campo Grande → Porto Murtinho) con el sello «✓ Web oficial»; lo que no sabe clasificar queda para revisar a mano | #170 |
 | 18/11/2026 | **Vigilante del MOPC (Paraguay):** el vigilante lee el informe diario «Estado de las rutas nacionales» (PDF en Drive, de lunes a viernes a las 07:00 y 13:00) y publica los cierres de la PY15 y de Boquerón con el sello «✓ Web oficial»; «Clausurada P/V/P» → no habilitado para carga | #167 |
 | 18/11/2026 | **PY15, recorrido real:** el tramo 2 (Cruce Centinela – Mariscal) no está construido; se va por Loma Plata, Filadelfia y la Transchaco. Superficie de cada tramo con el inventario vial del MOPC | #166 |
