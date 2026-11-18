@@ -11,35 +11,32 @@
   };
   const dur = (min) => (min >= 60 ? `${Math.floor(min / 60)} h${min % 60 ? ` ${min % 60} min` : ''}` : `${min} min`);
   const salida = el.querySelector('.ahora-estado');
-  // HU-133 (R4): cada hora del paso también en hora de España.
+  // La hora del paso, en la hora de su país. En portugués, también la de Campo Grande (Brasil).
   const PAIS_ZONA = { 'America/Argentina/Salta': 'Argentina', 'America/Santiago': 'Chile', 'America/Asuncion': 'Paraguay', 'America/Campo_Grande': 'Brasil' };
   const desfase = (zona) => {
     const p = new Intl.DateTimeFormat('en-US', { timeZone: zona, timeZoneName: 'longOffset' }).formatToParts(new Date()).find((x) => x.type === 'timeZoneName').value;
     const m = p.match(/GMT([+-])(\d\d):(\d\d)/);
     return m ? (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) : 0;
   };
-  const enEspana = (hhmm, zona) => {
-    let t = minutos(hhmm) - desfase(zona) + desfase('Europe/Madrid');
-    t = ((t % 1440) + 1440) % 1440;
-    return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
-  };
   const paisZona = (z) => PAIS_ZONA[z] || (/^America\/Argentina\//.test(z) ? 'Argentina' : 'hora local');
-  // HU-135: en portugués, la hora de referencia es la de Campo Grande (Brasil).
   const PT = document.documentElement.lang.startsWith('pt');
-  const REF = PT ? 'America/Campo_Grande' : 'Europe/Madrid';
+  const REF = 'America/Campo_Grande';
   const enRef = (hhmm, zona) => {
     let t = minutos(hhmm) - desfase(zona) + desfase(REF);
     t = ((t % 1440) + 1440) % 1440;
     return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
   };
-  const doble = (hhmm, zona) => `${hhmm} en ${paisZona(zona)} (${enRef(hhmm, zona)} ${PT ? 'em Campo Grande' : 'en España'})`;
+  const doble = (hhmm, zona) => (PT ? `${hhmm} en ${paisZona(zona)} (${enRef(hhmm, zona)} em Campo Grande)` : `${hhmm} en ${paisZona(zona)}`);
   function pintar() {
     d.paises.forEach((p) => {
       const r = el.querySelector(`.ahora-reloj[data-pais="${p.pais}"] .ahora-hora`);
       if (r) r.textContent = `${hora(p.zona)} en ${p.nombre}`;
     });
+    // Reloj de Campo Grande: solo en portugués.
     el.querySelectorAll('.ahora-reloj-es .ahora-hora').forEach((r) => {
-      r.textContent = document.documentElement.lang.startsWith('pt') ? `${hora('America/Campo_Grande')} em Campo Grande` : `${hora('Europe/Madrid')} en España`;
+      if (!PT) return;
+      r.closest('.ahora-reloj-es').hidden = false;
+      r.textContent = `${hora('America/Campo_Grande')} em Campo Grande`;
     });
     const habitual = d.horario ? ` (de ${doble(d.horario.apertura, d.horario.zona)} a ${doble(d.horario.cierre, d.horario.zona)})` : '';
     if (d.op === 'cerrado') {

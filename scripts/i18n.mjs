@@ -74,8 +74,8 @@ export function traducirHTML(html, tr, { B, urlBase, ruta = '/' }) {
     })
     .join('');
   h = h.replace(/\u0000(\d+)\u0000/g, (m, i) => guardados[i]).replace(/\u0000(\d+)\u0000/g, (m, i) => guardados[i]);
-  // Las dos horas: en portugués, la segunda es la de Campo Grande (Brasil), no la de España.
-  h = h.replace(/<span class="h-ref" data-br="([^"]+)">[^<]*<\/span>/g, '$1 em Campo Grande');
+  // En portugués se añade la hora de Campo Grande (Brasil) como referencia; en castellano, solo la del país.
+  h = h.replace(/<span class="h-ref" data-br="([^"]+)">[^<]*<\/span>/g, ' ($1 em Campo Grande)');
   return h
     .replace('data-idioma="es" aria-current="true"', 'data-idioma="es"')
     .replace('data-idioma="pt"', 'data-idioma="pt" aria-current="true"')

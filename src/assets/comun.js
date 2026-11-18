@@ -348,7 +348,7 @@
     const dia = new Date(generado).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', timeZone: 'America/Argentina/Salta' }).replace('.', '');
     b.textContent = PT
       ? `Sem conexão. Você está vendo os dados salvos de ${new Date(generado).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', timeZone: 'America/Campo_Grande' }).replace('.', '')} às ${horaZona('America/Argentina/Salta')} na Argentina (${horaZona('America/Campo_Grande')} em Campo Grande).`
-      : `Sin conexión. Ves los datos guardados del ${dia} a las ${horaZona('America/Argentina/Salta')} en Argentina (${horaZona('Europe/Madrid')} en España).`;
+      : `Sin conexión. Ves los datos guardados del ${dia} a las ${horaZona('America/Argentina/Salta')} en Argentina.`;
     document.querySelector('main')?.prepend(b);
   }
   if (!navigator.onLine) sinRed();
