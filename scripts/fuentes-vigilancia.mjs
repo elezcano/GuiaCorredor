@@ -4,7 +4,7 @@
 //
 // Columnas que usa el vigilante (cerradas):
 //   estado   activa | pausada | pendiente | manual | sin-fuente
-//   lector   gendarmeria-paso | vialidad-ar | siemop-cl | mopc-pdf | siemop-pasos | whatsapp | manual | ninguno
+//   lector   gendarmeria-paso | vialidad-ar | siemop-cl | mopc-pdf | dnit-alertas | siemop-pasos | whatsapp | manual | ninguno
 //   fuente_id  id de data/fuentes.json (obligatorio en las filas activas: la dirección sale de allí)
 //   destino  paso:<id de data/pasos.json> o tramo:<id de data/rutas.json>
 //   filtro   pares clave=valor separados por «;»; listas con «|»
@@ -18,7 +18,7 @@ import { ROOT } from './lib.mjs';
 export const ARCHIVO = path.join(ROOT, 'data', 'fuentes-vigilancia.csv');
 export const COLUMNAS = ['id', 'pais', 'tramo', 'carretera_o_paso', 'fuente', 'organismo', 'url', 'formato', 'frecuencia', 'como_se_lee', 'tipo', 'estado', 'lector', 'fuente_id', 'destino', 'filtro', 'regla', 'notas'];
 export const ESTADOS = ['activa', 'pausada', 'pendiente', 'manual', 'sin-fuente'];
-export const LECTORES = ['gendarmeria-paso', 'vialidad-ar', 'siemop-cl', 'mopc-pdf', 'siemop-pasos', 'whatsapp', 'manual', 'ninguno'];
+export const LECTORES = ['gendarmeria-paso', 'vialidad-ar', 'siemop-cl', 'mopc-pdf', 'dnit-alertas', 'siemop-pasos', 'whatsapp', 'manual', 'ninguno'];
 /** Lectores que el vigilante sabe ejecutar hoy. */
 export const LECTORES_AUTOMATICOS = ['gendarmeria-paso', 'vialidad-ar', 'siemop-cl'];
 export const TIPOS = ['automatico', 'semiautomatico', 'manual', 'whatsapp', 'sin-fuente'];

@@ -5,10 +5,10 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 | Columna | Para qué | Valores |
 |---|---|---|
 | `estado` | Si el vigilante la lee | `activa`, `pausada`, `pendiente`, `manual`, `sin-fuente` |
-| `lector` | Cómo se lee | `gendarmeria-paso`, `vialidad-ar`, `siemop-cl` (los tres que existen hoy); `mopc-pdf`, `siemop-pasos` (pendientes); `whatsapp`, `manual`, `ninguno` |
+| `lector` | Cómo se lee | `gendarmeria-paso`, `vialidad-ar`, `siemop-cl` (los tres que existen hoy); `mopc-pdf`, `dnit-alertas`, `siemop-pasos` (pendientes); `whatsapp`, `manual`, `ninguno` |
 | `fuente_id` | Fuente de `data/fuentes.json` (de ahí sale la dirección; tiene que ser oficial) | p. ej. `ar-vialidad-estado-rutas` |
 | `destino` | Dónde cuenta en la Guía | `paso:jama`, `tramo:pozo-hondo`… |
-| `filtro` | Qué parte de la fuente | Vialidad: `provincia=Jujuy;ruta=9;tramos=A|B` (`tramos=*`, todos). Chile: `regiones=01|02;km=3;dias_sin_novedad=14;max_horas=192` |
+| `filtro` | Qué parte de la fuente | Vialidad: `provincia=Jujuy;ruta=9;tramos=A|B` (`tramos=*`, todos). Chile: `regiones=01|02;km=3;dias_sin_novedad=14;max_horas=192`. Brasil (DNIT, pendiente): `rodovias=BR-267;uf=MS` |
 | resto | Para leer (fuente, organismo, frecuencia, cómo se lee, regla, notas) | texto |
 
 `npm run check` valida el CSV: una fila activa con un lector que no existe, una fuente que no es oficial, un paso o tramo que no existe o un filtro incompleto impiden publicar.
