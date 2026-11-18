@@ -17,8 +17,8 @@ jobs:
       - run: node scripts/tmp/descarga-mopc.mjs
       - run: |
           sudo apt-get install -y poppler-utils >/dev/null
-          for f in pruebas/vigilante/mopc/*.pdf; do [ -f "$f" ] && pdftotext -layout "$f" "${f%.pdf}.txt" || true; done
-          ls -la pruebas/vigilante/mopc | head -80
+          for f in pruebas/vigilante/mopc/red-vial/*.pdf; do [ -f "$f" ] && pdftotext -layout "$f" "${f%.pdf}.txt" || true; done
+          ls -la pruebas/vigilante/mopc/red-vial; for f in pruebas/vigilante/mopc/red-vial/*.pdf; do pdfinfo "$f" || true; pdfimages -list "$f" | head -5 || true; done
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898732+github-actions[bot]@users.noreply.github.com"
