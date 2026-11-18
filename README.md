@@ -49,9 +49,11 @@ GitHub abre la web en un navegador real, a tamaño móvil y en tema claro y oscu
 Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
+|---|---|---|
+| 18/11/2026 | **Vigilante del MOPC (Paraguay):** el vigilante lee el informe diario «Estado de las rutas nacionales» (PDF en Drive, de lunes a viernes a las 07:00 y 13:00) y publica los cierres de la PY15 y de Boquerón con el sello «✓ Web oficial»; «Clausurada P/V/P» → no habilitado para carga | #167 |
+| 18/11/2026 | **PY15, recorrido real:** el tramo 2 (Cruce Centinela – Mariscal) no está construido; se va por Loma Plata, Filadelfia y la Transchaco. Superficie de cada tramo con el inventario vial del MOPC | #166 |
 | 18/11/2026 | **Publicación fiable:** fusionar un PR ya no cancela la publicación de la web; cada cambio en main se publica solo, sin lanzarlo a mano | #162 |
 | 18/11/2026 | **Fuentes oficiales de Brasil:** el tramo Campo Grande → Porto Murtinho deja de estar «sin fuente»: BR-060 y BR-267 con las «Alertas DNIT» (pendientes de su lector, HU-138), la PRF como fuente manual, el acceso brasileño al puente (en obras, previsto 2027) y la aduana de Porto Murtinho (prevista 2028) | #160 |
-|---|---|---|
 | 18/11/2026 | **Fuentes en CSV y web completa en portugués:** el vigilante se configura con `data/fuentes-vigilancia.csv` (pausar una fuente o mover una carretera de tramo sin tocar código; `npm run check` lo valida) y la lista se publica en «Fuentes que vigilamos». Todas las páginas en portugués (/pt/), con la guía traducida. Mapa interactivo rediseñado (formas de estado y lista de tramos); Avisos, Calendario y Papeles con el diseño V2 | #156 |
 | 18/11/2026 | **La Guía en portugués de Brasil:** Hoje, Rotas, Fronteiras, fichas de paso y Serviços en /pt/, con selector ES \| PT en la cabecera que se recuerda; hora de referencia de Campo Grande; avisos oficiales y datos sin traducir («texto oficial em espanhol»); hreflang para buscadores. Se generan solas desde las páginas españolas con un diccionario de frases. Paso 2 de 3 | #150 |
 | 18/11/2026 | **Rediseño Versión 2 (la web como app):** menú de 4 (Hoy, Rutas, Fronteras, Servicios); portada «Hoy» con tu ruta guardada y su veredicto en una frase («Puedes ir hoy por Sico»); estado con color, forma y palabra; sello único «Organismo · cuándo · ✓ Web oficial»; horarios con la hora del país y la de España; ficha del paso con pestañas Hoy, Papeles (marcables) y Calendario (¿cuándo cruzas?); Servicios con las 11 categorías; se ve sin conexión con la hora de los datos. Paso 1 de 3 (luego portugués, HU-135, y «Avísame», HU-132) | #143 |
