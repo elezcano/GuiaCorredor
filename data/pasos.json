@@ -347,7 +347,7 @@
       },
       "estado": {
         "valor": "operativo",
-        "texto": "Abierto de 09:00 a 19:15 (hora de Argentina), según Gendarmería (parte del 18/11/2026, 12:26). Chile (Unidad de Pasos Fronterizos, parte del 17/11) lo da habilitado para todo tipo de vehículos, carga incluida, de 08:00 a 20:00 h: los dos horarios no coinciden, para ir sobre seguro, cruza dentro del de Gendarmería.",
+        "texto": "Abierto de 09:00 a 19:15 (hora de Argentina), según Gendarmería (parte del 18/11/2026, 12:26). Chile (Unidad de Pasos Fronterizos, parte del 17/11, 08:57 hora de Chile) lo da habilitado para todo tipo de vehículos, carga incluida, con horario oficial del complejo de 08:00 a 20:00 h. El horario puede variar entre el lado argentino y el chileno: para ir sobre seguro, cruza dentro del de Gendarmería.",
         "fuente": "ar-seguridad-paso-jama",
         "publicado": "2026-11-17",
         "validacion": "verificado",
@@ -356,7 +356,7 @@
           "verificadoPor": "responsable-editorial",
           "rol": "responsable-editorial",
           "fecha": "2026-11-18",
-          "alcance": "Actualizado el 18/11/2026: estado de Gendarmería leído por el vigilante (parte del 18/11, 12:26) y parte de Chile del 17/11 (captura del canal oficial de WhatsApp de la UPF), que deja sin efecto la suspensión de la carga del 16/11."
+          "alcance": "Actualizado el 18/11/2026: estado de Gendarmería leído por el vigilante (parte del 18/11, 12:26) y parte de Chile del 17/11 a las 08:57 hora de Chile (12:57 en España), captura del canal oficial de WhatsApp de la UPF, que deja sin efecto la suspensión de la carga del 16/11."
         },
         "evidencia": "oficial",
         "otrasFuentes": [
@@ -787,7 +787,7 @@
         {
           "fecha": "2026-11-17",
           "valor": "operativo",
-          "texto": "UPF Chile: habilitado para todo tipo de vehículos, 08:00 a 20:00 h; termina la suspensión de la revisión de carga del 16/11.",
+          "texto": "UPF Chile (08:57 hora de Chile): habilitado para todo tipo de vehículos, horario oficial del complejo 08:00 a 20:00 h; termina la suspensión de la revisión de carga del 16/11.",
           "fuente": "upf-chile-canal",
           "publicado": "2026-11-17",
           "actualizado": "2026-11-18",
@@ -797,8 +797,9 @@
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
             "fecha": "2026-11-18",
-            "alcance": "Comprobado el 18/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 17/11/2026, sin hora visible): Complejo Fronterizo Integrado Jama «HABILITADO», horario 08:00 a 20:00 h, todo tipo de vehículos, ruta CH-27 transitable, vehículo abandonado en el km 43.500 (lado derecho de la berma), viento de 60 a 80 km/h."
-          }
+            "alcance": "Comprobado el 18/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 17/11/2026 publicado a las 12:57 hora de España, 08:57 hora de Chile): Complejo Fronterizo Integrado Jama «HABILITADO», horario oficial del complejo 08:00 a 20:00 h, todo tipo de vehículos, ruta CH-27 transitable, vehículo abandonado en el km 43.500 (lado derecho de la berma), viento de 60 a 80 km/h."
+          },
+          "hora": "08:57"
         }
       ],
       "controles": [
@@ -884,7 +885,7 @@
           "lado": "CL",
           "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
           "valor": "operativo",
-          "texto": "Habilitado para todo tipo de vehículos, de 08:00 a 20:00 h. Ruta CH-27 transitable, con un vehículo abandonado en el km 43,5 (berma derecha). Viento de 60 a 80 km/h.",
+          "texto": "Habilitado para todo tipo de vehículos. Horario oficial del complejo (Unidad de Pasos Fronterizos): 08:00 a 20:00 h; el de cada lado puede variar. Ruta CH-27 transitable, con un vehículo abandonado en el km 43,5 (berma derecha). Viento de 60 a 80 km/h.",
           "fuente": "upf-chile-canal",
           "publicado": "2026-11-17",
           "actualizado": "2026-11-18",
@@ -894,8 +895,9 @@
             "verificadoPor": "responsable-editorial",
             "rol": "responsable-editorial",
             "fecha": "2026-11-18",
-            "alcance": "Comprobado el 18/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 17/11/2026, sin hora visible): Complejo Fronterizo Integrado Jama «HABILITADO», horario 08:00 a 20:00 h, todo tipo de vehículos, ruta CH-27 transitable, vehículo abandonado en el km 43.500 (lado derecho de la berma), viento de 60 a 80 km/h."
-          }
+            "alcance": "Comprobado el 18/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 17/11/2026 publicado a las 12:57 hora de España, 08:57 hora de Chile): Complejo Fronterizo Integrado Jama «HABILITADO», horario oficial del complejo 08:00 a 20:00 h, todo tipo de vehículos, ruta CH-27 transitable, vehículo abandonado en el km 43.500 (lado derecho de la berma), viento de 60 a 80 km/h."
+          },
+          "hora": "08:57"
         },
         {
           "lado": "AR",
