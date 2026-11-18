@@ -923,7 +923,7 @@
           "organismo": "ar-pasos",
           "valor": "operativo",
           "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
-          "hora": "12:26",
+          "hora": "16:05",
           "fuente": "ar-seguridad-paso-jama",
           "publicado": "2026-11-18",
           "actualizado": "2026-11-18",
@@ -933,7 +933,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-18",
-            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 14:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
+            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 17:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
