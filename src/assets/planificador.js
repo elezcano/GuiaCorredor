@@ -111,7 +111,7 @@
         <div>
           <p class="pl-tramo-nombre">${t.paso ? `Frontera: ${enlaceGuia(t.paso.guia, sinParentesis(t.paso.nombre), qSentido(t))}` : esc(tramoNombre(t))}</p>
           <p class="pl-tramo-datos"><span>${esc(textoEstado(t))}</span>${d ? `<span>${d.tipo === 'estimado' ? '≈ ' : ''}${km(d.km)} <span class="pl-km-tipo">${TIPO_KM[d.tipo]}</span></span>` : '<span class="pl-km-tipo">Sin distancia</span>'}${t.paso ? `<span class="pl-km-tipo">${esc(tramoNombre(t))}</span>` : ''}</p>
-          ${avisos.map((i) => `<p class="pl-tramo-aviso"><strong>${esc(i.tipo)}:</strong> ${esc(i.texto)} <a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a></p>`).join('')}
+          ${avisos.map((i) => `<p class="pl-tramo-aviso"><strong>${esc(i.tipo)}:</strong> <span lang="es" class="txt-es txt-oficial">${esc(i.texto)}</span> <a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a></p>`).join('')}
           ${cruce(t)}
           ${t.nota ? `<p class="pl-nota">${esc(t.nota)}</p>` : ''}
           ${!t.paso && t.guia ? `<p class="pl-nota">${enlaceGuia(t.guia, 'Ficha del tramo')}</p>` : ''}
@@ -161,7 +161,7 @@
           'Avisos en la ruta',
           op.problemas.length ? GC.plural(op.problemas.length, 'aviso activo', 'avisos activos') : 'Ninguno registrado',
           op.problemas.length
-            ? `<ul class="lista-datos">${op.problemas.map((i) => `<li><strong>${esc(i.tipo)}</strong> · ${esc(i.ubicacion)}: ${esc(i.texto)} <span class="pl-nota">${esc(i.fuente)}${i.publicado ? `, ${esc(fechaCorta(i.publicado))}` : ''}${i.nivel === 'verificado' ? ' · verificado' : ' · sin verificar'}</span> <a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a></li>`).join('')}</ul>`
+            ? `<ul class="lista-datos">${op.problemas.map((i) => `<li><strong>${esc(i.tipo)}</strong> · ${esc(i.ubicacion)}: <span lang="es" class="txt-es txt-oficial">${esc(i.texto)}</span> <span class="pl-nota"><span lang="es" class="txt-es">${esc(i.fuente)}</span>${i.publicado ? `, ${esc(fechaCorta(i.publicado))}` : ''}${i.nivel === 'verificado' ? ' · verificado' : ' · sin verificar'}</span> <a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a></li>`).join('')}</ul>`
             : '<p class="sin-dato">No hay avisos activos en esta ruta.</p>'
         )}
         ${

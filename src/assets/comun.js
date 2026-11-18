@@ -259,8 +259,83 @@
   };
   window.GC = GC;
 
-  // HU-133 (R10): sin conexión se ve lo último guardado, siempre con la hora de esos datos. Al volver la red, se actualiza.
+  // HU-135: portugués de Brasil. Las páginas /pt/ llegan traducidas; lo que pinta JavaScript se traduce aquí
+  // con el mismo diccionario. Lo marcado con lang="es" (textos oficiales y de datos) no se toca.
   const base = raiz.dataset.base || '';
+  const PT = (raiz.lang || '').startsWith('pt');
+  GC.PT = PT;
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-idioma]');
+    if (a) guardar('guia-corredor:idioma', a.dataset.idioma);
+  });
+  if (!PT && leer('guia-corredor:idioma') === 'pt') {
+    const alt = document.querySelector('link[rel="alternate"][hreflang="pt-BR"]');
+    if (alt) location.replace(new URL(alt.href).pathname + location.search + location.hash);
+  }
+  const idioma = PT && document.getElementById('datos-idioma');
+  if (idioma) {
+    const { frases, rutas } = JSON.parse(idioma.textContent);
+    const claves = Object.keys(frases).filter((k) => frases[k] && frases[k] !== k).sort((a, b) => b.length - a.length);
+    const L = 'A-Za-zÀ-ÖØ-öø-ÿ0-9';
+    const re = new RegExp(`(?<![${L}])(?:${claves.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![${L}])`, 'g');
+    const tr = (t) => (t && /[A-Za-zÀ-ÿ]/.test(t) ? t.replace(re, (m) => frases[m]) : t);
+    GC.tr = tr;
+    const fuera = (el) => !el || !el.closest('[lang="es"]:not(html), script, style');
+    const tieneRuta = (r) => r === '/' || rutas.some((x) => x !== '/' && r.startsWith(x));
+    const enlace = (a) => {
+      const h = a.getAttribute('href');
+      if (!h || a.hasAttribute('data-fijo')) return;
+      if (/^(mailto:|https:\/\/wa\.me\/)/.test(h)) {
+        const [b, q] = h.split('?');
+        if (!q) return;
+        const n = `${b}?${q
+          .split('&')
+          .map((par) => {
+            const [k, v = ''] = par.split('=');
+            return ['subject', 'body', 'text'].includes(k) ? `${k}=${encodeURIComponent(tr(decodeURIComponent(v)))}` : par;
+          })
+          .join('&')}`;
+        if (n !== h) a.setAttribute('href', n);
+        return;
+      }
+      if (!h.startsWith(`${base}/`) || h.startsWith(`${base}/pt/`) || h.startsWith(`${base}/assets/`)) return;
+      const [r, extra = ''] = h.slice(base.length).split(/(?=[?#])/);
+      if (tieneRuta(r)) a.setAttribute('href', `${base}/pt${r}${extra}`);
+    };
+    const traducir = (n) => {
+      if (n.nodeType === 3) {
+        if (fuera(n.parentElement)) {
+          const t = tr(n.nodeValue);
+          if (t !== n.nodeValue) n.nodeValue = t;
+        }
+        return;
+      }
+      if (n.nodeType !== 1 || !fuera(n)) return;
+      ['aria-label', 'title', 'placeholder'].forEach((at) => {
+        const v = n.getAttribute(at);
+        if (v) {
+          const t = tr(v);
+          if (t !== v) n.setAttribute(at, t);
+        }
+      });
+      if (n.tagName === 'A') enlace(n);
+      n.querySelectorAll('a[href]').forEach(enlace);
+      const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT);
+      while (w.nextNode()) traducir(w.currentNode);
+      n.querySelectorAll('[aria-label],[title],[placeholder]').forEach((e) => fuera(e) && traducir(e));
+    };
+    // Lo que este mismo archivo ya pintó antes (tema, «hace N días») y lo que pinten los demás después.
+    traducir(document.body);
+    new MutationObserver((ms) =>
+      ms.forEach((m) => {
+        if (m.type === 'characterData') traducir(m.target);
+        else if (m.type === 'attributes') m.attributeName === 'href' ? enlace(m.target) : traducir(m.target);
+        else m.addedNodes.forEach(traducir);
+      })
+    ).observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['aria-label', 'title', 'placeholder', 'href'] });
+  }
+
+  // HU-133 (R10): sin conexión se ve lo último guardado, siempre con la hora de esos datos. Al volver la red, se actualiza.
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register(`${base}/sw.js`, { scope: `${base}/` }).catch(() => {});
   const generado = document.querySelector('meta[name="generado"]')?.content;
   const horaZona = (z) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: z }).format(new Date(generado));
@@ -271,7 +346,9 @@
     b.className = 'banda-sin-red';
     b.setAttribute('role', 'status');
     const dia = new Date(generado).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', timeZone: 'America/Argentina/Salta' }).replace('.', '');
-    b.textContent = `Sin conexión. Ves los datos guardados del ${dia} a las ${horaZona('America/Argentina/Salta')} en Argentina (${horaZona('Europe/Madrid')} en España).`;
+    b.textContent = PT
+      ? `Sem conexão. Você está vendo os dados salvos de ${new Date(generado).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', timeZone: 'America/Campo_Grande' }).replace('.', '')} às ${horaZona('America/Argentina/Salta')} na Argentina (${horaZona('America/Campo_Grande')} em Campo Grande).`
+      : `Sin conexión. Ves los datos guardados del ${dia} a las ${horaZona('America/Argentina/Salta')} en Argentina (${horaZona('Europe/Madrid')} en España).`;
     document.querySelector('main')?.prepend(b);
   }
   if (!navigator.onLine) sinRed();
