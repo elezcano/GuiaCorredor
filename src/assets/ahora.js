@@ -11,12 +11,28 @@
   };
   const dur = (min) => (min >= 60 ? `${Math.floor(min / 60)} h${min % 60 ? ` ${min % 60} min` : ''}` : `${min} min`);
   const salida = el.querySelector('.ahora-estado');
+  // HU-133 (R4): cada hora del paso también en hora de España.
+  const PAIS_ZONA = { 'America/Argentina/Salta': 'Argentina', 'America/Santiago': 'Chile', 'America/Asuncion': 'Paraguay', 'America/Campo_Grande': 'Brasil' };
+  const desfase = (zona) => {
+    const p = new Intl.DateTimeFormat('en-US', { timeZone: zona, timeZoneName: 'longOffset' }).formatToParts(new Date()).find((x) => x.type === 'timeZoneName').value;
+    const m = p.match(/GMT([+-])(\d\d):(\d\d)/);
+    return m ? (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) : 0;
+  };
+  const enEspana = (hhmm, zona) => {
+    let t = minutos(hhmm) - desfase(zona) + desfase('Europe/Madrid');
+    t = ((t % 1440) + 1440) % 1440;
+    return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+  };
+  const doble = (hhmm, zona) => `${hhmm} en ${PAIS_ZONA[zona] || 'hora local'} (${enEspana(hhmm, zona)} en España)`;
   function pintar() {
     d.paises.forEach((p) => {
       const r = el.querySelector(`.ahora-reloj[data-pais="${p.pais}"] .ahora-hora`);
       if (r) r.textContent = `${hora(p.zona)} en ${p.nombre}`;
     });
-    const habitual = d.horario ? ` (${d.horario.apertura}–${d.horario.cierre}, hora de Argentina)` : '';
+    el.querySelectorAll('.ahora-reloj-es .ahora-hora').forEach((r) => {
+      r.textContent = `${hora('Europe/Madrid')} en España`;
+    });
+    const habitual = d.horario ? ` (de ${doble(d.horario.apertura, d.horario.zona)} a ${doble(d.horario.cierre, d.horario.zona)})` : '';
     if (d.op === 'cerrado') {
       salida.innerHTML = d.soloCarga
         ? `<strong>No habilitado para carga.</strong> Un camión no puede cruzar aunque sea dentro del horario habitual${habitual}, hasta un nuevo parte oficial.`
@@ -34,9 +50,9 @@
     const c = minutos(d.horario.cierre);
     const nota = d.horario.verificado ? '' : ' (según el horario publicado, sin verificar)';
     const pref = d.op === 'sin-confirmar' ? 'Estado sin confirmar. ' : '';
-    if (ahora >= a && ahora < c) salida.innerHTML = `${pref}<strong>Abierto ahora</strong> · cierra a las ${d.horario.cierre}, en ${dur(c - ahora)}${nota}.`;
-    else if (ahora < a) salida.innerHTML = `${pref}<strong>Cerrado ahora</strong> · abre a las ${d.horario.apertura}, en ${dur(a - ahora)}${nota}.`;
-    else salida.innerHTML = `${pref}<strong>Cerrado ahora</strong> · abre mañana a las ${d.horario.apertura}${nota}.`;
+    if (ahora >= a && ahora < c) salida.innerHTML = `${pref}<strong>Abierto ahora</strong> · hasta las ${doble(d.horario.cierre, d.horario.zona)}, en ${dur(c - ahora)}${nota}.`;
+    else if (ahora < a) salida.innerHTML = `${pref}<strong>Cerrado ahora</strong> · abre a las ${doble(d.horario.apertura, d.horario.zona)}, en ${dur(a - ahora)}${nota}.`;
+    else salida.innerHTML = `${pref}<strong>Cerrado ahora</strong> · abre mañana a las ${doble(d.horario.apertura, d.horario.zona)}${nota}.`;
   }
   pintar();
   setInterval(pintar, 60000);

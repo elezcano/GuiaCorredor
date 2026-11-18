@@ -227,13 +227,20 @@ const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', referencia: '
 /** Insignia de validación (texto + icono, no solo color). */
 /** HU-107: la insignia dice dónde se comprobó el dato, nunca quién. */
 const verificadoEn = (fuente) => (fuente?.leidoAuto ? 'Leído de la web oficial' : fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente');
+/** HU-133 (R3): texto del sello único. «Gendarmería · 18 nov · ✓ Web oficial» / «… · Verificado» / «… · Sin verificar». */
+function selloCorto(n, verificado, fuente, publicado) {
+  const quien = esc(fuente?.nombre || 'Sin fuente');
+  const cuando = n === 'verificado' && verificado ? fechaCorta(verificado) : publicado ? fechaCorta(publicado) : '';
+  const marca = n === 'verificado' && verificado ? (fuente?.leidoAuto ? '<span class="sello-ok">✓ Web oficial</span>' : `<span class="sello-ok">✓ ${fuente?.tipo === 'oficial' ? 'Oficial' : 'Verificado'}</span>`) : `<span class="sello-no">${esc(NIVELES[n]?.texto || 'Sin verificar')}</span>`;
+  return [quien, cuando, marca].filter(Boolean).join(' · ');
+}
 function validacionHTML(n, verificado, fuente) {
   const txt = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
   return `<span class="val val-${esc(n)}">${esc(txt)}</span>`;
 }
 /** Estado operativo + línea de contexto: confirmado, o "Por verificar" con el último dato. */
 function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
-  if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha">${verificadoEn(v.fuente)} ${corto ? '' : 'el '}${corto ? fechaCorta(v.verificado) : fecha(v.verificado)}</span>`;
+  if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
   if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
   const dias = diasDesde(v.publicado);
   const viejo = dias > 30; // un parte operativo de más de un mes ya no sirve para decidir
@@ -259,6 +266,30 @@ const wa = (n) => `https://wa.me/${String(n).replace(/\D/g, '')}`;
 const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
 const listaY = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} y ${xs[xs.length - 1]}`);
 
+// HU-133: accesos de negocio. Hasta la HU-95 (formulario con hoja privada), preparan un email al contacto del proyecto.
+const correo = (asunto, cuerpo) => `mailto:${site.contacto.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+const cotizacion = (ruta = '') =>
+  correo(`Pedir cotización${ruta ? `: ${ruta}` : ''}`, `Origen y destino: ${ruta || ''}\nTipo de carga:\nPeso o volumen:\nFecha de carga:\nEmpresa y teléfono:\n`);
+const cargaRetorno = () => correo('Carga de retorno', 'Tengo un camión vacío en (ciudad):\nDisponible desde (fecha):\nTipo de camión:\nHacia (destino preferido):\nEmpresa y teléfono:\n');
+
+// HU-133 (R4): siempre las dos horas. «19:00 en Argentina (23:00 en España)», con la zona de cada país en la fecha del dato.
+const ZONA_ES = 'Europe/Madrid';
+const minutosDesfase = (zona, dia) => {
+  const v = new Intl.DateTimeFormat('en-US', { timeZone: zona, timeZoneName: 'longOffset' }).formatToParts(new Date(`${dia}T12:00:00Z`)).find((x) => x.type === 'timeZoneName').value;
+  if (v === 'GMT') return 0;
+  const [, sg, h, m] = v.match(/GMT([+-])(\d\d):(\d\d)/);
+  return (sg === '-' ? -1 : 1) * (Number(h) * 60 + Number(m));
+};
+const ZONA_PAIS = { 'America/Argentina/Salta': 'Argentina', 'America/Argentina/Buenos_Aires': 'Argentina', 'America/Argentina/Jujuy': 'Argentina', 'America/Santiago': 'Chile', 'America/Asuncion': 'Paraguay', 'America/Campo_Grande': 'Brasil' };
+function enEspana(hhmm, zona, dia = HOY) {
+  const [h, m] = hhmm.split(':').map(Number);
+  let t = h * 60 + m - minutosDesfase(zona, dia) + minutosDesfase(ZONA_ES, dia);
+  t = ((t % 1440) + 1440) % 1440;
+  return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+}
+const rangoDosHoras = (a, c, zona, dia = HOY) => `${a}–${c} en ${ZONA_PAIS[zona] || 'hora local'} (${enEspana(a, zona, dia)}–${enEspana(c, zona, dia)} en España)`;
+const dosHoras = (hhmm, zona, dia = HOY) => `${hhmm} en ${ZONA_PAIS[zona] || 'hora local'} (${enEspana(hhmm, zona, dia)} en España)`;
+
 const marca = `<span class="placa"><span class="placa-l1">Guía del</span><span class="placa-l2">Corredor</span></span>`;
 
 const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema');if(t==='oscuro'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.tema='oscuro'}catch(e){}</script>`;
@@ -266,19 +297,15 @@ const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema'
 function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', estilos = [] }) {
   const t = titulo ? `${titulo} | ${site.nombre}` : site.nombreCompleto;
   const canon = `${site.url.replace(/\/$/, '')}${u(ruta)}`;
+  // HU-133 (Versión 2): cuatro secciones. Avisos cuelga de Hoy; calendario y papeles, de Fronteras (y de cada paso).
   const secciones = [
-    ['/planificador/', 'Rutas', 'ruta', (r) => r === '/' || r.startsWith('/planificador/')],
-    ['/pasos/', 'Fronteras', 'frontera', (r) => r.startsWith('/pasos/') || r.startsWith('/guia/pasos/')],
-    ['/avisos/', 'Avisos', 'aviso', (r) => r.startsWith('/avisos/') || r.startsWith('/novedades/')],
-    ['/calendario/', 'Calendario', 'calendario', (r) => r.startsWith('/calendario/')],
-    ['/papeles/', 'Papeles', 'papeles', (r) => r.startsWith('/papeles/') || r.startsWith('/guia/documentos/')],
-    ['/directorio/', 'Servicios', 'empresas', (r) => r.startsWith('/directorio/')],
+    ['/', 'Hoy', 'sol', (r) => r === '/' || r.startsWith('/avisos/') || r.startsWith('/novedades/')],
+    ['/planificador/', 'Rutas', 'ruta', (r) => r.startsWith('/planificador/') || r.startsWith('/informe/')],
+    ['/pasos/', 'Fronteras', 'frontera', (r) => r.startsWith('/pasos/') || r.startsWith('/guia/') || r.startsWith('/calendario/') || r.startsWith('/papeles/')],
+    ['/directorio/', 'Servicios', 'empresas', (r) => r.startsWith('/directorio/') || r.startsWith('/anunciate/')],
   ];
-  const nav = secciones.map(([href, txt, , activo]) => `<a href="${u(href)}"${activo(ruta) && ruta !== '/' ? ' aria-current="page"' : ''}>${txt}</a>`).join('');
-  const barra = secciones
-    .filter(([href]) => href !== '/papeles/')
-    .map(([href, txt, ic, activo]) => `<a href="${u(href === '/planificador/' ? '/' : href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${icono(ic)}<span>${txt}</span></a>`)
-    .join('');
+  const nav = secciones.map(([href, txt, , activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${txt}</a>`).join('');
+  const barra = secciones.map(([href, txt, ic, activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${icono(ic)}<span>${txt}</span></a>`).join('');
   return `<!DOCTYPE html>
 <html lang="${site.idioma}">
 <head>
@@ -304,7 +331,7 @@ ${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2
     <nav class="nav" aria-label="Principal">${nav}</nav>
     <div class="cabecera-acciones">
       <a class="boton-icono" href="${u('/buscar/')}" aria-label="Buscar en la guía"${ruta === '/buscar/' ? ' aria-current="page"' : ''}>${icono('buscar')}</a>
-      <a class="btn btn-borde btn-pequeno" href="${u('/anunciate/')}">Anunciar mi empresa</a>
+      <a class="btn btn-negocio btn-pequeno" href="${cotizacion()}">${icono('papeles')}Pedir cotización</a>
       <button class="boton-icono" type="button" id="cambiar-tema" aria-label="Activar modo oscuro">${icono('luna', 'icono icono-luna')}${icono('sol', 'icono icono-sol')}</button>
     </div>
   </div>
@@ -725,9 +752,10 @@ const desfase = (zona, dia) => {
 const instanteParte = (x) => `${x.publicado}T${x.hora || '12:00'}:00${desfase(ZONAS[x.lado] || 'UTC', x.publicado)}`;
 /** HU-113: sello de validación compacto. La fuente, la fecha y la comprobación se abren al tocarlo. */
 function selloHTML(n, verificado, fuente, publicado) {
-  const corto = n === 'verificado' && verificado ? `${fuente?.leidoAuto ? 'Web oficial' : fuente?.tipo === 'oficial' ? 'Oficial' : 'Fuente'} · ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
+  // HU-133 (R3): un único sello en toda la web: «Organismo · cuándo · ✓ Web oficial».
+  const corto = selloCorto(n, verificado, fuente, publicado);
   const largo = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fecha(verificado)}${fuente?.leidoAuto ? ', de forma automática' : ''}.` : n === 'caducado' ? 'Verificación caducada: confírmalo antes de salir.' : 'Publicado por su fuente, sin comprobar todavía.';
-  return `<details class="sello sello-${esc(n)}"><summary><span class="sello-corto">${esc(corto)}</span></summary><span class="sello-hoja">${esc(largo)} ${fuenteEnlace(fuente)}${publicado ? `, ${fecha(publicado)}` : ''}${fuente?.tipo ? ` (${TIPO_FUENTE[fuente.tipo]})` : ''}.</span></details>`;
+  return `<details class="sello sello-${esc(n)}"><summary><span class="sello-corto">${corto}</span></summary><span class="sello-hoja">${esc(largo)} ${fuenteEnlace(fuente)}${publicado ? `, ${fecha(publicado)}` : ''}${fuente?.tipo ? ` (${TIPO_FUENTE[fuente.tipo]})` : ''}.</span></details>`;
 }
 /** HU-73 / HU-113: lo que informa cada organismo, una línea por parte, con fecha, hora y sello de fuente. */
 function partesHTML(p, op) {
@@ -817,7 +845,7 @@ function ahoraHTML(p, op) {
     soloCarga: p.estado.afecta === 'carga',
   };
   return `<div class="ahora" data-ahora="${esc(JSON.stringify(datos))}">
-    <p class="ahora-relojes">${Object.keys(p.lados).map((k) => `<span class="ahora-reloj" data-pais="${k}">${bandera(k)} <span class="ahora-hora">--:--</span></span>`).join('')}</p>
+    <p class="ahora-relojes">${Object.keys(p.lados).map((k) => `<span class="ahora-reloj" data-pais="${k}">${bandera(k)} <span class="ahora-hora">--:--</span></span>`).join('')}<span class="ahora-reloj ahora-reloj-es"><span class="ahora-hora">--:--</span></span></p>
     <p class="ahora-estado" aria-live="polite"></p>
   </div>`;
 }
@@ -894,7 +922,7 @@ function fichaOperativa(p, guiaPag) {
   // Acciones: llamar al primer teléfono oficial, compartir por WhatsApp, planificar.
   const tel = (p.contactos || []).find((c) => c.telefono);
   const hor = (p.horarios || []).find((x) => x.apertura && x.cierre);
-  const textoWa = `${p.nombre}: ${OPERATIVA[op].texto + detalleEstado}${e.confirmado ? ` (${verificadoEn(p.estado.fuente).toLowerCase()} el ${fechaCorta(e.verificado)})` : ' (sin confirmar)'}.${hor ? ` Horario ${hor.apertura}–${hor.cierre}, hora local.` : ''} ${site.url.replace(/\/$/, '')}${u('/guia/' + guiaPag + '/')}`;
+  const textoWa = `${p.nombre}: ${OPERATIVA[op].texto + detalleEstado}${e.confirmado ? ` (${verificadoEn(p.estado.fuente).toLowerCase()} el ${fechaCorta(e.verificado)})` : ' (sin confirmar)'}.${hor ? ` Horario ${hor.zona ? rangoDosHoras(hor.apertura, hor.cierre, hor.zona) : `${hor.apertura}–${hor.cierre}, hora local`}.` : ''} ${site.url.replace(/\/$/, '')}${u('/guia/' + guiaPag + '/')}`;
   const acciones = `<div class="ficha-acciones no-imprimir">
     ${tel ? `<a class="btn btn-borde btn-llamar" href="tel:${esc(tel.telefono)}">${icono('telefono')}Llamar</a>` : ''}
     <a class="btn btn-borde" href="https://wa.me/?text=${encodeURIComponent(textoWa)}" rel="noopener">${icono('chat')}Compartir</a>
@@ -919,7 +947,7 @@ function fichaOperativa(p, guiaPag) {
   const secHorarios = plegable(
     'horarios',
     'Horarios',
-    hor ? `${hor.apertura}–${hor.cierre}, hora local` : p.horarios?.length ? 'Sin hora de apertura y cierre confirmada' : 'Sin horario con fuente',
+    hor ? (hor.zona ? rangoDosHoras(hor.apertura, hor.cierre, hor.zona) : `${hor.apertura}–${hor.cierre}, hora local`) : p.horarios?.length ? 'Sin hora de apertura y cierre confirmada' : 'Sin horario con fuente',
     p.horarios?.length ? `<ul class="lista-datos">${p.horarios.map((h) => `<li${attrSentido(h)}><strong>${conBanderas(h.lado)}:</strong> ${etiquetaSentido(h)}${esc(h.texto)}${sello(h, 'horario')}</li>`).join('')}</ul>` : '<p class="sin-dato">Sin horario con fuente.</p>'
   );
   const tels = (p.contactos || []).filter((c) => c.telefono || c.email);

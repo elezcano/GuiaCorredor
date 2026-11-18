@@ -1319,3 +1319,41 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .buscador[hidden] { display: none; }
 .pl-carga { border: 0; margin: 0 0 12px; padding: 0; }
 .pl-carga legend { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+
+/* =====================================================================
+   HU-133 · Versión 2: la web como app.
+   Lectura: letra base 17 px. Pulgar: botones de 48–56 px. Amarillo solo para negocio.
+   Estado = color + forma + palabra (círculo, triángulo, cuadrado, discontinuo).
+   ===================================================================== */
+body { font-size: 17px; line-height: 1.5; }
+.btn { min-height: 48px; border-radius: 14px; font-weight: 700; }
+.btn-pequeno { min-height: 40px; border-radius: 12px; }
+.btn-negocio { background: #ffc800; color: #14181b; border: 0; }
+.btn-negocio:hover { background: #ffd633; color: #14181b; }
+.btn-grande { min-height: 56px; font-size: 18px; padding: 0 22px; }
+
+/* Cabecera: secciones en píldora negra */
+.nav a { border-radius: 999px; font-weight: 700; color: var(--foreground); height: 44px; padding: 0 18px; }
+.nav a[aria-current="page"] { background: var(--primary); color: var(--primary-foreground); box-shadow: none; border-radius: 999px; }
+.cabecera-acciones .btn-negocio { display: inline-flex; }
+
+/* Barra inferior (móvil): 4 secciones, la activa en píldora */
+@media (max-width: 760px) {
+  .barra-inferior { grid-template-columns: repeat(4, 1fr) !important; }
+  .barra-inferior a { font-size: 13px; font-weight: 700; color: var(--foreground); min-height: 56px; justify-content: center; }
+  .barra-inferior a .icono { padding: 4px 18px; box-sizing: content-box; border-radius: 999px; }
+  .barra-inferior a[aria-current="page"] .icono { background: var(--primary); color: var(--primary-foreground); }
+  .cabecera-acciones .btn-negocio { display: none; }
+}
+
+/* Sello único */
+.sello-corto, .sello-linea { font-size: 14px; color: var(--muted-foreground); }
+.sello-ok { color: var(--ok); font-weight: 700; }
+.sello-no { color: var(--obras); font-weight: 700; }
+
+/* Formas de estado también en los puntos del planificador */
+.pl-punto { width: 14px; height: 14px; flex: none; display: inline-block; }
+.pl-punto.pl-abierto { border-radius: 50%; background: var(--ok-dot); }
+.pl-punto.pl-restricciones { background: var(--obras-dot); clip-path: polygon(50% 0, 100% 100%, 0 100%); border-radius: 0; }
+.pl-punto.pl-cerrado { background: var(--corte-dot); border-radius: 3px; }
+.pl-punto.pl-sin-confirmar { background: transparent; border: 2px dashed var(--sin-dato); border-radius: 50%; box-sizing: border-box; }
