@@ -82,7 +82,8 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   // Buscar, directorio, guía, novedades
   await p.goto(B + '/buscar/?q=jama'); await p.waitForSelector('#resultados li');
   ok((await p.$$('#resultados li')).length > 0, 'buscador sin resultados');
-  await p.goto(B + '/directorio/'); ok(await p.isVisible('.directorio-vacio'), 'directorio sin estado vacío');
+  await p.goto(B + '/directorio/'); ok(await p.isVisible('.servicios-vacio'), 'directorio sin estado vacío');
+  ok((await p.$$('.cats-lista .cat')).length === 11, 'Servicios: deben salir las 11 categorías');
   ok(!(await p.content()).toLowerCase().includes('de ejemplo'), 'quedan empresas de ejemplo');
   await p.goto(B + '/guia/'); await p.click('button[data-filtro="validacion"][data-valor="borrador"]');
   ok((await p.$$eval('#tabla-guia tbody tr:not([hidden])', l => l.length)) === 6, 'filtro validación guía');
