@@ -1578,3 +1578,11 @@ html[lang^="pt"] .contenido-pt::before { content: none; }
 .buscador-grande input, #q { min-height: 56px; border-radius: 16px; font-size: 18px; }
 .articulo { font-size: 17px; }
 .pie a { min-height: 32px; display: inline-flex; align-items: center; }
+
+/* HU-131: carreteras para llegar a un paso y resumen del resto del corredor en «Hoy» */
+.carreteras-llegar { margin: 16px 0; }
+.carreteras-llegar h3 { font-size: 1.05rem; margin: 0 0 8px; }
+.carreteras-llegar li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.carreteras-llegar li .dato-fuente { flex-basis: 100%; }
+.hoy-resto { display: block; }
+.hoy-resto svg { display: inline-block; color: var(--ok-dot, #1f9d55); vertical-align: -3px; margin-right: 4px; }

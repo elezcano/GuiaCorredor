@@ -17,6 +17,18 @@ const f = []; const ok = (c, m) => c || f.push(m);
   const est = await p.textContent('.ficha-operativa');
   ok(/Sin incidencias/.test(est) && /MOPC · vigilado cada hora/.test(est) && !/Sin confirmar/.test(est), 'guía de la PY15: «Sin incidencias · MOPC · vigilado cada hora».');
   ok(await p.$('.ficha-operativa a[href$="/fuentes/"]'), 'guía de la PY15: «vigilado cada hora» enlaza a la página de fuentes.');
+  // Un tramo con avisos activos no dice «Sin incidencias».
+  const conAvisos = rutas.tramos.filter((x) => !x.paso && rutas.incidencias.some((i) => !i.paso && (i.tramos || []).includes(x.id) && i.gravedad !== 'info'));
+  ok(conAvisos.every((x) => ['Con incidencias', 'Cortado', 'Cortado para carga'].includes(x.vista.etiqueta)), 'un tramo con avisos activos sale «Con incidencias» o «Cortado»: ' + conAvisos.map((x) => `${x.id}=${x.vista.etiqueta}`).join(', '));
+  // Ficha del paso: «Carreteras para llegar», con quién vigila cada una.
+  await p.goto(B + '/guia/pasos/jama/');
+  const car = await p.textContent('.carreteras-llegar');
+  ok(/Carreteras para llegar/.test(car) && /RN 52/.test(car) && /CH-27/.test(car) && /vigilado cada hora/.test(car), 'ficha de Jama: «Carreteras para llegar» con la RN 52 y la CH-27 vigiladas.');
+  // Portada: lo que impide o limita va antes que los pasos, y el resto del corredor en una línea.
+  await p.goto(B + '/');
+  const orden = await p.$$eval('.hoy-col h2', (l) => l.map((x) => x.id));
+  ok(orden.indexOf('t-limita') > -1 && orden.indexOf('t-limita') < orden.indexOf('t-pasos-hoy'), 'portada: primero lo que impide o limita, después los pasos: ' + orden.join(', '));
+  ok(/El resto: \d+ de \d+ tramos de carretera sin incidencias/.test(await p.textContent('.hoy-resto')), 'portada: el resto del corredor en una línea.');
   await b.close();
   fin('Tres estados de vigilancia (HU-131)', f);
 })();

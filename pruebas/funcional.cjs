@@ -38,7 +38,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   const avisosAlt = await p.$$eval('#det-alternativa .pl-tramo-aviso', (l) => l.map((x) => x.textContent));
   ok(avisosAlt.some((t) => t.includes('RN51')) && !avisosAlt.some((t) => t.includes('CH-27')), 'avisos de Sico mal asignados: ' + avisosAlt);
   const estadosTT = await p.$$eval('.pl-detalle:not([hidden]) .pl-tramo-datos > span:first-child', (l) => l.map((x) => x.textContent));
-  ok(estadosTT.every((t) => /^(Sin confirmar|No habilitado|Con restricciones|Abierto|Sin incidencias|Sin vigilancia|Vigilancia sin actualizar)/.test(t)), 'tramo a tramo con estados inesperados: ' + estadosTT.join(' | '));
+  ok(estadosTT.every((t) => /^(Sin confirmar|No habilitado|Con restricciones|Abierto|Sin incidencias|Con incidencias|Cortado|Sin vigilancia|Vigilancia sin actualizar)/.test(t)), 'tramo a tramo con estados inesperados: ' + estadosTT.join(' | '));
   // Tipo de carga: fuera de la búsqueda; dentro de «Papeles» cambia la lista
   ok(!(await p.$('.buscador input[name="carga"]')), 'el tipo de carga no debe estar en la búsqueda');
   await p.goto(B + '/planificador/?desde=0&hasta=8&carga=general');
