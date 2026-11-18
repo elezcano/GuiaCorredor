@@ -21,8 +21,10 @@ permissions:
   id-token: write
 
 # Cada rama o PR tiene su propia cola: un PR ya no cancela el despliegue de main ni otros PR.
+# Los PR van por su número y no por github.ref: si el PR ya está fusionado cuando arranca su
+# ejecución, github.ref puede valer refs/heads/main y cancelaba la publicación de main.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -53,7 +55,8 @@ jobs:
         env:
           BASE_PATH: ${{ vars.BASE_PATH }}
       - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/main' && vars.PUBLICAR != 'false'
+        # Nunca desde un PR (aunque ya esté fusionado): solo push, cron o lanzamiento manual en main.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.PUBLICAR != 'false'
         with:
           path: dist
 
@@ -84,7 +87,8 @@ jobs:
           retention-days: 7
 
   publicar:
-    if: github.ref == 'refs/heads/main' && vars.PUBLICAR != 'false'
+    # Nunca desde un PR (aunque ya esté fusionado): solo push, cron o lanzamiento manual en main.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.PUBLICAR != 'false'
     needs: [construir, pruebas]
     runs-on: ubuntu-latest
     concurrency:
