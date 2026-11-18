@@ -62,7 +62,7 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 - **Qué cuenta para cada tramo:** `filtro` `localidades=…|…` de la fila (`mopc-pdf`). Se compara sin tildes y por palabras enteras; «Ruta 15», «PY 15» y «PY15» son lo mismo.
 - **Reglas:** «Clausurada» + «P/V/P» (Para Vehículos Pesados) o «vehículos pesados» → no habilitado para carga; «Clausurada» → corte; «precaución» → ámbar; «Habilitada» o sin mención → nada.
 - **Un informe solo se aplica una vez** (`ultimoInforme` en el estado de la vigilancia): un aviso se retira cuando falta en dos informes seguidos, no en dos pasadas del vigilante.
-- **Antigüedad:** «parada» si a partir de las 10:00 de un día laborable no hay informe de ese día. Los feriados de Paraguay no se descuentan: un feriado puede dar un aviso de más.
+- **Antigüedad:** «parada» si a partir de las 10:00 de un día laborable no hay informe de ese día. No cuentan los fines de semana ni los feriados nacionales de Paraguay de `data/festivos.json` (Ley 7544/2025): cuando se cargue el año siguiente, el vigilante los tiene en cuenta solo.
 
 ## Alertas DNIT (Brasil) · HU-138
 
