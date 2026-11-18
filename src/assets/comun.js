@@ -191,6 +191,7 @@
       const opDe = (t) => (t.vista?.confirmado ? t.vista.op : 'sin-confirmar');
       const TEXTO_OP = { abierto: 'Abierto', restricciones: 'Con restricciones', cerrado: 'No habilitado', 'sin-confirmar': 'Sin confirmar' };
       const textoEstado = (t) => {
+        if (t.vista?.etiqueta) return t.vista.etiqueta; // HU-131: «Sin incidencias», «Sin vigilancia», «Vigilancia sin actualizar»
         const op = opDe(t);
         const det = t.vista?.confirmado && datos.estados[t.vista.valor] && !['operativo', 'restricciones'].includes(t.vista.valor) ? datos.estados[t.vista.valor] : '';
         return TEXTO_OP[op] + (det && det !== TEXTO_OP[op] ? ` · ${det.toLowerCase()}` : '');

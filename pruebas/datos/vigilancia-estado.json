@@ -1,0 +1,38 @@
+{
+ "nota": "Estado de la vigilancia de prueba (HU-131): Chile lleva 3 lecturas fallidas.",
+ "ultimaPasada": "2026-11-15T14:00:00.000Z",
+ "fuentes": {
+  "py-mopc-estado-rutas": {
+   "nombre": "Carreteras de Paraguay (MOPC)",
+   "url": "https://example.org",
+   "ultimoIntento": "2026-11-15T14:00:00.000Z",
+   "ultimaLecturaBuena": "2026-11-15T14:00:00.000Z",
+   "fallosSeguidos": 0,
+   "ultimoError": null
+  },
+  "br-dnit-alertas": {
+   "nombre": "Carreteras de Brasil (DNIT)",
+   "url": "https://example.org",
+   "ultimoIntento": "2026-11-15T14:00:00.000Z",
+   "ultimaLecturaBuena": "2026-11-15T14:00:00.000Z",
+   "fallosSeguidos": 0,
+   "ultimoError": null
+  },
+  "ar-vialidad-estado-rutas": {
+   "nombre": "Carreteras de Argentina (Vialidad Nacional)",
+   "url": "https://example.org",
+   "ultimoIntento": "2026-11-15T14:00:00.000Z",
+   "ultimaLecturaBuena": "2026-11-15T14:00:00.000Z",
+   "fallosSeguidos": 0,
+   "ultimoError": null
+  },
+  "cl-vialidad-siemop": {
+   "nombre": "Carreteras de Chile (Vialidad, MOP)",
+   "url": "https://example.org",
+   "ultimoIntento": "2026-11-15T14:00:00.000Z",
+   "ultimaLecturaBuena": "2026-11-15T10:00:00.000Z",
+   "fallosSeguidos": 3,
+   "ultimoError": "HTTP 503"
+  }
+ }
+}

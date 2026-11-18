@@ -39,6 +39,9 @@ jobs:
           node-version: 22
       - run: npm install --no-audit --no-fund
       - run: npm run check
+      # HU-131: estado de la vigilancia (rama datos-vigilancia) para marcar «Vigilancia sin actualizar». Si no está, no se marca.
+      - name: Traer el estado de la vigilancia
+        run: git fetch --depth=1 origin datos-vigilancia 2>/dev/null && git show FETCH_HEAD:vigilancia.json > data/vigilancia-estado.json || echo 'Sin estado de la vigilancia: no se marca «Vigilancia sin actualizar».'
       - run: npm run build
         env:
           SITE_URL: ${{ vars.SITE_URL }}
