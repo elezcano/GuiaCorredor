@@ -20,24 +20,17 @@
 //   - Lo que la fuente deja de listar (o vuelve a «habilitada» sin observaciones) se da por resuelto.
 //   - Solo se tocan incidencias del vigilante; las cargadas a mano no se modifican.
 
+import { configuracion } from './fuentes-vigilancia.mjs';
+
 const ZONA_AR = '-03:00';
 
+// HU-136: qué tramos oficiales cuentan para cada tramo de la Guía, y los parámetros de Chile, salen del CSV de
+// fuentes (data/fuentes-vigilancia.csv, filas «activa»). Ahí se pausa una fuente o se mueve una ruta de tramo.
+const CFG = configuracion();
 /** Tramos oficiales de cada tramo de la Guía. paso: la incidencia solo cuenta en la variante por ese paso. */
-export const CORRESPONDENCIAS = {
-  ar: [
-    // Purmamarca → Jama (variante por Jama del tramo «andes»).
-    { guia: { paso: 'jama' }, provincia: 'Jujuy', ruta: '9', tramos: ['S.S. de Jujuy', 'Yala - Volcán', 'Volcán - Emp. RN 52'] },
-    { guia: { paso: 'jama' }, provincia: 'Jujuy', ruta: '52', tramos: '*' },
-    // Salta → Sico (variante por Sico).
-    { guia: { paso: 'sico' }, provincia: 'Salta', ruta: '51', tramos: '*' },
-    // Misión La Paz / Pozo Hondo → Jujuy por la RN 34 y la RN 66. El acceso desde Misión La Paz hasta
-    // la RN 34 es ruta provincial: Vialidad Nacional no lo publica.
-    { guia: { tramo: 'pozo-hondo' }, provincia: 'Salta', ruta: '34', tramos: ['Lte. Con Jujuy - Pichanal', 'Pichanal - Embarcación', 'Embarcación - Gral. E. Mosconi', 'Gral. E. Mosconi - Tartagal'] },
-    { guia: { tramo: 'pozo-hondo' }, provincia: 'Jujuy', ruta: '34', tramos: '*' },
-    { guia: { tramo: 'pozo-hondo' }, provincia: 'Jujuy', ruta: '66', tramos: '*' },
-  ],
-  // Chile: no por número de carretera sino por posición (ver leerCL).
-};
+export const CORRESPONDENCIAS = { ar: CFG.correspondenciasAR };
+// Chile: no por número de carretera sino por posición (ver leerCL).
+export const CHILE = CFG.chile;
 
 const limpio = (s) => String(s ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 const sinPuntoInicial = (s) => s.replace(/^[\s.,;:-]+/, '');
@@ -66,7 +59,7 @@ export function fechaAR(s) {
 }
 
 /** Filas de la hoja → lecturas por tramo oficial del corredor. */
-export function leerAR(json) {
+export function leerAR(json, correspondencias = CORRESPONDENCIAS.ar) {
   const filas = json?.values || [];
   const cab = (filas[0] || []).map((x) => limpio(x).toLowerCase());
   const col = (n) => cab.indexOf(n);
@@ -75,7 +68,7 @@ export function leerAR(json) {
   const res = [];
   for (const f of filas.slice(2)) {
     const r = { provincia: limpio(f[c.prov]), ruta: limpio(f[c.ruta]), tramo: limpio(f[c.tramo]), estado: limpio(f[c.estado]).toUpperCase(), calzada: limpio(f[c.calzada]), obs: limpio(f[c.obs]), fecha: fechaAR(f[c.act]) };
-    for (const m of CORRESPONDENCIAS.ar) {
+    for (const m of correspondencias) {
       if (m.provincia !== r.provincia || m.ruta !== r.ruta) continue;
       if (m.tramos !== '*' && !m.tramos.some((t) => r.tramo.replace(/\s+/g, ' ').startsWith(t))) continue;
       res.push({ ...r, guia: m.guia });
@@ -126,7 +119,7 @@ export function kmALinea([lon, lat], linea) {
 }
 /** Solo rutas nacionales numeradas («Ruta 1», «Ruta 16», «27-CH»): un camino secundario que sale de la ruta no la corta. */
 export const esRutaNacional = (rol) => /^(ruta\s*)?\d+(\s*-?\s*ch)?$/i.test(limpio(rol));
-export const MAX_KM_TRAZADO = 3;
+export const MAX_KM_TRAZADO = CHILE?.km ?? 3;
 /** Clave de data/trazados.json → dónde cuenta en la Guía: «andes@jama» → paso jama; «calama-iquique» → tramo. */
 export const guiaDeTrazado = (k) => (k.startsWith('andes@') ? { paso: k.split('@')[1] } : { tramo: k.split('@')[0] });
 
@@ -159,7 +152,7 @@ export function leerCL(json, trazados) {
 const diaCL = (ms) => (ms ? new Date(ms).toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' }) : null);
 // Un registro sin novedad de campo en más de 14 días puede estar ya resuelto: se avisa en ámbar y no
 // bloquea. (last_edited_date no sirve: Vialidad edita todos los registros en bloque a la vez.)
-export const DIAS_SIN_NOVEDAD = 14;
+export const DIAS_SIN_NOVEDAD = CHILE?.diasSinNovedad ?? 14;
 export function incidenciaCL({ a, guia }, fuente, ahora = new Date()) {
   const transito = limpio(a.TRANSITO);
   const restr = limpio(a.RESTRICCION);
