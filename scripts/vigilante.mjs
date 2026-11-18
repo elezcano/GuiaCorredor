@@ -31,6 +31,10 @@
 import fs from 'node:fs';
 import { aplicar, antiguedadHoras, CHILE, CORRESPONDENCIAS, configTablaAR, incidenciaAR, incidenciaCL, kmALinea, leerAR, leerCL } from './carreteras.mjs';
 import { cargar as cargarCSV, configuracion, parseCSV, validar } from './fuentes-vigilancia.mjs';
+import { execFileSync } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
+import { CARPETA_MOPC, FUENTE_MOPC, PAGINA_MOPC, archivoMOPC, candidatosMOPC, carpetaDelMes, incidenciasMOPC, leerInformeMOPC, listadoDrive, masReciente, mopcAtrasado } from './mopc.mjs';
 
 // HU-136: las páginas de pasos que se leen salen del CSV de fuentes (filas «activa» con lector gendarmeria-paso).
 const PAGINAS = configuracion().pasosAR;
@@ -339,6 +343,50 @@ function autoprueba() {
   const viejas = incAR.map((i) => ({ ...i, descripcion: 'otra', horaFuente: '2026-11-10T12:00:00.000Z' }));
   ok(aplicar(r1.incidencias, viejas, 'ar', t1).descartada === true, 'nunca marcha atrás: una copia más antigua de la fuente se descarta.');
   ok(aplicar(r2.incidencias, incAR, 'ar', new Date('2026-12-20T12:00:00Z')).incidencias.filter((i) => i.estado === 'resuelta').length === 0, 'las resueltas se retiran a los 15 días.');
+
+  // HU-134: informe diario del MOPC, con las copias del 17 y el 18/11/2026.
+  const tx = (n) => fs.readFileSync(new URL(`../pruebas/vigilante/mopc-${n}.txt`, import.meta.url), 'utf8');
+  const m17 = leerInformeMOPC(tx('2026-11-17'));
+  ok(m17.dia === '2026-11-17' && m17.hora === '07:00' && m17.instante === '2026-11-17T10:00:00.000Z', `MOPC: fecha y hora del informe (${m17.dia} ${m17.hora}).`);
+  ok(m17.puentes.length === 13 && m17.clausurados.filter((r) => !r.nota).length === 2, `MOPC 17/11: 13 puentes inhabilitados y 2 rutas clausuradas (${m17.puentes.length}, ${m17.clausurados.filter((r) => !r.nota).length}).`);
+  const boq = m17.localidades.find((l) => /BOQUERON/i.test(l.localidad));
+  ok(boq?.estado === 'Habilitada', `MOPC 17/11: «BOQUERON – Ramales: Habilitada» (${boq?.estado}).`);
+  const corrPY = CORRESPONDENCIAS.py;
+  ok(corrPY.length === 2 && corrPY.some((c) => c.guia.tramo === 'me-ph') && corrPY.some((c) => c.guia.tramo === 'cp-me'), 'CSV de fuentes: el MOPC vigila Carmelo Peralta → Mariscal y Mariscal → Pozo Hondo.');
+  ok(incidenciasMOPC(m17, corrPY).length === 0, 'MOPC 17/11: nada cerrado en la PY15 ni en Boquerón (los cierres de la Transchaco y Alto Paraguay no cuentan).');
+  const sim = leerInformeMOPC(tx('2026-11-17').replace(/(BOQUERON-\s+Ramales\s+\S+\s+)Habilitada/, '$1Clausurada      P/V/P'));
+  const [carga] = incidenciasMOPC(sim, corrPY);
+  ok(carga?.tramos?.[0] === 'me-ph' && carga.gravedad === 'rojo' && carga.afecta === 'carga' && carga.tipo === 'peso' && carga.fuente === FUENTE_MOPC && carga.horaFuente === '2026-11-17T10:00:00.000Z' && /No habilitado para carga/.test(carga.descripcion) && /07:00/.test(carga.descripcion), `MOPC: «Boquerón – Ramales: Clausurada P/V/P» → Mariscal–Pozo Hondo, no habilitado para carga, con fuente y hora (${carga?.descripcion}).`);
+  const total = incidenciasMOPC(leerInformeMOPC(tx('2026-11-17').replace(/(BOQUERON-\s+Ramales\s+\S+\s+)Habilitada/, '$1Clausurada')), corrPY)[0];
+  ok(total?.gravedad === 'rojo' && total.tipo === 'corte' && !total.afecta, 'MOPC: «Clausurada» sin P/V/P → corte para todos.');
+  const prec = incidenciasMOPC(leerInformeMOPC(tx('2026-11-17').replace('.: PTE. HAYES – TRAMO POZO COLORADO – CONCEPCION', '.: BOQUERON – TRAMO MCAL. ESTIGARRIBIA – POZO HONDO')), corrPY);
+  ok(prec.length === 2 && prec.every((i) => i.gravedad === 'ambar') && prec.some((i) => i.tramos[0] === 'me-ph'), `MOPC: «transitar con precaución» en una nota al pie → ámbar en los tramos que la nombran (${prec.map((i) => i.tramos[0]).join(', ')}).`);
+  const m18a = { ...leerInformeMOPC(tx('2026-11-18-1')), numero: 1 };
+  const m18b = { ...leerInformeMOPC(tx('2026-11-18-2')), numero: 2 };
+  ok(m18a.hora === '07:00' && m18b.hora === '13:00' && masReciente([m18b, m18a, { ...m17, numero: 0 }]) === m18b, 'MOPC: gana el informe con la hora más reciente (el 18/11 el «(1)» es el de las 07:00 y el «(2)» el de las 13:00).');
+  ok(masReciente([{ ...m18b, numero: 1 }, { ...m18b, numero: 2 }]).numero === 2, 'MOPC: a igual hora, gana el número de archivo más alto (una corrección).');
+  ok(archivoMOPC('ESTADOS DE LAS RUTAS NACIONALES DEL 09 DE NOVIEMBRE DEL 2026 (2).pdf')?.dia === '2026-11-09' && archivoMOPC('ESTADOS DE LAS RUTAS NACIONALES DEL 09 DE NOVIEMBRE DEL 2026 (2).pdf').numero === 2, 'MOPC: fecha y número del nombre del archivo.');
+  const cand = candidatosMOPC([{ tipo: 'archivo', id: 'a', nombre: 'ESTADOS DE LAS RUTAS NACIONALES DEL 17 DE NOVIEMBRE DEL 2026.pdf' }, { tipo: 'archivo', id: 'b', nombre: 'ESTADOS DE LAS RUTAS NACIONALES DEL 18 DE NOVIEMBRE DEL 2026 (1).pdf' }, { tipo: 'archivo', id: 'c', nombre: 'ESTADOS DE LAS RUTAS NACIONALES DEL 18 DE NOVIEMBRE DEL 2026 (2).pdf' }]);
+  ok(cand.map((c) => c.id).join() === 'c,b', 'MOPC: se descargan solo los informes del último día.');
+  let roto = false;
+  try {
+    leerInformeMOPC(tx('2026-11-17').replace('RUTAS Y TRAMOS CLAUSURADOS', 'OTRA COSA'));
+  } catch (e) {
+    roto = /cambiado de formato/.test(e.message);
+  }
+  ok(roto, 'MOPC: si falta una de las tres partes, la lectura falla y no se publica nada.');
+  // Antigüedad: sin informes el fin de semana; el lunes, hasta las 10:00 vale el del viernes.
+  ok(!mopcAtrasado('2026-11-13', new Date('2026-11-15T15:00:00Z')) && !mopcAtrasado('2026-11-13', new Date('2026-11-16T12:59:00Z')) && mopcAtrasado('2026-11-13', new Date('2026-11-16T13:01:00Z')), 'MOPC: el fin de semana no cuenta; el lunes a las 10:00 (hora de Paraguay) ya tiene que estar el informe del día.');
+  // Un informe ya aplicado no se vuelve a aplicar: la retirada cuenta informes, no pasadas.
+  const rM1 = aplicar([], [carga], FUENTE_MOPC, t1);
+  ok(rM1.incidencias.length === 1 && rM1.incidencias[0].verificacion?.verificadoPor === 'vigilante', 'MOPC: la incidencia va firmada por el vigilante (sello «Web oficial»).');
+  try {
+    const pdf = textoDePDF(fs.readFileSync(new URL('../pruebas/vigilante/mopc-2026-11-17.pdf', import.meta.url)));
+    ok(leerInformeMOPC(pdf).localidades.length === m17.localidades.length, 'MOPC: el PDF se pasa a texto con pdftotext y se lee igual que la copia de texto.');
+  } catch (e) {
+    if (/falta pdftotext/.test(e.message)) console.log('  (sin pdftotext en esta máquina: no se prueba el paso de PDF a texto)');
+    else ok(false, `MOPC: PDF a texto: ${e.message}`);
+  }
   // HU-136: el CSV de fuentes manda.
   {
     const csv = fs.readFileSync('data/fuentes-vigilancia.csv', 'utf8');
@@ -445,8 +493,49 @@ async function leerFuenteCL() {
   return { inc: leerCL(datos, trazados).map((x) => incidenciaCL(x, 'cl-vialidad-siemop', new Date())), ultimaEdicion: region ? new Date(region).toISOString() : null };
 }
 
+// HU-134: informe diario del MOPC (Paraguay). Carpeta pública de Drive → carpeta del mes → PDF del último día
+// (todos sus «(n)») → texto con pdftotext → el más reciente por la hora de dentro.
+const DRIVE_LISTA = (id) => `https://drive.google.com/embeddedfolderview?id=${id}`;
+const DRIVE_PDF = (id) => `https://drive.google.com/uc?export=download&id=${id}`;
+export function textoDePDF(buf) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mopc-'));
+  const f = path.join(dir, 'informe.pdf');
+  fs.writeFileSync(f, buf);
+  try {
+    return execFileSync('pdftotext', ['-layout', f, '-'], { encoding: 'utf8' });
+  } catch (e) {
+    throw new Error(e.code === 'ENOENT' ? 'falta pdftotext (poppler-utils) para leer el PDF del MOPC' : `pdftotext: ${e.message}`);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+async function leerFuenteMOPC(ahora = new Date()) {
+  const raiz = listadoDrive(await (await traer(DRIVE_LISTA(CARPETA_MOPC))).text());
+  if (!raiz.length) throw new Error('la carpeta de Drive del MOPC no lista nada (¿ha cambiado de sitio?)');
+  const hoyPY = ahora.toLocaleDateString('sv-SE', { timeZone: 'America/Asuncion' });
+  const antes = new Date(`${hoyPY.slice(0, 7)}-01T12:00:00Z`);
+  antes.setUTCDate(0);
+  let candidatos = [];
+  // La carpeta del mes; a principios de mes, si aún no hay nada, la del mes anterior.
+  for (const nombre of [carpetaDelMes(hoyPY), carpetaDelMes(antes.toISOString().slice(0, 10))]) {
+    const c = raiz.find((x) => x.tipo === 'carpeta' && x.nombre.toUpperCase().replace(/\s+/g, ' ').trim() === nombre);
+    if (!c) continue;
+    candidatos = candidatosMOPC(listadoDrive(await (await traer(DRIVE_LISTA(c.id))).text()));
+    if (candidatos.length) break;
+  }
+  if (!candidatos.length) throw new Error(`no encuentro informes en las carpetas «${carpetaDelMes(hoyPY)}» ni del mes anterior`);
+  const informes = [];
+  for (const a of candidatos.slice(0, 4)) {
+    const buf = Buffer.from(await (await traer(DRIVE_PDF(a.id))).arrayBuffer());
+    if (buf.subarray(0, 4).toString() !== '%PDF') throw new Error(`«${a.nombre}» no es un PDF (Drive ha devuelto otra cosa)`);
+    informes.push({ ...leerInformeMOPC(textoDePDF(buf)), numero: a.numero, archivo: a.nombre });
+  }
+  const inf = masReciente(informes);
+  return { inc: incidenciasMOPC(inf, CORRESPONDENCIAS.py, FUENTE_MOPC), ultimaEdicion: inf.instante, informe: inf.instante, dia: inf.dia, resumen: `informe del ${inf.dia.split('-').reverse().join('/')} de las ${inf.hora} («${inf.archivo}»)` };
+}
+
 /** Lee las fuentes de carreteras y decide los cambios en data/incidencias.json. */
-async function revisarCarreteras(ahora = new Date()) {
+async function revisarCarreteras(ahora = new Date(), previo = {}) {
   const archivo = json('data/incidencias.json');
   let lista = archivo.incidencias;
   const resultados = [];
@@ -455,6 +544,7 @@ async function revisarCarreteras(ahora = new Date()) {
   // HU-136: cada fuente de carreteras se lee solo si tiene alguna fila activa en el CSV.
   const fuentes = [
     CORRESPONDENCIAS.ar.length && { id: 'ar-vialidad-estado-rutas', nombre: 'Carreteras de Argentina (Vialidad Nacional)', url: 'https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas', leer: async () => ({ inc: await leerFuenteAR() }) },
+    CORRESPONDENCIAS.py.length && { id: FUENTE_MOPC, nombre: 'Carreteras de Paraguay (MOPC)', url: PAGINA_MOPC, leer: () => leerFuenteMOPC(ahora) },
     CHILE && { id: 'cl-vialidad-siemop', nombre: 'Carreteras de Chile (Vialidad, MOP)', url: 'https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0', leer: leerFuenteCL },
   ].filter(Boolean);
   for (const f of fuentes) {
@@ -467,14 +557,22 @@ async function revisarCarreteras(ahora = new Date()) {
       continue;
     }
     const horas = leido.ultimaEdicion ? (ahora - new Date(leido.ultimaEdicion)) / 36e5 : antiguedadHoras(leido.inc, ahora);
-    const parada = MAX_HORAS[f.id] && horas != null && horas > MAX_HORAS[f.id];
-    const error = parada ? `la fuente no se actualiza desde hace ${Math.floor(horas / 24)} días` : null;
-    resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: !parada, error });
+    // HU-134: el MOPC no publica los fines de semana; está parado si falta el informe del último día laborable.
+    const parada = f.id === FUENTE_MOPC ? mopcAtrasado(leido.dia, ahora) : MAX_HORAS[f.id] && horas != null && horas > MAX_HORAS[f.id];
+    const error = parada ? (f.id === FUENTE_MOPC ? `el último informe del MOPC es del ${leido.dia.split('-').reverse().join('/')}: falta el del último día laborable` : `la fuente no se actualiza desde hace ${Math.floor(horas / 24)} días`) : null;
+    resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: !parada, error, ...(leido.informe ? { informe: leido.informe } : {}) });
+    // HU-134: un informe ya aplicado (o más viejo) no se vuelve a aplicar: «falta en dos informes seguidos» cuenta
+    // informes, no pasadas del vigilante (el MOPC publica dos veces al día y el vigilante pasa cada hora).
+    const yaVisto = previo.fuentes?.[f.id]?.ultimoInforme;
+    if (leido.informe && yaVisto && leido.informe <= yaVisto) {
+      console.log(`${f.nombre}: ${leido.resumen}, ya aplicado.${error ? ` ⚠ ${error}` : ''}`);
+      continue;
+    }
     const { incidencias, cambios, descartada, tocado } = aplicar(lista, leido.inc, f.id, ahora);
     if (tocado) hayQueEscribir = true;
-    console.log(`${f.nombre}: ${leido.inc.length} avisos en el corredor${descartada ? ' (copia antigua: descartada)' : ''}${error ? ` · ⚠ ${error}` : ''}`);
+    console.log(`${f.nombre}: ${leido.resumen ? `${leido.resumen}, ` : ''}${leido.inc.length} avisos en el corredor${descartada ? ' (copia antigua: descartada)' : ''}${error ? ` · ⚠ ${error}` : ''}`);
     lista = incidencias;
-    if (cambios.length) publicados.push({ paso: { id: f.id, nombre: f.nombre }, url: f.url, cambios, avisos: [] });
+    if (cambios.length) publicados.push({ paso: { id: f.id, nombre: f.nombre }, url: f.url, cambios, avisos: [], carretera: true });
   }
   return { archivo: { ...archivo, incidencias: lista }, resultados, publicados, hayQueEscribir };
 }
@@ -497,6 +595,7 @@ export function actualizarEstado(previo = {}, resultados = [], ahora = new Date(
       ultimaLecturaBuena: r.ok ? iso : a.ultimaLecturaBuena || null,
       fallosSeguidos: r.ok ? 0 : (a.fallosSeguidos || 0) + 1,
       ultimoError: r.ok ? null : r.error,
+      ...(r.informe || a.ultimoInforme ? { ultimoInforme: r.informe || a.ultimoInforme } : {}),
     };
   }
   return { nota: 'Estado del vigilante (scripts/vigilante.mjs). Lo escribe cada pasada.', ultimaPasada: iso, fuentes };
@@ -577,16 +676,17 @@ async function principal() {
 
   const { lecturas, errores, resultados, publicados, pasos } = await revisar();
   // HU-130 fase 2: carreteras (Vialidad Nacional y Vialidad de Chile).
-  const carreteras = args.has('--sin-carreteras') ? null : await revisarCarreteras();
-  if (carreteras) resultados.push(...carreteras.resultados), publicados.push(...carreteras.publicados);
-  // HU-129: estado de la vigilancia (si se indica dónde guardarlo).
+  // HU-129: estado de la vigilancia (si se indica dónde guardarlo). HU-134: se lee antes, para no reaplicar un informe.
   const archivoEstado = process.env.VIGILANCIA_ARCHIVO;
-  let estado = null;
-  if (archivoEstado) {
-    let previo = {};
+  let previo = {};
+  if (archivoEstado)
     try {
       previo = json(archivoEstado);
     } catch {}
+  const carreteras = args.has('--sin-carreteras') ? null : await revisarCarreteras(new Date(), previo);
+  if (carreteras) resultados.push(...carreteras.resultados), publicados.push(...carreteras.publicados);
+  let estado = null;
+  if (archivoEstado) {
     estado = actualizarEstado(previo, resultados);
     fs.writeFileSync(archivoEstado, JSON.stringify(estado, null, 1) + '\n');
     for (const [id, f] of Object.entries(estado.fuentes)) console.log(`Estado ${id}: ${f.fallosSeguidos ? `${f.fallosSeguidos} fallos seguidos` : 'lectura buena'}`);
@@ -599,7 +699,7 @@ async function principal() {
 
   // HU-130: escribe los datos y el resumen. El flujo comprueba (npm run check), sube a main y publica.
   if (args.has('--escribir')) {
-    if (publicados.some((p) => p.cambios.length && !p.paso.id.includes('vialidad'))) fs.writeFileSync('data/pasos.json', JSON.stringify(pasos, null, 2) + '\n');
+    if (publicados.some((p) => p.cambios.length && !p.carretera)) fs.writeFileSync('data/pasos.json', JSON.stringify(pasos, null, 2) + '\n');
     if (carreteras?.hayQueEscribir) fs.writeFileSync('data/incidencias.json', JSON.stringify(carreteras.archivo, null, 2) + '\n');
     if (archivoCambios) fs.writeFileSync(archivoCambios, JSON.stringify(publicados, null, 1) + '\n');
   }
