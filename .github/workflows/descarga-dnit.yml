@@ -1,0 +1,23 @@
+# Uso único (HU-138): baja páginas de «Alertas DNIT» a esta rama. Se borra al terminar la HU.
+name: Descarga DNIT
+on:
+  push:
+    branches: [descarga-dnit]
+    paths: [scripts/tmp/descarga-dnit.mjs, .github/workflows/descarga-dnit.yml]
+permissions:
+  contents: write
+jobs:
+  bajar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/tmp/descarga-dnit.mjs
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898732+github-actions[bot]@users.noreply.github.com"
+          git add pruebas/vigilante/dnit
+          git commit -m "Páginas de Alertas DNIT (descarga de uso único, HU-138)" || exit 0
+          git push
