@@ -175,20 +175,22 @@ export function incidenciasMOPC(inf, correspondencias, fuente = FUENTE_MOPC) {
 }
 
 /**
- * Último día laborable (lunes a viernes) del que ya tendría que haber informe: hoy a partir de las 10:00 de Paraguay,
- * si no, el anterior. El MOPC no publica los fines de semana. Los feriados de Paraguay no se descuentan: un feriado
- * puede dar un aviso de «sin actualizar» que no lo es.
+ * Último día laborable del que ya tendría que haber informe: hoy a partir de las 10:00 de Paraguay, si no, el anterior.
+ * El MOPC no publica los fines de semana ni los feriados nacionales de Paraguay (`feriados`: fechas AAAA-MM-DD, de
+ * data/festivos.json, Ley 7544/2025).
  */
-export function diaEsperadoMOPC(ahora = new Date()) {
+export function diaEsperadoMOPC(ahora = new Date(), feriados = new Set()) {
   const py = new Date(ahora.getTime() - 3 * 36e5); // reloj de Paraguay en campos UTC
   const d = new Date(Date.UTC(py.getUTCFullYear(), py.getUTCMonth(), py.getUTCDate()));
-  const antesDeLas10 = py.getUTCHours() < 10;
-  if (antesDeLas10 || [0, 6].includes(d.getUTCDay())) d.setUTCDate(d.getUTCDate() - 1);
-  while ([0, 6].includes(d.getUTCDay())) d.setUTCDate(d.getUTCDate() - 1);
+  const libre = () => [0, 6].includes(d.getUTCDay()) || feriados.has(d.toISOString().slice(0, 10));
+  if (py.getUTCHours() < 10 || libre()) d.setUTCDate(d.getUTCDate() - 1);
+  while (libre()) d.setUTCDate(d.getUTCDate() - 1);
   return d.toISOString().slice(0, 10);
 }
 /** El último informe leído es de antes del día laborable que toca: la fuente no se ha actualizado. */
-export const mopcAtrasado = (diaInforme, ahora = new Date()) => diaInforme < diaEsperadoMOPC(ahora);
+export const mopcAtrasado = (diaInforme, ahora = new Date(), feriados = new Set()) => diaInforme < diaEsperadoMOPC(ahora, feriados);
+/** Feriados nacionales de Paraguay de data/festivos.json (solo «feriado»: los no laborables del MOPC no constan). */
+export const feriadosPY = (festivos) => new Set((festivos?.festivos || []).filter((f) => f.pais === 'PY' && f.tipo === 'feriado' && (f.organismo || 'general') === 'general').map((f) => f.fecha));
 
 /** Listado público de una carpeta de Drive (embeddedfolderview) → [{ tipo, id, nombre }]. */
 export function listadoDrive(html) {

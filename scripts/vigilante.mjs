@@ -34,7 +34,7 @@ import { cargar as cargarCSV, configuracion, parseCSV, validar } from './fuentes
 import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
-import { CARPETA_MOPC, FUENTE_MOPC, PAGINA_MOPC, archivoMOPC, candidatosMOPC, carpetaDelMes, incidenciasMOPC, leerInformeMOPC, listadoDrive, masReciente, mopcAtrasado } from './mopc.mjs';
+import { CARPETA_MOPC, FUENTE_MOPC, PAGINA_MOPC, archivoMOPC, candidatosMOPC, carpetaDelMes, incidenciasMOPC, leerInformeMOPC, feriadosPY, listadoDrive, masReciente, mopcAtrasado } from './mopc.mjs';
 import { DIAS_ALERTA_ABIERTA, FUENTE_DNIT, PAGINA_DNIT, alertaDNIT, clasificarDNIT, incidenciasDNIT, listaDNIT, rodoviasDe } from './dnit.mjs';
 
 // HU-136: las páginas de pasos que se leen salen del CSV de fuentes (filas «activa» con lector gendarmeria-paso).
@@ -414,6 +414,12 @@ function autoprueba() {
   ok(rotoBR, 'DNIT: si la página de la alerta cambia de formato, la lectura falla.');
   // Antigüedad: sin informes el fin de semana; el lunes, hasta las 10:00 vale el del viernes.
   ok(!mopcAtrasado('2026-11-13', new Date('2026-11-15T15:00:00Z')) && !mopcAtrasado('2026-11-13', new Date('2026-11-16T12:59:00Z')) && mopcAtrasado('2026-11-13', new Date('2026-11-16T13:01:00Z')), 'MOPC: el fin de semana no cuenta; el lunes a las 10:00 (hora de Paraguay) ya tiene que estar el informe del día.');
+  // Feriados nacionales de Paraguay (data/festivos.json, Ley 7544/2025): el 08/12/2026 (martes, Virgen de Caacupé) no hay informe.
+  const ferPY = feriadosPY(json('data/festivos.json'));
+  ok(ferPY.has('2026-12-08') && ferPY.has('2027-03-25') && !ferPY.has('2026-12-09'), `MOPC: los feriados de Paraguay salen de data/festivos.json (${ferPY.size}).`);
+  ok(!mopcAtrasado('2026-12-07', new Date('2026-12-08T18:00:00Z'), ferPY) && mopcAtrasado('2026-12-07', new Date('2026-12-08T18:00:00Z')), 'MOPC: un feriado (08/12, Virgen de Caacupé) no da aviso de fuente parada.');
+  ok(!mopcAtrasado('2026-12-07', new Date('2026-12-09T12:00:00Z'), ferPY) && mopcAtrasado('2026-12-07', new Date('2026-12-09T14:00:00Z'), ferPY), 'MOPC: el día después del feriado vuelve a tocar informe a las 10:00.');
+  ok(!mopcAtrasado('2027-03-24', new Date('2027-03-29T12:00:00Z'), ferPY), 'MOPC: Jueves y Viernes Santo seguidos del fin de semana: vale el informe del miércoles hasta el lunes a las 10:00.');
   // Un informe ya aplicado no se vuelve a aplicar: la retirada cuenta informes, no pasadas.
   const rM1 = aplicar([], [carga], FUENTE_MOPC, t1);
   ok(rM1.incidencias.length === 1 && rM1.incidencias[0].verificacion?.verificadoPor === 'vigilante', 'MOPC: la incidencia va firmada por el vigilante (sello «Web oficial»).');
@@ -614,7 +620,7 @@ async function revisarCarreteras(ahora = new Date(), previo = {}) {
     }
     const horas = leido.ultimaEdicion ? (ahora - new Date(leido.ultimaEdicion)) / 36e5 : antiguedadHoras(leido.inc, ahora);
     // HU-134: el MOPC no publica los fines de semana; está parado si falta el informe del último día laborable.
-    const parada = f.id === FUENTE_MOPC ? mopcAtrasado(leido.dia, ahora) : MAX_HORAS[f.id] && horas != null && horas > MAX_HORAS[f.id];
+    const parada = f.id === FUENTE_MOPC ? mopcAtrasado(leido.dia, ahora, feriadosPY(json('data/festivos.json'))) : MAX_HORAS[f.id] && horas != null && horas > MAX_HORAS[f.id];
     const error = parada ? (f.id === FUENTE_MOPC ? `el último informe del MOPC es del ${leido.dia.split('-').reverse().join('/')}: falta el del último día laborable` : `la fuente no se actualiza desde hace ${Math.floor(horas / 24)} días`) : null;
     resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: !parada, error, ...(leido.informe ? { informe: leido.informe } : {}) });
     // HU-134: un informe ya aplicado (o más viejo) no se vuelve a aplicar: «falta en dos informes seguidos» cuenta
