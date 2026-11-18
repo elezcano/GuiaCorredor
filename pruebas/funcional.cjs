@@ -8,10 +8,20 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/Failed to load resource/.test(m.text()) && errs.push(m.text())); p.on('response', r => r.status() >= 400 && !r.url().includes('/assets/fonts/') && errs.push(`${r.status()} ${r.url().replace(B, '')}`));
   // Portada
   await p.goto(B + '/');
-  const hist = await p.$$eval('.historia .estado', l => l.map(x => x.textContent));
+  // HU-133: portada «Hoy»: un estado por paso (con forma y palabra) y el bloque de lo que impide o limita el paso.
+  const hist = await p.$$eval('.paso-hoy .estado', l => l.map(x => x.textContent));
   ok(hist.length === 4 && hist.every(t => /^(Sin confirmar|No habilitado|Con restricciones|Abierto)/.test(t)), 'estados de portada inesperados: ' + hist);
+  ok(await p.$$eval('.paso-hoy .estado svg', l => l.length) === 4, 'estados sin forma');
   ok((await p.$$('.mapa a')).length >= 9, 'mapa sin enlaces');
-  ok(await p.isVisible('.tablero'), 'sin tablero');
+  ok(await p.isVisible('#t-limita'), 'sin «Lo que impide o limita el paso»');
+  ok(await p.isVisible('#sin-ruta'), 'sin buscador en la portada sin ruta guardada');
+  // HU-133 (R5/R9): con una ruta guardada, veredicto en una frase que empieza por verbo y pasos de la ruta primero.
+  await p.evaluate(() => localStorage.setItem('guia-corredor:ruta', JSON.stringify({ desde: 0, hasta: 5 })));
+  await p.reload();
+  const verHoy = await p.textContent('.veredicto-titulo').catch(() => '');
+  ok(/^(Puedes ir hoy|Nada te impide ir hoy|Hoy no puedes)/.test(verHoy.trim()), 'veredicto de tu ruta inesperado: ' + verHoy);
+  ok(await p.$eval('#pasos-hoy li', (li) => li.classList.contains('en-tu-ruta')).catch(() => false), 'tus pasos no salen primero');
+  await p.evaluate(() => localStorage.removeItem('guia-corredor:ruta'));
   ok(!(await p.content()).includes('Histórico</span></p>') || true, '');
   // Planificador (HU-116): veredicto primero, opciones y detalle plegado
   await p.goto(B + '/planificador/?desde=0&hasta=8&carga=granel');

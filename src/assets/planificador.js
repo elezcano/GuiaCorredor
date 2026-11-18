@@ -41,14 +41,9 @@
     new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', ...(iso.slice(0, 4) !== anioActual ? { year: 'numeric' } : {}), timeZone: 'UTC' }).replace('.', '');
   const fechaDia = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   const km = (n) => GC.km(Math.round(n * 10) / 10);
-  // Semáforo de un tramo: solo lo verificado cuenta como confirmado.
-  const opDe = (t) => (t.vista?.confirmado ? t.vista.op : 'sin-confirmar');
-  const TEXTO_OP = { abierto: 'Abierto', restricciones: 'Con restricciones', cerrado: 'No habilitado', 'sin-confirmar': 'Sin confirmar' };
-  const textoEstado = (t) => {
-    const op = opDe(t);
-    const det = t.vista?.confirmado && datos.estados[t.vista.valor] && !['operativo', 'restricciones'].includes(t.vista.valor) ? datos.estados[t.vista.valor] : '';
-    return TEXTO_OP[op] + (det && det !== TEXTO_OP[op] ? ` · ${det.toLowerCase()}` : '');
-  };
+  // HU-133: diagnóstico y veredicto compartidos con la portada (comun.js).
+  const DG = GC.diag(datos);
+  const { opDe, textoEstado, bloquea, motivoBloqueo, diagnostico, ORDEN } = DG;
   const punto = (op) => `<span class="pl-punto pl-${op}" aria-hidden="true"></span>`;
   const enlaceGuia = (g, txt, q = '') => (g ? `<a href="${datos.base}/guia/${g}/${q}">${esc(txt)}</a>` : esc(txt));
   // HU-105: la ficha del paso se abre en el sentido del viaje.
@@ -60,45 +55,6 @@
   };
   const tramoNombre = (t) => `${nombre(t.de)} → ${nombre(t.a)}`;
   const TIPO_KM = { fuente: 'con fuente', calculado: 'calculado', osm: 'calculado con OpenStreetMap', estimado: 'estimado en línea recta' };
-
-  // --- Diagnóstico de una opción: qué lo impide, qué genera dudas y qué funciona hoy ---
-  // HU-130: un aviso rojo de la fuente oficial (corte total, o no habilitado para carga) bloquea el tramo.
-  const cortaAviso = (op, t) => op.incDe(t).some((i) => i.gravedad === 'rojo');
-  const bloquea = (op, t) => opDe(t) === 'cerrado' || cortaAviso(op, t);
-  const motivoBloqueo = (op, t) => {
-    const i = opDe(t) === 'cerrado' ? null : op.incDe(t).find((x) => x.gravedad === 'rojo');
-    return i ? `${i.afecta === 'carga' ? 'no habilitado para carga' : 'corte'} en ${i.ubicacion}` : textoEstado(t).toLowerCase();
-  };
-  function diagnostico(op) {
-    const bloqueos = op.tramos.filter((t) => bloquea(op, t));
-    // Dudas: una por tramo. Si el tramo tiene un aviso, manda el aviso (más concreto que el estado);
-    // los avisos de un tramo que ya bloquea la ruta no se repiten.
-    const dudas = [];
-    op.tramos.forEach((t) => {
-      const o = opDe(t);
-      if (bloquea(op, t)) return;
-      // Los avisos informativos (observaciones de una ruta habilitada) se ven en el tramo, no son dudas.
-      const avisos = op.incDe(t).filter((i) => i.gravedad !== 'info');
-      if (avisos.length) return avisos.forEach((i) => dudas.push(`${i.tipo}: ${i.ubicacion}`));
-      if (t.paso && o === 'restricciones') dudas.push(`${sinParentesis(t.paso.nombre)}: con restricciones`);
-      else if (t.paso && o === 'sin-confirmar') dudas.push(`${sinParentesis(t.paso.nombre)}: estado sin confirmar`);
-      else if (!t.paso && o === 'restricciones') dudas.push(`${tramoNombre(t)}: con restricciones`);
-    });
-    const sinParte = op.tramos.filter((t) => !t.paso && !t.vista?.confirmado).length;
-    // Tramos que funcionan hoy: los trozos de la ruta entre bloqueos.
-    const trozos = [];
-    let actual = [];
-    op.tramos.forEach((t) => {
-      if (bloquea(op, t)) {
-        if (actual.length) trozos.push(actual);
-        actual = [];
-      } else actual.push(t);
-    });
-    if (actual.length) trozos.push(actual);
-    const nivel = bloqueos.length ? 'rojo' : dudas.length ? 'ambar' : 'verde';
-    return { bloqueos, dudas, sinParte, trozos, nivel };
-  }
-  const ORDEN = { verde: 0, ambar: 1, rojo: 2 };
 
   // --- Bloques del resultado ---
   function veredicto(op, dg) {

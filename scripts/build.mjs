@@ -1111,58 +1111,70 @@ const mapaVivoHTML = () => `<div class="mapa-vivo-marco" data-estado="esquema">
   </div>`;
 const datosMapaScript = () => `<script type="application/json" id="datos-mapa">${JSON.stringify(datosMapa()).replace(/</g, '\\u003c')}</script>`;
 
-// Inicio
-add(
-  '/',
-  layout({
-    ruta: '/',
-    scripts: ['/assets/inicio.js', ...(hayMapLibre ? ['/assets/mapa-perezoso.js'] : [])],
-    datos: datosRutas() + (hayMapLibre ? datosMapaScript() : ''),
-    cuerpo: `
-<section class="portada-hero" aria-labelledby="titulo-portada">
-  <div class="contenedor">
-    <h1 id="titulo-portada">Planifica tu ruta por el corredor bioceánico</h1>
-    <p class="hero-sub">Estado de cada tramo y frontera, papeles para cruzar y empresas en cada punto, de Brasil a Chile.</p>
-    <div class="tu-ruta" id="tu-ruta" hidden></div>
-    ${buscador()}
+// Inicio · HU-133 (R5): «Hoy». Tu ruta con su veredicto, tus pasos, lo que impide o limita el paso y el mapa.
+const GENERADO = new Date();
+const horaEn = (zona, d = GENERADO) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zona }).format(d);
+const graveOrden = { rojo: 0, ambar: 1 };
+const avisoHoy = (i) => {
+  const g = i.gravedad || 'ambar';
+  const forma = g === 'rojo' ? 'cerrado' : 'restricciones';
+  return `<li class="aviso-hoy aviso-${g}" id="hoy-inc-${esc(i.id)}">${OPERATIVA[forma].icono.replace('<svg', `<svg class="op-${forma}"`)}<div>
+    <p class="aviso-hoy-titulo"><strong>${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</strong> · ${esc(i.ubicacion)} ${paises(i.paises || [])}</p>
+    <p class="aviso-hoy-texto">${esc(i.descripcion)}</p>
+    <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</p>
+  </div></li>`;
+};
+{
+  const limitan = activas.filter((i) => (i.gravedad || 'ambar') !== 'info').sort((x, y) => graveOrden[x.gravedad || 'ambar'] - graveOrden[y.gravedad || 'ambar']);
+  const info = activas.length - limitan.length;
+  const tarjetaPaso = (h) => `<li data-paso="${esc(h.id)}"><a class="paso-hoy op-borde-${h.op}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}">
+    <span class="paso-hoy-nombre">${h.cara.map((c) => bandera(c)).join('')}<strong>${esc(h.nombre)}</strong></span>
+    <span class="paso-hoy-estado">${estadoPasoHTML(h.id, { corto: true })}</span></a></li>`;
+  add(
+    '/',
+    layout({
+      ruta: '/',
+      scripts: ['/assets/inicio.js', ...(hayMapLibre ? ['/assets/mapa-perezoso.js'] : [])],
+      datos: datosRutas() + (hayMapLibre ? datosMapaScript() : ''),
+      cuerpo: `
+<div class="contenedor hoy">
+  <header class="hoy-cabeza">
+    <h1>Hoy</h1>
+    <p class="hoy-hora" data-generado="${GENERADO.toISOString()}">Datos de las ${horaEn(ZONAS.AR)} en Argentina (${horaEn(ZONA_ES)} en España)</p>
+  </header>
+  <div class="hoy-grid">
+    <div class="hoy-col">
+      <section class="veredicto" id="tu-ruta" aria-live="polite" hidden></section>
+      <section class="hoy-buscar" id="sin-ruta" aria-labelledby="t-buscar">
+        <h2 id="t-buscar">¿Adónde vas?</h2>
+        <p>Elige origen y destino y te decimos si se puede hoy y por dónde.</p>
+        ${buscador('buscador-hoy').replace(`${icono('buscar')}Buscar ruta`, '¿Se puede hoy?')}
+      </section>
+      <section class="hoy-bloque" aria-labelledby="t-pasos-hoy">
+        <div class="hoy-bloque-cabeza"><h2 id="t-pasos-hoy">Pasos de frontera</h2><a href="${u('/pasos/')}">Ver todos</a></div>
+        <ul class="pasos-hoy" id="pasos-hoy">${pasosHistoria.map(tarjetaPaso).join('')}</ul>
+      </section>
+      <section class="hoy-bloque" aria-labelledby="t-limita">
+        <div class="hoy-bloque-cabeza"><h2 id="t-limita">Lo que impide o limita el paso</h2><a href="${u('/avisos/')}">Ver todos los avisos</a></div>
+        ${limitan.length ? `<ul class="avisos-hoy">${limitan.slice(0, 5).map(avisoHoy).join('')}</ul>${limitan.length > 5 ? `<p class="hoy-info"><a href="${u('/avisos/')}">Y ${plural(limitan.length - 5, 'aviso más', 'avisos más')} con restricciones</a></p>` : ''}` : '<p class="sin-dato">Ningún corte ni restricción publicado ahora mismo.</p>'}
+        ${info ? `<p class="hoy-info"><a href="${u('/avisos/#informativos')}">${plural(info, 'aviso informativo más', 'avisos informativos más')}</a>: no cambian el veredicto.</p>` : ''}
+      </section>
+      <section class="hoy-negocio" aria-label="Negocio">
+        <a class="negocio" href="${cotizacion()}">${icono('papeles')}<span><strong>Pedir cotización</strong><span>Dinos origen, destino y carga</span></span></a>
+        <a class="negocio" href="${cargaRetorno()}">${icono('ruta')}<span><strong>Carga de retorno</strong><span>¿Vuelves vacío? Avísanos</span></span></a>
+      </section>
+    </div>
+    <section class="hoy-mapa" aria-labelledby="t-mapa-hoy">
+      <h2 id="t-mapa-hoy" class="sr-only">Mapa del corredor hoy</h2>
+      ${hayMapLibre ? mapaVivoHTML() : mapaHTML()}
+      ${hayMapLibre ? '' : '<!-- leyenda del esquema dentro del mapa -->'}<p class="leyenda-formas" aria-hidden="true"${hayMapLibre ? '' : ' hidden'}><span>${OPERATIVA.abierto.icono} Abierto</span><span>${OPERATIVA.restricciones.icono} Con avisos</span><span>${OPERATIVA.cerrado.icono} Cerrado</span><span>${OPERATIVA['sin-confirmar'].icono} Sin confirmar</span></p>
+      <a class="enlace-mas" href="${u('/mapa/')}">Ver tramos y distancias</a>
+    </section>
   </div>
-</section>
-${seccion({
-  titulo: 'Estado de los pasos',
-  contexto: 'Último parte conocido de cada frontera, con su fecha. Toca un paso para ver horarios y requisitos.',
-  enlace: ['/pasos/', 'Ver todos los pasos'],
-  cuerpo: `<ul class="historias">${pasosHistoria.map(historia).join('')}</ul>`,
-})}
-${seccion({
-  titulo: 'Información operativa',
-  contexto: 'Festivos, obras y alertas que pueden afectar a tu viaje.',
-  cuerpo: tablero(),
-})}
-${seccion({
-  titulo: 'Mapa del corredor',
-  contexto: 'Ciudades, pasos fronterizos y puertos. Toca un punto para abrir su ficha.',
-  enlace: ['/mapa/', 'Ver tramos y distancias'],
-  cuerpo: hayMapLibre ? mapaVivoHTML() : mapaHTML(),
-})}
-${seccion({
-  titulo: 'Últimos cambios',
-  contexto: `Noticias de los últimos ${HISTORICO_DIAS} días, con su fuente. Las anteriores están en novedades como histórico.`,
-  enlace: ['/novedades/', 'Ver todas las novedades'],
-  cuerpo: recientes.length
-    ? `<div class="portal">${noticia(recientes[0], { principal: true })}<ul class="lista-noticias">${recientes
-        .slice(1, 4)
-        .map((n) => `<li>${noticia(n)}</li>`)
-        .join('')}</ul></div>`
-    : `<p class="sin-dato">No hay noticias de los últimos ${HISTORICO_DIAS} días.</p>`,
-})}
-<section class="contenedor seccion" aria-labelledby="t-empresas-banda">
-  <div class="banda">
-    <div><h2 id="t-empresas-banda">¿Das servicio en el corredor?</h2><p>Aparece en el punto de la ruta donde trabajas. Quien planifica un viaje por ahí te escribe directamente.</p></div>
-    <a class="btn" href="${u('/anunciate/')}">Anunciar mi empresa</a>
-  </div>
-</section>`,
-  })
-);
+</div>`,
+    })
+  );
+}
 
 // Planificador (resultados)
 {

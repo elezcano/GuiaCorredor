@@ -166,6 +166,78 @@
       mejor.recomendada = true;
       return ops;
     },
+    /** HU-133: diagnóstico y veredicto de una ruta, compartido por el planificador y la portada «Hoy». */
+    diag(datos) {
+      const nombre = (id) => datos.nodos.find((n) => n.id === id)?.nombre || id;
+      const tramoNombre = (t) => `${nombre(t.de)} → ${nombre(t.a)}`;
+      const opDe = (t) => (t.vista?.confirmado ? t.vista.op : 'sin-confirmar');
+      const TEXTO_OP = { abierto: 'Abierto', restricciones: 'Con restricciones', cerrado: 'No habilitado', 'sin-confirmar': 'Sin confirmar' };
+      const textoEstado = (t) => {
+        const op = opDe(t);
+        const det = t.vista?.confirmado && datos.estados[t.vista.valor] && !['operativo', 'restricciones'].includes(t.vista.valor) ? datos.estados[t.vista.valor] : '';
+        return TEXTO_OP[op] + (det && det !== TEXTO_OP[op] ? ` · ${det.toLowerCase()}` : '');
+      };
+      // HU-130: un aviso rojo de la fuente oficial (corte total, o no habilitado para carga) bloquea el tramo.
+      const cortaAviso = (op, t) => op.incDe(t).some((i) => i.gravedad === 'rojo');
+      const bloquea = (op, t) => opDe(t) === 'cerrado' || cortaAviso(op, t);
+      const motivoBloqueo = (op, t) => {
+        const i = opDe(t) === 'cerrado' ? null : op.incDe(t).find((x) => x.gravedad === 'rojo');
+        return i ? `${i.afecta === 'carga' ? 'no habilitado para carga' : 'corte'} en ${i.ubicacion}` : textoEstado(t).toLowerCase();
+      };
+      function diagnostico(op) {
+        const bloqueos = op.tramos.filter((t) => bloquea(op, t));
+        const dudas = [];
+        op.tramos.forEach((t) => {
+          const o = opDe(t);
+          if (bloquea(op, t)) return;
+          const avisos = op.incDe(t).filter((i) => i.gravedad !== 'info');
+          if (avisos.length) return avisos.forEach((i) => dudas.push(`${i.tipo}: ${i.ubicacion}`));
+          if (t.paso && o === 'restricciones') dudas.push(`${sinParentesis(t.paso.nombre)}: con restricciones`);
+          else if (t.paso && o === 'sin-confirmar') dudas.push(`${sinParentesis(t.paso.nombre)}: estado sin confirmar`);
+          else if (!t.paso && o === 'restricciones') dudas.push(`${tramoNombre(t)}: con restricciones`);
+        });
+        const sinParte = op.tramos.filter((t) => !t.paso && !t.vista?.confirmado).length;
+        const trozos = [];
+        let actual = [];
+        op.tramos.forEach((t) => {
+          if (bloquea(op, t)) {
+            if (actual.length) trozos.push(actual);
+            actual = [];
+          } else actual.push(t);
+        });
+        if (actual.length) trozos.push(actual);
+        const nivel = bloqueos.length ? 'rojo' : dudas.length ? 'ambar' : 'verde';
+        return { bloqueos, dudas, sinParte, trozos, nivel };
+      }
+      const ORDEN = { verde: 0, ambar: 1, rojo: 2 };
+      const recomendar = (ops, dgs) => [...ops].sort((x, y) => ORDEN[dgs[x.id].nivel] - ORDEN[dgs[y.id].nivel] || dgs[x.id].dudas.length - dgs[y.id].dudas.length || x.distancia.total - y.distancia.total)[0];
+      const corto = (n) => n.replace(/^Por (Paso de |Paso |el )?/, 'Por ');
+      const via = (op, ops) => (ops.length > 1 && op.nombre.startsWith('Por ') ? ` p${corto(op.nombre).slice(1)}` : '');
+      const quePasa = (op, t) => `${t.paso ? sinParentesis(t.paso.nombre) : tramoNombre(t)}: ${motivoBloqueo(op, t)}`;
+      /** HU-133 (R5/R6): el veredicto en una frase, en segunda persona y con el verbo delante, y el porqué en otra. */
+      function frase(op, dg, ops = [op], dgs = {}) {
+        const v = via(op, ops);
+        const titulo = {
+          rojo: 'Hoy no puedes hacerla entera',
+          ambar: `Puedes ir hoy${v}, con dudas`,
+          verde: dg.sinParte ? `Nada te impide ir hoy${v}` : `Puedes ir hoy${v}`,
+        }[dg.nivel];
+        const porque = [];
+        if (dg.bloqueos.length) porque.push(`Lo impide ${dg.bloqueos.map((t) => quePasa(op, t)).join('; ')}.`);
+        else if (dg.dudas.length) porque.push(`Ojo: ${dg.dudas.slice(0, 2).join('; ')}${dg.dudas.length > 2 ? ` y ${dg.dudas.length - 2} más` : ''}.`);
+        else if (dg.sinParte) porque.push(`${plural(dg.sinParte, 'tramo de carretera', 'tramos de carretera')} sin parte oficial: no sabemos su estado.`);
+        // La otra opción, si no se puede: «Por Jama no: no habilitado para carga en …».
+        // Solo si lo que la impide es distinto de lo que ya impide la elegida (p. ej. el mismo puente, no se repite).
+        const clave = (t) => t.paso?.id || t.id;
+        const ya = new Set(dg.bloqueos.map(clave));
+        ops.forEach((o) => {
+          const propio = o !== op && (dgs[o.id]?.bloqueos || []).find((t) => !ya.has(clave(t)));
+          if (propio) porque.push(`${corto(o.nombre)} no: ${motivoBloqueo(o, propio)}${propio.paso ? '' : ` en ${tramoNombre(propio)}`}.`);
+        });
+        return { titulo, porque: porque.join(' ') };
+      }
+      return { opDe, textoEstado, bloquea, motivoBloqueo, diagnostico, recomendar, frase, ORDEN, tramoNombre };
+    },
   };
   window.GC = GC;
 

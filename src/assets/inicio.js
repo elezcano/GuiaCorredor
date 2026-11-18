@@ -1,53 +1,81 @@
-// Portada: si hay una ruta guardada, la muestra como panel personal, rellena el buscador y la resalta en la carretera.
+// HU-133 (R5, R9): portada «Hoy». Con una ruta guardada en este dispositivo, su veredicto en una frase
+// (mismo cálculo que el planificador, comun.js → GC.diag), sus pasos primero y una barra de acciones.
+// Sin ruta guardada se ve el buscador. Nada sale del dispositivo.
 (function () {
   const GC = window.GC;
+  const esc = GC.esc;
+
+  // «hace N min» desde que se generaron los datos.
+  const hora = document.querySelector('.hoy-hora[data-generado]');
+  if (hora) {
+    const min = Math.round((Date.now() - Date.parse(hora.dataset.generado)) / 60000);
+    if (min >= 0 && min < 48 * 60) {
+      const e = document.createElement('span');
+      e.className = 'hoy-edad';
+      e.textContent = min < 1 ? ' · ahora mismo' : min < 60 ? ` · hace ${min} min` : ` · hace ${Math.floor(min / 60)} h`;
+      hora.appendChild(e);
+    }
+  }
+
   const ruta = GC.leerRuta();
   if (!ruta) return;
   const datos = JSON.parse(document.getElementById('datos-rutas').textContent);
   const max = datos.nodos.length - 1;
   if (ruta.desde > max || ruta.hasta > max) return;
 
+  const DG = GC.diag(datos);
   const ops = GC.opciones(datos, ruta.desde, ruta.hasta);
-  const r = ops.find((o) => o.recomendada);
+  const dgs = Object.fromEntries(ops.map((o) => [o.id, DG.diagnostico(o)]));
+  const op = DG.recomendar(ops, dgs);
+  const dg = dgs[op.id];
+  const { titulo, porque } = DG.frase(op, dg, ops, dgs);
   const nombre = (i) => datos.nodos[i].nombre;
-  const panel = document.getElementById('tu-ruta');
+  const recorrido = `${nombre(ruta.desde)} → ${nombre(ruta.hasta)}`;
   const enlace = `${datos.base}/planificador/?desde=${ruta.desde}&hasta=${ruta.hasta}${ruta.carga ? `&carga=${encodeURIComponent(ruta.carga)}` : ''}`;
-  const incidencias = r.problemas.length
-    ? `<li class="tu-ruta-alerta">${GC.plural(r.problemas.length, 'tramo con incidencias', 'tramos con incidencias')}</li>`
-    : '<li class="tu-ruta-ok">Todos los tramos operativos</li>';
+  const forma = { verde: 'abierto', ambar: 'restricciones', rojo: 'cerrado' }[dg.nivel];
+  const icono = datos.operativa[forma].icono;
+  const texto = `${recorrido}: ${titulo}. ${porque} Confírmalo antes de salir. ${new URL(enlace, location.origin).href}`;
 
+  const panel = document.getElementById('tu-ruta');
+  panel.className = `veredicto veredicto-${dg.nivel}`;
   panel.innerHTML = `
-    <div class="tu-ruta-cabeza">
-      <p>Tu última ruta</p>
-      <h2>${GC.esc(nombre(ruta.desde))} a ${GC.esc(nombre(ruta.hasta))}</h2>
-    </div>
-    <ul class="tu-ruta-datos">
-      ${incidencias}
-      <li>${GC.plural(r.fronteras.length, 'frontera', 'fronteras')}${ops.length > 1 ? `, ${ops.length} opciones` : ''}</li>
-      <li>${r.km ? `${GC.km(r.km)} conocidos` : 'Distancia por verificar'}</li>
-    </ul>
-    <div class="tu-ruta-acciones">
-      <a class="btn btn-principal" href="${enlace}">Abrir mi ruta</a>
-      <button type="button" class="btn-texto" id="olvidar-ruta">Quitar</button>
+    <p class="veredicto-ruta"><span>Tu ruta · ${esc(recorrido)}</span><button type="button" class="btn-texto" id="olvidar-ruta">Quitar</button></p>
+    <p class="veredicto-titulo"><span class="veredicto-forma op-${forma}">${icono}</span>${esc(titulo)}</p>
+    ${porque ? `<p class="veredicto-porque">${esc(porque)}</p>` : ''}
+    <p class="veredicto-mas"><a href="${enlace}">Por qué lo decimos: tramo a tramo</a></p>
+    <div class="barra-accion">
+      <a class="btn btn-principal btn-grande" href="${enlace}">Ver ruta</a>
+      <a class="btn btn-borde btn-grande" href="https://wa.me/?text=${encodeURIComponent(texto)}" rel="noopener">Compartir</a>
     </div>`;
   panel.hidden = false;
+  document.body.classList.add('con-barra-accion');
 
+  // El buscador queda plegado debajo, para cambiar de ruta.
+  const buscar = document.getElementById('sin-ruta');
+  buscar.querySelector('p').hidden = true;
+  const h2 = buscar.querySelector('h2');
+  const formBuscar = buscar.querySelector('form');
+  h2.innerHTML = '<button type="button" class="hoy-plegar" aria-expanded="false">Planificar otra ruta</button>';
+  formBuscar.hidden = true;
+  h2.firstChild.addEventListener('click', (e) => {
+    formBuscar.hidden = !formBuscar.hidden;
+    e.currentTarget.setAttribute('aria-expanded', String(!formBuscar.hidden));
+  });
   document.getElementById('origen').value = String(ruta.desde);
   document.getElementById('destino').value = String(ruta.hasta);
 
-
-  const [i, j] = r.rango;
-  const carretera = document.getElementById('ruta-corredor');
-  carretera?.classList.add('con-ruta');
-  carretera?.querySelectorAll('li').forEach((li) => {
-    const k = Number(li.dataset.i);
-    li.classList.toggle('en-ruta', li.classList.contains('parada') ? k >= i && k <= j : k >= i && k < j);
-  });
+  // Tus pasos primero, marcados.
+  const ids = new Set(op.tramos.filter((t) => t.paso).map((t) => t.paso.id));
+  ops.forEach((o) => o.tramos.forEach((t) => t.paso && ids.add(t.paso.id)));
+  const lista = document.getElementById('pasos-hoy');
+  if (lista) {
+    [...lista.children].sort((a, b) => ids.has(b.dataset.paso) - ids.has(a.dataset.paso)).forEach((li) => lista.appendChild(li));
+    lista.querySelectorAll('li').forEach((li) => li.classList.toggle('en-tu-ruta', ids.has(li.dataset.paso)));
+    if (ids.size) document.getElementById('t-pasos-hoy').textContent = 'Tus pasos';
+  }
 
   document.getElementById('olvidar-ruta').addEventListener('click', () => {
     GC.olvidarRuta();
-    panel.hidden = true;
-    carretera?.classList.remove('con-ruta');
-    document.getElementById('origen').focus();
+    location.reload();
   });
 })();
