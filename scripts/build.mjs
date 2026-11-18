@@ -107,6 +107,62 @@ const festivosDoc = D.festivos;
 const festivos = festivosDoc.festivos.filter((f) => f.fecha >= HOY);
 const incidencias = D.incidencias;
 const activas = incidencias.filter((i) => i.estado === 'activa');
+// HU-131: tres estados para los tramos de carretera, en lugar de «Sin confirmar».
+//   - Sin incidencias: el vigilante lee cada hora su fuente oficial (fila «activa» del CSV de fuentes) y no hay ningún
+//     aviso suyo activo. Los avisos (incidencias) siguen saliendo aparte y deciden el veredicto.
+//   - Vigilancia sin actualizar: su fuente falla 3 lecturas seguidas o lleva más de 12 h sin una lectura buena (el
+//     vigilante no pasa de noche). Se sabe por el estado de la vigilancia (rama datos-vigilancia), que «Publicar web»
+//     deja en data/vigilancia-estado.json antes de construir; sin ese archivo no se puede decir y no se marca.
+//   - Sin vigilancia: ninguna fuente oficial lo lee cada hora.
+// Un parte confirmado (cargado a mano, verificado y vigente) manda sobre todo esto.
+const HORAS_SIN_ACTUALIZAR = 12;
+// Estado de la vigilancia en vivo (lo escribe el vigilante cada hora en la rama datos-vigilancia del repositorio público):
+// la página lo consulta al abrirse para decir «leído hace N min» o «Vigilancia sin actualizar» sin esperar a publicar.
+const VIGILANCIA_URL = `https://raw.githubusercontent.com/${process.env.GITHUB_REPOSITORY || 'elezcano/GuiaCorredor'}/datos-vigilancia/vigilancia.json`;
+const estadoVigilancia = (() => {
+  try {
+    return JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'vigilancia-estado.json'), 'utf8'));
+  } catch {
+    return null;
+  }
+})();
+const vigilanciaDeTramo = (() => {
+  const m = {};
+  for (const f of cargarFuentesVigilancia().filas.filter((x) => x.estado === 'activa' && x.destino.startsWith('tramo:'))) {
+    const id = f.destino.slice(6);
+    (m[id] ||= { fuentes: [], organismos: [] }).fuentes.includes(f.fuente_id) || m[id].fuentes.push(f.fuente_id);
+    const org = f.organismo.split(',')[0].trim(); // «MOPC, Departamento de Radiocomunicaciones» → «MOPC»
+    if (!m[id].organismos.includes(org)) m[id].organismos.push(org);
+  }
+  return m;
+})();
+const ahoraBuild = process.env.FECHA_HOY ? new Date(`${HOY}T15:00:00Z`) : new Date();
+function fuenteParada(id) {
+  const f = estadoVigilancia?.fuentes?.[id];
+  if (!f) return false;
+  const horas = f.ultimaLecturaBuena ? (ahoraBuild - new Date(f.ultimaLecturaBuena)) / 36e5 : Infinity;
+  return (f.fallosSeguidos || 0) >= 3 || horas > HORAS_SIN_ACTUALIZAR;
+}
+rutas.tramos.forEach((t) => {
+  if (t.paso || t.vista.confirmado) return;
+  const vig = vigilanciaDeTramo[t.id];
+  const organismos = vig?.organismos.join(' · ');
+  const base = { ...t.vista, vigilancia: vig ? { fuentes: vig.fuentes, organismos } : null };
+  // Avisos activos del tramo (de cualquier fuente; los informativos no cuentan): «Cortado» o «Con incidencias».
+  const avisos = activas.filter((i) => (i.tramos || []).includes(t.id) && !i.paso && (i.gravedad || 'ambar') !== 'info');
+  const rojo = avisos.find((i) => i.gravedad === 'rojo');
+  if (avisos.length) {
+    t.vista = { ...base, confirmado: true, valor: rojo ? 'cerrado' : 'restricciones', etiqueta: rojo ? (rojo.afecta === 'carga' ? 'Cortado para carga' : 'Cortado') : 'Con incidencias', fuente: vig ? { nombre: organismos, tipo: 'oficial', leidoAuto: true } : base.fuente, vigilado: !!vig, conAvisos: avisos.length };
+    t.estado = t.vista.valor;
+    t.op = t.vista.op = rojo ? 'cerrado' : 'restricciones';
+    return;
+  }
+  if (!vig) t.vista = { ...base, etiqueta: 'Sin vigilancia' };
+  else if (vig.fuentes.some(fuenteParada)) t.vista = { ...base, etiqueta: 'Vigilancia sin actualizar' };
+  else t.vista = { ...base, confirmado: true, valor: 'sin-incidencias', etiqueta: 'Sin incidencias', fuente: { nombre: organismos, tipo: 'oficial', leidoAuto: true }, vigilado: true };
+  t.estado = t.vista.valor;
+  t.op = t.vista.op = t.vista.valor === 'sin-incidencias' ? 'abierto' : 'sin-confirmar';
+});
 const avisosMeteo = D.avisos.filter((a) => !a.vigenteHasta || a.vigenteHasta >= HOY);
 const organismos = D.organismos;
 const organismoPorId = Object.fromEntries(organismos.map((o) => [o.id, o]));
@@ -214,11 +270,13 @@ const icono = (n, clase = 'icono') =>
 
 // ---------- piezas comunes ----------
 /** Chip del semáforo operativo: icono + texto (+ detalle del estado si aporta). */
-const estado = (e, tipo = 'paso') => {
-  const op = operativaDe(e, tipo);
-  const det = ESTADOS[e] && !['pendiente', 'operativo', 'restricciones'].includes(e) && ESTADOS[e] !== OPERATIVA[op].texto ? `<span class="estado-detalle">· ${esc(ESTADOS[e])}</span>` : '';
-  return `<span class="estado estado-${esc(e)} op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${esc(OPERATIVA[op].texto)}</span>${det}</span>`;
+const estado = (e, tipo = 'paso', texto = null) => {
+  const op = e === 'sin-incidencias' ? 'abierto' : operativaDe(e, tipo);
+  const det = !texto && ESTADOS[e] && !['pendiente', 'operativo', 'restricciones'].includes(e) && ESTADOS[e] !== OPERATIVA[op].texto ? `<span class="estado-detalle">· ${esc(ESTADOS[e])}</span>` : '';
+  return `<span class="estado estado-${esc(e)} op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${esc(texto || OPERATIVA[op].texto)}</span>${det}</span>`;
 };
+/** HU-131: texto del estado de un tramo o paso («Sin incidencias», «Sin vigilancia»…, o el del semáforo). */
+const textoVista = (v, op) => v?.etiqueta || OPERATIVA[op].texto;
 /** «hace 8 días», «hace 5 meses». */
 const haceTiempo = (iso) => {
   const d = diasDesde(iso);
@@ -274,6 +332,9 @@ function validacionHTML(n, verificado, fuente) {
 }
 /** Estado operativo + línea de contexto: confirmado, o "Por verificar" con el último dato. */
 function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
+  // HU-131: tramo vigilado sin avisos, o con la vigilancia parada, o sin vigilancia.
+  if (v.vigilado) return `${estado(v.valor === 'sin-incidencias' ? 'sin-incidencias' : v.valor, tipo, v.etiqueta)}<span class="estado-fecha sello-linea" data-vig-fuentes="${esc(v.vigilancia.fuentes.join(' '))}">${txtEs(v.vigilancia.organismos)} · <a href="${u('/fuentes/')}">vigilado cada hora</a></span>`;
+  if (v.etiqueta && !v.confirmado) return `${estado('pendiente', tipo, v.etiqueta)}<span class="estado-fecha">${v.vigilancia ? `${txtEs(v.vigilancia.organismos)} · sin lectura buena en las últimas ${HORAS_SIN_ACTUALIZAR} h` : 'Ninguna fuente oficial lo publica cada día'}</span>`;
   if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
   if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
   const dias = diasDesde(v.publicado);
@@ -349,7 +410,7 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', e
   const nav = secciones.map(([href, txt, , activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${txt}</a>`).join('');
   const barra = secciones.map(([href, txt, ic, activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${icono(ic)}<span>${txt}</span></a>`).join('');
   return `<!DOCTYPE html>
-<html lang="${site.idioma}" data-base="${B}">
+<html lang="${site.idioma}" data-base="${B}" data-vigilancia="${esc(VIGILANCIA_URL)}">
 <head>
 <meta charset="utf-8">
 <meta name="generado" content="${GENERADO_ISO}">
@@ -677,7 +738,7 @@ function mapaHTML() {
     const v = alt ? t.alternativa.vista : t.vista;
     const op = v?.confirmado ? (alt ? t.alternativa.op : t.op) : 'sin-confirmar';
     const cls = `m-tramo m-op-${op}${typeof t.km === 'number' ? '' : ' m-estimado'}${alt ? ' m-alt' : ''}`;
-    const titulo = `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}${via ? ` por ${via.nombre}` : ''}: ${OPERATIVA[op].texto}${typeof t.km === 'number' ? '' : ', distancia estimada'}`;
+    const titulo = `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}${via ? ` por ${via.nombre}` : ''}: ${textoVista(v, op)}${typeof t.km === 'number' ? '' : ', distancia estimada'}`;
     return `<g><title>${esc(titulo)}</title><polyline class="${cls}" points="${linea(pts)}"/>${op === 'sin-confirmar' ? `<polyline class="m-tramo-hueco${alt ? ' m-alt' : ''}${typeof t.km === 'number' ? '' : ' m-estimado'}" points="${linea(pts)}"/>` : ''}</g>`;
   };
   const tramosMapa = [...rutas.tramos.filter((t) => t.alternativa).map((t) => segmento(t, true)), ...rutas.tramos.map((t) => segmento(t))].join('');
@@ -935,6 +996,27 @@ function novedadesPaso(p) {
 /** HU-113: sección plegada de la ficha, con resumen de una línea. */
 const plegable = (id, titulo, resumen, cuerpo, abierta = false) =>
   `<details class="plegable" id="${id}"${abierta ? ' open' : ''}><summary><span class="plegable-titulo">${titulo}</span><span class="plegable-resumen">${resumen}</span></summary><div class="plegable-cuerpo">${cuerpo}</div></details>`;
+// HU-131: «Carreteras para llegar» a un paso: las carreteras de acceso del CSV de fuentes (destino paso:<id>), quién las
+// vigila y si hay avisos suyos. Se empareja cada aviso con su carretera por el número de ruta («RN 52», «CH-27», «BR-267»).
+const LECTORES_CARRETERA = new Set(['vialidad-ar', 'siemop-cl', 'dnit-alertas', 'mopc-pdf']);
+const filasFuentes = cargarFuentesVigilancia().filas;
+const numRuta = (s) => [...String(s).matchAll(/\b(?:RN|RP|CH|BR|PY|Ruta)\s*-?\s*0*(\d{1,3})\b/gi)].map((m) => m[1]);
+function carreterasParaLlegar(p, inc) {
+  const tramosDelPaso = rutas.tramos.filter((x) => x.paso?.id === p.id && !x.alternativa).map((x) => `tramo:${x.id}`);
+  const filas = filasFuentes.filter((f) => (f.destino === `paso:${p.id}` || tramosDelPaso.includes(f.destino)) && (LECTORES_CARRETERA.has(f.lector) || /acceso/i.test(f.id)));
+  if (!filas.length) return '';
+  const items = filas.map((f) => {
+    const nums = numRuta(f.carretera_o_paso);
+    const suyos = inc.filter((i) => (i.gravedad || 'ambar') !== 'info' && nums.some((n) => numRuta(`${i.ubicacion} ${i.tramo || ''}`).includes(n)));
+    const rojo = suyos.find((i) => i.gravedad === 'rojo');
+    const [valor, etiqueta] =
+      f.estado !== 'activa' ? ['pendiente', f.estado === 'manual' ? 'Revisión manual' : 'Sin vigilancia'] : rojo ? ['cerrado', rojo.afecta === 'carga' ? 'Cortado para carga' : 'Cortado'] : suyos.length ? ['restricciones', 'Con incidencias'] : ['sin-incidencias', 'Sin incidencias'];
+    const org = f.organismo.split(',')[0].trim().replace(/^—$/, '');
+    const nombre = nums.length ? f.carretera_o_paso : `${f.tramo} (${f.carretera_o_paso.toLowerCase()})`;
+    return `<li><strong>${txtEs(nombre)}</strong> ${estado(valor, 'tramo', etiqueta)}<span class="dato-fuente"${f.estado === 'activa' && f.fuente_id ? ` data-vig-fuentes="${esc(f.fuente_id)}"` : ''}>${org ? txtEs(org) : 'Ninguna fuente oficial la publica cada día'}${f.estado === 'activa' ? ` · <a href="${u('/fuentes/')}">vigilado cada hora</a>` : ''}${suyos.length ? ` · <a href="#avisos-paso">${plural(suyos.length, 'aviso', 'avisos')}</a>` : ''}</span></li>`;
+  });
+  return `<section class="carreteras-llegar" aria-labelledby="t-carreteras-${esc(p.id)}"><h3 id="t-carreteras-${esc(p.id)}">Carreteras para llegar</h3><ul class="lista-datos">${items.join('')}</ul></section>`;
+}
 function fichaOperativa(p, guiaPag) {
   const e = estadoPaso(p.id);
   const sello = (x, tipo = 'ficha') => selloHTML(peor(nivelReg(x, tipo), e.nivel === 'borrador' ? 'borrador' : null), x.verificado, x.fuente, x.publicado);
@@ -1051,6 +1133,7 @@ function fichaOperativa(p, guiaPag) {
   <div class="pestana" role="tabpanel" id="hoy" aria-labelledby="tab-hoy">
   ${respuesta}
   ${partesHTML(p, op)}
+  ${carreterasParaLlegar(p, inc)}
   ${fiabilidadHTML(p)}
   ${acciones}
   <div class="plegables">
@@ -1127,7 +1210,7 @@ function bloqueTramos(ruta) {
           : '<span class="sin-dato">Sin dato</span>';
       return `<div class="dato-fila"><dt>${esc(nombreTramo(t))}</dt><dd>
         <div class="dato-estado">${vistaHTML(t.vista)}</div>
-        ${t.vista.fuente ? `<span class="dato-fuente">${fuenteEnlace(t.vista.fuente)}</span>` : ''}
+        ${t.vista.fuente && !t.vista.vigilado ? `<span class="dato-fuente">${fuenteEnlace(t.vista.fuente)}</span>` : ''}
         <p class="tramo-km">Distancia: ${km}</p>
         ${inc.map((i) => `<p class="it-aviso">${tipoIncidencia(i.tipo)} ${descInc(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></p>`).join('')}
       </dd></div>`;
@@ -1178,7 +1261,7 @@ function datosMapa() {
         id: clave,
         nombre: `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}${via ? ` por ${via.nombre}` : ''}`,
         op,
-        estado: OPERATIVA[op].texto,
+        estado: textoVista(v, op),
         km: typeof t.km === 'number' ? t.km : null,
         kmCalculado: calc?.km ?? null,
         trazado: calc ? 'calculado' : 'recta',
@@ -1224,6 +1307,13 @@ const avisoHoy = (i) => {
 {
   const limitan = activas.filter((i) => (i.gravedad || 'ambar') !== 'info').sort((x, y) => graveOrden[x.gravedad || 'ambar'] - graveOrden[y.gravedad || 'ambar']);
   const info = activas.length - limitan.length;
+  // HU-131: el resto del corredor en una línea: cuántos tramos de carretera están sin incidencias según su fuente oficial.
+  const resumenTramosHoy = () => {
+    const carr = rutas.tramos.filter((x) => !x.paso);
+    const sin = carr.filter((x) => x.vista.valor === 'sin-incidencias').length;
+    const sinVig = carr.filter((x) => x.vista.etiqueta === 'Sin vigilancia' || x.vista.etiqueta === 'Vigilancia sin actualizar').length;
+    return `<p class="hoy-info hoy-resto">${OPERATIVA.abierto.icono} El resto: ${sin} de ${plural(carr.length, 'tramo de carretera', 'tramos de carretera')} sin incidencias según su fuente oficial${sinVig ? `; ${sinVig} sin vigilancia al día` : ''}. <a href="${u('/fuentes/')}">Qué vigilamos</a></p>`;
+  };
   const tarjetaPaso = (h) => `<li data-paso="${esc(h.id)}"><a class="paso-hoy op-borde-${h.op}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}">
     <span class="paso-hoy-nombre">${h.cara.map((c) => bandera(c)).join('')}<strong>${esc(h.nombre)}</strong></span>
     <span class="paso-hoy-estado">${estadoPasoHTML(h.id, { corto: true })}</span></a></li>`;
@@ -1247,14 +1337,15 @@ const avisoHoy = (i) => {
         <p>Elige origen y destino y te decimos si se puede hoy y por dónde.</p>
         ${buscador('buscador-hoy').replace(`${icono('buscar')}Buscar ruta`, '¿Se puede hoy?')}
       </section>
-      <section class="hoy-bloque" aria-labelledby="t-pasos-hoy">
-        <div class="hoy-bloque-cabeza"><h2 id="t-pasos-hoy">Pasos de frontera</h2><a href="${u('/pasos/')}">Ver todos</a></div>
-        <ul class="pasos-hoy" id="pasos-hoy">${pasosHistoria.map(tarjetaPaso).join('')}</ul>
-      </section>
       <section class="hoy-bloque" aria-labelledby="t-limita">
         <div class="hoy-bloque-cabeza"><h2 id="t-limita">Lo que impide o limita el paso</h2><a href="${u('/avisos/')}">Ver todos los avisos</a></div>
         ${limitan.length ? `<ul class="avisos-hoy">${limitan.slice(0, 5).map(avisoHoy).join('')}</ul>${limitan.length > 5 ? `<p class="hoy-info"><a href="${u('/avisos/')}">Y ${plural(limitan.length - 5, 'aviso más', 'avisos más')} con restricciones</a></p>` : ''}` : '<p class="sin-dato">Ningún corte ni restricción publicado ahora mismo.</p>'}
         ${info ? `<p class="hoy-info"><a href="${u('/avisos/')}">${plural(info, 'aviso informativo más', 'avisos informativos más')}</a>: no cambian el veredicto.</p>` : ''}
+        ${resumenTramosHoy()}
+      </section>
+      <section class="hoy-bloque" aria-labelledby="t-pasos-hoy">
+        <div class="hoy-bloque-cabeza"><h2 id="t-pasos-hoy">Pasos de frontera</h2><a href="${u('/pasos/')}">Ver todos</a></div>
+        <ul class="pasos-hoy" id="pasos-hoy">${pasosHistoria.map(tarjetaPaso).join('')}</ul>
       </section>
       <section class="hoy-negocio" aria-label="Negocio">
         <a class="negocio" href="${cotizacion()}">${icono('papeles')}<span><strong>Pedir cotización</strong><span>Dinos origen, destino y carga</span></span></a>

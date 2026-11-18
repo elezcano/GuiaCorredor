@@ -191,6 +191,7 @@
       const opDe = (t) => (t.vista?.confirmado ? t.vista.op : 'sin-confirmar');
       const TEXTO_OP = { abierto: 'Abierto', restricciones: 'Con restricciones', cerrado: 'No habilitado', 'sin-confirmar': 'Sin confirmar' };
       const textoEstado = (t) => {
+        if (t.vista?.etiqueta) return t.vista.etiqueta; // HU-131: «Sin incidencias», «Sin vigilancia», «Vigilancia sin actualizar»
         const op = opDe(t);
         const det = t.vista?.confirmado && datos.estados[t.vista.valor] && !['operativo', 'restricciones'].includes(t.vista.valor) ? datos.estados[t.vista.valor] : '';
         return TEXTO_OP[op] + (det && det !== TEXTO_OP[op] ? ` · ${det.toLowerCase()}` : '');
@@ -356,6 +357,40 @@
   addEventListener('online', () => {
     if (document.getElementById('banda-sin-red')) location.reload();
   });
+
+  // HU-131: vigilancia en vivo. Al abrir la página se consulta el estado que el vigilante escribe cada hora: cada tramo
+  // vigilado dice cuándo se leyó su fuente por última vez, o pasa a «Vigilancia sin actualizar» si lleva 3 lecturas
+  // fallidas o más de 12 h sin una buena. Sin red, o si no responde, se queda lo publicado.
+  const urlVig = document.documentElement.dataset.vigilancia;
+  const conVig = document.querySelectorAll('[data-vig-fuentes]');
+  if (urlVig && conVig.length && navigator.onLine)
+    fetch(urlVig, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((est) => {
+        if (!est?.fuentes) return;
+        const ahora = Date.now();
+        conVig.forEach((el) => {
+          const fs = el.dataset.vigFuentes.split(' ').map((id) => est.fuentes[id]).filter(Boolean);
+          if (!fs.length) return;
+          const parada = fs.some((f) => (f.fallosSeguidos || 0) >= 3 || !f.ultimaLecturaBuena || (ahora - Date.parse(f.ultimaLecturaBuena)) / 36e5 > 12);
+          const chip = el.previousElementSibling?.classList.contains('estado') ? el.previousElementSibling : null;
+          if (parada) {
+            if (chip && chip.classList.contains('op-abierto')) {
+              chip.className = chip.className.replace('op-abierto', 'op-sin-confirmar');
+              chip.querySelector('.estado-texto').textContent = PT ? 'Vigilância sem atualizar' : 'Vigilancia sin actualizar';
+            }
+            return;
+          }
+          const ultima = Math.min(...fs.map((f) => ahora - Date.parse(f.ultimaLecturaBuena)));
+          const min = Math.max(1, Math.round(ultima / 6e4));
+          const hace = min < 60 ? `${min} min` : `${Math.round(min / 60)} h`;
+          const s = document.createElement('span');
+          s.className = 'vig-leido';
+          s.textContent = PT ? ` · lido há ${hace}` : ` · leído hace ${hace}`;
+          el.append(s);
+        });
+      })
+      .catch(() => {});
 
   // Buscador de rutas: intercambiar origen y destino
   document.getElementById('intercambiar')?.addEventListener('click', () => {
