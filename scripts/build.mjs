@@ -5,6 +5,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 // HU-135: textos de datos y de fuentes oficiales: se marcan en castellano (lang="es") y no se traducen.
 import { tienePT, cargarDiccionario, compilar, traducirHTML } from './i18n.mjs';
+import { cargar as cargarFuentesVigilancia } from './fuentes-vigilancia.mjs';
 import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES, OPERATIVA, operativaDe } from './lib.mjs';
 const txtEs = (t) => `<span lang="es" class="txt-es">${esc(t)}</span>`;
 const txtOf = (t) => `<span lang="es" class="txt-es txt-oficial">${esc(t)}</span>`;
@@ -380,6 +381,7 @@ ${cuerpo}
       <a href="${u('/mapa/')}">Mapa interactivo</a>
       <a href="${u('/anunciate/')}">Anunciar mi empresa</a>
       <a href="${u('/sobre/')}">Cómo trabajamos la información</a>
+      <a href="${u('/fuentes/')}">Fuentes que vigilamos</a>
       ${site.contacto.email ? `<a href="mailto:${esc(site.contacto.email)}">Escríbenos</a>` : ''}
     </nav>
     <p class="pie-aviso">${esc(site.aviso)}</p>
@@ -1695,6 +1697,58 @@ ${seccion({
   );
 }
 
+// HU-136: «Fuentes que vigilamos», desde el CSV de fuentes del vigilante (el mismo que usa el vigilante).
+{
+  const { filas } = cargarFuentesVigilancia();
+  const ESTADO_FUENTE = {
+    activa: ['abierto', 'Vigilada cada hora'],
+    pausada: ['sin-confirmar', 'Pausada'],
+    pendiente: ['sin-confirmar', 'Pendiente'],
+    manual: ['restricciones', 'Manual'],
+    'sin-fuente': ['cerrado', 'Sin fuente'],
+  };
+  const TIPO_TXT = { automatico: 'Automático', semiautomatico: 'Semiautomático', manual: 'Manual', whatsapp: 'WhatsApp', 'sin-fuente': 'Sin fuente' };
+  const orden = ['BR', 'PY', 'AR', 'CL'];
+  const cuenta = (e) => filas.filter((f) => f.estado === e).length;
+  const fila = (f) => {
+    const [op, txt] = ESTADO_FUENTE[f.estado];
+    return `<li class="fuente-fila" id="f-${esc(f.id)}">
+      <div class="fuente-cabeza"><p class="fuente-tramo"><strong>${txtEs(f.tramo)}</strong><span>${txtEs(f.carretera_o_paso)}</span></p><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${txt}</span></span></div>
+      <dl class="fuente-datos">
+        <div><dt>Fuente</dt><dd>${f.url ? `<a href="${esc(f.url)}" rel="noopener">${txtEs(f.fuente)}</a>` : txtEs(f.fuente)}${f.organismo && f.organismo !== '—' ? ` <span class="dato-fuente">${txtEs(f.organismo)}</span>` : ''}</dd></div>
+        <div><dt>Tipo</dt><dd>${TIPO_TXT[f.tipo] || esc(f.tipo)}${f.formato && f.formato !== '—' ? ` · ${txtEs(f.formato)}` : ''}</dd></div>
+        <div><dt>Frecuencia</dt><dd>${txtEs(f.frecuencia)}</dd></div>
+        ${f.como_se_lee && f.como_se_lee !== '—' ? `<div><dt>Cómo se lee</dt><dd>${txtEs(f.como_se_lee)}</dd></div>` : ''}
+        <div><dt>Regla</dt><dd>${txtEs(f.regla)}</dd></div>
+        ${f.notas ? `<div><dt>Notas</dt><dd>${txtEs(f.notas)}</dd></div>` : ''}
+      </dl>
+    </li>`;
+  };
+  add(
+    '/fuentes/',
+    layout({
+      titulo: 'Fuentes que vigilamos',
+      descripcion: 'Qué fuente oficial se lee para cada carretera y paso del Corredor Bioceánico, cada cuánto y con qué regla.',
+      ruta: '/fuentes/',
+      cuerpo: `
+<div class="contenedor fuentes">
+  <header class="cabeza-pagina"><h1>Fuentes que vigilamos</h1><p>Para cada carretera y paso: qué fuente se lee, cada cuánto y qué regla se aplica. Es la misma lista que usa el vigilante.</p></header>
+  <ul class="fuentes-resumen">
+    <li><span class="estado op-abierto">${OPERATIVA.abierto.icono}<span class="estado-texto">${cuenta('activa')} vigiladas cada hora</span></span></li>
+    <li><span class="estado op-restricciones">${OPERATIVA.restricciones.icono}<span class="estado-texto">${cuenta('manual')} manuales</span></span></li>
+    <li><span class="estado op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono}<span class="estado-texto">${cuenta('pendiente') + cuenta('pausada')} pendientes</span></span></li>
+    <li><span class="estado op-cerrado">${OPERATIVA.cerrado.icono}<span class="estado-texto">${cuenta('sin-fuente')} sin fuente</span></span></li>
+  </ul>
+  ${orden
+    .filter((k) => filas.some((f) => f.pais === k))
+    .map((k) => `<section class="fuentes-pais" aria-labelledby="fp-${k}"><h2 id="fp-${k}">${bandera(k)} ${esc(PAISES[k])}</h2><ul class="fuentes-lista">${filas.filter((f) => f.pais === k).map(fila).join('')}</ul></section>`)
+    .join('')}
+  <p class="dato-fuente">«Vigilada cada hora»: el vigilante la lee de 06:00 a 21:00 (hora de Argentina) y publica lo que cambia con el sello «✓ Web oficial». «Manual»: se revisa a mano y se carga con su fuente. Descarga la lista en <a href="${u('/assets/fuentes-vigilancia.csv')}" download>CSV</a>.</p>
+</div>`,
+    })
+  );
+}
+
 // Sobre la guía
 add(
   '/sobre/',
@@ -1708,7 +1762,8 @@ add(
     <h2>Fuentes y revisión</h2>
     <ul>
       <li>Cada dato indica su fuente, su fecha y el tipo de evidencia: oficial, de terceros, declarado por una empresa, cálculo o histórico.</li>
-      <li><b>Verificado en fuente oficial</b> significa que el dato se comprobó a mano en la web o el canal oficial del organismo que lo publica, enlazado junto al dato. <b>Verificado en la fuente</b>, que se comprobó en la fuente citada (prensa u obra de referencia). Un proceso automático o un asistente de IA nunca puede marcar un dato como verificado.</li>
+      <li><b>Verificado en fuente oficial</b> significa que el dato se comprobó a mano en la web o el canal oficial del organismo que lo publica, enlazado junto al dato. <b>Verificado en la fuente</b>, que se comprobó en la fuente citada (prensa u obra de referencia). Un asistente de IA nunca puede marcar un dato como verificado. Lo que el vigilante lee automáticamente de la web oficial de un organismo se publica con el sello <b>✓ Web oficial</b> y la hora de lectura.</li>
+      <li>Qué fuentes leemos, cada cuánto y con qué regla está en <a href="${u('/fuentes/')}">Fuentes que vigilamos</a>.</li>
       <li>Lo demás se muestra como <b>Por verificar</b>, con el último dato publicado y su fuente.</li>
       <li>Si un tramo no tiene distancia con fuente, mostramos una <b>estimación provisional</b> en línea recta, indicando el tramo y los puntos usados. Por carretera la distancia es mayor.</li>
       <li>Un festivo nacional no significa que la aduana cierre; solo cuenta lo que publica cada organismo.</li>
@@ -2105,6 +2160,7 @@ for (const { ruta, html } of paginas.filter((p) => !p.archivo)) {
   fs.writeFileSync(destino, html);
 }
 fs.cpSync(path.join(ROOT, 'src', 'assets'), path.join(DIST, 'assets'), { recursive: true });
+fs.copyFileSync(path.join(ROOT, 'data', 'fuentes-vigilancia.csv'), path.join(DIST, 'assets', 'fuentes-vigilancia.csv'));
 for (const { ruta, html } of paginas.filter((p) => p.archivo)) fs.writeFileSync(path.join(DIST, ruta), html);
 
 // HU-115: MapLibre GL (código abierto) alojado en la propia web. Opcional: si no está instalado,

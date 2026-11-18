@@ -1511,3 +1511,19 @@ body { font-size: 17px; line-height: 1.5; }
 .idiomas a:focus-visible { outline: 3px solid var(--ring-halo); outline-offset: -3px; }
 html[lang^="pt"] .txt-oficial::after { content: " · texto oficial em espanhol"; font-size: 13px; font-style: italic; color: var(--muted-foreground); }
 html[lang^="pt"] .contenido-es::before { content: "Conteúdo do guia em espanhol"; display: inline-block; margin-bottom: 8px; padding: 2px 10px; border-radius: 8px; background: var(--muted); font-size: 14px; font-weight: 700; }
+
+/* ---------- HU-136: Fuentes que vigilamos ---------- */
+.fuentes-resumen { list-style: none; margin: 0 0 24px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.fuentes-pais h2 { display: flex; align-items: center; gap: 8px; font-size: 24px; margin: 28px 0 12px; }
+.fuentes-lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.fuente-fila { border: 1px solid var(--border); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.fuente-cabeza { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.fuente-tramo { margin: 0; display: flex; flex-direction: column; }
+.fuente-tramo strong { font-size: 18px; }
+.fuente-tramo > span { color: var(--muted-foreground); font-size: 15px; }
+.fuente-cabeza .estado { flex: none; font-size: 15px; }
+.fuente-datos { margin: 0; display: grid; gap: 6px; }
+.fuente-datos div { display: grid; grid-template-columns: 110px 1fr; gap: 8px; }
+.fuente-datos dt { font-weight: 700; font-size: 15px; color: var(--muted-foreground); }
+.fuente-datos dd { margin: 0; font-size: 16px; }
+@media (max-width: 760px) { .fuentes-lista { grid-template-columns: 1fr; } .fuente-datos div { grid-template-columns: 1fr; gap: 0; } }
