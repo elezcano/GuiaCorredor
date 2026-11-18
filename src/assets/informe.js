@@ -2,6 +2,8 @@
 // Se genera en el navegador con los mismos datos y el mismo semáforo que el planificador.
 // Todo va en la URL (?desde=&hasta=&carga=&fecha=&op=&gen=&h=): no se guarda nada del usuario.
 (function () {
+  // HU-136: textos de datos y de fuentes oficiales: en su idioma, sin traducir (lang="es").
+  const es = (t) => `<span lang="es" class="txt-es">${esc(t)}</span>`;
   const GC = window.GC;
   const esc = GC.esc;
   const datos = JSON.parse(document.getElementById('datos-rutas').textContent);
@@ -120,7 +122,7 @@
             ? vistaTexto(t.vista)
             : (() => {
                 const e = datos.pasosInfo[t.paso.id]?.estado;
-                return e?.publicado ? `Último parte (${fechaCorta(e.publicado)}, <span class="edad${dias(e.publicado) > 30 ? ' edad-vieja' : ''}">${hace(e.publicado)}</span>): ${esc(e.texto)}` : 'Sin estado publicado';
+                return e?.publicado ? `Último parte (${fechaCorta(e.publicado)}, <span class="edad${dias(e.publicado) > 30 ? ' edad-vieja' : ''}">${hace(e.publicado)}</span>): ${es(e.texto)}` : 'Sin estado publicado';
               })()
         }. Confírmalo antes de salir.</span></li>`
       )
@@ -212,7 +214,7 @@
               .map((x) => {
                 const h = horasDesde(x.ts);
                 const viejo = h >= (datos.umbralPartesH || 48);
-                return `<li${viejo ? ' class="parte-vieja"' : ''}><strong>${esc(PAISES[k])} · ${esc(x.emisor)}</strong> (${esc(fechaCorta(x.publicado))}${x.hora ? `, ${x.hora} h` : ''}, ${edadParte(Math.max(h, 0))}): ${esc(x.texto)} <span class="texto-suave">— ${x.verificado ? `verificado el ${fechaCorta(x.verificado)}` : 'sin verificar'}, ${fuente(x.fuente)}</span>${
+                return `<li${viejo ? ' class="parte-vieja"' : ''}><strong>${esc(PAISES[k])} · ${esc(x.emisor)}</strong> (${esc(fechaCorta(x.publicado))}${x.hora ? `, ${x.hora} h` : ''}, ${edadParte(Math.max(h, 0))}): ${es(x.texto)} <span class="texto-suave">— ${x.verificado ? `verificado el ${fechaCorta(x.verificado)}` : 'sin verificar'}, ${fuente(x.fuente)}</span>${
                   viejo ? `<br><strong class="parte-aviso">Este parte tiene ${h >= 48 ? Math.floor(h / 24) + ' días' : Math.floor(h) + ' h'}: confírmalo antes de salir.</strong>` : ''
                 }</li>`;
               })
@@ -231,12 +233,12 @@
       <h4>Horarios</h4>
       ${
         p.horarios.length
-          ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado || 'General')}${h.organismo && h.organismo !== 'general' ? ` · ${esc(h.organismo)}` : ''}:</strong> ${esc(h.texto)} <span class="texto-suave">— ${h.verificado ? `verificado el ${fechaCorta(h.verificado)}` : 'sin verificar'}, ${fuente(h.fuente)}</span></li>`).join('')}</ul>`
+          ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado || 'General')}${h.organismo && h.organismo !== 'general' ? ` · ${esc(h.organismo)}` : ''}:</strong> ${es(h.texto)} <span class="texto-suave">— ${h.verificado ? `verificado el ${fechaCorta(h.verificado)}` : 'sin verificar'}, ${fuente(h.fuente)}</span></li>`).join('')}</ul>`
           : '<p class="sin-dato">Sin horario con fuente.</p>'
       }
       ${
         esp.length
-          ? `<p class="inf-especial"><strong>Horario especial el ${esc(fechaCorta(fecha))}:</strong> ${esp.map((h) => `${esc(h.texto)} (${fuente(h.fuente)})`).join('; ')}</p>`
+          ? `<p class="inf-especial"><strong>Horario especial el ${esc(fechaCorta(fecha))}:</strong> ${esp.map((h) => `${es(h.texto)} (${fuente(h.fuente)})`).join('; ')}</p>`
           : festivosDia.some((f) => [nodo(t.de).pais, nodo(t.a).pais].includes(f.pais))
             ? '<p class="texto-suave">Sin horario especial publicado para el día del cruce.</p>'
             : ''
@@ -265,7 +267,7 @@
   const filaResumenPaso = (t) => {
     const p = datos.pasosInfo[t.paso.id];
     const h = p?.horarios?.[0];
-    return `<tr><th scope="row">${esc(t.paso.nombre)}</th><td>${chip(opDe(t), t.vista?.confirmado ? t.vista.valor : null)}<span class="estado-fecha">${t.vista?.confirmado ? `verif. ${esc(fechaCorta(t.vista.verificado))}` : 'sin verificar'}</span></td><td>${ultimoParte(p)}</td><td>${h ? esc(h.texto) : '<span class="sin-dato">Sin horario con fuente</span>'}</td></tr>`;
+    return `<tr><th scope="row">${esc(t.paso.nombre)}</th><td>${chip(opDe(t), t.vista?.confirmado ? t.vista.valor : null)}<span class="estado-fecha">${t.vista?.confirmado ? `verif. ${esc(fechaCorta(t.vista.verificado))}` : 'sin verificar'}</span></td><td>${ultimoParte(p)}</td><td>${h ? es(h.texto) : '<span class="sin-dato">Sin horario con fuente</span>'}</td></tr>`;
   };
   const tramosSin = op.tramos.filter((t) => !t.paso && opDe(t) === 'sin-confirmar').length;
   const MAX_AVISOS = 5;
@@ -341,7 +343,7 @@
           ? `<ul class="informe-lista">${op.problemas
               .map((i) => {
                 const x = datos.incidenciasInfo[i.id] || {};
-                return `<li><strong>${esc(i.tipo)} · ${esc(i.ubicacion)}:</strong> ${esc(i.texto)}${x.finPrevista ? ` <em>Previsión: ${esc(x.finPrevista)}.</em>` : ''} <span class="texto-suave">— ${x.verificado ? `verificado el ${fechaCorta(x.verificado)}` : 'sin verificar'}, ${fuente(x.fuente)}${i.publicado ? `, ${fechaCorta(i.publicado)}` : ''}</span></li>`;
+                return `<li><strong>${esc(i.tipo)} · ${esc(i.ubicacion)}:</strong> ${es(i.texto)}${x.finPrevista ? ` <em>Previsión: ${es(x.finPrevista)}.</em>` : ''} <span class="texto-suave">— ${x.verificado ? `verificado el ${fechaCorta(x.verificado)}` : 'sin verificar'}, ${fuente(x.fuente)}${i.publicado ? `, ${fechaCorta(i.publicado)}` : ''}</span></li>`;
               })
               .join('')}</ul>`
           : '<p>No hay avisos activos en esta ruta.</p>'

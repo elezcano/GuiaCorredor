@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 // HU-135: textos de datos y de fuentes oficiales: se marcan en castellano (lang="es") y no se traducen.
 import { tienePT, cargarDiccionario, compilar, traducirHTML } from './i18n.mjs';
 import { cargar as cargarFuentesVigilancia } from './fuentes-vigilancia.mjs';
-import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES, OPERATIVA, operativaDe } from './lib.mjs';
+import { ROOT, readJSON, loadGuia, parseFrontMatter, esc, ESTADOS, SECCIONES, PAISES, OPERATIVA, operativaDe } from './lib.mjs';
 const txtEs = (t) => `<span lang="es" class="txt-es">${esc(t)}</span>`;
 const txtOf = (t) => `<span lang="es" class="txt-es txt-oficial">${esc(t)}</span>`;
 import { nivel, peor, estadoMostrable, NIVELES, diasEntre, registroGuia, EVIDENCIAS } from './validacion.mjs';
@@ -130,10 +130,9 @@ const nombreTiempo = Object.fromEntries(TRAMOS_TIEMPO.map((t) => [t.id, t]));
 const slugify = (s) =>
   s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/<[^>]+>/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-const guia = loadGuia().map((p) => {
-  const indice = [];
-  const html = marked
-    .parse(p.body)
+const renderGuia = (body, indice = []) =>
+  marked
+    .parse(body)
     .replace(/href="\/(?!\/)/g, `href="${B}/`)
     .replace(/<h2>(.*?)<\/h2>/g, (_, t) => {
       const id = slugify(t);
@@ -142,8 +141,22 @@ const guia = loadGuia().map((p) => {
     })
     .replace(/<table>/g, '<div class="tabla-marco"><table>')
     .replace(/<\/table>/g, '</table></div>');
+const guia = loadGuia().map((p) => {
+  const indice = [];
+  const html = renderGuia(p.body, indice);
   return { ...p, html, indice };
 });
+// HU-136: texto de la guía en portugués (content/pt/guia/<seccion>/<slug>.md), si existe.
+const guiaPT = Object.fromEntries(
+  guia
+    .map((p) => {
+      const f = path.join(ROOT, 'content', 'pt', 'guia', p.seccion, `${p.slug}.md`);
+      if (!fs.existsSync(f)) return null;
+      const { meta, body } = parseFrontMatter(fs.readFileSync(f, 'utf8'));
+      return [p.ruta, { titulo: meta.titulo, resumen: meta.resumen, html: renderGuia(body) }];
+    })
+    .filter(Boolean)
+);
 const guiaPorRuta = Object.fromEntries(guia.map((p) => [`${p.seccion}/${p.slug}`, p]));
 // Estado de una ficha: los pasos lo toman de data/pasos.json (función declarada más abajo).
 const vistaGuia = (p) => {
@@ -1100,7 +1113,7 @@ function bloqueTramos(ruta) {
       const inc = incidenciasDe({ tramos: [t.id] });
       const est = (e, via) => (e ? `≈ ${GCkm(e.km)}${via ? ` por ${esc(via)}` : ''} <span class="tag tag-estimado">Estimación provisional</span><span class="dato-fuente">${esc(e.aviso)}</span>` : '');
       const km = t.km
-        ? `${GCkm(t.km)}<span class="dato-fuente">${t.kmTipo === 'calculado' ? `Calculado: ${esc(t.kmNota || '')}` : t.kmFuente ? `Según ${fuenteEnlace(t.kmFuente)}` : ''}</span>`
+        ? `${GCkm(t.km)}<span class="dato-fuente">${t.kmTipo === 'calculado' ? `Calculado: ${txtEs(t.kmNota || '')}` : t.kmFuente ? `Según ${fuenteEnlace(t.kmFuente)}` : ''}</span>`
         : t.estimacion
           ? `${est(t.estimacion, t.alternativa ? t.paso.nombre : '')}${t.alternativa?.estimacion ? `<br>${est(t.alternativa.estimacion, t.alternativa.nombre)}` : ''}`
           : '<span class="sin-dato">Sin dato</span>';
@@ -1714,14 +1727,14 @@ ${seccion({
   const fila = (f) => {
     const [op, txt] = ESTADO_FUENTE[f.estado];
     return `<li class="fuente-fila" id="f-${esc(f.id)}">
-      <div class="fuente-cabeza"><p class="fuente-tramo"><strong>${txtEs(f.tramo)}</strong><span>${txtEs(f.carretera_o_paso)}</span></p><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${txt}</span></span></div>
+      <div class="fuente-cabeza"><p class="fuente-tramo"><strong>${esc(f.tramo)}</strong><span>${esc(f.carretera_o_paso)}</span></p><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${txt}</span></span></div>
       <dl class="fuente-datos">
-        <div><dt>Fuente</dt><dd>${f.url ? `<a href="${esc(f.url)}" rel="noopener">${txtEs(f.fuente)}</a>` : txtEs(f.fuente)}${f.organismo && f.organismo !== '—' ? ` <span class="dato-fuente">${txtEs(f.organismo)}</span>` : ''}</dd></div>
-        <div><dt>Tipo</dt><dd>${TIPO_TXT[f.tipo] || esc(f.tipo)}${f.formato && f.formato !== '—' ? ` · ${txtEs(f.formato)}` : ''}</dd></div>
-        <div><dt>Frecuencia</dt><dd>${txtEs(f.frecuencia)}</dd></div>
-        ${f.como_se_lee && f.como_se_lee !== '—' ? `<div><dt>Cómo se lee</dt><dd>${txtEs(f.como_se_lee)}</dd></div>` : ''}
-        <div><dt>Regla</dt><dd>${txtEs(f.regla)}</dd></div>
-        ${f.notas ? `<div><dt>Notas</dt><dd>${txtEs(f.notas)}</dd></div>` : ''}
+        <div><dt>Fuente</dt><dd>${f.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.fuente)}</a>` : esc(f.fuente)}${f.organismo && f.organismo !== '—' ? ` <span class="dato-fuente">${txtEs(f.organismo)}</span>` : ''}</dd></div>
+        <div><dt>Tipo</dt><dd>${TIPO_TXT[f.tipo] || esc(f.tipo)}${f.formato && f.formato !== '—' ? ` · ${esc(f.formato)}` : ''}</dd></div>
+        <div><dt>Frecuencia</dt><dd>${esc(f.frecuencia)}</dd></div>
+        ${f.como_se_lee && f.como_se_lee !== '—' ? `<div><dt>Cómo se lee</dt><dd>${esc(f.como_se_lee)}</dd></div>` : ''}
+        <div><dt>Regla</dt><dd>${esc(f.regla)}</dd></div>
+        ${f.notas ? `<div><dt>Notas</dt><dd>${esc(f.notas)}</dd></div>` : ''}
       </dl>
     </li>`;
   };
@@ -1958,7 +1971,7 @@ ${seccion({
         .map(
           (f) => `<li class="fest-item" data-cal data-pais="${esc(f.pais)}" data-organismo="${esc(f.organismo || 'general')}" data-fecha="${esc(f.fecha)}" data-mes="${esc(m)}">
   <ul class="fest-fila">${filaFestivo(f)}</ul>
-  <p class="fest-detalle">${validacionHTML(nivelReg(f, 'festivo'), f.verificado, f.fuente)} ${f.nota ? `${esc(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
+  <p class="fest-detalle">${validacionHTML(nivelReg(f, 'festivo'), f.verificado, f.fuente)} ${f.nota ? `${txtEs(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
 </li>`
         )
         .join('')}`;
@@ -2019,7 +2032,7 @@ ${seccion({
   </section>
   <section class="cal-bloque" aria-labelledby="t-festivos">
     <h2 id="t-festivos">Festivos</h2>
-    <p class="texto-suave">Del ${fecha(festivosDoc.desde)} al ${fecha(festivosDoc.hasta)}. En un feriado nacional, comprueba la atención de aduanas y organismos.</p>
+    <p class="texto-suave">Festivos cargados: ${fecha(festivosDoc.desde)} – ${fecha(festivosDoc.hasta)}. En un feriado nacional, comprueba la atención de aduanas y organismos.</p>
     <ul class="calendario" id="lista-fest">${festivosHTML}</ul>
     <p class="vacio" data-vacio-de="lista-fest" hidden>No hay festivos con esos filtros.</p>
   </section>
@@ -2162,11 +2175,23 @@ paginas.push({
 // HU-135: versión en portugués de Brasil de Hoy, Rutas, Fronteras, fichas de paso y Servicios (/pt/…).
 {
   const frases = cargarDiccionario();
+  // Títulos y resúmenes de la guía traducidos (salen también en listas y menús).
+  for (const p of guia) if (guiaPT[p.ruta]) Object.assign(frases, { [p.meta.titulo]: guiaPT[p.ruta].titulo, [p.meta.resumen]: guiaPT[p.ruta].resumen });
   const trPT = compilar(frases);
+  const guiaRuta = Object.fromEntries(guia.map((p) => [p.ruta, p]));
+  const conGuiaPT = (ruta, html) => {
+    const g = guiaRuta[ruta];
+    const t = guiaPT[ruta];
+    if (!g || !t) return html;
+    // Mismas anclas que en español, en el mismo orden (el índice de la página apunta a ellas).
+    let n = 0;
+    const cuerpo = t.html.replace(/<h2 id="[^"]*">/g, (m) => (g.indice[n] ? `<h2 id="${g.indice[n++].id}">` : m));
+    return html.replace(/<!--es--><div class="contenido-es" lang="es">[\s\S]*?<\/div><!--\/es-->/, `<!--pt--><div class="contenido-pt"><p class="resumen">${esc(t.resumen)}</p>\n${cuerpo}</div><!--/pt-->`);
+  };
   const urlBasePT = site.url.replace(/\/$/, '') + B;
-  const datosIdioma = `<script type="application/json" id="datos-idioma">${JSON.stringify({ frases, rutas: ['/', '/planificador/', '/pasos/', '/directorio/', '/guia/pasos/'] }).replace(/</g, '\\u003c')}</script>`;
+  const datosIdioma = `<script type="application/json" id="datos-idioma">${JSON.stringify({ frases, rutas: ['*'] }).replace(/</g, '\\u003c')}</script>`;
   for (const p of paginas.filter((x) => !x.archivo && tienePT(x.ruta)))
-    paginas.push({ ruta: `/pt${p.ruta}`, html: traducirHTML(p.html, trPT, { B, urlBase: urlBasePT, ruta: p.ruta }).replace('</body>', `${datosIdioma}\n</body>`) });
+    paginas.push({ ruta: `/pt${p.ruta}`, html: traducirHTML(conGuiaPT(p.ruta, p.html), trPT, { B, urlBase: urlBasePT, ruta: p.ruta }).replace('</body>', `${datosIdioma}\n</body>`) });
 }
 
 // ---------- escribir ----------
@@ -2206,7 +2231,7 @@ try {
 // Archivos de la web: lo guardado y se actualiza por detrás. Cada publicación cambia la versión y limpia lo viejo.
 {
   const version = GENERADO.toISOString();
-  const precarga = ['/', '/planificador/', '/pasos/', '/directorio/', '/avisos/', ...guia.filter((g) => pasoPorGuia[`${g.seccion}/${g.slug}`]).map((g) => g.ruta), '/assets/styles.css', '/assets/comun.js', '/assets/inicio.js', '/assets/planificador.js', '/assets/ahora.js'].map(u);
+  const precarga = ['/', '/planificador/', '/pasos/', '/directorio/', '/avisos/', '/pt/', '/pt/planificador/', '/pt/pasos/', ...guia.filter((g) => pasoPorGuia[`${g.seccion}/${g.slug}`]).map((g) => g.ruta), '/assets/styles.css', '/assets/comun.js', '/assets/inicio.js', '/assets/planificador.js', '/assets/ahora.js'].map(u);
   fs.writeFileSync(
     path.join(DIST, 'sw.js'),
     `// Generado por scripts/build.mjs (HU-133). Versión ${version}
