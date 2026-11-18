@@ -49,6 +49,7 @@ GitHub abre la web en un navegador real, a tamaño móvil y en tema claro y oscu
 Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
+| 18/11/2026 | **Publicación fiable:** fusionar un PR ya no cancela la publicación de la web; cada cambio en main se publica solo, sin lanzarlo a mano | #162 |
 | 18/11/2026 | **Fuentes oficiales de Brasil:** el tramo Campo Grande → Porto Murtinho deja de estar «sin fuente»: BR-060 y BR-267 con las «Alertas DNIT» (pendientes de su lector, HU-138), la PRF como fuente manual, el acceso brasileño al puente (en obras, previsto 2027) y la aduana de Porto Murtinho (prevista 2028) | #160 |
 |---|---|---|
 | 18/11/2026 | **Fuentes en CSV y web completa en portugués:** el vigilante se configura con `data/fuentes-vigilancia.csv` (pausar una fuente o mover una carretera de tramo sin tocar código; `npm run check` lo valida) y la lista se publica en «Fuentes que vigilamos». Todas las páginas en portugués (/pt/), con la guía traducida. Mapa interactivo rediseñado (formas de estado y lista de tramos); Avisos, Calendario y Papeles con el diseño V2 | #156 |
