@@ -16,17 +16,17 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   ok(await p.isVisible('#t-limita'), 'sin «Lo que impide o limita el paso»');
   ok(await p.isVisible('#sin-ruta'), 'sin buscador en la portada sin ruta guardada');
   // HU-133 (R5/R9): con una ruta guardada, veredicto en una frase que empieza por verbo y pasos de la ruta primero.
-  await p.evaluate(() => localStorage.setItem('guia-corredor:ruta', JSON.stringify({ desde: 0, hasta: 5 })));
+  await p.evaluate(() => localStorage.setItem('guia-corredor:mi-ruta', JSON.stringify({ desde: 0, hasta: 5 })));
   await p.reload();
   const verHoy = await p.textContent('.veredicto-titulo').catch(() => '');
   ok(/^(Puedes ir hoy|Nada te impide ir hoy|Hoy no puedes)/.test(verHoy.trim()), 'veredicto de tu ruta inesperado: ' + verHoy);
   ok(await p.$eval('#pasos-hoy li', (li) => li.classList.contains('en-tu-ruta')).catch(() => false), 'tus pasos no salen primero');
-  await p.evaluate(() => localStorage.removeItem('guia-corredor:ruta'));
+  await p.evaluate(() => localStorage.removeItem('guia-corredor:mi-ruta'));
   ok(!(await p.content()).includes('Histórico</span></p>') || true, '');
   // Planificador (HU-116): veredicto primero, opciones y detalle plegado
   await p.goto(B + '/planificador/?desde=0&hasta=8&carga=granel');
   const ver = await p.textContent('.pl-veredicto');
-  ok(/Hoy no se puede hacer entera/.test(ver) && /Puente de la Bioce/.test(ver), 'veredicto: debe decir que el puente lo impide: ' + ver);
+  ok(/Hoy no puedes hacerla entera/.test(ver) && /Puente de la Bioce/.test(ver), 'veredicto: debe decir que el puente lo impide: ' + ver);
   ok(/Sí funciona hoy:.*Carmelo Peralta → Antofagasta/.test(ver), 'veredicto: falta lo que funciona hoy: ' + ver);
   ok((await p.$$('.pl-opcion')).length === 2, 'deben salir dos opciones (Jama y Sico)');
   ok((await p.textContent('.pl-opcion[aria-pressed="true"]')).includes('Recomendada'), 'la opción elegida por defecto debe ser la recomendada');

@@ -3,6 +3,7 @@
   const raiz = document.documentElement;
   const CLAVE_TEMA = 'guia-corredor:tema';
   const CLAVE_RUTA = 'guia-corredor:ruta';
+  const CLAVE_MI_RUTA = 'guia-corredor:mi-ruta';
   const guardar = (k, v) => {
     try {
       localStorage.setItem(k, v);
@@ -72,6 +73,23 @@
     olvidarRuta() {
       try {
         localStorage.removeItem(CLAVE_RUTA);
+      } catch {}
+    },
+    /** HU-133 (R9): la ruta que el usuario guarda a propósito («Guardar ruta»). La usan Hoy, Fronteras y Servicios. */
+    leerMiRuta() {
+      try {
+        const r = JSON.parse(leer(CLAVE_MI_RUTA) || 'null');
+        return r && Number.isInteger(r.desde) && Number.isInteger(r.hasta) && r.desde !== r.hasta ? r : null;
+      } catch {
+        return null;
+      }
+    },
+    guardarMiRuta(desde, hasta, carga) {
+      guardar(CLAVE_MI_RUTA, JSON.stringify({ desde, hasta, carga, guardada: new Date().toISOString() }));
+    },
+    olvidarMiRuta() {
+      try {
+        localStorage.removeItem(CLAVE_MI_RUTA);
       } catch {}
     },
     /** HU-116: distancia de un tramo con su tipo: con fuente, calculada (OpenStreetMap u otra), estimada o null. */

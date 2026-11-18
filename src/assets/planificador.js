@@ -57,9 +57,10 @@
   const TIPO_KM = { fuente: 'con fuente', calculado: 'calculado', osm: 'calculado con OpenStreetMap', estimado: 'estimado en línea recta' };
 
   // --- Bloques del resultado ---
-  function veredicto(op, dg) {
-    // «Se puede hoy» solo si todo está confirmado; si hay tramos sin parte, «sin problemas conocidos».
-    const titulo = { rojo: 'Hoy no se puede hacer entera', ambar: 'Se puede hoy, con dudas', verde: dg.sinParte ? 'Sin problemas conocidos' : 'Se puede hoy' }[dg.nivel];
+  // HU-133 (R6): el veredicto en una frase (GC.diag.frase), el porqué en otra y el detalle en «Por qué lo decimos».
+  function veredicto(op, dg, ops, dgs) {
+    const { titulo, porque } = DG.frase(op, dg, ops, dgs);
+    const forma = { verde: 'abierto', ambar: 'restricciones', rojo: 'cerrado' }[dg.nivel];
     const partes = [];
     if (dg.bloqueos.length)
       partes.push(
@@ -70,9 +71,11 @@
     if (dg.dudas.length)
       partes.push(`<ul class="pl-dudas">${dg.dudas.slice(0, 4).map((d) => `<li>${esc(d)}</li>`).join('')}${dg.dudas.length > 4 ? `<li>Y ${dg.dudas.length - 4} más, en «Avisos».</li>` : ''}</ul>`);
     if (dg.sinParte) partes.push(`<p class="pl-nota">${GC.plural(dg.sinParte, 'tramo de carretera', 'tramos de carretera')} sin parte oficial: no sabemos su estado.</p>`);
-    return `<section class="pl-veredicto pl-v-${dg.nivel}" role="status" aria-labelledby="t-veredicto">
-      <p class="pl-veredicto-titulo" id="t-veredicto">${titulo}</p>
-      ${partes.join('')}
+    if (!partes.length) partes.push('<p>Todos los tramos y pasos de esta opción están abiertos según su fuente, con fecha. Lo tienes tramo a tramo más abajo.</p>');
+    return `<section class="pl-veredicto veredicto veredicto-${dg.nivel}" role="status" aria-labelledby="t-veredicto">
+      <p class="veredicto-titulo" id="t-veredicto"><span class="veredicto-forma op-${forma}">${datos.operativa[forma].icono}</span>${esc(titulo)}</p>
+      ${porque ? `<p class="veredicto-porque">${esc(porque)}</p>` : ''}
+      <details class="veredicto-detalle"><summary>Por qué lo decimos</summary>${partes.join('')}</details>
     </section>`;
   }
 
@@ -196,6 +199,7 @@
       return;
     }
     GC.guardarRuta(a, b, carga());
+    document.body.classList.add('con-barra-accion');
     const ops = GC.opciones(datos, a, b);
     const dgs = Object.fromEntries(ops.map((o) => [o.id, diagnostico(o)]));
     // Recomendada: la que no tiene bloqueos, después la de menos dudas, después la más corta.
@@ -205,7 +209,12 @@
     const dg = dgs[op.id];
     const desde = datos.nodos[a].nombre;
     const hasta = datos.nodos[b].nombre;
-    const texto = `${desde} → ${hasta} (${op.nombre.toLowerCase()}): ${{ rojo: 'hoy no se puede hacer entera', ambar: 'se puede hoy, con dudas', verde: dg.sinParte ? 'sin problemas conocidos' : 'se puede hoy' }[dg.nivel]}. ${distanciaTexto(op.distancia)}. Confirma antes de salir. ${location.href}`;
+    const fr = DG.frase(op, dg, ops, dgs);
+    const texto = `${desde} → ${hasta}: ${fr.titulo}. ${fr.porque} ${distanciaTexto(op.distancia)}. Confírmalo antes de salir. ${location.href}`;
+    const miRuta = GC.leerMiRuta();
+    const esMia = miRuta && miRuta.desde === a && miRuta.hasta === b;
+    const asunto = `Pedir cotización: ${desde} → ${hasta}`;
+    const cotizar = `mailto:${datos.contacto}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(`Origen y destino: ${desde} → ${hasta} (${op.nombre.toLowerCase()})\nTipo de carga: ${nombreCarga()}\nPeso o volumen:\nFecha de carga:\nEmpresa y teléfono:\n`)}`;
     const hoy = new Date().toISOString().slice(0, 10);
     salida.innerHTML = `
       <header class="pl-cabeza">
@@ -213,13 +222,17 @@
         <p>${ops.length > 1 ? `${ops.length} opciones` : esc(op.nombre)}</p></div>
         <button type="button" class="btn btn-borde btn-pequeno no-imprimir" id="cambiar-busqueda" aria-expanded="${!form.hidden}" aria-controls="buscador-plan">${form.hidden ? 'Cambiar' : 'Ocultar búsqueda'}</button>
       </header>
-      ${veredicto(op, dg)}
+      ${veredicto(op, dg, ops, dgs)}
       ${
         ops.length > 1
           ? `<div class="pl-opciones" role="group" aria-label="Opciones de ruta">${ops.map((o) => tarjeta(o, dgs[o.id], o === rec, ops.length)).join('')}</div>`
           : `<p class="pl-una">${esc(distanciaTexto(op.distancia))} · ${GC.plural(op.problemas.length, 'aviso', 'avisos')}</p>`
       }
       ${ops.map((o) => detalle(o, dgs[o.id], o.id === elegida)).join('')}
+      <div class="barra-accion barra-accion-fija no-imprimir">
+        <button class="btn btn-principal btn-grande" type="button" id="guardar-ruta" aria-pressed="${esMia}">${esMia ? 'Guardada en Hoy' : 'Guardar ruta'}</button>
+        ${datos.contacto ? `<a class="btn btn-negocio btn-grande" href="${cotizar}">Pedir cotización</a>` : ''}
+      </div>
       <div class="pl-acciones no-imprimir">
         <a class="btn btn-wa" href="https://wa.me/?text=${encodeURIComponent(texto)}" rel="noopener">${I_CHAT}Compartir</a>
         <button class="btn btn-borde" type="button" id="copiar">${I_ENLACE}<span>Copiar enlace</span></button>
@@ -233,7 +246,7 @@
       <details class="pl-leyenda"><summary>Cómo leer estos datos</summary>
         <p><b>Abierto, con restricciones o no habilitado:</b> estado comprobado a mano en la fuente oficial o en la fuente citada. <b>Sin confirmar:</b> no hay un parte comprobado; mira la ficha antes de salir.</p>
         <p><b>Km con fuente:</b> publicados por una fuente. <b>Calculados con OpenStreetMap:</b> ruta por carretera calculada, no oficial. <b>Estimados en línea recta:</b> por carretera son más.</p>
-        <p>Guardamos esta búsqueda en este dispositivo para que la tengas al volver.</p>
+        <p>La última búsqueda se recuerda en este dispositivo. Con «Guardar ruta» la ves al abrir «Hoy». Nada sale de aquí.</p>
       </details>`;
   }
 
@@ -271,6 +284,14 @@
       return;
     }
     if (e.target.closest('[data-imprimir]')) window.print();
+    const guardar = e.target.closest('#guardar-ruta');
+    if (guardar) {
+      // HU-133 (R9): tu ruta queda en este dispositivo y la portada «Hoy» abre con su veredicto. No sale de aquí.
+      GC.guardarMiRuta(Number(origen.value), Number(destino.value), carga());
+      guardar.textContent = 'Guardada en Hoy';
+      guardar.setAttribute('aria-pressed', 'true');
+      return;
+    }
     const copiar = e.target.closest('#copiar');
     if (copiar) {
       navigator.clipboard?.writeText(location.href).then(

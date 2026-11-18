@@ -505,6 +505,7 @@ const datosRutas = (extra = {}) =>
     tiposFuente: TIPO_FUENTE,
     calendario: u('/calendario/'),
     avisos: u('/avisos/'),
+    contacto: site.contacto.email || '',
     ...extra,
   }).replace(/</g, '\\u003c')}</script>`;
 

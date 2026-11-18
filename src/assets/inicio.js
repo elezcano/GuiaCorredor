@@ -17,7 +17,7 @@
     }
   }
 
-  const ruta = GC.leerRuta();
+  const ruta = GC.leerMiRuta();
   if (!ruta) return;
   const datos = JSON.parse(document.getElementById('datos-rutas').textContent);
   const max = datos.nodos.length - 1;
@@ -75,7 +75,7 @@
   }
 
   document.getElementById('olvidar-ruta').addEventListener('click', () => {
-    GC.olvidarRuta();
+    GC.olvidarMiRuta();
     location.reload();
   });
 })();

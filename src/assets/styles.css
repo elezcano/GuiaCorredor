@@ -1436,3 +1436,17 @@ body { font-size: 17px; line-height: 1.5; }
 .hoy-plegar::after { content: "+"; font-size: 26px; font-weight: 400; }
 .hoy-plegar[aria-expanded="true"]::after { content: "−"; }
 .hoy-plegar:focus-visible { outline: 3px solid var(--ring-halo); outline-offset: 4px; border-radius: 6px; }
+
+/* ---------- Rutas ---------- */
+.pl-veredicto.veredicto { margin: 16px 0; }
+.veredicto-detalle summary { cursor: pointer; font-weight: 700; font-size: 15px; min-height: 40px; display: flex; align-items: center; }
+.veredicto-detalle p, .veredicto-detalle ul { font-size: 16px; }
+.pl-opciones { gap: 10px; }
+.pl-opcion { border-radius: 18px; border-width: 2px; padding: 14px; }
+.pl-opcion[aria-pressed="true"] { border-color: var(--foreground); }
+.barra-accion-fija { margin: 16px 0; }
+@media (min-width: 761px) { .barra-accion-fija .btn { flex: none; } }
+.pl-veredicto .veredicto-titulo { font-size: 30px; line-height: 1.12; margin: 0; }
+.pl-veredicto .veredicto-porque { font-size: 17px; margin: 0; }
+@media (max-width: 760px) { .pl-veredicto .veredicto-titulo { font-size: 26px; } }
+.pl-opcion .etiqueta { background: var(--primary); color: var(--primary-foreground); }
