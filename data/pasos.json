@@ -1253,25 +1253,6 @@
       "partes": [
         {
           "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.",
-          "hora": "19:07",
-          "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-17",
-          "actualizado": "2026-11-18",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-18",
-            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO» dentro del horario."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Vialidad Nacional",
           "valor": null,
           "texto": "RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material.",
@@ -1286,6 +1267,25 @@
             "rol": "vigilante",
             "fecha": "2026-11-18",
             "alcance": "Leído automáticamente de la web oficial el 18/11 a las 11:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "cerrado",
+          "texto": "Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.",
+          "hora": "17:56",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-18",
+          "actualizado": "2026-11-18",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-18",
+            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 19:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
           }
         }
       ]
