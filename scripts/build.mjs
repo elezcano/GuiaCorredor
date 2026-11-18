@@ -25,6 +25,7 @@ const site = readJSON('data/site.json');
 if (process.env.SITE_URL) site.url = process.env.SITE_URL;
 if (process.env.BASE_PATH) site.basePath = process.env.BASE_PATH === '/' ? '' : process.env.BASE_PATH;
 const B = (site.basePath || '').replace(/\/$/, '');
+const GENERADO_ISO = new Date().toISOString();
 const u = (p) => `${B}${p}`;
 const hayMapLibre = (() => {
   try {
@@ -173,6 +174,15 @@ const ICONOS = {
   obra: 'M3 21h18M5 21l5-14h4l5 14M8 14h8',
   corte: 'M4 4l16 16M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z',
   restriccion: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM7 12h10',
+  // HU-133: iconos de las categorías de Servicios.
+  surtidor: 'M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 3v6a2 2 0 0 0 4 0V8l-3-3',
+  llave: 'M14.5 6.5a4 4 0 0 0 5 5L21 13l-8 8-3-3 6-6-1.5-1.5M14.5 6.5 13 5l-9 9 3 3',
+  cama: 'M3 18V7M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5M7 11a1.5 1.5 0 1 0 0-.01',
+  bascula: 'M4 20h16M6 20l2-9h8l2 9M12 11V5M8 5h8',
+  camion: 'M3 6h11v10H3zM14 9h4l3 3v4h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+  globo: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  deposito: 'M3 10l9-6 9 6v11H3zM7 21v-7h10v7M7 17h10',
+  escudo: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
   pendiente: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',
 };
 const icono = (n, clase = 'icono') =>
@@ -227,13 +237,20 @@ const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', referencia: '
 /** Insignia de validación (texto + icono, no solo color). */
 /** HU-107: la insignia dice dónde se comprobó el dato, nunca quién. */
 const verificadoEn = (fuente) => (fuente?.leidoAuto ? 'Leído de la web oficial' : fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente');
+/** HU-133 (R3): texto del sello único. «Gendarmería · 18 nov · ✓ Web oficial» / «… · Verificado» / «… · Sin verificar». */
+function selloCorto(n, verificado, fuente, publicado) {
+  const quien = esc(fuente?.nombre || 'Sin fuente');
+  const cuando = n === 'verificado' && verificado ? fechaCorta(verificado) : publicado ? fechaCorta(publicado) : '';
+  const marca = n === 'verificado' && verificado ? (fuente?.leidoAuto ? '<span class="sello-ok">✓ Web oficial</span>' : `<span class="sello-ok">✓ ${fuente?.tipo === 'oficial' ? 'Oficial' : 'Verificado'}</span>`) : `<span class="sello-no">${esc(NIVELES[n]?.texto || 'Sin verificar')}</span>`;
+  return [quien, cuando, marca].filter(Boolean).join(' · ');
+}
 function validacionHTML(n, verificado, fuente) {
   const txt = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
   return `<span class="val val-${esc(n)}">${esc(txt)}</span>`;
 }
 /** Estado operativo + línea de contexto: confirmado, o "Por verificar" con el último dato. */
 function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
-  if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha">${verificadoEn(v.fuente)} ${corto ? '' : 'el '}${corto ? fechaCorta(v.verificado) : fecha(v.verificado)}</span>`;
+  if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
   if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
   const dias = diasDesde(v.publicado);
   const viejo = dias > 30; // un parte operativo de más de un mes ya no sirve para decidir
@@ -259,6 +276,31 @@ const wa = (n) => `https://wa.me/${String(n).replace(/\D/g, '')}`;
 const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
 const listaY = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} y ${xs[xs.length - 1]}`);
 
+// HU-133: accesos de negocio. Hasta la HU-95 (formulario con hoja privada), preparan un email al contacto del proyecto.
+const correo = (asunto, cuerpo) => `mailto:${site.contacto.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+const cotizacion = (ruta = '') =>
+  correo(`Pedir cotización${ruta ? `: ${ruta}` : ''}`, `Origen y destino: ${ruta || ''}\nTipo de carga:\nPeso o volumen:\nFecha de carga:\nEmpresa y teléfono:\n`);
+const cargaRetorno = () => correo('Carga de retorno', 'Tengo un camión vacío en (ciudad):\nDisponible desde (fecha):\nTipo de camión:\nHacia (destino preferido):\nEmpresa y teléfono:\n');
+
+// HU-133 (R4): siempre las dos horas. «19:00 en Argentina (23:00 en España)», con la zona de cada país en la fecha del dato.
+const ZONA_ES = 'Europe/Madrid';
+const minutosDesfase = (zona, dia) => {
+  const v = new Intl.DateTimeFormat('en-US', { timeZone: zona, timeZoneName: 'longOffset' }).formatToParts(new Date(`${dia}T12:00:00Z`)).find((x) => x.type === 'timeZoneName').value;
+  if (v === 'GMT') return 0;
+  const [, sg, h, m] = v.match(/GMT([+-])(\d\d):(\d\d)/);
+  return (sg === '-' ? -1 : 1) * (Number(h) * 60 + Number(m));
+};
+const ZONA_PAIS = { 'America/Argentina/Salta': 'Argentina', 'America/Argentina/Catamarca': 'Argentina', 'America/Argentina/Cordoba': 'Argentina', 'America/Argentina/Buenos_Aires': 'Argentina', 'America/Argentina/Jujuy': 'Argentina', 'America/Santiago': 'Chile', 'America/Asuncion': 'Paraguay', 'America/Campo_Grande': 'Brasil' };
+function enEspana(hhmm, zona, dia = HOY) {
+  const [h, m] = hhmm.split(':').map(Number);
+  let t = h * 60 + m - minutosDesfase(zona, dia) + minutosDesfase(ZONA_ES, dia);
+  t = ((t % 1440) + 1440) % 1440;
+  return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+}
+const rangoDosHoras = (a, c, zona, dia = HOY) => `${a}–${c} en ${paisDeZona(zona)} (${enEspana(a, zona, dia)}–${enEspana(c, zona, dia)} en España)`;
+const paisDeZona = (z) => ZONA_PAIS[z] || (/^America\/Argentina\//.test(z) ? 'Argentina' : 'hora local');
+const dosHoras = (hhmm, zona, dia = HOY) => `${hhmm} en ${paisDeZona(zona)} (${enEspana(hhmm, zona, dia)} en España)`;
+
 const marca = `<span class="placa"><span class="placa-l1">Guía del</span><span class="placa-l2">Corredor</span></span>`;
 
 const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema');if(t==='oscuro'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.tema='oscuro'}catch(e){}</script>`;
@@ -266,23 +308,20 @@ const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema'
 function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', estilos = [] }) {
   const t = titulo ? `${titulo} | ${site.nombre}` : site.nombreCompleto;
   const canon = `${site.url.replace(/\/$/, '')}${u(ruta)}`;
+  // HU-133 (Versión 2): cuatro secciones. Avisos cuelga de Hoy; calendario y papeles, de Fronteras (y de cada paso).
   const secciones = [
-    ['/planificador/', 'Rutas', 'ruta', (r) => r === '/' || r.startsWith('/planificador/')],
-    ['/pasos/', 'Fronteras', 'frontera', (r) => r.startsWith('/pasos/') || r.startsWith('/guia/pasos/')],
-    ['/avisos/', 'Avisos', 'aviso', (r) => r.startsWith('/avisos/') || r.startsWith('/novedades/')],
-    ['/calendario/', 'Calendario', 'calendario', (r) => r.startsWith('/calendario/')],
-    ['/papeles/', 'Papeles', 'papeles', (r) => r.startsWith('/papeles/') || r.startsWith('/guia/documentos/')],
-    ['/directorio/', 'Servicios', 'empresas', (r) => r.startsWith('/directorio/')],
+    ['/', 'Hoy', 'sol', (r) => r === '/' || r.startsWith('/avisos/') || r.startsWith('/novedades/')],
+    ['/planificador/', 'Rutas', 'ruta', (r) => r.startsWith('/planificador/') || r.startsWith('/informe/')],
+    ['/pasos/', 'Fronteras', 'frontera', (r) => r.startsWith('/pasos/') || r.startsWith('/guia/') || r.startsWith('/calendario/') || r.startsWith('/papeles/')],
+    ['/directorio/', 'Servicios', 'empresas', (r) => r.startsWith('/directorio/') || r.startsWith('/anunciate/')],
   ];
-  const nav = secciones.map(([href, txt, , activo]) => `<a href="${u(href)}"${activo(ruta) && ruta !== '/' ? ' aria-current="page"' : ''}>${txt}</a>`).join('');
-  const barra = secciones
-    .filter(([href]) => href !== '/papeles/')
-    .map(([href, txt, ic, activo]) => `<a href="${u(href === '/planificador/' ? '/' : href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${icono(ic)}<span>${txt}</span></a>`)
-    .join('');
+  const nav = secciones.map(([href, txt, , activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${txt}</a>`).join('');
+  const barra = secciones.map(([href, txt, ic, activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${icono(ic)}<span>${txt}</span></a>`).join('');
   return `<!DOCTYPE html>
-<html lang="${site.idioma}">
+<html lang="${site.idioma}" data-base="${B}">
 <head>
 <meta charset="utf-8">
+<meta name="generado" content="${GENERADO_ISO}">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(t)}</title>
 <meta name="description" content="${esc(descripcion || site.lema)}">
@@ -304,7 +343,7 @@ ${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2
     <nav class="nav" aria-label="Principal">${nav}</nav>
     <div class="cabecera-acciones">
       <a class="boton-icono" href="${u('/buscar/')}" aria-label="Buscar en la guía"${ruta === '/buscar/' ? ' aria-current="page"' : ''}>${icono('buscar')}</a>
-      <a class="btn btn-borde btn-pequeno" href="${u('/anunciate/')}">Anunciar mi empresa</a>
+      <a class="btn btn-negocio btn-pequeno" href="${cotizacion()}">${icono('papeles')}Pedir cotización</a>
       <button class="boton-icono" type="button" id="cambiar-tema" aria-label="Activar modo oscuro">${icono('luna', 'icono icono-luna')}${icono('sol', 'icono icono-sol')}</button>
     </div>
   </div>
@@ -478,6 +517,7 @@ const datosRutas = (extra = {}) =>
     tiposFuente: TIPO_FUENTE,
     calendario: u('/calendario/'),
     avisos: u('/avisos/'),
+    contacto: site.contacto.email || '',
     ...extra,
   }).replace(/</g, '\\u003c')}</script>`;
 
@@ -725,9 +765,10 @@ const desfase = (zona, dia) => {
 const instanteParte = (x) => `${x.publicado}T${x.hora || '12:00'}:00${desfase(ZONAS[x.lado] || 'UTC', x.publicado)}`;
 /** HU-113: sello de validación compacto. La fuente, la fecha y la comprobación se abren al tocarlo. */
 function selloHTML(n, verificado, fuente, publicado) {
-  const corto = n === 'verificado' && verificado ? `${fuente?.leidoAuto ? 'Web oficial' : fuente?.tipo === 'oficial' ? 'Oficial' : 'Fuente'} · ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
+  // HU-133 (R3): un único sello en toda la web: «Organismo · cuándo · ✓ Web oficial».
+  const corto = selloCorto(n, verificado, fuente, publicado);
   const largo = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fecha(verificado)}${fuente?.leidoAuto ? ', de forma automática' : ''}.` : n === 'caducado' ? 'Verificación caducada: confírmalo antes de salir.' : 'Publicado por su fuente, sin comprobar todavía.';
-  return `<details class="sello sello-${esc(n)}"><summary><span class="sello-corto">${esc(corto)}</span></summary><span class="sello-hoja">${esc(largo)} ${fuenteEnlace(fuente)}${publicado ? `, ${fecha(publicado)}` : ''}${fuente?.tipo ? ` (${TIPO_FUENTE[fuente.tipo]})` : ''}.</span></details>`;
+  return `<details class="sello sello-${esc(n)}"><summary><span class="sello-corto">${corto}</span></summary><span class="sello-hoja">${esc(largo)} ${fuenteEnlace(fuente)}${publicado ? `, ${fecha(publicado)}` : ''}${fuente?.tipo ? ` (${TIPO_FUENTE[fuente.tipo]})` : ''}.</span></details>`;
 }
 /** HU-73 / HU-113: lo que informa cada organismo, una línea por parte, con fecha, hora y sello de fuente. */
 function partesHTML(p, op) {
@@ -817,7 +858,7 @@ function ahoraHTML(p, op) {
     soloCarga: p.estado.afecta === 'carga',
   };
   return `<div class="ahora" data-ahora="${esc(JSON.stringify(datos))}">
-    <p class="ahora-relojes">${Object.keys(p.lados).map((k) => `<span class="ahora-reloj" data-pais="${k}">${bandera(k)} <span class="ahora-hora">--:--</span></span>`).join('')}</p>
+    <p class="ahora-relojes">${Object.keys(p.lados).map((k) => `<span class="ahora-reloj" data-pais="${k}">${bandera(k)} <span class="ahora-hora">--:--</span></span>`).join('')}<span class="ahora-reloj ahora-reloj-es"><span class="ahora-hora">--:--</span></span></p>
     <p class="ahora-estado" aria-live="polite"></p>
   </div>`;
 }
@@ -894,7 +935,7 @@ function fichaOperativa(p, guiaPag) {
   // Acciones: llamar al primer teléfono oficial, compartir por WhatsApp, planificar.
   const tel = (p.contactos || []).find((c) => c.telefono);
   const hor = (p.horarios || []).find((x) => x.apertura && x.cierre);
-  const textoWa = `${p.nombre}: ${OPERATIVA[op].texto + detalleEstado}${e.confirmado ? ` (${verificadoEn(p.estado.fuente).toLowerCase()} el ${fechaCorta(e.verificado)})` : ' (sin confirmar)'}.${hor ? ` Horario ${hor.apertura}–${hor.cierre}, hora local.` : ''} ${site.url.replace(/\/$/, '')}${u('/guia/' + guiaPag + '/')}`;
+  const textoWa = `${p.nombre}: ${OPERATIVA[op].texto + detalleEstado}${e.confirmado ? ` (${verificadoEn(p.estado.fuente).toLowerCase()} el ${fechaCorta(e.verificado)})` : ' (sin confirmar)'}.${hor ? ` Horario ${hor.zona ? rangoDosHoras(hor.apertura, hor.cierre, hor.zona) : `${hor.apertura}–${hor.cierre}, hora local`}.` : ''} ${site.url.replace(/\/$/, '')}${u('/guia/' + guiaPag + '/')}`;
   const acciones = `<div class="ficha-acciones no-imprimir">
     ${tel ? `<a class="btn btn-borde btn-llamar" href="tel:${esc(tel.telefono)}">${icono('telefono')}Llamar</a>` : ''}
     <a class="btn btn-borde" href="https://wa.me/?text=${encodeURIComponent(textoWa)}" rel="noopener">${icono('chat')}Compartir</a>
@@ -919,7 +960,7 @@ function fichaOperativa(p, guiaPag) {
   const secHorarios = plegable(
     'horarios',
     'Horarios',
-    hor ? `${hor.apertura}–${hor.cierre}, hora local` : p.horarios?.length ? 'Sin hora de apertura y cierre confirmada' : 'Sin horario con fuente',
+    hor ? (hor.zona ? rangoDosHoras(hor.apertura, hor.cierre, hor.zona) : `${hor.apertura}–${hor.cierre}, hora local`) : p.horarios?.length ? 'Sin hora de apertura y cierre confirmada' : 'Sin horario con fuente',
     p.horarios?.length ? `<ul class="lista-datos">${p.horarios.map((h) => `<li${attrSentido(h)}><strong>${conBanderas(h.lado)}:</strong> ${etiquetaSentido(h)}${esc(h.texto)}${sello(h, 'horario')}</li>`).join('')}</ul>` : '<p class="sin-dato">Sin horario con fuente.</p>'
   );
   const tels = (p.contactos || []).filter((c) => c.telefono || c.email);
@@ -964,9 +1005,13 @@ function fichaOperativa(p, guiaPag) {
     </dl>
     <button class="btn btn-borde btn-pequeno no-imprimir" type="button" onclick="document.querySelectorAll('.ficha-operativa details').forEach((d) => (d.open = true)); window.print()">${icono('imprimir')}Imprimir ficha completa</button>`
   );
+  // HU-133 (R7): tres pestañas. El sentido del cruce vale para las tres.
+  const pest = (id, txt, on) => `<button type="button" role="tab" id="tab-${id}" aria-controls="${id}" aria-selected="${on}" tabindex="${on ? 0 : -1}">${txt}</button>`;
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
   <h2 id="t-ficha" class="sr-only">Situación operativa</h2>
   ${sentidoHTML(p)}
+  <div class="pestanas" role="tablist" aria-label="Ficha del paso">${pest('hoy', 'Hoy', true)}${pest('papeles', 'Papeles', false)}${pest('calendario', 'Calendario', false)}</div>
+  <div class="pestana" role="tabpanel" id="hoy" aria-labelledby="tab-hoy">
   ${respuesta}
   ${partesHTML(p, op)}
   ${fiabilidadHTML(p)}
@@ -974,7 +1019,50 @@ function fichaOperativa(p, guiaPag) {
   <div class="plegables">
     ${secControles}${secHorarios}${secTel}${secAvisos}${secHist}${secSobre}
   </div>
+  </div>
+  <div class="pestana" role="tabpanel" id="papeles" aria-labelledby="tab-papeles" hidden>${papelesPaso(p)}</div>
+  <div class="pestana" role="tabpanel" id="calendario" aria-labelledby="tab-calendario" hidden>${calendarioPaso(p)}</div>
 </section>`;
+}
+
+/** HU-133 (R7): pestaña «Papeles» del paso. Lista de comprobación según la carga, marcable y guardada en el dispositivo. */
+function papelesPaso(p) {
+  const chips = rutas.tiposCarga
+    .map((c, i) => `<label class="chip chip-radio"><input type="radio" name="carga-paso" value="${esc(c.id)}"${i === 0 ? ' checked' : ''}>${esc(c.nombre)}</label>`)
+    .join('');
+  const docs = rutas.documentosCruce
+    .map((d) => `<li data-cargas="${esc((d.cargas || []).join(' '))}"><label class="papel"><input type="checkbox" data-doc="${esc(d.id)}"><span class="papel-caja" aria-hidden="true"></span><span>${esc(d.nombre)}</span></label></li>`)
+    .join('');
+  return `<div class="papeles-paso" data-papeles>
+    <fieldset class="pl-carga"><legend>¿Qué llevas?</legend><div class="chips">${chips}</div></fieldset>
+    <p class="papeles-cuenta"><strong data-total></strong> <span data-listos></span></p>
+    <ul class="papeles-lista">${docs}</ul>
+    <p class="dato-fuente">${esc(rutas.avisoDocumentos)} Lo que marcas se guarda solo en este dispositivo.</p>
+    <p class="papeles-mas">Tránsito aduanero y controles sanitarios de ${esc(listaY(Object.keys(p.lados).map((k) => PAISES[k])))}: <a href="${u('/papeles/')}">ver papeles por país</a>.</p>
+    <div class="barra-accion"><a class="btn btn-borde btn-grande" href="${u('/directorio/?categoria=despachante')}">Buscar despachante</a><button class="btn btn-borde btn-grande" type="button" onclick="window.print()">Imprimir lista</button></div>
+  </div>`;
+}
+/** HU-133 (R7): pestaña «Calendario» del paso. ¿Cuándo cruzas? y festivos de los dos países. No inventa horarios especiales. */
+function calendarioPaso(p) {
+  const ps = Object.keys(p.lados);
+  const fest = festivos.filter((f) => ps.includes(f.pais));
+  const datos = {
+    paises: Object.fromEntries(ps.map((k) => [k, PAISES[k]])),
+    festivos: fest.map((f) => ({ fecha: f.fecha, pais: f.pais, nombre: f.nombre, tipo: TIPOS_FESTIVO[f.tipo] || f.tipo, porConfirmar: f.validacion !== 'verificado' })),
+    especiales: (p.horariosEspeciales || []).map((h) => ({ desde: h.desde, hasta: h.hasta, texto: h.texto })),
+    hoy: HOY,
+  };
+  const proximos = fest.slice(0, 6);
+  return `<div class="calendario-paso" data-cal-paso="${esc(JSON.stringify(datos))}">
+    <fieldset class="cal-cuando"><legend>¿Cuándo cruzas?</legend>
+      <div class="chips"><label class="chip chip-radio"><input type="radio" name="cuando" value="0" checked>Hoy</label><label class="chip chip-radio"><input type="radio" name="cuando" value="1">Mañana</label>
+      <label class="campo-fecha"><span class="sr-only">Otra fecha</span><input type="date" name="fecha" min="${HOY}" value="${HOY}"></label></div>
+    </fieldset>
+    <div class="cal-respuesta" aria-live="polite"></div>
+    <h3>Próximos festivos en ${esc(listaY(ps.map((k) => PAISES[k])))}</h3>
+    ${proximos.length ? `<ul class="lista-fest">${proximos.map(filaFestivo).join('')}</ul>` : '<p class="sin-dato">Ninguno cargado.</p>'}
+    <p class="dato-fuente">Un festivo no implica que la aduana cierre. Si nadie ha publicado horario especial, lo decimos tal cual. <a href="${u('/calendario/')}">Calendario completo</a></p>
+  </div>`;
 }
 
 /** Aviso de ficha según su nivel de validación (mismo sistema que los estados). */
@@ -1083,58 +1171,70 @@ const mapaVivoHTML = () => `<div class="mapa-vivo-marco" data-estado="esquema">
   </div>`;
 const datosMapaScript = () => `<script type="application/json" id="datos-mapa">${JSON.stringify(datosMapa()).replace(/</g, '\\u003c')}</script>`;
 
-// Inicio
-add(
-  '/',
-  layout({
-    ruta: '/',
-    scripts: ['/assets/inicio.js', ...(hayMapLibre ? ['/assets/mapa-perezoso.js'] : [])],
-    datos: datosRutas() + (hayMapLibre ? datosMapaScript() : ''),
-    cuerpo: `
-<section class="portada-hero" aria-labelledby="titulo-portada">
-  <div class="contenedor">
-    <h1 id="titulo-portada">Planifica tu ruta por el corredor bioceánico</h1>
-    <p class="hero-sub">Estado de cada tramo y frontera, papeles para cruzar y empresas en cada punto, de Brasil a Chile.</p>
-    <div class="tu-ruta" id="tu-ruta" hidden></div>
-    ${buscador()}
+// Inicio · HU-133 (R5): «Hoy». Tu ruta con su veredicto, tus pasos, lo que impide o limita el paso y el mapa.
+const GENERADO = new Date(GENERADO_ISO);
+const horaEn = (zona, d = GENERADO) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zona }).format(d);
+const graveOrden = { rojo: 0, ambar: 1 };
+const avisoHoy = (i) => {
+  const g = i.gravedad || 'ambar';
+  const forma = g === 'rojo' ? 'cerrado' : 'restricciones';
+  return `<li class="aviso-hoy aviso-${g}" id="hoy-inc-${esc(i.id)}">${OPERATIVA[forma].icono.replace('<svg', `<svg class="op-${forma}"`)}<div>
+    <p class="aviso-hoy-titulo"><strong>${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</strong> · ${esc(i.ubicacion)} ${paises(i.paises || [])}</p>
+    <p class="aviso-hoy-texto">${esc(i.descripcion)}</p>
+    <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</p>
+  </div></li>`;
+};
+{
+  const limitan = activas.filter((i) => (i.gravedad || 'ambar') !== 'info').sort((x, y) => graveOrden[x.gravedad || 'ambar'] - graveOrden[y.gravedad || 'ambar']);
+  const info = activas.length - limitan.length;
+  const tarjetaPaso = (h) => `<li data-paso="${esc(h.id)}"><a class="paso-hoy op-borde-${h.op}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}">
+    <span class="paso-hoy-nombre">${h.cara.map((c) => bandera(c)).join('')}<strong>${esc(h.nombre)}</strong></span>
+    <span class="paso-hoy-estado">${estadoPasoHTML(h.id, { corto: true })}</span></a></li>`;
+  add(
+    '/',
+    layout({
+      ruta: '/',
+      scripts: ['/assets/inicio.js', ...(hayMapLibre ? ['/assets/mapa-perezoso.js'] : [])],
+      datos: datosRutas() + (hayMapLibre ? datosMapaScript() : ''),
+      cuerpo: `
+<div class="contenedor hoy">
+  <header class="hoy-cabeza">
+    <h1>Hoy</h1>
+    <p class="hoy-hora" data-generado="${GENERADO.toISOString()}">Datos de las ${horaEn(ZONAS.AR)} en Argentina (${horaEn(ZONA_ES)} en España)</p>
+  </header>
+  <div class="hoy-grid">
+    <div class="hoy-col">
+      <section class="veredicto" id="tu-ruta" aria-live="polite" hidden></section>
+      <section class="hoy-buscar" id="sin-ruta" aria-labelledby="t-buscar">
+        <h2 id="t-buscar">¿Adónde vas?</h2>
+        <p>Elige origen y destino y te decimos si se puede hoy y por dónde.</p>
+        ${buscador('buscador-hoy').replace(`${icono('buscar')}Buscar ruta`, '¿Se puede hoy?')}
+      </section>
+      <section class="hoy-bloque" aria-labelledby="t-pasos-hoy">
+        <div class="hoy-bloque-cabeza"><h2 id="t-pasos-hoy">Pasos de frontera</h2><a href="${u('/pasos/')}">Ver todos</a></div>
+        <ul class="pasos-hoy" id="pasos-hoy">${pasosHistoria.map(tarjetaPaso).join('')}</ul>
+      </section>
+      <section class="hoy-bloque" aria-labelledby="t-limita">
+        <div class="hoy-bloque-cabeza"><h2 id="t-limita">Lo que impide o limita el paso</h2><a href="${u('/avisos/')}">Ver todos los avisos</a></div>
+        ${limitan.length ? `<ul class="avisos-hoy">${limitan.slice(0, 5).map(avisoHoy).join('')}</ul>${limitan.length > 5 ? `<p class="hoy-info"><a href="${u('/avisos/')}">Y ${plural(limitan.length - 5, 'aviso más', 'avisos más')} con restricciones</a></p>` : ''}` : '<p class="sin-dato">Ningún corte ni restricción publicado ahora mismo.</p>'}
+        ${info ? `<p class="hoy-info"><a href="${u('/avisos/')}">${plural(info, 'aviso informativo más', 'avisos informativos más')}</a>: no cambian el veredicto.</p>` : ''}
+      </section>
+      <section class="hoy-negocio" aria-label="Negocio">
+        <a class="negocio" href="${cotizacion()}">${icono('papeles')}<span><strong>Pedir cotización</strong><span>Dinos origen, destino y carga</span></span></a>
+        <a class="negocio" href="${cargaRetorno()}">${icono('ruta')}<span><strong>Carga de retorno</strong><span>¿Vuelves vacío? Avísanos</span></span></a>
+      </section>
+    </div>
+    <section class="hoy-mapa" aria-labelledby="t-mapa-hoy">
+      <h2 id="t-mapa-hoy" class="sr-only">Mapa del corredor hoy</h2>
+      ${hayMapLibre ? mapaVivoHTML() : mapaHTML()}
+      ${hayMapLibre ? '' : '<!-- leyenda del esquema dentro del mapa -->'}<p class="leyenda-formas" aria-hidden="true"${hayMapLibre ? '' : ' hidden'}><span>${OPERATIVA.abierto.icono} Abierto</span><span>${OPERATIVA.restricciones.icono} Con avisos</span><span>${OPERATIVA.cerrado.icono} Cerrado</span><span>${OPERATIVA['sin-confirmar'].icono} Sin confirmar</span></p>
+      <a class="enlace-mas" href="${u('/mapa/')}">Ver tramos y distancias</a>
+    </section>
   </div>
-</section>
-${seccion({
-  titulo: 'Estado de los pasos',
-  contexto: 'Último parte conocido de cada frontera, con su fecha. Toca un paso para ver horarios y requisitos.',
-  enlace: ['/pasos/', 'Ver todos los pasos'],
-  cuerpo: `<ul class="historias">${pasosHistoria.map(historia).join('')}</ul>`,
-})}
-${seccion({
-  titulo: 'Información operativa',
-  contexto: 'Festivos, obras y alertas que pueden afectar a tu viaje.',
-  cuerpo: tablero(),
-})}
-${seccion({
-  titulo: 'Mapa del corredor',
-  contexto: 'Ciudades, pasos fronterizos y puertos. Toca un punto para abrir su ficha.',
-  enlace: ['/mapa/', 'Ver tramos y distancias'],
-  cuerpo: hayMapLibre ? mapaVivoHTML() : mapaHTML(),
-})}
-${seccion({
-  titulo: 'Últimos cambios',
-  contexto: `Noticias de los últimos ${HISTORICO_DIAS} días, con su fuente. Las anteriores están en novedades como histórico.`,
-  enlace: ['/novedades/', 'Ver todas las novedades'],
-  cuerpo: recientes.length
-    ? `<div class="portal">${noticia(recientes[0], { principal: true })}<ul class="lista-noticias">${recientes
-        .slice(1, 4)
-        .map((n) => `<li>${noticia(n)}</li>`)
-        .join('')}</ul></div>`
-    : `<p class="sin-dato">No hay noticias de los últimos ${HISTORICO_DIAS} días.</p>`,
-})}
-<section class="contenedor seccion" aria-labelledby="t-empresas-banda">
-  <div class="banda">
-    <div><h2 id="t-empresas-banda">¿Das servicio en el corredor?</h2><p>Aparece en el punto de la ruta donde trabajas. Quien planifica un viaje por ahí te escribe directamente.</p></div>
-    <a class="btn" href="${u('/anunciate/')}">Anunciar mi empresa</a>
-  </div>
-</section>`,
-  })
-);
+</div>`,
+    })
+  );
+}
 
 // Planificador (resultados)
 {
@@ -1412,16 +1512,37 @@ for (const p of guia) {
     ...categorias.filter((c) => cuenta((e) => e.categoria === c.id)).map((c) => ({ t: c.nombre, d: 'Tipo de empresa' })),
     ...[...new Set(empresas.flatMap((e) => e.servicios || []))].map((s) => ({ t: s, d: 'Servicio' })),
   ];
+  // HU-133 (R8): las 11 categorías reales, primero las que se necesitan en ruta. En móvil se ven 4 y «Ver las 11».
+  const ICONO_CAT = { combustible: 'surtidor', taller: 'llave', descanso: 'cama', bascula: 'bascula', transitario: 'globo', transportista: 'camion', despachante: 'papeles', alojamiento: 'cama', deposito: 'deposito', seguro: 'escudo', servicios: 'empresas' };
+  const ORDEN_CAT = ['combustible', 'taller', 'descanso', 'bascula', 'transportista', 'transitario', 'despachante', 'deposito', 'alojamiento', 'seguro', 'servicios'];
+  const catsOrden = [...categorias].sort((x, y) => (ORDEN_CAT.indexOf(x.id) + 99) % 99 - (ORDEN_CAT.indexOf(y.id) + 99) % 99);
+  const categoriasHTML = `<section class="cats" aria-labelledby="t-cats"><h2 id="t-cats" class="sr-only">Qué necesitas</h2>
+    <ul class="cats-lista">${catsOrden
+      .map((c) => `<li><a class="cat" href="${u(`/directorio/?categoria=${c.id}`)}">${icono(ICONO_CAT[c.id] || 'empresas')}<strong>${esc(c.nombre)}</strong>${empresas.length ? `<span>${plural(cuenta((e) => e.categoria === c.id), 'empresa', 'empresas')}</span>` : ''}</a></li>`)
+      .join('')}</ul>
+    <button type="button" class="btn btn-borde cats-mas" onclick="this.closest('.cats').classList.add('cats-todas');this.remove()">Ver las ${categorias.length} categorías</button>
+  </section>`;
+  const puertaNegocio = `<a class="negocio negocio-ancho" href="${u('/anunciate/')}">${icono('empresas')}<span><strong>¿Das servicio en el corredor?</strong><span>Aparece en tu paso y en el planificador</span></span></a>`;
   const vacioDirectorio = `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Servicios del corredor</h1><p>Transitarios, despachantes, transportistas y servicios para el camión en cada punto de la ruta.</p></header>
-  <section class="panel directorio-vacio" aria-labelledby="t-dir-vacio">
-    <h2 id="t-dir-vacio">Todavía no hay empresas verificadas</h2>
-    <p>Solo publicamos empresas que han confirmado sus datos. Estamos contactando con proveedores de cada punto de la ruta.</p>
-    <p>Categorías previstas: ${esc(listaY(categorias.map((c) => c.nombre.toLowerCase())))}.</p>
-    <a class="btn btn-principal" href="${u('/anunciate/')}">Dar de alta mi empresa gratis</a>
-  </section>
-</div>`;
+<div class="contenedor servicios">
+  <header class="cabeza-pagina"><h1>Servicios</h1><p>Lo que necesitas en cada punto de la ruta: gasoil, taller, descanso, transporte y aduana.</p></header>
+  <p class="servicios-ruta" id="servicios-ruta" hidden></p>
+  <div class="servicios-grid">
+    <div>
+      ${categoriasHTML}
+      <section class="servicios-vacio" aria-labelledby="t-dir-vacio">
+        <p class="estado op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono}<span class="estado-texto">Sin empresas todavía</span></p>
+        <h2 id="t-dir-vacio">Aún no hay empresas verificadas en el corredor</h2>
+        <p>Solo publicamos empresas que han confirmado sus datos. Mientras tanto, puedes pedir una cotización por email.</p>
+      </section>
+    </div>
+    <aside class="servicios-lado">
+      ${puertaNegocio}
+      <a class="btn btn-negocio btn-grande" href="${cotizacion()}">Pedir cotización</a>
+    </aside>
+  </div>
+</div>
+<script>document.addEventListener('DOMContentLoaded',function(){try{var r=JSON.parse(localStorage.getItem('guia-corredor:mi-ruta')||'null'),d=JSON.parse(document.getElementById('datos-nodos').textContent);if(r&&d[r.desde]&&d[r.hasta]){var e=document.getElementById('servicios-ruta');e.textContent='En tu ruta: '+d[r.desde]+' → '+d[r.hasta];e.hidden=false}}catch(x){}})</script>`;
   add(
     '/directorio/',
     layout({
@@ -1429,10 +1550,11 @@ for (const p of guia) {
       descripcion: 'Transitarios, transportistas, despachantes, depósitos y servicios en cada punto del Corredor Bioceánico.',
       ruta: '/directorio/',
       scripts: empresas.length ? ['/assets/directorio.js'] : [],
-      datos: `<script type="application/json" id="datos-sugerencias">${JSON.stringify(sugerencias).replace(/</g, '\\u003c')}</script>`,
+      datos: `<script type="application/json" id="datos-sugerencias">${JSON.stringify(sugerencias).replace(/</g, '\\u003c')}</script><script type="application/json" id="datos-nodos">${JSON.stringify(rutas.nodos.map((n) => n.nombre)).replace(/</g, '\\u003c')}</script>`,
       cuerpo: !empresas.length ? vacioDirectorio : `
 <div class="contenedor">
-  <header class="cabeza-pagina"><h1>Servicios del corredor</h1><p>Busca quién da servicio en cada punto de la ruta y escríbele directamente.</p></header>
+  <header class="cabeza-pagina"><h1>Servicios</h1><p>Busca quién da servicio en cada punto de la ruta y escríbele directamente.</p></header>
+  ${categoriasHTML}
   <div class="busqueda-web">
     ${icono('buscar')}
     <label class="oculto" for="f-texto">Buscar empresas</label>
@@ -1603,8 +1725,13 @@ add(
     <p>${Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(v)}`).join(' – ')}</p>
   </div>
   <div class="paso-tarjeta-estado">${estadoPasoHTML(p.id)}</div>
+  ${(() => {
+    // HU-133 (R7): festivo en los próximos 7 días en alguno de los dos lados, en azul.
+    const f = festivos.find((x) => Object.keys(p.lados).includes(x.pais) && diasDesde(x.fecha) >= -7);
+    return f ? `<a class="etiqueta-festivo" href="${href}#calendario">${esc(diaSemana(f.fecha))} ${esc(fechaCorta(f.fecha))} · festivo en ${esc(PAISES[f.pais])}</a>` : '';
+  })()}
   <dl class="paso-tarjeta-datos">
-    <div><dt>Horario</dt><dd>${h ? `${esc(h.texto)}${h.lado ? ` <span class="dato-fuente">${conBanderas(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin verificar</span>'}</dd></div>
+    <div><dt>Horario</dt><dd>${h ? `${h.apertura && h.cierre && h.zona ? `${rangoDosHoras(h.apertura, h.cierre, h.zona)}<span class="dato-fuente">${esc(h.texto)}</span>` : esc(h.texto)}${h.lado ? ` <span class="dato-fuente">${conBanderas(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin verificar</span>'}</dd></div>
     <div><dt>Tiempo de cruce</dt><dd>${cruceCorto(p.id).replace(/<[^>]+>/g, '').replace('Cruce ', '') || '<span class="sin-dato">Sin datos suficientes</span>'}</dd></div>
     <div><dt>Incidencias</dt><dd>${inc ? plural(inc, 'activa', 'activas') : 'Ninguna'}</dd></div>
   </dl>
@@ -1976,6 +2103,56 @@ try {
   }
 } catch {
   console.warn('Aviso: no está instalada la tipografía Overpass; se usará la de sustitución.');
+}
+
+// HU-133 (R10): service worker para ver la Guía sin cobertura. Páginas: primero la red y, si no hay, lo último guardado.
+// Archivos de la web: lo guardado y se actualiza por detrás. Cada publicación cambia la versión y limpia lo viejo.
+{
+  const version = GENERADO.toISOString();
+  const precarga = ['/', '/planificador/', '/pasos/', '/directorio/', '/avisos/', ...guia.filter((g) => pasoPorGuia[`${g.seccion}/${g.slug}`]).map((g) => g.ruta), '/assets/styles.css', '/assets/comun.js', '/assets/inicio.js', '/assets/planificador.js', '/assets/ahora.js'].map(u);
+  fs.writeFileSync(
+    path.join(DIST, 'sw.js'),
+    `// Generado por scripts/build.mjs (HU-133). Versión ${version}
+const CACHE = 'guia-${version}';
+const PRECARGA = ${JSON.stringify(precarga)};
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => Promise.allSettled(PRECARGA.map((x) => c.add(x)))).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', (e) => {
+  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('guia-') && k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+});
+self.addEventListener('fetch', (e) => {
+  const r = e.request;
+  if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
+  if (r.mode === 'navigate') {
+    e.respondWith(
+      fetch(r)
+        .then((res) => {
+          const copia = res.clone();
+          caches.open(CACHE).then((c) => c.put(r, copia));
+          return res;
+        })
+        .catch(() => caches.match(r, { ignoreSearch: true }).then((m) => m || caches.match(PRECARGA[0])))
+    );
+    return;
+  }
+  e.respondWith(
+    caches.match(r).then((m) => {
+      const red = fetch(r)
+        .then((res) => {
+          if (res.ok) {
+            const copia = res.clone();
+            caches.open(CACHE).then((c) => c.put(r, copia));
+          }
+          return res;
+        })
+        .catch(() => m);
+      return m || red;
+    })
+  );
+});
+`
+  );
 }
 
 const urlBase = site.url.replace(/\/$/, '') + B;
