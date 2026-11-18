@@ -25,7 +25,7 @@ async function comprobarMapa(p, ok, donde) {
     await p.goto(B + '/mapa/');
     const datos = JSON.parse(await p.textContent('#datos-mapa'));
     ok(datos.puntos.some((x) => x.tipo === 'paso' && x.id === 'jama') && datos.lineas.length >= 8, 'datos del mapa incompletos');
-    ok((await p.$$('.tabla-tramos tbody tr')).length === datos.lineas.length, 'la tabla de tramos no cuadra con el mapa');
+    ok((await p.$$('.mapa-tramos .mapa-tramo')).length === datos.lineas.length, 'la lista de tramos no cuadra con el mapa');
     const conMapLibre = await p.evaluate(() => !!window.maplibregl);
     if (conMapLibre) {
       const est = await comprobarMapa(p, ok, 'mapa');

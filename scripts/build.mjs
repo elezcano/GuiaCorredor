@@ -1411,12 +1411,17 @@ const avisoHoy = (i) => {
   );
 }
 
-// HU-115: página del mapa interactivo.
+// HU-115 / HU-136 (V2): página del mapa interactivo. Mapa grande y, al lado, cada tramo con su estado (forma,
+// color y palabra), su distancia y dos acciones: verlo en el mapa y abrir su ficha.
 {
   const { lineas } = datosMapa();
-  const filas = lineas
-    .map((l) => `<tr><th scope="row">${l.url ? `<a href="${esc(l.url)}">${esc(l.nombre)}</a>` : esc(l.nombre)}</th><td>${estado(l.op === 'sin-confirmar' ? 'pendiente' : l.op === 'abierto' ? 'operativo' : l.op === 'cerrado' ? 'cerrado' : 'restricciones')}</td><td>${l.km != null ? `${GCkm(l.km)} <span class="texto-suave">con fuente</span>` : l.kmCalculado != null ? `${GCkm(l.kmCalculado)} <span class="texto-suave">calculado con OpenStreetMap</span>` : '<span class="sin-dato">km por cargar</span>'}</td></tr>`)
-    .join('');
+  const km = (l) => (l.km != null ? `${GCkm(l.km)} con fuente` : l.kmCalculado != null ? `${GCkm(l.kmCalculado)} calculados con OpenStreetMap` : 'km por cargar');
+  const tarjeta = (l) => `<li class="mapa-tramo">
+    <span class="estado op-${l.op}">${OPERATIVA[l.op].icono}<span class="estado-texto">${esc(OPERATIVA[l.op].texto)}</span></span>
+    <strong>${esc(l.nombre)}</strong>
+    <span class="mapa-tramo-km">${esc(km(l))}${l.trazado === 'recta' ? ' · trazado pendiente (línea recta)' : ''}</span>
+    <span class="mapa-tramo-acciones">${hayMapLibre ? `<button class="btn btn-borde btn-pequeno" type="button" data-tramo-mapa="${esc(l.id)}">Ver en el mapa</button>` : ''}${l.url ? `<a class="btn btn-borde btn-pequeno" href="${esc(l.url)}">Abrir la ficha</a>` : ''}</span>
+  </li>`;
   add(
     '/mapa/',
     layout({
@@ -1427,23 +1432,19 @@ const avisoHoy = (i) => {
       scripts: hayMapLibre ? ['/assets/vendor/maplibre-gl.js', '/assets/mapa.js'] : [],
       datos: datosMapaScript(),
       cuerpo: `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Mapa del corredor</h1><p>Estado de hoy de cada tramo y paso. Toca un paso para abrir su ficha.</p></header>
-  ${mapaVivoHTML()}
-  <ul class="mapa-leyenda" aria-label="Leyenda">
-    <li><span class="ley-color" style="background:#1f9d55"></span>Abierto</li>
-    <li><span class="ley-color" style="background:#e8a317"></span>Con restricciones</li>
-    <li><span class="ley-color" style="background:#d64545"></span>No habilitado</li>
-    <li><span class="ley-color" style="background:#8a939b"></span>Sin confirmar</li>
-    <li><span class="ley-linea"></span>Trazado por carretera (OpenStreetMap)</li>
-    <li><span class="ley-linea ley-linea-recta"></span>Línea recta: trazado pendiente</li>
-  </ul>
-  <h2>Tramos</h2>
-  <div class="tabla-scroll"><table class="tabla-tramos">
-    <thead><tr><th scope="col">Tramo</th><th scope="col">Estado</th><th scope="col">Distancia</th></tr></thead>
-    <tbody>${filas}</tbody>
-  </table></div>
-  <p class="dato-fuente">Mapa base: © OpenStreetMap y sus colaboradores, teselas de OpenFreeMap. Las distancias «calculadas con OpenStreetMap» son un cálculo de ruta por carretera, no un dato oficial.</p>
+<div class="contenedor mapa-pagina">
+  <header class="cabeza-pagina"><h1>Mapa del corredor</h1><p>Estado de hoy de cada tramo y paso. Toca un paso o un tramo para ver su estado y abrir su ficha.</p></header>
+  <div class="mapa-grid">
+    <div class="mapa-principal">
+      ${mapaVivoHTML()}
+      <p class="leyenda-formas"><span class="op-abierto">${OPERATIVA.abierto.icono} Abierto</span><span class="op-restricciones">${OPERATIVA.restricciones.icono} Con restricciones</span><span class="op-cerrado">${OPERATIVA.cerrado.icono} No habilitado</span><span class="op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono} Sin confirmar</span><span><i class="ley-linea"></i> Por carretera (OpenStreetMap)</span><span><i class="ley-linea ley-linea-recta"></i> Línea recta: trazado pendiente</span></p>
+      <p class="dato-fuente">Mapa base: © OpenStreetMap y sus colaboradores, teselas de OpenFreeMap. Las distancias «calculadas con OpenStreetMap» son un cálculo de ruta por carretera, no un dato oficial.</p>
+    </div>
+    <section class="mapa-lado" aria-labelledby="t-tramos-mapa">
+      <h2 id="t-tramos-mapa">Tramos</h2>
+      <ul class="mapa-tramos">${lineas.map(tarjeta).join('')}</ul>
+    </section>
+  </div>
 </div>`,
     })
   );

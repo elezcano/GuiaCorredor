@@ -1550,3 +1550,19 @@ html[lang^="pt"] .contenido-es::before { content: "Conteúdo do guia em espanhol
 .proximos > li { border-radius: 18px; }
 .papeles-tu-lista { padding: 20px; border-radius: 20px; border: 1px solid var(--border); max-width: 760px; }
 .papeles-pagina { min-width: 0; } .papeles-tu-lista { box-sizing: border-box; max-width: min(760px, 100%); }
+
+/* ---------- HU-136: Mapa (V2) ---------- */
+.mapa-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; }
+.mapa-principal .mapa-vivo-marco { margin: 0 0 12px; }
+.mapa-principal .mapa-vivo { height: min(75vh, 720px); border-radius: 20px; }
+.mapa-lado h2 { margin: 0 0 12px; font-size: 22px; }
+.mapa-tramos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; max-height: min(75vh, 720px); overflow: auto; }
+.mapa-tramo { display: flex; flex-direction: column; gap: 6px; padding: 14px; border: 1px solid var(--border); border-radius: 16px; }
+.mapa-tramo strong { font-size: 17px; }
+.mapa-tramo-km { font-size: 14px; color: var(--muted-foreground); }
+.mapa-tramo-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+.leyenda-formas .op-abierto svg { color: var(--ok); } .leyenda-formas .op-restricciones svg { color: var(--obras-dot); } .leyenda-formas .op-cerrado svg { color: var(--corte); } .leyenda-formas .op-sin-confirmar svg { color: var(--sin-dato); }
+.leyenda-formas .ley-linea { display: inline-block; width: 28px; height: 4px; border-radius: 2px; background: var(--foreground); }
+.leyenda-formas .ley-linea-recta { background: repeating-linear-gradient(90deg, var(--foreground) 0 6px, transparent 6px 10px); }
+.mapa-estado { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+@media (max-width: 1080px) { .mapa-grid { grid-template-columns: minmax(0, 1fr); } .mapa-tramos { max-height: none; } .mapa-principal .mapa-vivo { height: 60vh; min-height: 380px; } }
