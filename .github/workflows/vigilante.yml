@@ -19,7 +19,7 @@ on:
   # En una PR que toque el vigilante: comprueba el lector. Con la etiqueta «prueba-vigilante», además abre una incidencia de prueba.
   pull_request:
     types: [opened, synchronize, labeled]
-    paths: ['scripts/vigilante.mjs', 'scripts/carreteras.mjs', '.github/workflows/vigilante.yml']
+    paths: ['scripts/vigilante.mjs', 'scripts/carreteras.mjs', 'scripts/mopc.mjs', 'scripts/fuentes-vigilancia.mjs', 'data/fuentes-vigilancia.csv', '.github/workflows/vigilante.yml']
 
 permissions:
   contents: write # HU-129: estado en la rama datos-vigilancia. HU-130: sube a main lo leído de la web oficial
@@ -38,6 +38,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # HU-134: el informe del MOPC es un PDF; se pasa a texto con pdftotext (poppler-utils).
+      - name: Instalar pdftotext
+        run: command -v pdftotext >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils)
       - name: Comprobar el lector
         run: node scripts/vigilante.mjs --autoprueba
       - name: Prueba de aviso por correo

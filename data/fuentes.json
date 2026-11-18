@@ -458,6 +458,12 @@
       "nombre": "Dirección de Vialidad (MOP, Chile): visor de emergencias SIEMOP",
       "url": "https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0",
       "tipo": "oficial"
+    },
+    {
+      "id": "py-mopc-estado-rutas",
+      "nombre": "MOPC (Paraguay): informe diario «Estado de las rutas nacionales»",
+      "url": "https://mopc.gov.py/servicios/estado-de-las-rutas/",
+      "tipo": "oficial"
     }
   ]
 }

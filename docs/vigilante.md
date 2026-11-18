@@ -5,7 +5,7 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 | Columna | Para qué | Valores |
 |---|---|---|
 | `estado` | Si el vigilante la lee | `activa`, `pausada`, `pendiente`, `manual`, `sin-fuente` |
-| `lector` | Cómo se lee | `gendarmeria-paso`, `vialidad-ar`, `siemop-cl` (los tres que existen hoy); `mopc-pdf`, `dnit-alertas`, `siemop-pasos` (pendientes); `whatsapp`, `manual`, `ninguno` |
+| `lector` | Cómo se lee | `gendarmeria-paso`, `vialidad-ar`, `siemop-cl`, `mopc-pdf` (los cuatro que existen hoy); `dnit-alertas`, `siemop-pasos` (pendientes); `whatsapp`, `manual`, `ninguno` |
 | `fuente_id` | Fuente de `data/fuentes.json` (de ahí sale la dirección; tiene que ser oficial) | p. ej. `ar-vialidad-estado-rutas` |
 | `destino` | Dónde cuenta en la Guía | `paso:jama`, `tramo:pozo-hondo`… |
 | `filtro` | Qué parte de la fuente | Vialidad: `provincia=Jujuy;ruta=9;tramos=A|B` (`tramos=*`, todos). Chile: `regiones=01|02;km=3;dias_sin_novedad=14;max_horas=192`. Brasil (DNIT, pendiente): `rodovias=BR-267;uf=MS` |
@@ -53,3 +53,13 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 2. Guardar una copia real de la fuente en `pruebas/vigilante/` y escribir el lector con su autoprueba.
 3. Añadir el lector a `LECTORES_AUTOMATICOS` en `scripts/fuentes-vigilancia.mjs` y la fuente en `data/fuentes.json`.
 4. Cambiar las filas a `activa`.
+
+## Informe diario del MOPC (Paraguay) · HU-134
+
+- **Fuente:** https://mopc.gov.py/servicios/estado-de-las-rutas/ incrusta una carpeta pública de Google Drive con una subcarpeta por mes («NOVIEMBRE 2026»). El vigilante la lista sin credenciales (`embeddedfolderview`), baja los PDF del último día (`uc?export=download`) y los pasa a texto con `pdftotext -layout` (poppler-utils, se instala en el flujo).
+- **Cuándo publica:** de lunes a viernes, a las 07:00 y hacia las 13:00 (hora de Paraguay). Nada los fines de semana. La numeración del archivo («(1)», «(2)») no dice el orden: manda la hora escrita dentro del PDF y, a igual hora, el número más alto (una corrección).
+- **Qué se lee:** las tres partes (puentes inhabilitados, rutas y tramos clausurados con sus notas «.:», y la lista por localidad). Si falta una, la lectura falla y no se publica nada (aviso de vigilancia ciega a los 3 fallos).
+- **Qué cuenta para cada tramo:** `filtro` `localidades=…|…` de la fila (`mopc-pdf`). Se compara sin tildes y por palabras enteras; «Ruta 15», «PY 15» y «PY15» son lo mismo.
+- **Reglas:** «Clausurada» + «P/V/P» (Para Vehículos Pesados) o «vehículos pesados» → no habilitado para carga; «Clausurada» → corte; «precaución» → ámbar; «Habilitada» o sin mención → nada.
+- **Un informe solo se aplica una vez** (`ultimoInforme` en el estado de la vigilancia): un aviso se retira cuando falta en dos informes seguidos, no en dos pasadas del vigilante.
+- **Antigüedad:** «parada» si a partir de las 10:00 de un día laborable no hay informe de ese día. Los feriados de Paraguay no se descuentan: un feriado puede dar un aviso de más.
