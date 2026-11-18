@@ -865,24 +865,6 @@
       ],
       "partes": [
         {
-          "lado": "AR",
-          "emisor": "Vialidad Nacional",
-          "valor": null,
-          "texto": "Aviso en la RN 52, tramo Susques – límite con Chile. La web oficial no da más detalle.",
-          "hora": "09:00",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-17",
-          "actualizado": "2026-11-17",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "responsable-editorial",
-            "rol": "responsable-editorial",
-            "fecha": "2026-11-17",
-            "alcance": "Comprobado el 17/11/2026 con captura de la página oficial: el aviso de Vialidad sobre la RN 52 (Susques – límite con Chile), sin más detalle."
-          }
-        },
-        {
           "lado": "CL",
           "emisor": "Unidad de Pasos Fronterizos de Chile (Provincia El Loa)",
           "valor": "cerrado",
@@ -918,6 +900,24 @@
             "rol": "vigilante",
             "fecha": "2026-11-18",
             "alcance": "Leído automáticamente de la web oficial el 18/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "RN 52 tramo Susques - Lte. con Chile.",
+          "hora": "09:00",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-18",
+          "actualizado": "2026-11-18",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-18",
+            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 11:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 52 tramo Susques - Lte. con Chile."
           }
         }
       ]
@@ -1237,24 +1237,6 @@
       "partes": [
         {
           "lado": "AR",
-          "emisor": "Vialidad Nacional",
-          "valor": null,
-          "texto": "RN 51, San Antonio de los Cobres – Paso de Sico: transitar con precaución, máquinas trabajando en badenes con material.",
-          "hora": "08:30",
-          "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-16",
-          "actualizado": "2026-11-17",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "responsable-editorial",
-            "rol": "responsable-editorial",
-            "fecha": "2026-11-17",
-            "alcance": "Comprobado el 17/11/2026: el aviso de Vialidad (16/11, 08:30) en la página oficial."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
           "valor": "cerrado",
@@ -1270,6 +1252,24 @@
             "rol": "vigilante",
             "fecha": "2026-11-18",
             "alcance": "Leído automáticamente de la web oficial el 18/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO» dentro del horario."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material.",
+          "hora": "08:30",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-17",
+          "actualizado": "2026-11-18",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-18",
+            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 11:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material."
           }
         }
       ]
