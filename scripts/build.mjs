@@ -173,6 +173,15 @@ const ICONOS = {
   obra: 'M3 21h18M5 21l5-14h4l5 14M8 14h8',
   corte: 'M4 4l16 16M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z',
   restriccion: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM7 12h10',
+  // HU-133: iconos de las categorías de Servicios.
+  surtidor: 'M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 3v6a2 2 0 0 0 4 0V8l-3-3',
+  llave: 'M14.5 6.5a4 4 0 0 0 5 5L21 13l-8 8-3-3 6-6-1.5-1.5M14.5 6.5 13 5l-9 9 3 3',
+  cama: 'M3 18V7M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5M7 11a1.5 1.5 0 1 0 0-.01',
+  bascula: 'M4 20h16M6 20l2-9h8l2 9M12 11V5M8 5h8',
+  camion: 'M3 6h11v10H3zM14 9h4l3 3v4h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+  globo: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
+  deposito: 'M3 10l9-6 9 6v11H3zM7 21v-7h10v7M7 17h10',
+  escudo: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
   pendiente: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',
 };
 const icono = (n, clase = 'icono') =>
@@ -1501,16 +1510,37 @@ for (const p of guia) {
     ...categorias.filter((c) => cuenta((e) => e.categoria === c.id)).map((c) => ({ t: c.nombre, d: 'Tipo de empresa' })),
     ...[...new Set(empresas.flatMap((e) => e.servicios || []))].map((s) => ({ t: s, d: 'Servicio' })),
   ];
+  // HU-133 (R8): las 11 categorías reales, primero las que se necesitan en ruta. En móvil se ven 4 y «Ver las 11».
+  const ICONO_CAT = { combustible: 'surtidor', taller: 'llave', descanso: 'cama', bascula: 'bascula', transitario: 'globo', transportista: 'camion', despachante: 'papeles', alojamiento: 'cama', deposito: 'deposito', seguro: 'escudo', servicios: 'empresas' };
+  const ORDEN_CAT = ['combustible', 'taller', 'descanso', 'bascula', 'transportista', 'transitario', 'despachante', 'deposito', 'alojamiento', 'seguro', 'servicios'];
+  const catsOrden = [...categorias].sort((x, y) => (ORDEN_CAT.indexOf(x.id) + 99) % 99 - (ORDEN_CAT.indexOf(y.id) + 99) % 99);
+  const categoriasHTML = `<section class="cats" aria-labelledby="t-cats"><h2 id="t-cats" class="sr-only">Qué necesitas</h2>
+    <ul class="cats-lista">${catsOrden
+      .map((c) => `<li><a class="cat" href="${u(`/directorio/?categoria=${c.id}`)}">${icono(ICONO_CAT[c.id] || 'empresas')}<strong>${esc(c.nombre)}</strong>${empresas.length ? `<span>${plural(cuenta((e) => e.categoria === c.id), 'empresa', 'empresas')}</span>` : ''}</a></li>`)
+      .join('')}</ul>
+    <button type="button" class="btn btn-borde cats-mas" onclick="this.closest('.cats').classList.add('cats-todas');this.remove()">Ver las ${categorias.length} categorías</button>
+  </section>`;
+  const puertaNegocio = `<a class="negocio negocio-ancho" href="${u('/anunciate/')}">${icono('empresas')}<span><strong>¿Das servicio en el corredor?</strong><span>Aparece en tu paso y en el planificador</span></span></a>`;
   const vacioDirectorio = `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Servicios del corredor</h1><p>Transitarios, despachantes, transportistas y servicios para el camión en cada punto de la ruta.</p></header>
-  <section class="panel directorio-vacio" aria-labelledby="t-dir-vacio">
-    <h2 id="t-dir-vacio">Todavía no hay empresas verificadas</h2>
-    <p>Solo publicamos empresas que han confirmado sus datos. Estamos contactando con proveedores de cada punto de la ruta.</p>
-    <p>Categorías previstas: ${esc(listaY(categorias.map((c) => c.nombre.toLowerCase())))}.</p>
-    <a class="btn btn-principal" href="${u('/anunciate/')}">Dar de alta mi empresa gratis</a>
-  </section>
-</div>`;
+<div class="contenedor servicios">
+  <header class="cabeza-pagina"><h1>Servicios</h1><p>Lo que necesitas en cada punto de la ruta: gasoil, taller, descanso, transporte y aduana.</p></header>
+  <p class="servicios-ruta" id="servicios-ruta" hidden></p>
+  <div class="servicios-grid">
+    <div>
+      ${categoriasHTML}
+      <section class="servicios-vacio" aria-labelledby="t-dir-vacio">
+        <p class="estado op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono}<span class="estado-texto">Sin empresas todavía</span></p>
+        <h2 id="t-dir-vacio">Aún no hay empresas verificadas en el corredor</h2>
+        <p>Solo publicamos empresas que han confirmado sus datos. Mientras tanto, puedes pedir una cotización por email.</p>
+      </section>
+    </div>
+    <aside class="servicios-lado">
+      ${puertaNegocio}
+      <a class="btn btn-negocio btn-grande" href="${cotizacion()}">Pedir cotización</a>
+    </aside>
+  </div>
+</div>
+<script>document.addEventListener('DOMContentLoaded',function(){try{var r=JSON.parse(localStorage.getItem('guia-corredor:mi-ruta')||'null'),d=JSON.parse(document.getElementById('datos-nodos').textContent);if(r&&d[r.desde]&&d[r.hasta]){var e=document.getElementById('servicios-ruta');e.textContent='En tu ruta: '+d[r.desde]+' → '+d[r.hasta];e.hidden=false}}catch(x){}})</script>`;
   add(
     '/directorio/',
     layout({
@@ -1518,10 +1548,11 @@ for (const p of guia) {
       descripcion: 'Transitarios, transportistas, despachantes, depósitos y servicios en cada punto del Corredor Bioceánico.',
       ruta: '/directorio/',
       scripts: empresas.length ? ['/assets/directorio.js'] : [],
-      datos: `<script type="application/json" id="datos-sugerencias">${JSON.stringify(sugerencias).replace(/</g, '\\u003c')}</script>`,
+      datos: `<script type="application/json" id="datos-sugerencias">${JSON.stringify(sugerencias).replace(/</g, '\\u003c')}</script><script type="application/json" id="datos-nodos">${JSON.stringify(rutas.nodos.map((n) => n.nombre)).replace(/</g, '\\u003c')}</script>`,
       cuerpo: !empresas.length ? vacioDirectorio : `
 <div class="contenedor">
-  <header class="cabeza-pagina"><h1>Servicios del corredor</h1><p>Busca quién da servicio en cada punto de la ruta y escríbele directamente.</p></header>
+  <header class="cabeza-pagina"><h1>Servicios</h1><p>Busca quién da servicio en cada punto de la ruta y escríbele directamente.</p></header>
+  ${categoriasHTML}
   <div class="busqueda-web">
     ${icono('buscar')}
     <label class="oculto" for="f-texto">Buscar empresas</label>
