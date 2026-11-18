@@ -241,7 +241,7 @@
     const esp = d.especiales.filter((h) => h.desde <= dia && dia <= h.hasta);
     const D = largo(dia);
     if (!fs.length) {
-      salida.innerHTML = `<p class="cal-ok"><strong>${esc(D[0].toUpperCase() + D.slice(1))}:</strong> no es festivo ${Object.keys(d.paises).map((p) => `en ${esc(d.paises[p])}`).join(' ni ')}.${esp.length ? ` Horario especial publicado: ${esp.map((h) => `<span lang="es" class="txt-es">${esc(h.texto)}</span>`).join(' ')}` : ''}</p>`;
+      salida.innerHTML = `<p class="cal-ok"><strong>${esc(D[0].toUpperCase() + D.slice(1))}:</strong> no es festivo ${Object.keys(d.paises).length > 2 ? 'en ningún país del corredor' : Object.keys(d.paises).map((p) => `en ${esc(d.paises[p])}`).join(' ni ')}.${esp.length ? ` Horario especial publicado: ${esp.map((h) => `<span lang="es" class="txt-es">${esc(h.texto)}</span>`).join(' ')}` : ''}</p>`;
       return;
     }
     const ps = [...new Set(fs.map((f) => f.pais))];

@@ -1042,7 +1042,7 @@ function fichaOperativa(p, guiaPag) {
 }
 
 /** HU-133 (R7): pestaña «Papeles» del paso. Lista de comprobación según la carga, marcable y guardada en el dispositivo. */
-function papelesPaso(p) {
+function papelesPaso(p, { porPais = true } = {}) {
   const chips = rutas.tiposCarga
     .map((c, i) => `<label class="chip chip-radio"><input type="radio" name="carga-paso" value="${esc(c.id)}"${i === 0 ? ' checked' : ''}>${esc(c.nombre)}</label>`)
     .join('');
@@ -1054,12 +1054,12 @@ function papelesPaso(p) {
     <p class="papeles-cuenta"><strong data-total></strong> <span data-listos></span></p>
     <ul class="papeles-lista">${docs}</ul>
     <p class="dato-fuente">${esc(rutas.avisoDocumentos)} Lo que marcas se guarda solo en este dispositivo.</p>
-    <p class="papeles-mas">Tránsito aduanero y controles sanitarios de ${esc(listaY(Object.keys(p.lados).map((k) => PAISES[k])))}: <a href="${u('/papeles/')}">ver papeles por país</a>.</p>
+    ${porPais ? `<p class="papeles-mas">Tránsito aduanero y controles sanitarios de ${esc(listaY(Object.keys(p.lados).map((k) => PAISES[k])))}: <a href="${u('/papeles/')}">ver papeles por país</a>.</p>` : ''}
     <div class="barra-accion"><a class="btn btn-borde btn-grande" href="${u('/directorio/?categoria=despachante')}">Buscar despachante</a><button class="btn btn-borde btn-grande" type="button" onclick="window.print()">Imprimir lista</button></div>
   </div>`;
 }
 /** HU-133 (R7): pestaña «Calendario» del paso. ¿Cuándo cruzas? y festivos de los dos países. No inventa horarios especiales. */
-function calendarioPaso(p) {
+function calendarioPaso(p, { proximos: conProximos = true } = {}) {
   const ps = Object.keys(p.lados);
   const fest = festivos.filter((f) => ps.includes(f.pais));
   const datos = {
@@ -1075,9 +1075,9 @@ function calendarioPaso(p) {
       <label class="campo-fecha"><span class="sr-only">Otra fecha</span><input type="date" name="fecha" min="${HOY}" value="${HOY}"></label></div>
     </fieldset>
     <div class="cal-respuesta" aria-live="polite"></div>
-    <h3>Próximos festivos en ${esc(listaY(ps.map((k) => PAISES[k])))}</h3>
+    ${conProximos ? `<h3>Próximos festivos en ${esc(listaY(ps.map((k) => PAISES[k])))}</h3>
     ${proximos.length ? `<ul class="lista-fest">${proximos.map(filaFestivo).join('')}</ul>` : '<p class="sin-dato">Ninguno cargado.</p>'}
-    <p class="dato-fuente">Un festivo no implica que la aduana cierre. Si nadie ha publicado horario especial, lo decimos tal cual. <a href="${u('/calendario/')}">Calendario completo</a></p>
+    <p class="dato-fuente">Un festivo no implica que la aduana cierre. Si nadie ha publicado horario especial, lo decimos tal cual. <a href="${u('/calendario/')}">Calendario completo</a></p>` : ''}
   </div>`;
 }
 
@@ -1986,10 +1986,11 @@ ${seccion({
       titulo: 'Calendario aduanero',
       descripcion: 'Festivos y horarios de atención en fronteras de Brasil, Paraguay, Argentina y Chile, con su fuente y su estado de verificación.',
       ruta: '/calendario/',
-      scripts: ['/assets/calendario.js'],
+      scripts: ['/assets/ahora.js', '/assets/calendario.js'],
       cuerpo: `
 <div class="contenedor">
   <header class="cabeza-pagina"><h1>Calendario aduanero</h1><p>Festivos ${esc(anios.join('–'))} y horarios de atención en frontera de los cuatro países. Cada dato indica su fuente y si está verificado.</p></header>
+  <section class="cal-cuando-bloque" aria-label="¿Qué día cruzas?">${calendarioPaso({ lados: Object.fromEntries(Object.keys(PAISES).map((k) => [k, PAISES[k]])) }, { proximos: false })}</section>
   <section class="seccion-corta" aria-labelledby="t-prox">
     <h2 id="t-prox" class="titulo-pequeno">Próximo feriado en cada país</h2>
     <ul class="proximos">${proximoPais}</ul>
@@ -2058,14 +2059,15 @@ ${seccion({
       titulo: 'Papeles y trámites aduaneros',
       descripcion: 'Documentos de transporte internacional, tránsito aduanero y controles sanitarios en el Corredor Bioceánico, con los organismos de cada país.',
       ruta: '/papeles/',
+      scripts: ['/assets/ahora.js'],
       cuerpo: `
 <div class="contenedor">
   <header class="cabeza-pagina"><h1>Papeles y trámites aduaneros</h1><p>Qué documentos lleva un camión por el corredor y qué organismo los controla en cada país.</p></header>
   <p class="aviso"><span><strong>Orientativo.</strong> Los requisitos exactos dependen de la mercancía, el régimen y el país. Confírmalos con tu despachante.</span><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir</button></p>
   <div class="papeles-pagina">
-    <section aria-labelledby="t-pap-gen">
-      <h2 id="t-pap-gen">En todo viaje internacional ${alcance('General')}</h2>
-      <ul class="lista-docs">${rutas.documentosCruce.filter((d) => !d.cargas).map((d) => `<li>${esc(d.nombre)}</li>`).join('')}</ul>
+    <section aria-labelledby="t-pap-gen" class="papeles-tu-lista">
+      <h2 id="t-pap-gen">Tu lista de papeles ${alcance('Según la carga')}</h2>
+      ${papelesPaso({ lados: Object.fromEntries(Object.keys(PAISES).map((k) => [k, PAISES[k]])) }, { porPais: false })}
       ${docGuia ? `<a class="enlace-mas" href="${u(docGuia.ruta)}">Para qué sirve el CRT y el MIC/DTA</a>` : ''}
     </section>
     <section aria-labelledby="t-pap-tr">

@@ -1545,3 +1545,8 @@ html[lang^="pt"] .contenido-es::before { content: "Conteúdo do guia em espanhol
 .chip svg { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; }
 .chip-rojo svg { color: var(--corte); } .chip-ambar svg { color: var(--obras-dot); } .chip-info svg { color: var(--sin-dato); } .chip-resuelta svg { color: var(--ok); }
 @media (max-width: 900px) { .inc-lista { grid-template-columns: 1fr; } }
+.cal-cuando-bloque { padding: 20px; border-radius: 20px; background: var(--muted); margin: 0 0 24px; max-width: 760px; }
+.cal-cuando-bloque .cal-ok { background: var(--background); }
+.proximos > li { border-radius: 18px; }
+.papeles-tu-lista { padding: 20px; border-radius: 20px; border: 1px solid var(--border); max-width: 760px; }
+.papeles-pagina { min-width: 0; } .papeles-tu-lista { box-sizing: border-box; max-width: min(760px, 100%); }
