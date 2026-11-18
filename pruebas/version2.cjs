@@ -18,8 +18,14 @@ const f = []; const ok = (c, m) => c || f.push(m);
   await p.goto(B + '/guia/pasos/jama/');
   ok((await p.$$('.pestanas [role="tab"]')).length === 3, 'la ficha debe tener 3 pestañas');
   ok(!(await p.isVisible('#papeles')), 'Papeles empieza oculto');
-  // Horario con la hora de España.
-  ok(/en España/.test(await p.textContent('#hoy')), 'la ficha debe dar la hora de España');
+  // Horario en la hora del país del paso y nunca en hora de España (confunde a quien cruza).
+  ok(/en Argentina/.test(await p.textContent('#hoy')), 'la ficha debe dar la hora del país');
+  ok(!/España/.test(await p.textContent('main')), 'la ficha no debe dar horas de España');
+  for (const r of ['/', '/pasos/', '/planificador/']) {
+    await p.goto(B + r);
+    ok(!/en España/.test(await p.textContent('main')), `${r}: no debe dar horas de España`);
+  }
+  await p.goto(B + '/guia/pasos/jama/');
   await p.click('#tab-papeles');
   ok(await p.isVisible('#papeles') && !(await p.isVisible('#hoy')), 'la pestaña Papeles no se abre');
   const nGeneral = await p.$$eval('.papeles-lista li:not([hidden])', (l) => l.length);
@@ -64,7 +70,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
     ok(banda && (await q.title()) !== '', `sin conexión: ${r} debe abrir con la banda «Sin conexión»`);
     ultima = q;
   }
-  ok(/Ves los datos guardados del .* en España/.test(await ultima.textContent('#banda-sin-red').catch(() => '')), 'la banda sin conexión debe dar la hora de los datos');
+  ok(/Ves los datos guardados del .* en Argentina\./.test(await ultima.textContent('#banda-sin-red').catch(() => '')), 'la banda sin conexión debe dar la hora de los datos');
   await ultima.screenshot({ path: captura('v2-sin-conexion.png') });
   await ctx.setOffline(false);
 

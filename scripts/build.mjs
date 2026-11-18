@@ -300,7 +300,8 @@ const cotizacion = (ruta = '') =>
   correo(`Pedir cotización${ruta ? `: ${ruta}` : ''}`, `Origen y destino: ${ruta || ''}\nTipo de carga:\nPeso o volumen:\nFecha de carga:\nEmpresa y teléfono:\n`);
 const cargaRetorno = () => correo('Carga de retorno', 'Tengo un camión vacío en (ciudad):\nDisponible desde (fecha):\nTipo de camión:\nHacia (destino preferido):\nEmpresa y teléfono:\n');
 
-// HU-133 (R4): siempre las dos horas. «19:00 en Argentina (23:00 en España)», con la zona de cada país en la fecha del dato.
+// Horas siempre en la hora del país del paso: «19:00 en Argentina». Sin hora de España (confundía a quien cruza).
+// En portugués se añade la de Campo Grande (Brasil) como referencia: «19:00 en Argentina (18:00 em Campo Grande)».
 const ZONA_ES = 'Europe/Madrid';
 const minutosDesfase = (zona, dia) => {
   const v = new Intl.DateTimeFormat('en-US', { timeZone: zona, timeZoneName: 'longOffset' }).formatToParts(new Date(`${dia}T12:00:00Z`)).find((x) => x.type === 'timeZoneName').value;
@@ -318,11 +319,12 @@ function enZona(hhmm, zona, dia = HOY, ref = ZONA_ES) {
 const enEspana = (hhmm, zona, dia = HOY) => enZona(hhmm, zona, dia);
 // HU-135: la hora de referencia va marcada; en portugués se cambia por la de Campo Grande (Brasil).
 const ZONA_BR = 'America/Campo_Grande';
-const refHTML = (es, br) => `<span class="h-ref" data-br="${br}">${es} en España</span>`;
-const rangoDosHoras = (a, c, zona, dia = HOY) => `${a}–${c} en ${paisDeZona(zona)} (${enEspana(a, zona, dia)}–${enEspana(c, zona, dia)} en España)`;
-const rangoDosHorasHTML = (a, c, zona, dia = HOY) => `${a}–${c} en ${paisDeZona(zona)} (${refHTML(`${enEspana(a, zona, dia)}–${enEspana(c, zona, dia)}`, `${enZona(a, zona, dia, ZONA_BR)}–${enZona(c, zona, dia, ZONA_BR)}`)})`;
+// Marca vacía en castellano; i18n.mjs la cambia por « (HH:MM em Campo Grande)» en portugués.
+const refHTML = (_es, br) => `<span class="h-ref" data-br="${br}"></span>`;
+const rangoDosHoras = (a, c, zona) => `${a}–${c} en ${paisDeZona(zona)}`;
+const rangoDosHorasHTML = (a, c, zona, dia = HOY) => `${a}–${c} en ${paisDeZona(zona)}${refHTML(`${enEspana(a, zona, dia)}–${enEspana(c, zona, dia)}`, `${enZona(a, zona, dia, ZONA_BR)}–${enZona(c, zona, dia, ZONA_BR)}`)}`;
 const paisDeZona = (z) => ZONA_PAIS[z] || (/^America\/Argentina\//.test(z) ? 'Argentina' : 'hora local');
-const dosHoras = (hhmm, zona, dia = HOY) => `${hhmm} en ${paisDeZona(zona)} (${enEspana(hhmm, zona, dia)} en España)`;
+const dosHoras = (hhmm, zona) => `${hhmm} en ${paisDeZona(zona)}`;
 
 const marca = `<span class="placa"><span class="placa-l1">Guía del</span><span class="placa-l2">Corredor</span></span>`;
 
@@ -887,7 +889,7 @@ function ahoraHTML(p, op) {
     soloCarga: p.estado.afecta === 'carga',
   };
   return `<div class="ahora" data-ahora="${esc(JSON.stringify(datos))}">
-    <p class="ahora-relojes">${Object.keys(p.lados).map((k) => `<span class="ahora-reloj" data-pais="${k}">${bandera(k)} <span class="ahora-hora">--:--</span></span>`).join('')}<span class="ahora-reloj ahora-reloj-es"><span class="ahora-hora">--:--</span></span></p>
+    <p class="ahora-relojes">${Object.keys(p.lados).map((k) => `<span class="ahora-reloj" data-pais="${k}">${bandera(k)} <span class="ahora-hora">--:--</span></span>`).join('')}<span class="ahora-reloj ahora-reloj-es" hidden><span class="ahora-hora">--:--</span></span></p>
     <p class="ahora-estado" aria-live="polite"></p>
   </div>`;
 }
@@ -1229,7 +1231,7 @@ const avisoHoy = (i) => {
 <div class="contenedor hoy">
   <header class="hoy-cabeza">
     <h1>Hoy</h1>
-    <p class="hoy-hora" data-generado="${GENERADO.toISOString()}">Datos de las ${horaEn(ZONAS.AR)} en Argentina (${refHTML(horaEn(ZONA_ES), horaEn(ZONA_BR))})</p>
+    <p class="hoy-hora" data-generado="${GENERADO.toISOString()}">Datos de las ${horaEn(ZONAS.AR)} en Argentina${refHTML(horaEn(ZONA_ES), horaEn(ZONA_BR))}</p>
   </header>
   <div class="hoy-grid">
     <div class="hoy-col">
