@@ -17,11 +17,11 @@ const f = []; const ok = (c, m) => c || f.push(m);
   // Ficha del paso: pestañas Hoy · Papeles · Calendario.
   await p.goto(B + '/guia/pasos/jama/');
   ok((await p.$$('.pestanas [role="tab"]')).length === 3, 'la ficha debe tener 3 pestañas');
-  ok(!(await p.isVisible('#pane-papeles')), 'Papeles empieza oculto');
+  ok(!(await p.isVisible('#papeles')), 'Papeles empieza oculto');
   // Horario con la hora de España.
-  ok(/en España/.test(await p.textContent('#pane-hoy')), 'la ficha debe dar la hora de España');
+  ok(/en España/.test(await p.textContent('#hoy')), 'la ficha debe dar la hora de España');
   await p.click('#tab-papeles');
-  ok(await p.isVisible('#pane-papeles') && !(await p.isVisible('#pane-hoy')), 'la pestaña Papeles no se abre');
+  ok(await p.isVisible('#papeles') && !(await p.isVisible('#hoy')), 'la pestaña Papeles no se abre');
   const nGeneral = await p.$$eval('.papeles-lista li:not([hidden])', (l) => l.length);
   await p.click('input[name="carga-paso"][value="refrigerada"] >> xpath=..');
   const nRefri = await p.$$eval('.papeles-lista li:not([hidden])', (l) => l.length);
@@ -35,11 +35,11 @@ const f = []; const ok = (c, m) => c || f.push(m);
 
   // Calendario: el 20/11 es festivo en Brasil (no en Argentina ni Chile); se dice tal cual.
   await p.goto(B + '/guia/pasos/jama/#calendario');
-  ok(await p.isVisible('#pane-calendario'), '#calendario debe abrir su pestaña');
+  ok(await p.isVisible('#calendario'), '#calendario debe abrir su pestaña');
   ok(/no es festivo en Argentina ni en Chile/.test(await p.textContent('.cal-respuesta')), 'calendario: hoy no es festivo en Jama: ' + (await p.textContent('.cal-respuesta')));
   const fest = await p.$eval('.calendario-paso', (c) => JSON.parse(c.dataset.calPaso).festivos[0]);
   if (fest) {
-    await p.$eval('#pane-calendario input[name="fecha"]', (i, v) => { i.value = v; i.dispatchEvent(new Event('change', { bubbles: true })); }, fest.fecha);
+    await p.$eval('#calendario input[name="fecha"]', (i, v) => { i.value = v; i.dispatchEvent(new Event('change', { bubbles: true })); }, fest.fecha);
     const t = await p.textContent('.cal-respuesta');
     ok(/Festivo en/.test(t) && t.includes(fest.nombre), 'calendario: un festivo debe avisar con su nombre: ' + t);
     ok(/Nadie ha publicado horario especial|Horario especial publicado/.test(t), 'calendario: debe decir si hay horario especial');

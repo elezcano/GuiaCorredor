@@ -1006,12 +1006,12 @@ function fichaOperativa(p, guiaPag) {
     <button class="btn btn-borde btn-pequeno no-imprimir" type="button" onclick="document.querySelectorAll('.ficha-operativa details').forEach((d) => (d.open = true)); window.print()">${icono('imprimir')}Imprimir ficha completa</button>`
   );
   // HU-133 (R7): tres pestañas. El sentido del cruce vale para las tres.
-  const pest = (id, txt, on) => `<button type="button" role="tab" id="tab-${id}" aria-controls="pane-${id}" aria-selected="${on}" tabindex="${on ? 0 : -1}">${txt}</button>`;
+  const pest = (id, txt, on) => `<button type="button" role="tab" id="tab-${id}" aria-controls="${id}" aria-selected="${on}" tabindex="${on ? 0 : -1}">${txt}</button>`;
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
   <h2 id="t-ficha" class="sr-only">Situación operativa</h2>
   ${sentidoHTML(p)}
   <div class="pestanas" role="tablist" aria-label="Ficha del paso">${pest('hoy', 'Hoy', true)}${pest('papeles', 'Papeles', false)}${pest('calendario', 'Calendario', false)}</div>
-  <div class="pestana" role="tabpanel" id="pane-hoy" aria-labelledby="tab-hoy">
+  <div class="pestana" role="tabpanel" id="hoy" aria-labelledby="tab-hoy">
   ${respuesta}
   ${partesHTML(p, op)}
   ${fiabilidadHTML(p)}
@@ -1020,8 +1020,8 @@ function fichaOperativa(p, guiaPag) {
     ${secControles}${secHorarios}${secTel}${secAvisos}${secHist}${secSobre}
   </div>
   </div>
-  <div class="pestana" role="tabpanel" id="pane-papeles" aria-labelledby="tab-papeles" hidden>${papelesPaso(p)}</div>
-  <div class="pestana" role="tabpanel" id="pane-calendario" aria-labelledby="tab-calendario" hidden>${calendarioPaso(p)}</div>
+  <div class="pestana" role="tabpanel" id="papeles" aria-labelledby="tab-papeles" hidden>${papelesPaso(p)}</div>
+  <div class="pestana" role="tabpanel" id="calendario" aria-labelledby="tab-calendario" hidden>${calendarioPaso(p)}</div>
 </section>`;
 }
 
@@ -1217,7 +1217,7 @@ const avisoHoy = (i) => {
       <section class="hoy-bloque" aria-labelledby="t-limita">
         <div class="hoy-bloque-cabeza"><h2 id="t-limita">Lo que impide o limita el paso</h2><a href="${u('/avisos/')}">Ver todos los avisos</a></div>
         ${limitan.length ? `<ul class="avisos-hoy">${limitan.slice(0, 5).map(avisoHoy).join('')}</ul>${limitan.length > 5 ? `<p class="hoy-info"><a href="${u('/avisos/')}">Y ${plural(limitan.length - 5, 'aviso más', 'avisos más')} con restricciones</a></p>` : ''}` : '<p class="sin-dato">Ningún corte ni restricción publicado ahora mismo.</p>'}
-        ${info ? `<p class="hoy-info"><a href="${u('/avisos/#informativos')}">${plural(info, 'aviso informativo más', 'avisos informativos más')}</a>: no cambian el veredicto.</p>` : ''}
+        ${info ? `<p class="hoy-info"><a href="${u('/avisos/')}">${plural(info, 'aviso informativo más', 'avisos informativos más')}</a>: no cambian el veredicto.</p>` : ''}
       </section>
       <section class="hoy-negocio" aria-label="Negocio">
         <a class="negocio" href="${cotizacion()}">${icono('papeles')}<span><strong>Pedir cotización</strong><span>Dinos origen, destino y carga</span></span></a>
