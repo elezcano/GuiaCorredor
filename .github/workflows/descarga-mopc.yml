@@ -18,4 +18,4 @@ jobs:
           node-version: 22
       - run: command -v pdftotext >/dev/null || (sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils)
       - run: node scripts/vigilante.mjs 2>&1 | tee salida.txt
-      - run: echo "## Lectura real" >> "$GITHUB_STEP_SUMMARY"; grep -i "MOPC\|Paraguay" salida.txt >> "$GITHUB_STEP_SUMMARY" || true
+      - run: grep -i "MOPC\|Paraguay\|⚠" salida.txt | while IFS= read -r l; do echo "::notice::$l"; done
