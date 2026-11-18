@@ -281,7 +281,7 @@
     const tr = (t) => (t && /[A-Za-zÀ-ÿ]/.test(t) ? t.replace(re, (m) => frases[m]) : t);
     GC.tr = tr;
     const fuera = (el) => !el || !el.closest('[lang="es"]:not(html), script, style');
-    const tieneRuta = (r) => r === '/' || rutas.some((x) => x !== '/' && r.startsWith(x));
+    const tieneRuta = (r) => (rutas.includes('*') ? !/\.\w+$/.test(r) && !r.startsWith('/api/') : r === '/' || rutas.some((x) => x !== '/' && r.startsWith(x)));
     const enlace = (a) => {
       const h = a.getAttribute('href');
       if (!h || a.hasAttribute('data-fijo')) return;

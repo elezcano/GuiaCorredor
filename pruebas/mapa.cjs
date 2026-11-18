@@ -25,7 +25,7 @@ async function comprobarMapa(p, ok, donde) {
     await p.goto(B + '/mapa/');
     const datos = JSON.parse(await p.textContent('#datos-mapa'));
     ok(datos.puntos.some((x) => x.tipo === 'paso' && x.id === 'jama') && datos.lineas.length >= 8, 'datos del mapa incompletos');
-    ok((await p.$$('.tabla-tramos tbody tr')).length === datos.lineas.length, 'la tabla de tramos no cuadra con el mapa');
+    ok((await p.$$('.mapa-tramos .mapa-tramo')).length === datos.lineas.length, 'la lista de tramos no cuadra con el mapa');
     const conMapLibre = await p.evaluate(() => !!window.maplibregl);
     if (conMapLibre) {
       const est = await comprobarMapa(p, ok, 'mapa');
@@ -47,7 +47,10 @@ async function comprobarMapa(p, ok, donde) {
       await q.addInitScript((t) => { try { localStorage.setItem('tema', t); } catch {} }, tema);
       await q.goto(B + '/');
       if (await q.$('.mapa-vivo-marco')) {
-        ok((await q.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
+        // HU-136: en «Hoy» (V2) el mapa está en la primera pantalla y se carga enseguida; si quedara más abajo,
+        // seguiría cargándose solo al llegar a él.
+        const lejos = await q.$eval('.mapa-vivo-marco', (e) => e.getBoundingClientRect().top > innerHeight + 400);
+        if (lejos) ok((await q.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
         await q.locator('.mapa-vivo-marco').scrollIntoViewIfNeeded();
         // Primero tiene que arrancar la carga perezosa (el estado deja de ser «esquema»).
         if (await q.$('script[src$="/assets/mapa-perezoso.js"]')) {

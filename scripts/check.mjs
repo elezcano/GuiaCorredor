@@ -292,6 +292,21 @@ function coordenadas(c, donde, nota) {
   if (c.lat < -35 || c.lat > -15 || c.lon < -75 || c.lon > -45) errores.push(`${donde}: coordenadas fuera del ámbito del corredor (${c.lat}, ${c.lon}).`);
 }
 
+// HU-136: el CSV de fuentes del vigilante (columnas cerradas y referencias que existan).
+{
+  const { cargar: cargarCSV, validar: validarCSV } = await import('./fuentes-vigilancia.mjs');
+  const fts = readJSON('data/fuentes.json');
+  const rts = readJSON('data/rutas.json');
+  const pss = readJSON('data/pasos.json');
+  errores.push(
+    ...validarCSV(cargarCSV(), {
+      fuentes: new Map((fts.fuentes || fts).map((f) => [f.id, f])),
+      pasos: new Set((pss.pasos || pss).map((p) => p.id)),
+      tramos: new Set(rts.tramos.map((t) => t.id)),
+    })
+  );
+}
+
 // HU-135: cada frase del diccionario portugués tiene su traducción (texto no vacío).
 {
   const dic = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'i18n', 'pt-BR.json'), 'utf8'));

@@ -33,7 +33,7 @@
     lista.innerHTML = res
       .map(({ it }) => {
         const externo = /^https?:/.test(it.u);
-        return `<li><a href="${GC.esc(it.u)}"${externo ? ' rel="noopener"' : ''}><span class="res-tipo">${GC.esc(it.k)}</span><strong>${GC.esc(it.t)}</strong><span>${GC.esc(it.d)}</span></a></li>`;
+        return `<li><a href="${GC.esc(it.u)}"${externo ? ' rel="noopener"' : ''}><span class="res-tipo">${GC.esc(it.k)}</span>${/^Novedad/.test(it.k) ? `<strong lang="es" class="txt-es">${GC.esc(it.t)}</strong>` : `<strong>${GC.esc(it.t)}</strong>`}<span lang="es" class="txt-es">${GC.esc(it.d)}</span></a></li>`;
       })
       .join('');
   }

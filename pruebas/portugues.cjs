@@ -27,13 +27,23 @@ const ES = /\b(Hoy|Rutas|Servicios|Pedir cotización|Abierto|Cerrado|Sin confirm
   await p.goto(B + '/');
   ok(await p.$('link[rel="alternate"][hreflang="pt-BR"]'), 'falta el hreflang pt-BR en la portada');
 
-  for (const r of ['/pt/', '/pt/planificador/?desde=0&hasta=5', '/pt/pasos/', '/pt/directorio/', '/pt/guia/pasos/jama/', '/pt/guia/pasos/jama/#papeles', '/pt/guia/pasos/jama/#calendario']) {
+  // HU-136: todas las páginas tienen versión en portugués.
+  for (const r of ['/pt/', '/pt/planificador/?desde=0&hasta=5', '/pt/pasos/', '/pt/directorio/', '/pt/guia/pasos/jama/', '/pt/guia/pasos/jama/#papeles', '/pt/guia/pasos/jama/#calendario', '/pt/avisos/', '/pt/calendario/', '/pt/papeles/', '/pt/mapa/', '/pt/guia/', '/pt/guia/tramos/py15-chaco/', '/pt/guia/documentos/crt-mic-dta/', '/pt/novedades/', '/pt/buscar/?q=jama', '/pt/anunciate/', '/pt/sobre/', '/pt/fuentes/', '/pt/informe/?desde=0&hasta=5']) {
     await p.goto(B + r);
     await p.waitForTimeout(200);
     ok((await p.getAttribute('html', 'lang')) === 'pt-BR', `${r}: lang debe ser pt-BR`);
     const quedan = (await visible()).filter((t) => ES.test(t));
     ok(!quedan.length, `${r}: quedan textos en castellano: ${quedan.slice(0, 5).join(' | ')}`);
   }
+
+  // HU-136: en portugués, el pie y los menús llevan a páginas en portugués.
+  await p.goto(B + '/pt/');
+  const pie = await p.$$eval('footer a[href^="/"]', (l) => l.map((a) => a.getAttribute('href')));
+  const fuera = pie.filter((h) => !h.startsWith('/pt/') && !h.startsWith('/api/'));
+  ok(!fuera.length, 'enlaces del pie en /pt/ que van a páginas en español: ' + fuera.join(', '));
+  // El texto de la guía también está traducido.
+  await p.goto(B + '/pt/guia/pasos/jama/');
+  ok(/Passagem de cordilheira/.test(await p.textContent('main')), 'el texto de la guía de Jama debe estar en portugués');
 
   // Menú, veredicto y horas.
   await p.goto(B + '/pt/');

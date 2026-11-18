@@ -5,7 +5,8 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 // HU-135: textos de datos y de fuentes oficiales: se marcan en castellano (lang="es") y no se traducen.
 import { tienePT, cargarDiccionario, compilar, traducirHTML } from './i18n.mjs';
-import { ROOT, readJSON, loadGuia, esc, ESTADOS, SECCIONES, PAISES, OPERATIVA, operativaDe } from './lib.mjs';
+import { cargar as cargarFuentesVigilancia } from './fuentes-vigilancia.mjs';
+import { ROOT, readJSON, loadGuia, parseFrontMatter, esc, ESTADOS, SECCIONES, PAISES, OPERATIVA, operativaDe } from './lib.mjs';
 const txtEs = (t) => `<span lang="es" class="txt-es">${esc(t)}</span>`;
 const txtOf = (t) => `<span lang="es" class="txt-es txt-oficial">${esc(t)}</span>`;
 import { nivel, peor, estadoMostrable, NIVELES, diasEntre, registroGuia, EVIDENCIAS } from './validacion.mjs';
@@ -129,10 +130,9 @@ const nombreTiempo = Object.fromEntries(TRAMOS_TIEMPO.map((t) => [t.id, t]));
 const slugify = (s) =>
   s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/<[^>]+>/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-const guia = loadGuia().map((p) => {
-  const indice = [];
-  const html = marked
-    .parse(p.body)
+const renderGuia = (body, indice = []) =>
+  marked
+    .parse(body)
     .replace(/href="\/(?!\/)/g, `href="${B}/`)
     .replace(/<h2>(.*?)<\/h2>/g, (_, t) => {
       const id = slugify(t);
@@ -141,8 +141,22 @@ const guia = loadGuia().map((p) => {
     })
     .replace(/<table>/g, '<div class="tabla-marco"><table>')
     .replace(/<\/table>/g, '</table></div>');
+const guia = loadGuia().map((p) => {
+  const indice = [];
+  const html = renderGuia(p.body, indice);
   return { ...p, html, indice };
 });
+// HU-136: texto de la guía en portugués (content/pt/guia/<seccion>/<slug>.md), si existe.
+const guiaPT = Object.fromEntries(
+  guia
+    .map((p) => {
+      const f = path.join(ROOT, 'content', 'pt', 'guia', p.seccion, `${p.slug}.md`);
+      if (!fs.existsSync(f)) return null;
+      const { meta, body } = parseFrontMatter(fs.readFileSync(f, 'utf8'));
+      return [p.ruta, { titulo: meta.titulo, resumen: meta.resumen, html: renderGuia(body) }];
+    })
+    .filter(Boolean)
+);
 const guiaPorRuta = Object.fromEntries(guia.map((p) => [`${p.seccion}/${p.slug}`, p]));
 // Estado de una ficha: los pasos lo toman de data/pasos.json (función declarada más abajo).
 const vistaGuia = (p) => {
@@ -380,6 +394,7 @@ ${cuerpo}
       <a href="${u('/mapa/')}">Mapa interactivo</a>
       <a href="${u('/anunciate/')}">Anunciar mi empresa</a>
       <a href="${u('/sobre/')}">Cómo trabajamos la información</a>
+      <a href="${u('/fuentes/')}">Fuentes que vigilamos</a>
       ${site.contacto.email ? `<a href="mailto:${esc(site.contacto.email)}">Escríbenos</a>` : ''}
     </nav>
     <p class="pie-aviso">${esc(site.aviso)}</p>
@@ -1040,7 +1055,7 @@ function fichaOperativa(p, guiaPag) {
 }
 
 /** HU-133 (R7): pestaña «Papeles» del paso. Lista de comprobación según la carga, marcable y guardada en el dispositivo. */
-function papelesPaso(p) {
+function papelesPaso(p, { porPais = true } = {}) {
   const chips = rutas.tiposCarga
     .map((c, i) => `<label class="chip chip-radio"><input type="radio" name="carga-paso" value="${esc(c.id)}"${i === 0 ? ' checked' : ''}>${esc(c.nombre)}</label>`)
     .join('');
@@ -1052,12 +1067,12 @@ function papelesPaso(p) {
     <p class="papeles-cuenta"><strong data-total></strong> <span data-listos></span></p>
     <ul class="papeles-lista">${docs}</ul>
     <p class="dato-fuente">${esc(rutas.avisoDocumentos)} Lo que marcas se guarda solo en este dispositivo.</p>
-    <p class="papeles-mas">Tránsito aduanero y controles sanitarios de ${esc(listaY(Object.keys(p.lados).map((k) => PAISES[k])))}: <a href="${u('/papeles/')}">ver papeles por país</a>.</p>
+    ${porPais ? `<p class="papeles-mas">Tránsito aduanero y controles sanitarios de ${esc(listaY(Object.keys(p.lados).map((k) => PAISES[k])))}: <a href="${u('/papeles/')}">ver papeles por país</a>.</p>` : ''}
     <div class="barra-accion"><a class="btn btn-borde btn-grande" href="${u('/directorio/?categoria=despachante')}">Buscar despachante</a><button class="btn btn-borde btn-grande" type="button" onclick="window.print()">Imprimir lista</button></div>
   </div>`;
 }
 /** HU-133 (R7): pestaña «Calendario» del paso. ¿Cuándo cruzas? y festivos de los dos países. No inventa horarios especiales. */
-function calendarioPaso(p) {
+function calendarioPaso(p, { proximos: conProximos = true } = {}) {
   const ps = Object.keys(p.lados);
   const fest = festivos.filter((f) => ps.includes(f.pais));
   const datos = {
@@ -1073,9 +1088,9 @@ function calendarioPaso(p) {
       <label class="campo-fecha"><span class="sr-only">Otra fecha</span><input type="date" name="fecha" min="${HOY}" value="${HOY}"></label></div>
     </fieldset>
     <div class="cal-respuesta" aria-live="polite"></div>
-    <h3>Próximos festivos en ${esc(listaY(ps.map((k) => PAISES[k])))}</h3>
+    ${conProximos ? `<h3>Próximos festivos en ${esc(listaY(ps.map((k) => PAISES[k])))}</h3>
     ${proximos.length ? `<ul class="lista-fest">${proximos.map(filaFestivo).join('')}</ul>` : '<p class="sin-dato">Ninguno cargado.</p>'}
-    <p class="dato-fuente">Un festivo no implica que la aduana cierre. Si nadie ha publicado horario especial, lo decimos tal cual. <a href="${u('/calendario/')}">Calendario completo</a></p>
+    <p class="dato-fuente">Un festivo no implica que la aduana cierre. Si nadie ha publicado horario especial, lo decimos tal cual. <a href="${u('/calendario/')}">Calendario completo</a></p>` : ''}
   </div>`;
 }
 
@@ -1098,7 +1113,7 @@ function bloqueTramos(ruta) {
       const inc = incidenciasDe({ tramos: [t.id] });
       const est = (e, via) => (e ? `≈ ${GCkm(e.km)}${via ? ` por ${esc(via)}` : ''} <span class="tag tag-estimado">Estimación provisional</span><span class="dato-fuente">${esc(e.aviso)}</span>` : '');
       const km = t.km
-        ? `${GCkm(t.km)}<span class="dato-fuente">${t.kmTipo === 'calculado' ? `Calculado: ${esc(t.kmNota || '')}` : t.kmFuente ? `Según ${fuenteEnlace(t.kmFuente)}` : ''}</span>`
+        ? `${GCkm(t.km)}<span class="dato-fuente">${t.kmTipo === 'calculado' ? `Calculado: ${txtEs(t.kmNota || '')}` : t.kmFuente ? `Según ${fuenteEnlace(t.kmFuente)}` : ''}</span>`
         : t.estimacion
           ? `${est(t.estimacion, t.alternativa ? t.paso.nombre : '')}${t.alternativa?.estimacion ? `<br>${est(t.alternativa.estimacion, t.alternativa.nombre)}` : ''}`
           : '<span class="sin-dato">Sin dato</span>';
@@ -1409,12 +1424,17 @@ const avisoHoy = (i) => {
   );
 }
 
-// HU-115: página del mapa interactivo.
+// HU-115 / HU-136 (V2): página del mapa interactivo. Mapa grande y, al lado, cada tramo con su estado (forma,
+// color y palabra), su distancia y dos acciones: verlo en el mapa y abrir su ficha.
 {
   const { lineas } = datosMapa();
-  const filas = lineas
-    .map((l) => `<tr><th scope="row">${l.url ? `<a href="${esc(l.url)}">${esc(l.nombre)}</a>` : esc(l.nombre)}</th><td>${estado(l.op === 'sin-confirmar' ? 'pendiente' : l.op === 'abierto' ? 'operativo' : l.op === 'cerrado' ? 'cerrado' : 'restricciones')}</td><td>${l.km != null ? `${GCkm(l.km)} <span class="texto-suave">con fuente</span>` : l.kmCalculado != null ? `${GCkm(l.kmCalculado)} <span class="texto-suave">calculado con OpenStreetMap</span>` : '<span class="sin-dato">km por cargar</span>'}</td></tr>`)
-    .join('');
+  const km = (l) => (l.km != null ? `${GCkm(l.km)} con fuente` : l.kmCalculado != null ? `${GCkm(l.kmCalculado)} calculados con OpenStreetMap` : 'km por cargar');
+  const tarjeta = (l) => `<li class="mapa-tramo">
+    <span class="estado op-${l.op}">${OPERATIVA[l.op].icono}<span class="estado-texto">${esc(OPERATIVA[l.op].texto)}</span></span>
+    <strong>${esc(l.nombre)}</strong>
+    <span class="mapa-tramo-km">${esc(km(l))}${l.trazado === 'recta' ? ' · trazado pendiente (línea recta)' : ''}</span>
+    <span class="mapa-tramo-acciones">${hayMapLibre ? `<button class="btn btn-borde btn-pequeno" type="button" data-tramo-mapa="${esc(l.id)}">Ver en el mapa</button>` : ''}${l.url ? `<a class="btn btn-borde btn-pequeno" href="${esc(l.url)}">Abrir la ficha</a>` : ''}</span>
+  </li>`;
   add(
     '/mapa/',
     layout({
@@ -1425,23 +1445,19 @@ const avisoHoy = (i) => {
       scripts: hayMapLibre ? ['/assets/vendor/maplibre-gl.js', '/assets/mapa.js'] : [],
       datos: datosMapaScript(),
       cuerpo: `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Mapa del corredor</h1><p>Estado de hoy de cada tramo y paso. Toca un paso para abrir su ficha.</p></header>
-  ${mapaVivoHTML()}
-  <ul class="mapa-leyenda" aria-label="Leyenda">
-    <li><span class="ley-color" style="background:#1f9d55"></span>Abierto</li>
-    <li><span class="ley-color" style="background:#e8a317"></span>Con restricciones</li>
-    <li><span class="ley-color" style="background:#d64545"></span>No habilitado</li>
-    <li><span class="ley-color" style="background:#8a939b"></span>Sin confirmar</li>
-    <li><span class="ley-linea"></span>Trazado por carretera (OpenStreetMap)</li>
-    <li><span class="ley-linea ley-linea-recta"></span>Línea recta: trazado pendiente</li>
-  </ul>
-  <h2>Tramos</h2>
-  <div class="tabla-scroll"><table class="tabla-tramos">
-    <thead><tr><th scope="col">Tramo</th><th scope="col">Estado</th><th scope="col">Distancia</th></tr></thead>
-    <tbody>${filas}</tbody>
-  </table></div>
-  <p class="dato-fuente">Mapa base: © OpenStreetMap y sus colaboradores, teselas de OpenFreeMap. Las distancias «calculadas con OpenStreetMap» son un cálculo de ruta por carretera, no un dato oficial.</p>
+<div class="contenedor mapa-pagina">
+  <header class="cabeza-pagina"><h1>Mapa del corredor</h1><p>Estado de hoy de cada tramo y paso. Toca un paso o un tramo para ver su estado y abrir su ficha.</p></header>
+  <div class="mapa-grid">
+    <div class="mapa-principal">
+      ${mapaVivoHTML()}
+      <p class="leyenda-formas"><span class="op-abierto">${OPERATIVA.abierto.icono} Abierto</span><span class="op-restricciones">${OPERATIVA.restricciones.icono} Con restricciones</span><span class="op-cerrado">${OPERATIVA.cerrado.icono} No habilitado</span><span class="op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono} Sin confirmar</span><span><i class="ley-linea"></i> Por carretera (OpenStreetMap)</span><span><i class="ley-linea ley-linea-recta"></i> Línea recta: trazado pendiente</span></p>
+      <p class="dato-fuente">Mapa base: © OpenStreetMap y sus colaboradores, teselas de OpenFreeMap. Las distancias «calculadas con OpenStreetMap» son un cálculo de ruta por carretera, no un dato oficial.</p>
+    </div>
+    <section class="mapa-lado" aria-labelledby="t-tramos-mapa">
+      <h2 id="t-tramos-mapa">Tramos</h2>
+      <ul class="mapa-tramos">${lineas.map(tarjeta).join('')}</ul>
+    </section>
+  </div>
 </div>`,
     })
   );
@@ -1695,6 +1711,58 @@ ${seccion({
   );
 }
 
+// HU-136: «Fuentes que vigilamos», desde el CSV de fuentes del vigilante (el mismo que usa el vigilante).
+{
+  const { filas } = cargarFuentesVigilancia();
+  const ESTADO_FUENTE = {
+    activa: ['abierto', 'Vigilada cada hora'],
+    pausada: ['sin-confirmar', 'Pausada'],
+    pendiente: ['sin-confirmar', 'Pendiente'],
+    manual: ['restricciones', 'Manual'],
+    'sin-fuente': ['cerrado', 'Sin fuente'],
+  };
+  const TIPO_TXT = { automatico: 'Automático', semiautomatico: 'Semiautomático', manual: 'Manual', whatsapp: 'WhatsApp', 'sin-fuente': 'Sin fuente' };
+  const orden = ['BR', 'PY', 'AR', 'CL'];
+  const cuenta = (e) => filas.filter((f) => f.estado === e).length;
+  const fila = (f) => {
+    const [op, txt] = ESTADO_FUENTE[f.estado];
+    return `<li class="fuente-fila" id="f-${esc(f.id)}">
+      <div class="fuente-cabeza"><p class="fuente-tramo"><strong>${esc(f.tramo)}</strong><span>${esc(f.carretera_o_paso)}</span></p><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${txt}</span></span></div>
+      <dl class="fuente-datos">
+        <div><dt>Fuente</dt><dd>${f.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.fuente)}</a>` : esc(f.fuente)}${f.organismo && f.organismo !== '—' ? ` <span class="dato-fuente">${txtEs(f.organismo)}</span>` : ''}</dd></div>
+        <div><dt>Tipo</dt><dd>${TIPO_TXT[f.tipo] || esc(f.tipo)}${f.formato && f.formato !== '—' ? ` · ${esc(f.formato)}` : ''}</dd></div>
+        <div><dt>Frecuencia</dt><dd>${esc(f.frecuencia)}</dd></div>
+        ${f.como_se_lee && f.como_se_lee !== '—' ? `<div><dt>Cómo se lee</dt><dd>${esc(f.como_se_lee)}</dd></div>` : ''}
+        <div><dt>Regla</dt><dd>${esc(f.regla)}</dd></div>
+        ${f.notas ? `<div><dt>Notas</dt><dd>${esc(f.notas)}</dd></div>` : ''}
+      </dl>
+    </li>`;
+  };
+  add(
+    '/fuentes/',
+    layout({
+      titulo: 'Fuentes que vigilamos',
+      descripcion: 'Qué fuente oficial se lee para cada carretera y paso del Corredor Bioceánico, cada cuánto y con qué regla.',
+      ruta: '/fuentes/',
+      cuerpo: `
+<div class="contenedor fuentes">
+  <header class="cabeza-pagina"><h1>Fuentes que vigilamos</h1><p>Para cada carretera y paso: qué fuente se lee, cada cuánto y qué regla se aplica. Es la misma lista que usa el vigilante.</p></header>
+  <ul class="fuentes-resumen">
+    <li><span class="estado op-abierto">${OPERATIVA.abierto.icono}<span class="estado-texto">${cuenta('activa')} vigiladas cada hora</span></span></li>
+    <li><span class="estado op-restricciones">${OPERATIVA.restricciones.icono}<span class="estado-texto">${cuenta('manual')} manuales</span></span></li>
+    <li><span class="estado op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono}<span class="estado-texto">${cuenta('pendiente') + cuenta('pausada')} pendientes</span></span></li>
+    <li><span class="estado op-cerrado">${OPERATIVA.cerrado.icono}<span class="estado-texto">${cuenta('sin-fuente')} sin fuente</span></span></li>
+  </ul>
+  ${orden
+    .filter((k) => filas.some((f) => f.pais === k))
+    .map((k) => `<section class="fuentes-pais" aria-labelledby="fp-${k}"><h2 id="fp-${k}">${bandera(k)} ${esc(PAISES[k])}</h2><ul class="fuentes-lista">${filas.filter((f) => f.pais === k).map(fila).join('')}</ul></section>`)
+    .join('')}
+  <p class="dato-fuente">«Vigilada cada hora»: el vigilante la lee de 06:00 a 21:00 (hora de Argentina) y publica lo que cambia con el sello «✓ Web oficial». «Manual»: se revisa a mano y se carga con su fuente. Descarga la lista en <a href="${u('/assets/fuentes-vigilancia.csv')}" download>CSV</a>.</p>
+</div>`,
+    })
+  );
+}
+
 // Sobre la guía
 add(
   '/sobre/',
@@ -1708,7 +1776,8 @@ add(
     <h2>Fuentes y revisión</h2>
     <ul>
       <li>Cada dato indica su fuente, su fecha y el tipo de evidencia: oficial, de terceros, declarado por una empresa, cálculo o histórico.</li>
-      <li><b>Verificado en fuente oficial</b> significa que el dato se comprobó a mano en la web o el canal oficial del organismo que lo publica, enlazado junto al dato. <b>Verificado en la fuente</b>, que se comprobó en la fuente citada (prensa u obra de referencia). Un proceso automático o un asistente de IA nunca puede marcar un dato como verificado.</li>
+      <li><b>Verificado en fuente oficial</b> significa que el dato se comprobó a mano en la web o el canal oficial del organismo que lo publica, enlazado junto al dato. <b>Verificado en la fuente</b>, que se comprobó en la fuente citada (prensa u obra de referencia). Un asistente de IA nunca puede marcar un dato como verificado. Lo que el vigilante lee automáticamente de la web oficial de un organismo se publica con el sello <b>✓ Web oficial</b> y la hora de lectura.</li>
+      <li>Qué fuentes leemos, cada cuánto y con qué regla está en <a href="${u('/fuentes/')}">Fuentes que vigilamos</a>.</li>
       <li>Lo demás se muestra como <b>Por verificar</b>, con el último dato publicado y su fuente.</li>
       <li>Si un tramo no tiene distancia con fuente, mostramos una <b>estimación provisional</b> en línea recta, indicando el tramo y los puntos usados. Por carretera la distancia es mayor.</li>
       <li>Un festivo nacional no significa que la aduana cierre; solo cuenta lo que publica cada organismo.</li>
@@ -1782,27 +1851,41 @@ ${seccion({
 {
   const paisesI = [...new Set(incidencias.flatMap((i) => i.paises))];
   const tiposI = [...new Set(incidencias.map((i) => i.tipo))];
-  const tarjetaInc = (i) => `<li class="inc-tarjeta" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-tipo="${esc(i.tipo)}">
-  <div class="inc-cabeza">${tipoIncidencia(i.tipo)}<span class="inc-estado">${i.estado === 'activa' ? 'Activa' : 'Resuelta'}</span>${paises(i.paises)}</div>
+  // HU-136 (V2): agrupados por lo que significan para el camión. Color + forma + palabra; sello único.
+  const GRAV = {
+    rojo: ['cerrado', 'Impiden pasar'],
+    ambar: ['restricciones', 'Con restricciones o sin confirmar'],
+    info: ['sin-confirmar', 'Informativos: no cambian el veredicto'],
+    resuelta: ['abierto', 'Resueltos en los últimos 15 días'],
+  };
+  const grav = (i) => (i.estado !== 'activa' ? 'resuelta' : i.gravedad || 'ambar');
+  const tarjetaInc = (i) => {
+    const g = grav(i);
+    const op = GRAV[g][0];
+    return `<li class="inc-tarjeta inc-${g}" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-gravedad="${g}">
+  <div class="inc-cabeza"><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</span></span>${i.estado !== 'activa' ? '<span class="etiqueta-suave">Resuelta</span>' : ''}${paises(i.paises)}</div>
   <h3>${esc(i.ubicacion)}</h3>
-  <p class="inc-tramo">${esc(i.tramo)}</p>
-  <p>${txtOf(i.descripcion)}</p>
+  <p class="inc-texto">${txtOf(i.descripcion)}</p>
+  <details class="inc-mas"><summary>Fechas, impacto y tramos</summary>
   <dl class="inc-datos">
     <div><dt>Inicio</dt><dd>${i.inicio ? fecha(i.inicio) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
-    <div><dt>Fin previsto</dt><dd>${i.finPrevista ? esc(i.finPrevista) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
-    <div class="inc-impacto"><dt>Transporte pesado</dt><dd>${i.impacto ? esc(i.impacto) : '<span class="sin-dato">Sin datos verificados</span>'}</dd></div>
-    <div><dt>Fuente</dt><dd>${fuenteEnlace(i.fuente)} (${TIPO_FUENTE[i.fuente.tipo] || 'fuente'})${i.publicado ? `, ${fecha(i.publicado)}` : ', sin fecha'}${otras(i)}</dd></div>
+    <div><dt>Fin previsto</dt><dd>${i.finPrevista ? txtEs(i.finPrevista) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
+    <div class="inc-impacto"><dt>Transporte pesado</dt><dd>${i.impacto ? txtEs(i.impacto) : '<span class="sin-dato">Sin datos verificados</span>'}</dd></div>
     <div><dt>Tramos afectados</dt><dd>${(i.tramos || [])
       .map((id) => tramoPorId[id])
       .filter(Boolean)
       .map((t) => {
-        const g = t.paso?.guia || t.guia;
-        return g ? `<a href="${u(`/guia/${g}/`)}">${esc(nombreTramo(t))}</a>` : esc(nombreTramo(t));
+        const gg = t.paso?.guia || t.guia;
+        return gg ? `<a href="${u(`/guia/${gg}/`)}">${esc(nombreTramo(t))}</a>` : esc(nombreTramo(t));
       })
-      .join('<br>') || '<span class="sin-dato">Sin asignar</span>'}</dd></div>
-  </dl>
-  <p class="inc-revisado">${validacionHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente)}</p>
+      .join('<br>') || (i.paso && fichaPaso[i.paso] ? esc(fichaPaso[i.paso].nombre) : '<span class="sin-dato">Sin asignar</span>')}</dd></div>
+  </dl></details>
+  <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}${otras(i)}</p>
 </li>`;
+  };
+  const ordenG = ['rojo', 'ambar', 'info', 'resuelta'];
+  const grupos = ordenG.map((g) => [g, incidencias.filter((i) => grav(i) === g)]).filter(([, l]) => l.length);
+  const listaInc = grupos.map(([g, l]) => `<li class="inc-grupo" data-cabecera id="g-${g}"><h3>${GRAV[g][1]} <span class="inc-cuenta">${l.length}</span></h3></li>${l.map(tarjetaInc).join('')}`).join('');
   const porPais = Object.keys(PAISES).map((k) => {
     const de = (t) => organismos.filter((o) => o.pais === k && t.includes(o.tipo));
     return `<tr><th scope="row">${esc(PAISES[k])}</th>
@@ -1823,19 +1906,19 @@ ${seccion({
 ${seccion({
   id: 'obras',
   titulo: 'Obras y restricciones',
-  contexto: `${plural(activas.length, 'incidencia activa', 'incidencias activas')} en la ruta.`,
+  contexto: `${plural(activas.length, 'aviso activo', 'avisos activos')} en el corredor.`,
   cuerpo: `<div class="filtros-noticias" data-filtros="#lista-inc">
+    <div class="filtro-linea" role="group" aria-label="Qué significan"><span class="filtro-etiqueta">Qué significan</span>
+      <button class="chip" type="button" data-filtro="gravedad" data-valor="" aria-pressed="true">Todos ${incidencias.length}</button>
+      ${grupos.map(([g, l]) => `<button class="chip chip-${g}" type="button" data-filtro="gravedad" data-valor="${g}" aria-pressed="false">${OPERATIVA[GRAV[g][0]].icono}${{ rojo: 'Impiden pasar', ambar: 'Con restricciones', info: 'Informativos', resuelta: 'Resueltos' }[g]} ${l.length}</button>`).join('')}
+    </div>
     <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>
       <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
-      ${paisesI.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false">${esc(PAISES[p])}</button>`).join('')}
-    </div>
-    <div class="filtro-linea" role="group" aria-label="Tipo"><span class="filtro-etiqueta">Tipo</span>
-      <button class="chip" type="button" data-filtro="tipo" data-valor="" aria-pressed="true">Todos</button>
-      ${tiposI.map((t) => `<button class="chip" type="button" data-filtro="tipo" data-valor="${esc(t)}" aria-pressed="false">${esc(TIPOS_INCIDENCIA[t]?.[0] || t)}</button>`).join('')}
+      ${paisesI.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false">${bandera(p)} ${esc(PAISES[p])}</button>`).join('')}
     </div>
   </div>
-  <ul class="inc-lista" id="lista-inc">${incidencias.map(tarjetaInc).join('')}</ul>
-  <div class="vacio" data-vacio hidden><p>No hay incidencias con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>`,
+  <ul class="inc-lista" id="lista-inc">${listaInc}</ul>
+  <div class="vacio" data-vacio hidden><p>No hay avisos con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>`,
 })}
 ${seccion({
   id: 'meteorologia',
@@ -1888,7 +1971,7 @@ ${seccion({
         .map(
           (f) => `<li class="fest-item" data-cal data-pais="${esc(f.pais)}" data-organismo="${esc(f.organismo || 'general')}" data-fecha="${esc(f.fecha)}" data-mes="${esc(m)}">
   <ul class="fest-fila">${filaFestivo(f)}</ul>
-  <p class="fest-detalle">${validacionHTML(nivelReg(f, 'festivo'), f.verificado, f.fuente)} ${f.nota ? `${esc(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
+  <p class="fest-detalle">${validacionHTML(nivelReg(f, 'festivo'), f.verificado, f.fuente)} ${f.nota ? `${txtEs(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
 </li>`
         )
         .join('')}`;
@@ -1917,10 +2000,11 @@ ${seccion({
       titulo: 'Calendario aduanero',
       descripcion: 'Festivos y horarios de atención en fronteras de Brasil, Paraguay, Argentina y Chile, con su fuente y su estado de verificación.',
       ruta: '/calendario/',
-      scripts: ['/assets/calendario.js'],
+      scripts: ['/assets/ahora.js', '/assets/calendario.js'],
       cuerpo: `
 <div class="contenedor">
   <header class="cabeza-pagina"><h1>Calendario aduanero</h1><p>Festivos ${esc(anios.join('–'))} y horarios de atención en frontera de los cuatro países. Cada dato indica su fuente y si está verificado.</p></header>
+  <section class="cal-cuando-bloque" aria-label="¿Qué día cruzas?">${calendarioPaso({ lados: Object.fromEntries(Object.keys(PAISES).map((k) => [k, PAISES[k]])) }, { proximos: false })}</section>
   <section class="seccion-corta" aria-labelledby="t-prox">
     <h2 id="t-prox" class="titulo-pequeno">Próximo feriado en cada país</h2>
     <ul class="proximos">${proximoPais}</ul>
@@ -1948,7 +2032,7 @@ ${seccion({
   </section>
   <section class="cal-bloque" aria-labelledby="t-festivos">
     <h2 id="t-festivos">Festivos</h2>
-    <p class="texto-suave">Del ${fecha(festivosDoc.desde)} al ${fecha(festivosDoc.hasta)}. En un feriado nacional, comprueba la atención de aduanas y organismos.</p>
+    <p class="texto-suave">Festivos cargados: ${fecha(festivosDoc.desde)} – ${fecha(festivosDoc.hasta)}. En un feriado nacional, comprueba la atención de aduanas y organismos.</p>
     <ul class="calendario" id="lista-fest">${festivosHTML}</ul>
     <p class="vacio" data-vacio-de="lista-fest" hidden>No hay festivos con esos filtros.</p>
   </section>
@@ -1989,14 +2073,15 @@ ${seccion({
       titulo: 'Papeles y trámites aduaneros',
       descripcion: 'Documentos de transporte internacional, tránsito aduanero y controles sanitarios en el Corredor Bioceánico, con los organismos de cada país.',
       ruta: '/papeles/',
+      scripts: ['/assets/ahora.js'],
       cuerpo: `
 <div class="contenedor">
   <header class="cabeza-pagina"><h1>Papeles y trámites aduaneros</h1><p>Qué documentos lleva un camión por el corredor y qué organismo los controla en cada país.</p></header>
   <p class="aviso"><span><strong>Orientativo.</strong> Los requisitos exactos dependen de la mercancía, el régimen y el país. Confírmalos con tu despachante.</span><button class="btn btn-borde btn-pequeno" type="button" onclick="window.print()">${icono('imprimir')}Imprimir</button></p>
   <div class="papeles-pagina">
-    <section aria-labelledby="t-pap-gen">
-      <h2 id="t-pap-gen">En todo viaje internacional ${alcance('General')}</h2>
-      <ul class="lista-docs">${rutas.documentosCruce.filter((d) => !d.cargas).map((d) => `<li>${esc(d.nombre)}</li>`).join('')}</ul>
+    <section aria-labelledby="t-pap-gen" class="papeles-tu-lista">
+      <h2 id="t-pap-gen">Tu lista de papeles ${alcance('Según la carga')}</h2>
+      ${papelesPaso({ lados: Object.fromEntries(Object.keys(PAISES).map((k) => [k, PAISES[k]])) }, { porPais: false })}
       ${docGuia ? `<a class="enlace-mas" href="${u(docGuia.ruta)}">Para qué sirve el CRT y el MIC/DTA</a>` : ''}
     </section>
     <section aria-labelledby="t-pap-tr">
@@ -2090,11 +2175,23 @@ paginas.push({
 // HU-135: versión en portugués de Brasil de Hoy, Rutas, Fronteras, fichas de paso y Servicios (/pt/…).
 {
   const frases = cargarDiccionario();
+  // Títulos y resúmenes de la guía traducidos (salen también en listas y menús).
+  for (const p of guia) if (guiaPT[p.ruta]) Object.assign(frases, { [p.meta.titulo]: guiaPT[p.ruta].titulo, [p.meta.resumen]: guiaPT[p.ruta].resumen });
   const trPT = compilar(frases);
+  const guiaRuta = Object.fromEntries(guia.map((p) => [p.ruta, p]));
+  const conGuiaPT = (ruta, html) => {
+    const g = guiaRuta[ruta];
+    const t = guiaPT[ruta];
+    if (!g || !t) return html;
+    // Mismas anclas que en español, en el mismo orden (el índice de la página apunta a ellas).
+    let n = 0;
+    const cuerpo = t.html.replace(/<h2 id="[^"]*">/g, (m) => (g.indice[n] ? `<h2 id="${g.indice[n++].id}">` : m));
+    return html.replace(/<!--es--><div class="contenido-es" lang="es">[\s\S]*?<\/div><!--\/es-->/, `<!--pt--><div class="contenido-pt"><p class="resumen">${esc(t.resumen)}</p>\n${cuerpo}</div><!--/pt-->`);
+  };
   const urlBasePT = site.url.replace(/\/$/, '') + B;
-  const datosIdioma = `<script type="application/json" id="datos-idioma">${JSON.stringify({ frases, rutas: ['/', '/planificador/', '/pasos/', '/directorio/', '/guia/pasos/'] }).replace(/</g, '\\u003c')}</script>`;
+  const datosIdioma = `<script type="application/json" id="datos-idioma">${JSON.stringify({ frases, rutas: ['*'] }).replace(/</g, '\\u003c')}</script>`;
   for (const p of paginas.filter((x) => !x.archivo && tienePT(x.ruta)))
-    paginas.push({ ruta: `/pt${p.ruta}`, html: traducirHTML(p.html, trPT, { B, urlBase: urlBasePT, ruta: p.ruta }).replace('</body>', `${datosIdioma}\n</body>`) });
+    paginas.push({ ruta: `/pt${p.ruta}`, html: traducirHTML(conGuiaPT(p.ruta, p.html), trPT, { B, urlBase: urlBasePT, ruta: p.ruta }).replace('</body>', `${datosIdioma}\n</body>`) });
 }
 
 // ---------- escribir ----------
@@ -2105,6 +2202,7 @@ for (const { ruta, html } of paginas.filter((p) => !p.archivo)) {
   fs.writeFileSync(destino, html);
 }
 fs.cpSync(path.join(ROOT, 'src', 'assets'), path.join(DIST, 'assets'), { recursive: true });
+fs.copyFileSync(path.join(ROOT, 'data', 'fuentes-vigilancia.csv'), path.join(DIST, 'assets', 'fuentes-vigilancia.csv'));
 for (const { ruta, html } of paginas.filter((p) => p.archivo)) fs.writeFileSync(path.join(DIST, ruta), html);
 
 // HU-115: MapLibre GL (código abierto) alojado en la propia web. Opcional: si no está instalado,
@@ -2133,7 +2231,7 @@ try {
 // Archivos de la web: lo guardado y se actualiza por detrás. Cada publicación cambia la versión y limpia lo viejo.
 {
   const version = GENERADO.toISOString();
-  const precarga = ['/', '/planificador/', '/pasos/', '/directorio/', '/avisos/', ...guia.filter((g) => pasoPorGuia[`${g.seccion}/${g.slug}`]).map((g) => g.ruta), '/assets/styles.css', '/assets/comun.js', '/assets/inicio.js', '/assets/planificador.js', '/assets/ahora.js'].map(u);
+  const precarga = ['/', '/planificador/', '/pasos/', '/directorio/', '/avisos/', '/pt/', '/pt/planificador/', '/pt/pasos/', ...guia.filter((g) => pasoPorGuia[`${g.seccion}/${g.slug}`]).map((g) => g.ruta), '/assets/styles.css', '/assets/comun.js', '/assets/inicio.js', '/assets/planificador.js', '/assets/ahora.js'].map(u);
   fs.writeFileSync(
     path.join(DIST, 'sw.js'),
     `// Generado por scripts/build.mjs (HU-133). Versión ${version}

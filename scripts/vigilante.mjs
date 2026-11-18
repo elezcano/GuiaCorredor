@@ -29,13 +29,11 @@
 //   node scripts/vigilante.mjs --github --prueba   abre una incidencia de prueba con lo leído, para comprobar el correo
 //   node scripts/vigilante.mjs --autoprueba    comprueba el lector con un ejemplo, sin red
 import fs from 'node:fs';
-import { aplicar, antiguedadHoras, configTablaAR, incidenciaAR, incidenciaCL, kmALinea, leerAR, leerCL } from './carreteras.mjs';
+import { aplicar, antiguedadHoras, CHILE, CORRESPONDENCIAS, configTablaAR, incidenciaAR, incidenciaCL, kmALinea, leerAR, leerCL } from './carreteras.mjs';
+import { cargar as cargarCSV, configuracion, parseCSV, validar } from './fuentes-vigilancia.mjs';
 
-const PAGINAS = [
-  { paso: 'jama', fuente: 'ar-seguridad-paso-jama' },
-  { paso: 'sico', fuente: 'ar-seguridad-paso-sico' },
-  { paso: 'pozo-hondo', fuente: 'ar-seguridad-paso-mision-la-paz' },
-];
+// HU-136: las páginas de pasos que se leen salen del CSV de fuentes (filas «activa» con lector gendarmeria-paso).
+const PAGINAS = configuracion().pasosAR;
 // Organismos que publican partes en esas páginas. El SMN (clima) queda fuera hasta la fase de clima (#69).
 const ORGANISMOS = ['Gendarmería Nacional', 'Vialidad Nacional'];
 const DESFASE_AR = '-03:00'; // Argentina no aplica horario de verano.
@@ -341,6 +339,20 @@ function autoprueba() {
   const viejas = incAR.map((i) => ({ ...i, descripcion: 'otra', horaFuente: '2026-11-10T12:00:00.000Z' }));
   ok(aplicar(r1.incidencias, viejas, 'ar', t1).descartada === true, 'nunca marcha atrás: una copia más antigua de la fuente se descarta.');
   ok(aplicar(r2.incidencias, incAR, 'ar', new Date('2026-12-20T12:00:00Z')).incidencias.filter((i) => i.estado === 'resuelta').length === 0, 'las resueltas se retiran a los 15 días.');
+  // HU-136: el CSV de fuentes manda.
+  {
+    const csv = fs.readFileSync('data/fuentes-vigilancia.csv', 'utf8');
+    const base = cargarCSV(csv);
+    const cfg = configuracion(base);
+    ok(cfg.pasosAR.map((x) => x.paso).sort().join() === 'jama,pozo-hondo,sico' && cfg.correspondenciasAR.length >= 6 && cfg.chile?.km === 3, 'CSV de fuentes: 3 pasos, las rutas de Vialidad y los parámetros de Chile.');
+    const sinSico = configuracion({ filas: base.filas.map((f) => (f.id === 'ar-paso-sico' || f.id === 'ar-rn51-salta' ? { ...f, estado: 'pausada' } : f)) });
+    ok(!sinSico.pasosAR.some((x) => x.paso === 'sico') && !sinSico.correspondenciasAR.some((m) => m.ruta === '51'), 'CSV de fuentes: una fila pausada no se lee.');
+    const movida = configuracion({ filas: base.filas.map((f) => (f.id === 'ar-rn66-jujuy' ? { ...f, destino: 'paso:jama' } : f)) });
+    const rn66 = { values: [['filtro-provincia', 'filtro-ruta', 'filtro-tramo', 'estado', 'calzada', 'observaciones', 'actualizado'], [], ['Jujuy', '66', 'Perico - Jujuy', 'CORTE TOTAL', '', '', '18/11/2026 10:00']] };
+    ok(leerAR(rn66, movida.correspondenciasAR)[0]?.guia.paso === 'jama', 'CSV de fuentes: mover una ruta de tramo cambia dónde cuenta su aviso.');
+    ok(parseCSV('a,b\n"x, con coma","dice ""hola"""\n')[1].join('/') === 'x, con coma/dice "hola"', 'CSV de fuentes: comas y comillas dentro de un campo.');
+    ok(validar({ cabecera: base.cabecera, filas: [{ ...base.filas[0], estado: 'activa', lector: 'mopc-pdf' }] }).length > 0, 'CSV de fuentes: una fila activa que el vigilante no sabe leer es un error.');
+  }
   process.exit(fallos ? 1 : 0);
 }
 
@@ -404,7 +416,7 @@ const traer = async (url, opciones = {}) => {
   return r;
 };
 // Chile publica una vez a la semana (lunes): más de 8 días sin cambios es que la fuente se ha parado.
-const MAX_HORAS = { 'cl-vialidad-siemop': 8 * 24 };
+const MAX_HORAS = { 'cl-vialidad-siemop': CHILE?.maxHoras ?? 8 * 24 };
 const CL_CAPA = 'https://rest-sit.mop.gob.cl/arcgis/rest/services/VIALIDAD/Emergencias_Vialidad/MapServer/0/query';
 
 async function leerFuenteAR() {
@@ -423,7 +435,8 @@ async function leerFuenteAR() {
   return leerAR(datos).map((r) => incidenciaAR(r, 'ar-vialidad-estado-rutas')).filter(Boolean);
 }
 async function leerFuenteCL() {
-  const q = `${CL_CAPA}?where=${encodeURIComponent("REGION IN ('01','02')")}&outFields=*&returnGeometry=true&outSR=4326&f=json`;
+  const regiones = (CHILE?.regiones || ['01', '02']).map((r) => `'${r}'`).join(',');
+  const q = `${CL_CAPA}?where=${encodeURIComponent(`REGION IN (${regiones})`)}&outFields=*&returnGeometry=true&outSR=4326&f=json`;
   const datos = await (await traer(q)).json();
   if (datos.error) throw new Error(`ArcGIS: ${JSON.stringify(datos.error).slice(0, 200)}`);
   // La antigüedad se mide sobre toda la región (aunque hoy no haya nada en el corredor).
@@ -439,10 +452,11 @@ async function revisarCarreteras(ahora = new Date()) {
   const resultados = [];
   const publicados = [];
   let hayQueEscribir = false;
+  // HU-136: cada fuente de carreteras se lee solo si tiene alguna fila activa en el CSV.
   const fuentes = [
-    { id: 'ar-vialidad-estado-rutas', nombre: 'Carreteras de Argentina (Vialidad Nacional)', url: 'https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas', leer: async () => ({ inc: await leerFuenteAR() }) },
-    { id: 'cl-vialidad-siemop', nombre: 'Carreteras de Chile (Vialidad, MOP)', url: 'https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0', leer: leerFuenteCL },
-  ];
+    CORRESPONDENCIAS.ar.length && { id: 'ar-vialidad-estado-rutas', nombre: 'Carreteras de Argentina (Vialidad Nacional)', url: 'https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas', leer: async () => ({ inc: await leerFuenteAR() }) },
+    CHILE && { id: 'cl-vialidad-siemop', nombre: 'Carreteras de Chile (Vialidad, MOP)', url: 'https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0', leer: leerFuenteCL },
+  ].filter(Boolean);
   for (const f of fuentes) {
     let leido;
     try {

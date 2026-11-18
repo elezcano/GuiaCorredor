@@ -55,7 +55,9 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   await p.goto(B + '/avisos/');
   ok(await p.$('#inc-py15-lote3'), 'sin ancla de incidencia');
   await p.click('button[data-filtro="pais"][data-valor="CL"]');
-  ok((await p.$$eval('#lista-inc > li:not([hidden])', l => l.length)) === 1, 'filtro país avisos');
+  ok((await p.$$eval('#lista-inc > li.inc-tarjeta:not([hidden])', l => l.length)) === 1, 'filtro país avisos');
+  // HU-136: agrupados por lo que significan, con cabecera de grupo.
+  ok((await p.$$eval('#lista-inc > li.inc-grupo:not([hidden])', l => l.length)) === 1, 'avisos: solo queda visible el grupo con avisos de Chile');
   // Ficha de tramo con incidencia
   await p.goto(B + '/guia/tramos/py15-chaco/');
   ok((await p.textContent('.ficha-operativa')).includes('40,5'), 'incidencia no aparece en la ficha del tramo');

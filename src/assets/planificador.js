@@ -113,7 +113,7 @@
           <p class="pl-tramo-datos"><span>${esc(textoEstado(t))}</span>${d ? `<span>${d.tipo === 'estimado' ? '≈ ' : ''}${km(d.km)} <span class="pl-km-tipo">${TIPO_KM[d.tipo]}</span></span>` : '<span class="pl-km-tipo">Sin distancia</span>'}${t.paso ? `<span class="pl-km-tipo">${esc(tramoNombre(t))}</span>` : ''}</p>
           ${avisos.map((i) => `<p class="pl-tramo-aviso"><strong>${esc(i.tipo)}:</strong> <span lang="es" class="txt-es txt-oficial">${esc(i.texto)}</span> <a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a></p>`).join('')}
           ${cruce(t)}
-          ${t.nota ? `<p class="pl-nota">${esc(t.nota)}</p>` : ''}
+          ${t.nota ? `<p class="pl-nota" lang="es">${esc(t.nota)}</p>` : ''}
           ${!t.paso && t.guia ? `<p class="pl-nota">${enlaceGuia(t.guia, 'Ficha del tramo')}</p>` : ''}
         </div>
       </li>`;

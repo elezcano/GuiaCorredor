@@ -6,7 +6,8 @@ import path from 'node:path';
 import { ROOT } from './lib.mjs';
 
 /** Páginas que tienen versión en portugués (ruta española). */
-export const tienePT = (r) => r === '/' || ['/planificador/', '/pasos/', '/directorio/'].includes(r) || r.startsWith('/guia/pasos/');
+// HU-136: todas las páginas tienen versión en portugués (salvo archivos como 404.html).
+export const tienePT = (r) => typeof r === 'string' && r.startsWith('/') && !r.startsWith('/pt/') && !/\.\w+$/.test(r);
 
 export function cargarDiccionario() {
   const d = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'i18n', 'pt-BR.json'), 'utf8'));
@@ -29,13 +30,29 @@ const ATRIBUTOS = /\b(aria-label|title|placeholder|alt|content)="([^"]*)"/g;
  * Se salta <script>, <style> y todo lo que va entre <!--es--> y <!--/es--> o en un elemento hoja con lang="es".
  */
 export function traducirHTML(html, tr, { B, urlBase, ruta = '/' }) {
-  // Los enlaces relativos (p. ej. en el texto de la guía) se resuelven contra la página española,
-  // porque /pt/ añade un nivel de carpeta.
-  html = html.replace(/\bhref="(?![a-z]+:|\/|#)([^"]*)"/g, (m, rel) => { const x = new URL(rel, `https://x${B}${ruta}`); return `href="${x.pathname}${x.search}${x.hash}"`; });
+  // Enlaces: los relativos (p. ej. en el texto de la guía) se resuelven contra la página española, porque /pt/
+  // añade un nivel de carpeta; y los internos van a su versión en portugués. También dentro de lo protegido.
+  html = html.replace(/<a\b[^>]*>/g, (tag) => {
+    if (/\bdata-fijo\b/.test(tag)) return tag;
+    return tag.replace(/\bhref="([^"]*)"/, (m, href) => {
+      if (/^(mailto:|https:\/\/wa\.me\/)/.test(href)) return m;
+      let h = href;
+      if (!/^([a-z]+:|\/|#)/.test(h)) {
+        const x = new URL(h.replace(/&amp;/g, '&'), `https://x${B}${ruta}`);
+        h = `${x.pathname}${x.search}${x.hash}`;
+      }
+      if (h.startsWith(`${B}/`) && !h.startsWith(`${B}/pt/`) && !h.startsWith(`${B}/assets/`) && !h.startsWith(`${B}/api/`)) {
+        const [r, extra = ''] = h.slice(B.length).split(/(?=[?#])/);
+        if (tienePT(r)) h = `${B}/pt${r}${extra}`;
+      }
+      return `href="${h}"`;
+    });
+  });
   const guardados = [];
   const guardar = (m) => `\u0000${guardados.push(m) - 1}\u0000`;
   let h = html
     .replace(/<!--es-->[\s\S]*?<!--\/es-->/g, guardar)
+    .replace(/<!--pt-->[\s\S]*?<!--\/pt-->/g, guardar)
     .replace(/<script\b[\s\S]*?<\/script>/g, (m) => (/type="application\/json"/.test(m) ? m : guardar(m)))
     .replace(/<style\b[\s\S]*?<\/style>/g, guardar)
     .replace(/<(span|p|strong|em|td|li|div)\b[^>]*\blang="es"[^>]*>[^<]*<\/\1>/g, guardar);
@@ -51,10 +68,7 @@ export function traducirHTML(html, tr, { B, urlBase, ruta = '/' }) {
       tag = tag.replace(/\bhref="([^"]*)"/, (m, href) => {
         // Email y WhatsApp preparados: también en portugués.
         if (/^(mailto:|https:\/\/wa\.me\/)/.test(href)) return `href="${traducirEnlace(href, tr)}"`;
-        if (!href.startsWith(`${B}/`) || href.startsWith(`${B}/pt/`) || href.startsWith(`${B}/assets/`)) return m;
-        const resto = href.slice(B.length);
-        const [ruta, extra = ''] = resto.split(/(?=[?#])/);
-        return tienePT(ruta) ? `href="${B}/pt${ruta}${extra}"` : m;
+        return m;
       });
       return tag;
     })
