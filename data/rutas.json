@@ -178,7 +178,7 @@
       "km": 379.4,
       "guia": "tramos/py15-chaco",
       "kmTipo": "calculado",
-      "kmNota": "Ruta por carretera por la PY15 calculada con OSRM sobre OpenStreetMap (17/11/2026). Contrastada con Google Maps: 377 km. Sustituye a 307 km, que era una resta (531 − 224) sin fuente directa.",
+      "kmNota": "Ruta por carretera calculada con OSRM sobre OpenStreetMap (17/11/2026): PY15 hasta la zona de Loma Plata y Transchaco (PY09) hasta Mariscal, porque el tramo 2 de la PY15 (Cruce Centinela – Mariscal) no está construido. Contrastada con Google Maps: 377 km. Sustituye a 307 km, que era una resta (531 − 224) sin fuente directa.",
       "kmEvidencia": "calculo"
     },
     {
