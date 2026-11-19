@@ -11,7 +11,27 @@ const txtEs = (t) => `<span lang="es" class="txt-es">${esc(t)}</span>`;
 const txtOf = (t) => `<span lang="es" class="txt-es txt-oficial">${esc(t)}</span>`;
 // HU-138: los avisos del DNIT llevan una cita del texto oficial en portugués («Texto oficial: «…»»): esa parte va
 // marcada como portugués, para que no se traduzca ni se rotule como «texto oficial em espanhol».
-const descInc = (t) => {
+// 20/11/2026: avisos cortos. Se ve una línea (el «resumen» del aviso o su primera frase) y el resto, en «Más información».
+const ABREV = /(?:^|[\s(])(?:Acc|Lte|Emp|Gral|Pte|Cnel|Mcal|Av|Avda|km|Km|Dto|Prov|Dr|Sr|Sra|Nro|N°|Cdad|Sto|Sta|Ing|Int|Div|Pje|RN|RP)$/i;
+/** Primera frase útil: sin el «Lugar:» del principio (la tarjeta ya lo dice) y sin cortar en «Acc.» o «km.». */
+const primeraFrase = (t) => {
+  let s = String(t).trim();
+  const pre = s.match(/^[^:]{3,90}\):\s+|^[A-ZÁÉÍÓÚÑ][^:.]{2,60}:\s+/);
+  if (pre && s.length - pre[0].length > 15) s = s.slice(pre[0].length);
+  for (const m of s.matchAll(/\.(?=\s+[A-ZÁÉÍÓÚÑ¿«(]|\s*$)/g)) {
+    if (ABREV.test(s.slice(0, m.index))) continue;
+    s = s.slice(0, m.index);
+    break;
+  }
+  s = s.charAt(0).toUpperCase() + s.slice(1);
+  return s.length <= 120 ? s : `${s.slice(0, 110).replace(/\s+\S*$/, '')}…`;
+};
+const descInc = (t, resumen = null) => {
+  const corto = resumen || primeraFrase(t);
+  if (corto.replace(/[.\s]+$/, '') === String(t).replace(/[.\s]+$/, '')) return descLarga(t);
+  return `${txtOf(corto)} <details class="mas-info"><summary>Más información</summary>${descLarga(t)}</details>`;
+};
+const descLarga = (t) => {
   const k = String(t).indexOf('Texto oficial: «');
   return k < 0 ? txtOf(t) : `${txtEs(String(t).slice(0, k + 'Texto oficial:'.length))} <span lang="pt-BR" class="txt-pt">${esc(String(t).slice(k + 'Texto oficial: '.length))}</span>`;
 };
@@ -710,7 +730,7 @@ function tablero() {
     <p>${plural(activas.length, 'incidencia activa', 'incidencias activas')}, sin verificar salvo indicación. Última publicada el ${fecha(ultimaInc)}.</p>
     <ul class="lista-inc">${activas
       .slice(0, 3)
-      .map((i) => `<li>${tipoIncidencia(i.tipo)}<strong>${esc(i.ubicacion)}</strong><span>${descInc(i.descripcion)}</span></li>`)
+      .map((i) => `<li>${tipoIncidencia(i.tipo)}<strong>${esc(i.ubicacion)}</strong><span>${descInc(i.descripcion, i.resumen)}</span></li>`)
       .join('')}</ul>
     <a class="enlace-mas" href="${u('/avisos/#obras')}">Ver obras y restricciones</a>
   </section>
@@ -1109,7 +1129,7 @@ function fichaOperativa(p, guiaPag) {
     'avisos-paso',
     'Obras y avisos',
     nAvisos ? `${plural(inc.length, 'aviso activo', 'avisos activos')}${p.restricciones?.length ? ` · ${plural(p.restricciones.length, 'norma', 'normas')} para camiones` : ''}` : 'Ninguno registrado',
-    `${inc.length ? `<ul class="lista-datos">${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${descInc(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a>${selloHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</li>`).join('')}</ul>` : '<p class="sin-dato">Ninguna incidencia registrada.</p>'}
+    `${inc.length ? `<ul class="lista-datos">${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${descInc(i.descripcion, i.resumen)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a>${selloHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</li>`).join('')}</ul>` : '<p class="sin-dato">Ninguna incidencia registrada.</p>'}
      ${p.restricciones?.length ? `<h4>Transporte pesado</h4>${lista(p.restricciones)}` : ''}`
   );
   const nov = novedadesPaso(p);
@@ -1219,7 +1239,7 @@ function bloqueTramos(ruta) {
         <div class="dato-estado">${vistaHTML(t.vista)}</div>
         ${t.vista.fuente && !t.vista.vigilado ? `<span class="dato-fuente">${fuenteEnlace(t.vista.fuente)}</span>` : ''}
         <p class="tramo-km">Distancia: ${km}</p>
-        ${inc.map((i) => `<p class="it-aviso">${tipoIncidencia(i.tipo)} ${descInc(i.descripcion)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></p>`).join('')}
+        ${inc.map((i) => `<p class="it-aviso">${tipoIncidencia(i.tipo)} ${descInc(i.descripcion, i.resumen)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></p>`).join('')}
       </dd></div>`;
     })
     .join('');
@@ -1307,7 +1327,7 @@ const avisoHoy = (i) => {
   const forma = g === 'rojo' ? 'cerrado' : 'restricciones';
   return `<li class="aviso-hoy aviso-${g}" id="hoy-inc-${esc(i.id)}">${OPERATIVA[forma].icono.replace('<svg', `<svg class="op-${forma}"`)}<div>
     <p class="aviso-hoy-titulo"><strong>${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</strong> · ${esc(i.ubicacion)} ${paises(i.paises || [])}</p>
-    <p class="aviso-hoy-texto">${descInc(i.descripcion)}</p>
+    <p class="aviso-hoy-texto">${descInc(i.descripcion, i.resumen)}</p>
     <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</p>
   </div></li>`;
 };
@@ -1971,7 +1991,7 @@ ${seccion({
     return `<li class="inc-tarjeta inc-${g}" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-gravedad="${g}">
   <div class="inc-cabeza"><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</span></span>${i.estado !== 'activa' ? '<span class="etiqueta-suave">Resuelta</span>' : ''}${paises(i.paises)}</div>
   <h3>${esc(i.ubicacion)}</h3>
-  <p class="inc-texto">${descInc(i.descripcion)}</p>
+  <p class="inc-texto">${descInc(i.descripcion, i.resumen)}</p>
   <details class="inc-mas"><summary>Fechas, impacto y tramos</summary>
   <dl class="inc-datos">
     <div><dt>Inicio</dt><dd>${i.inicio ? fecha(i.inicio) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
@@ -1990,7 +2010,9 @@ ${seccion({
 </li>`;
   };
   const ordenG = ['rojo', 'ambar', 'info', 'resuelta'];
-  const grupos = ordenG.map((g) => [g, incidencias.filter((i) => grav(i) === g)]).filter(([, l]) => l.length);
+  const hace15 = new Date(new Date(`${HOY}T12:00:00Z`).getTime() - 15 * 864e5).toISOString().slice(0, 10);
+  const visibles = incidencias.filter((i) => i.estado === 'activa' || (i.fin || i.publicado || '') >= hace15);
+  const grupos = ordenG.map((g) => [g, visibles.filter((i) => grav(i) === g)]).filter(([, l]) => l.length);
   const listaInc = grupos.map(([g, l]) => `<li class="inc-grupo" data-cabecera id="g-${g}"><h3>${GRAV[g][1]} <span class="inc-cuenta">${l.length}</span></h3></li>${l.map(tarjetaInc).join('')}`).join('');
   const porPais = Object.keys(PAISES).map((k) => {
     const de = (t) => organismos.filter((o) => o.pais === k && t.includes(o.tipo));

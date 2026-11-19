@@ -72,3 +72,9 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 - **Vigencia:** las alertas anuncian casi siempre algo programado (una madrugada, un lunes). Cuentan 3 días desde su publicación; si dicen «a partir de», «por tempo indeterminado», «até nova ordem» o «sem previsão», hasta 30 días o hasta una «liberação» posterior.
 - **En la web:** «Obra» (o «Desvío» / «Límite de peso») con la gravedad que toque, una frase en castellano y la primera frase del texto oficial en portugués, marcada como portugués (no se traduce).
 - **Antigüedad:** el DNIT publica alertas de todo Brasil casi a diario; si la más nueva de la lista tiene más de 7 días, la fuente se da por parada.
+
+## Fase experimental (20/11/2026)
+
+- **MOPC: como mucho ámbar.** Un «Clausurado» del informe sale en ámbar. Regla guardada, apagada: rojo solo si el informe nombra la PY15 (`MOPC_ROJO_SI_PY15` en `scripts/mopc.mjs`).
+- **Historial:** los avisos resueltos se guardan 90 días (antes 15). La web solo enseña los de los últimos 15.
+- **Avisos cortos:** cada aviso enseña una línea (`resumen` o la primera frase). El texto completo va en «Más información».

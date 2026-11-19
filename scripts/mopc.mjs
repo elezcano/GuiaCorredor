@@ -127,11 +127,22 @@ export const menciona = (texto, terminos) => {
 
 const enGuia = (g) => (g.paso ? { paso: g.paso } : { tramos: g.tramos || [g.tramo] });
 
+// Fase experimental (decisión del 20/11/2026): el MOPC pinta como mucho ámbar. Con lluvia y obras, la PY15 de tierra es
+// casi intransitable para camiones, pero el informe habla de los «ramales» de Boquerón, no de la PY15.
+// Regla guardada, sin aplicar: rojo solo cuando el informe nombre la PY15. Se activa poniendo MOPC_ROJO_SI_PY15 = true.
+export const MOPC_ROJO_SI_PY15 = false;
+const ajustarNivel = (nivel, texto) => (nivel.gravedad !== 'rojo' || (MOPC_ROJO_SI_PY15 && menciona(texto, ['PY15'])) ? nivel : { ...nivel, gravedad: 'ambar' });
+const resumenMOPC = (lugar, nivel, textoEstado, inf) => {
+  const que = /lluvia/i.test(textoEstado) ? 'cerrado por lluvia' : nivel.carga ? 'cerrado a camiones' : /clausur/i.test(textoEstado) ? 'cerrado' : 'precaución';
+  return `${lugar}: ${que} · MOPC ${inf.dia.slice(8, 10)}/${inf.dia.slice(5, 7)} ${inf.hora}`;
+};
+
 /** Informe + correspondencias (filas activas del CSV: { guia, localidades }) → incidencias. */
 export function incidenciasMOPC(inf, correspondencias, fuente = FUENTE_MOPC) {
   const fecha = inf.dia.split('-').reverse().join('/');
   const res = new Map();
-  const add = (corr, base, nivel, texto) => {
+  const add = (corr, base, nivel0, texto) => {
+    const nivel = ajustarNivel(nivel0, `${texto.tramo} ${texto.estado}`);
     const id = `mopc-${base}-${(corr.guia.tramo || corr.guia.paso || '').toLowerCase()}`.slice(0, 80);
     const carga = nivel.carga;
     res.set(id, {
@@ -139,10 +150,11 @@ export function incidenciasMOPC(inf, correspondencias, fuente = FUENTE_MOPC) {
       paises: ['PY'],
       ubicacion: texto.ubicacion,
       tramo: texto.tramo,
-      tipo: carga ? 'peso' : nivel.gravedad === 'rojo' ? 'corte' : 'restriccion',
+      tipo: carga ? 'peso' : nivel0.gravedad === 'rojo' ? 'corte' : 'restriccion',
       estado: 'activa',
       gravedad: nivel.gravedad,
       ...(carga ? { afecta: 'carga' } : {}),
+      resumen: resumenMOPC(texto.tramo, nivel, texto.estado, inf),
       descripcion: `${texto.tramo}: ${carga ? 'No habilitado para carga. ' : ''}${texto.estado} Informe del MOPC del ${fecha}, ${inf.hora} (hora de Paraguay).`,
       ...enGuia(corr.guia),
       fuente,
@@ -158,7 +170,7 @@ export function incidenciasMOPC(inf, correspondencias, fuente = FUENTE_MOPC) {
       if (!nivel) continue;
       const pvp = /p\s*\/\s*v\s*\/\s*p/i.test(l.obs) ? ' para vehículos pesados (P/V/P)' : l.obs ? ` (${l.obs})` : '';
       const lugar = limpio(l.localidad.replace(/\s*[-–]\s*/g, ' – '));
-      add(corr, `loc-${slug(l.localidad)}`, nivel, { ubicacion: `${lugar} (${l.ruta || 'MOPC'})`, tramo: lugar, estado: `${l.estado}${pvp}.` });
+      add(corr, `loc-${slug(l.localidad)}`, nivel, { ubicacion: lugar, tramo: lugar, estado: `${l.estado}${pvp}.` });
     }
     for (const [parte, lista] of [['puente', inf.puentes], ['ruta', inf.clausurados]]) {
       for (const r of lista) {

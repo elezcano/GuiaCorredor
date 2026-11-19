@@ -357,9 +357,9 @@ function autoprueba() {
   ok(incidenciasMOPC(m17, corrPY).length === 0, 'MOPC 17/11: nada cerrado en la PY15 ni en Boquerón (los cierres de la Transchaco y Alto Paraguay no cuentan).');
   const sim = leerInformeMOPC(tx('2026-11-17').replace(/(BOQUERON-\s+Ramales\s+\S+\s+)Habilitada/, '$1Clausurada      P/V/P'));
   const [carga] = incidenciasMOPC(sim, corrPY);
-  ok(carga?.tramos?.[0] === 'me-ph' && carga.gravedad === 'rojo' && carga.afecta === 'carga' && carga.tipo === 'peso' && carga.fuente === FUENTE_MOPC && carga.horaFuente === '2026-11-17T10:00:00.000Z' && /No habilitado para carga/.test(carga.descripcion) && /07:00/.test(carga.descripcion), `MOPC: «Boquerón – Ramales: Clausurada P/V/P» → Mariscal–Pozo Hondo, no habilitado para carga, con fuente y hora (${carga?.descripcion}).`);
+  ok(carga?.tramos?.[0] === 'me-ph' && carga.gravedad === 'ambar' && carga.afecta === 'carga' && /cerrado a camiones · MOPC 17\/11 07:00/.test(carga.resumen) && carga.tipo === 'peso' && carga.fuente === FUENTE_MOPC && carga.horaFuente === '2026-11-17T10:00:00.000Z' && /No habilitado para carga/.test(carga.descripcion) && /07:00/.test(carga.descripcion), `MOPC: «Boquerón – Ramales: Clausurada P/V/P» → Mariscal–Pozo Hondo, no habilitado para carga (ámbar en fase experimental), con fuente, hora y una línea corta (${carga?.descripcion}).`);
   const total = incidenciasMOPC(leerInformeMOPC(tx('2026-11-17').replace(/(BOQUERON-\s+Ramales\s+\S+\s+)Habilitada/, '$1Clausurada')), corrPY)[0];
-  ok(total?.gravedad === 'rojo' && total.tipo === 'corte' && !total.afecta, 'MOPC: «Clausurada» sin P/V/P → corte para todos.');
+  ok(total?.gravedad === 'ambar' && total.tipo === 'corte' && !total.afecta, 'MOPC (fase experimental): «Clausurada» sin P/V/P → corte para todos, en ámbar; el rojo (si nombra la PY15) está guardado pero apagado.');
   const prec = incidenciasMOPC(leerInformeMOPC(tx('2026-11-17').replace('.: PTE. HAYES – TRAMO POZO COLORADO – CONCEPCION', '.: BOQUERON – TRAMO MCAL. ESTIGARRIBIA – POZO HONDO')), corrPY);
   ok(prec.length === 2 && prec.every((i) => i.gravedad === 'ambar') && prec.some((i) => i.tramos[0] === 'me-ph'), `MOPC: «transitar con precaución» en una nota al pie → ámbar en los tramos que la nombran (${prec.map((i) => i.tramos[0]).join(', ')}).`);
   const m18a = { ...leerInformeMOPC(tx('2026-11-18-1')), numero: 1 };
