@@ -6,7 +6,7 @@
 - 📦 Datos abiertos: [`/api/v1/indice.json`](https://elezcano.github.io/GuiaCorredor/api/v1/indice.json)
 - ✉️ Contacto: elezcanofm@gmail.com · Responsable editorial y de verificación: **Ernesto**
 
-> **Estado: borrador (MVP).** Regla de oro: **la fiabilidad va antes que la cantidad.** Nada sale como confirmado si Ernesto no lo ha verificado, y todo dato lleva su fuente y su fecha.
+> **Estado: borrador (MVP).** Regla de oro: **la fiabilidad va antes que la cantidad.** El estado de pasos y carreteras lo deciden solo las fuentes oficiales, y todo dato lleva su fuente y su fecha.
 
 ---
 
@@ -15,6 +15,7 @@
 | Necesito… | Dónde |
 |---|---|
 | Saber si un paso está abierto, ahora | Ficha del paso: **semáforo** (Abierto · Con restricciones · No habilitado · Sin confirmar), hora local de cada país y «abierto ahora / cierra en…» |
+| Saber si una carretera está cortada | **Rutas** y ficha del paso («Carreteras para llegar»): *Sin incidencias*, *Con incidencias* o *Cortado*, según la fuente oficial de cada país, leída cada hora |
 | Saber de quién es el dato y de cuándo | Ficha del paso: **«Qué informa cada país»**, con organismo, fecha y hora, y aviso si el parte tiene más de 48 h |
 | Ver el paso en mi sentido de viaje | Ficha del paso: botón **«⇄ Cambiar sentido»**, que ordena controles y partes según el país del que sales y en el que entras (también en el enlace: `?sentido=CL-AR`) |
 | Llamar a la frontera | Ficha del paso: **botón Llamar** con teléfonos de fuente oficial |
@@ -29,13 +30,45 @@
 
 ---
 
+## El proyecto en 6 bloques
+
+Cada tarjeta de Trello lleva el número de su bloque (por ejemplo, **1.4**) y la historia de usuario entre paréntesis (**HU-134**).
+
+```mermaid
+flowchart LR
+  B1["🚦 1 · Estado del corredor<br/>¿se puede pasar hoy?"]
+  B2["🗺️ 2 · La app<br/>rutas, fronteras y mapa"]
+  B3["📖 3 · Guía y contenido<br/>pasos, tramos, documentos"]
+  B4["💼 4 · Negocio y directorio<br/>empresas, cotización, cobro"]
+  B5["🏷️ 5 · Marca, legal y lanzamiento"]
+  B6["🧪 6 · Validación del negocio<br/>entrevistas y veredicto"]
+  B1 --> B2
+  B3 --> B2
+  B2 --> B4
+  B5 --> B4
+  B4 --> B6
+```
+
+| Bloque | Qué resuelve | Tarjetas |
+|---|---|---|
+| 🚦 **1 · Estado del corredor** | Si hoy se puede pasar, con la fuente oficial de cada país leída cada hora | ✅ 1.1 Vigilante fiable · ✅ 1.2 Fuentes oficiales y página «Fuentes» · ✅ 1.3 Fuentes de Brasil · ✅ 1.4 Carreteras de Paraguay (MOPC) · ✅ 1.5 Carreteras de Brasil (DNIT) · ✅ 1.6 Tres estados por tramo · ⏳ 1.7 Partes a 24 h en invierno · ⏳ 1.8 Avísame si cambia |
+| 🗺️ **2 · La app** | Planificar la ruta y ver cada frontera desde el móvil | ✅ 2.1 Rediseño Versión 2 · ✅ 2.2 Portugués · 🔧 2.3 Red completa de Santos a Iquique · ⏳ 2.4 Datos esenciales de la fase 1 |
+| 📖 **3 · Guía y contenido** | Qué pide cada paso, cada tramo y cada documento | ⏳ 3.1 Las 15 páginas · ⏸ 3.2 Fichas de puerto · ⏳ 3.3 Ficha de ciudad · ⏳ 3.4 Despachante revisor · ⏳ 3.5 Artículos y boletín |
+| 💼 **4 · Negocio y directorio** | Que las empresas del corredor estén y paguen por destacar | 🔧 4.0 MVP · ⏳ 4.1 Cotización y camión vacío · ⏳ 4.2 300 empresas · ⏳ 4.3 Revisar solicitudes · 🚦 4.4 Hito 150 empresas / 10 de pago · ⏳ 4.5 Comercial en Paraguay · ⏳ 4.6 Generador CRT y MIC/DTA |
+| 🏷️ **5 · Marca, legal y lanzamiento** | Nombre propio, dominio y poder cobrar cumpliendo la ley | ⏳ 5.1 Tres nombres de marca · ⏳ 5.2 Dominio y perfiles · ⏳ 5.3 Textos legales y PayPal · ⏸ 5.4 Contador |
+| 🧪 **6 · Validación del negocio** | Saber si seguir o parar | ⏳ 6.1 12 entrevistas · ⏳ 6.2 Responsable de flota · 🚦 6.3 Veredicto (31/01/2027) |
+
+✅ hecho · 🔧 en curso · ⏳ pendiente · ⏸ aplazado · 🚦 hito de decisión
+
+---
+
 ## Cómo trabajamos
 
 1. **Cada mejora es una historia de usuario** (issue en GitHub y tarjeta en Trello): «en curso» → «hecho».
 2. **Se desarrolla en una rama** y se abre una PR. Nada llega a la web sin que Ernesto lo pruebe y diga «publica».
-3. **Los datos nuevos entran «sin verificar».** Solo Ernesto los verifica, diciendo «confirmo …». La IA nunca marca un dato como verificado.
-4. **Cada día llega por correo «Tareas del día»**: avisos del vigilante, partes caducados y datos por verificar, numerados. Ernesto responde en el chat («confirmo 1, 3 y 5»).
-5. **El vigilante avisa por correo** cuando Gendarmería o Vialidad publican un parte más nuevo que el cargado. Ernesto lo mira y dice «confirmo …»; Claude carga el parte y **cierra siempre la incidencia** del vigilante con lo que se hizo.
+3. **Solo las fuentes oficiales deciden el estado.** Lo que el vigilante lee cada hora de una web oficial (Gendarmería, Vialidad Nacional, Vialidad de Chile, MOPC, DNIT) se publica al momento con «✓ Web oficial». Lo de prensa queda como contexto, en gris, con el nombre del medio. La IA nunca marca como verificado un dato cargado a mano: eso lo dice Ernesto («confirmo …»).
+4. **«Tareas del día» solo llega si hace falta una persona:** los partes de Chile por WhatsApp (se reenvían como captura) y las alertas que el vigilante no sabe clasificar.
+5. **Los avisos del vigilante solo informan** de lo que ha publicado; se cierran solos al día siguiente.
 6. **Antes de publicar, GitHub lo revisa todo solo:** datos y esquemas, coherencia web/API, enlaces, verificaciones nuevas (exigen la etiqueta `revision-editorial`) y **pruebas de navegador**. Si algo falla, no se publica.
 
 ### Pruebas automáticas
@@ -92,9 +125,7 @@ Lo más reciente, arriba.
 
 ## Próximos pasos
 
-- **Avisos al móvil:** si el correo del vigilante no basta, añadir Telegram.
-- **Datos por verificar:** horario de Jama (8–20 h o 8–18 h), controles para carga, partes del lado chileno.
-- **Antes del lanzamiento:** primeras empresas reales (#46), revisión de la guía (#22), aviso legal (#48) y dominio (#16).
+Ver la tabla de [El proyecto en 6 bloques](#el-proyecto-en-6-bloques). Lo siguiente: **2.3** red completa de Santos a Iquique; con una decisión de Ernesto, **1.8** Avísame y **4.1** cotización; antes del lanzamiento, **5.1–5.3** marca, dominio y textos legales.
 
 Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=label%3AP1) · [P2](../../issues?q=label%3AP2) · [P3](../../issues?q=label%3AP3).
 
@@ -130,6 +161,7 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 23 | El vigilante se lanza cada hora desde cron-job.org (token de GitHub con permisos mínimos, guardado solo allí); la pasada programada de GitHub queda de respaldo. Si una fuente falla 3 pasadas seguidas, aviso por correo (#129) |
 | 24 | Para los pasos argentinos, el vigilante lee las variables que escribe el servidor oficial (`estadoPrioridad` de Gendarmería, `estadoVialidad`, horario y recuadro «Atención»), nunca la etiqueta «Abierto/Cerrado» de pantalla, que calcula el navegador con la hora del dispositivo. «Cerrado» dentro del horario se publica en rojo; fuera del horario es el cierre de cada noche. Corte total o circulación restringida de Vialidad con el paso abierto: ámbar. Nunca marcha atrás; solo reabre lo que él cerró (#130) |
 | 25 | Carreteras: el vigilante lee la tabla oficial de Vialidad Nacional (la misma que carga su página «Estado de rutas») y las emergencias de Vialidad de Chile (SIEMOP, región de Antofagasta) y las publica como incidencias del tramo. Corte total o tránsito no operativo: rojo. «Peso restringido», «Sólo vehículos livianos» o «Sólo doble tracción»: «No habilitado para carga». Restringida o parcialmente operativa: ámbar. Observaciones de una ruta habilitada: informativas, sin cambiar el veredicto del planificador. En Chile cada emergencia se asigna por posición: rutas nacionales a menos de 3 km del trazado del tramo (los caminos secundarios que salen de la ruta no cuentan). Un registro chileno sin novedades de Vialidad en más de 14 días se publica en ámbar («puede estar ya resuelto, confírmalo») y no bloquea (#130) |
+| 26 | **Solo las fuentes oficiales deciden el estado** (19/11/2026). Un aviso de prensa sin verificar queda como contexto (gris, con el nombre del medio) y no cambia el estado ni el veredicto. Sin sello amarillo «Sin verificar»: cada dato dice de qué tipo es su fuente. «Tareas del día» solo con lo que necesita una persona (#175) |
 
 </details>
 
