@@ -346,10 +346,10 @@
         }
       },
       "estado": {
-        "valor": "cerrado",
-        "texto": "Cerrado por Gendarmería (parte del 18/11, 20:19, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:15), sin motivo publicado.",
+        "valor": "operativo",
+        "texto": "Abierto de 09:00–19:15 (hora de Argentina), según Gendarmería (parte del 19/11, 08:39).",
         "fuente": "ar-seguridad-paso-jama",
-        "publicado": "2026-11-18",
+        "publicado": "2026-11-19",
         "actualizado": "2026-11-19",
         "evidencia": "oficial",
         "validacion": "verificado",
@@ -357,7 +357,7 @@
           "verificadoPor": "vigilante",
           "rol": "vigilante",
           "fecha": "2026-11-19",
-          "alcance": "Leído automáticamente de la web oficial el 19/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          "alcance": "Leído automáticamente de la web oficial el 19/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
         }
       },
       "horarios": [
@@ -813,6 +813,22 @@
             "fecha": "2026-11-18",
             "alcance": "Actualizado el 18/11/2026: estado de Gendarmería leído por el vigilante (parte del 18/11, 12:26) y parte de Chile del 17/11 a las 08:57 hora de Chile, captura del canal oficial de WhatsApp de la UPF, que deja sin efecto la suspensión de la carga del 16/11."
           }
+        },
+        {
+          "fecha": "2026-11-18",
+          "valor": "cerrado",
+          "texto": "Cerrado por Gendarmería (parte del 18/11, 20:19, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:15), sin motivo publicado.",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-18",
+          "actualizado": "2026-11-19",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-19",
+            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          }
         }
       ],
       "controles": [
@@ -934,11 +950,11 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.",
-          "hora": "20:19",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "08:39",
           "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-18",
+          "publicado": "2026-11-19",
           "actualizado": "2026-11-19",
           "evidencia": "oficial",
           "validacion": "verificado",
@@ -946,7 +962,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-19",
-            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO» dentro del horario."
+            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
@@ -1266,24 +1282,6 @@
       "partes": [
         {
           "lado": "AR",
-          "emisor": "Vialidad Nacional",
-          "valor": null,
-          "texto": "RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material.",
-          "hora": "08:30",
-          "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-17",
-          "actualizado": "2026-11-18",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-18",
-            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 11:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
           "valor": "cerrado",
@@ -1299,6 +1297,24 @@
             "rol": "vigilante",
             "fecha": "2026-11-18",
             "alcance": "Leído automáticamente de la web oficial el 18/11 a las 19:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material.",
+          "hora": "08:30",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-19",
+          "actualizado": "2026-11-19",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-19",
+            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 10:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material."
           }
         }
       ]
