@@ -83,6 +83,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 20/11/2026 | #183 | Avisos cortos (una línea + «Más información»), MOPC como mucho en ámbar (rojo solo si nombra la PY15: regla apagada) e historial de 90 días. |
 | 19/11/2026 | **Solo las fuentes oficiales deciden:** la prensa sin verificar queda como contexto y no cambia el estado; sin sello amarillo «Sin verificar» (cada dato dice de qué tipo es su fuente); «Tareas del día» solo con los partes de Chile por WhatsApp y las alertas sin clasificar | #175 |
 | 19/11/2026 | **Sin incidencias / Con incidencias / Sin vigilancia:** los tramos vigilados dejan de salir «Sin confirmar»; «Carreteras para llegar» en cada paso; portada con lo que impide primero y el resto en una línea; la página consulta en vivo cuándo se leyó cada fuente (decisión 22) | #173 |
 | 18/11/2026 | **Vigilante del DNIT (Brasil):** el vigilante lee las «Alertas DNIT» y publica las de la BR-060 y la BR-267 en MS (Campo Grande → Porto Murtinho) con el sello «✓ Web oficial»; lo que no sabe clasificar queda para revisar a mano | #170 |
