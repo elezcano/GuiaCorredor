@@ -66,6 +66,11 @@
                   "resuelta"
                 ]
               },
+              "resumen": {
+                "type": "string",
+                "maxLength": 140,
+                "description": "Una línea operativa (lo que se ve). El texto completo va en «descripcion», bajo «Más información»."
+              },
               "inicio": {
                 "$ref": "comun.schema.json#/$defs/fechaONull"
               },

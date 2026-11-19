@@ -138,6 +138,7 @@ export function incidenciasDNIT(alertas, correspondencias, ahora = new Date(), f
         estado: 'activa',
         gravedad: n.gravedad,
         ...(n.carga ? { afecta: 'carga' } : {}),
+        resumen: `${br}/${c.uf}: ${n.etiqueta.toLowerCase()} · DNIT ${a.dia.slice(8, 10)}/${a.dia.slice(5, 7)}`,
         descripcion: `${br}/${c.uf}: ${n.etiqueta}, según el DNIT (alerta del ${fecha}, hora de Brasília). Texto oficial: «${primeraFrase(a.texto)}»`,
         ...enGuia(c.guia),
         fuente,

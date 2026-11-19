@@ -196,7 +196,8 @@ const sello = (ahora, que) => {
   };
 };
 const delVigilante = (i) => i.verificacion?.verificadoPor === 'vigilante';
-const DIAS_RESUELTAS = 15;
+// 20/11/2026: 90 días (antes 15), para tener el historial de las carreteras. La web solo enseña los de 15 días.
+const DIAS_RESUELTAS = 90;
 export const AUSENCIAS_PARA_RESOLVER = 2;
 
 /**
