@@ -1,14 +1,11 @@
-// Tareas del día para el responsable editorial (HU-99).
-//
-// Cada día genera una lista corta de lo que conviene revisar, de lo más urgente a lo menos:
-//   1. Avisos abiertos del vigilante (partes nuevos de las webs oficiales).
-//   2. Partes caducados (más de partes.umbralHoras) y pasos sin parte del lado chileno.
-//   3. Datos operativos pendientes de verificar (pasos, incidencias, tramos), numerados para
-//      poder responder «confirmo 3 y 5».
-//   4. El resto pendiente (festivos, organismos, novedades), solo con el recuento.
+// Tareas del día para el responsable editorial (HU-99). Desde el 19/11/2026 solo lo que de verdad necesita una persona
+// (las fuentes oficiales ya se publican solas y los datos de prensa quedan como contexto, sin pedir verificación):
+//   1. Partes de Chile por WhatsApp: pasos sin parte del lado chileno o con el parte caducado (más de partes.umbralHoras).
+//   2. Alertas que el vigilante no ha sabido clasificar (líneas «Revisa:» de los avisos del vigilante de hoy).
 //   Y arriba, el estado de la vigilancia (HU-129): última pasada y fuentes que no se pueden leer.
-// Con --github abre la incidencia «Tareas del día · AAAA-MM-DD» asignada al responsable (le llega
-// por correo) y cierra la del día anterior.
+// Con --github: cierra los avisos del vigilante de días anteriores (solo informan: lo leído ya está publicado) y la
+// lista del día anterior, y abre «Tareas del día · AAAA-MM-DD» asignada al responsable (le llega por correo) solo si
+// hay algo que hacer.
 //
 // Uso: node scripts/tareas.mjs            muestra la lista
 //      node scripts/tareas.mjs --github   además abre la incidencia (necesita GITHUB_TOKEN)
@@ -24,7 +21,6 @@ const PASOS = pasosJ.pasos || pasosJ;
 const UMBRAL_H = site.partes?.umbralHoras ?? 48;
 const ZONA_AR = 'America/Argentina/Salta';
 const hoyAR = new Date().toLocaleDateString('sv-SE', { timeZone: ZONA_AR });
-const MAX_OPERATIVOS = 12;
 
 const fmtFecha = (iso) => (iso ? iso.split('-').reverse().join('/') : 's/f');
 const enlace = (id) => {
@@ -49,53 +45,6 @@ function partes() {
     }
   }
   return lineas;
-}
-
-// ---------- 3 y 4. Pendientes de verificar ----------
-const OPERATIVOS = {
-  'pasos.estado': 'Estado',
-  'pasos.horarios': 'Horario',
-  'pasos.controles': 'Control para carga',
-  'pasos.restricciones': 'Restricción',
-  'pasos.acceso': 'Acceso',
-  'pasos.historial': 'Novedad del paso',
-  'pasos.partes': 'Parte',
-  'pasos.contactos': 'Contacto',
-  incidencias: 'Aviso',
-  'tramos.reporte': 'Estado de tramo',
-};
-function pendientes() {
-  const operativos = [];
-  const resto = {};
-  for (const p of PASOS) {
-    for (const [campo, lista] of Object.entries(p)) {
-      const items = Array.isArray(lista) ? lista : lista && typeof lista === 'object' ? [lista] : [];
-      for (const r of items) {
-        if (r?.validacion !== 'por-verificar') continue;
-        const tipo = OPERATIVOS[`pasos.${campo}`];
-        if (!tipo) continue;
-        operativos.push({ fecha: r.fecha || r.publicado, texto: `**${p.nombre}** · ${tipo}${r.fecha ? ` del ${fmtFecha(r.fecha)}` : ''}: ${(r.texto || r.nombre || '').slice(0, 140)}`, fuente: r.fuente });
-      }
-    }
-  }
-  const inc = json('data/incidencias.json');
-  for (const i of inc.incidencias || inc)
-    if (i.validacion === 'por-verificar') operativos.push({ fecha: i.publicado, texto: `**Aviso** · ${i.ubicacion}: ${(i.descripcion || '').slice(0, 140)}`, fuente: i.fuente });
-  const rutas = json('data/rutas.json');
-  for (const t of rutas.tramos || [])
-    if (t.reporte?.validacion === 'por-verificar') operativos.push({ fecha: t.reporte.publicado, texto: `**Tramo ${t.id}** · ${(t.reporte.texto || '').slice(0, 140)}`, fuente: t.reporte.fuente });
-  for (const [archivo, clave, nombre] of [
-    ['festivos.json', 'festivos', 'festivos'],
-    ['organismos.json', 'organismos', 'organismos'],
-    ['novedades.json', 'novedades', 'novedades'],
-  ]) {
-    const d = json(`data/${archivo}`);
-    const n = (d[clave] || d).filter((x) => x.validacion === 'por-verificar').length;
-    if (n) resto[nombre] = n;
-  }
-  // Lo más reciente primero: es lo que más afecta a quien va a cruzar.
-  operativos.sort((a, b) => ((b.fecha || '') > (a.fecha || '') ? 1 : -1));
-  return { operativos, resto };
 }
 
 // ---------- GitHub ----------
@@ -134,31 +83,29 @@ async function principal() {
   const vigilante = args.has('--github') ? await gh('/issues?state=open&labels=vigilante&per_page=50') : [];
   const vigilancia = args.has('--github') ? await estadoVigilancia() : null;
   const caducados = partes();
-  const { operativos, resto } = pendientes();
+  // Avisos del vigilante: los de días anteriores se cierran solos; de los de hoy, solo cuentan las líneas «Revisa:».
+  const deHoy = vigilante.filter((i) => i.title.includes(`(${hoyAR})`));
+  const revisar = [];
+  for (const i of deHoy) {
+    const textos = [i.body || '', ...(i.comments ? (await gh(`/issues/${i.number}/comments`)).map((c) => c.body) : [])];
+    for (const l of textos.join('\n').split('\n')) if (/Revisa:/.test(l)) revisar.push(`${l.replace(/^[-\s]*(Nuevo:\s*)?Revisa:\s*/, '')} (#${i.number})`);
+  }
   const ahoraAR = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: ZONA_AR }).format(new Date());
-
-  const bloques = [`Hora en Argentina: **${ahoraAR}**. Respóndele a Claude en el chat, por ejemplo «confirmo 1, 3 y 5» o «revisa los avisos del vigilante».`];
+  const bloques = [`Hora en Argentina: **${ahoraAR}**. Respóndele a Claude en el chat (por ejemplo, reenvíale la captura del parte de Chile).`];
   if (args.has('--github')) bloques.push(bloqueVigilancia(vigilancia));
-  bloques.push(
-    `## 1. Avisos del vigilante\n${vigilante.length ? vigilante.map((i) => `- [ ] #${i.number} ${i.title}`).join('\n') : '- Ninguno abierto.'}`
-  );
-  bloques.push(`## 2. Partes que hay que renovar\n${caducados.length ? caducados.map((l) => `- [ ] ${l}`).join('\n') : '- Todos al día.'}`);
-  const lista = operativos.slice(0, MAX_OPERATIVOS);
-  bloques.push(
-    `## 3. Datos operativos por verificar (${operativos.length})\n${
-      lista.length ? lista.map((o, i) => `${i + 1}. [ ] ${o.texto} — ${enlace(o.fuente)}`).join('\n') : 'Nada pendiente.'
-    }${operativos.length > MAX_OPERATIVOS ? `\n\nY ${operativos.length - MAX_OPERATIVOS} más: saldrán en los próximos días.` : ''}`
-  );
-  const r = Object.entries(resto);
-  bloques.push(`## 4. Resto pendiente (sin prisa)\n${r.length ? r.map(([k, n]) => `- ${n} ${k}`).join('\n') : '- Nada.'}`);
-  const cuerpo = `${bloques.join('\n\n')}\n\n---\nLista automática (\`scripts/tareas.mjs\`). Se cierra sola al día siguiente.`;
+  bloques.push(`## 1. Partes de Chile por WhatsApp\n${caducados.length ? caducados.map((l) => `- [ ] ${l}`).join('\n') : '- Todos al día.'}`);
+  bloques.push(`## 2. Alertas para mirar a mano\n${revisar.length ? revisar.map((l) => `- [ ] ${l}`).join('\n') : '- Ninguna.'}`);
+  const cuerpo = `${bloques.join('\n\n')}\n\n---\nLista automática (\`scripts/tareas.mjs\`). Solo sale cuando hay algo que hacer y se cierra sola al día siguiente. Lo que el vigilante lee en las webs oficiales ya está publicado: no hace falta revisarlo.`;
   console.log(cuerpo);
 
   if (!args.has('--github')) return;
+  for (const i of vigilante.filter((x) => !deHoy.includes(x))) await gh(`/issues/${i.number}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed', state_reason: 'completed' }) });
   const titulo = `Tareas del día · ${hoyAR}`;
   const abiertas = await gh('/issues?state=open&labels=tareas&per_page=50');
   if (abiertas.some((i) => i.title === titulo)) return console.log('La lista de hoy ya existe.');
   for (const i of abiertas) await gh(`/issues/${i.number}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed', state_reason: 'completed' }) });
+  const ciega = vigilancia && Object.values(vigilancia.fuentes || {}).some((f) => (f.fallosSeguidos || 0) >= 3);
+  if (!caducados.length && !revisar.length && !ciega) return console.log('Nada que hacer hoy: no se abre la lista.');
   const i = await gh('/issues', { method: 'POST', body: JSON.stringify({ title: titulo, body: cuerpo, labels: ['tareas'], assignees: [AVISAR_A] }) });
   console.log(`Incidencia abierta: #${i.number}`);
 }

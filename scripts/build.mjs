@@ -105,7 +105,12 @@ const tramoPorId = Object.fromEntries(rutas.tramos.map((t) => [t.id, t]));
 const nombreTramo = (t) => `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}`;
 const festivosDoc = D.festivos;
 const festivos = festivosDoc.festivos.filter((f) => f.fecha >= HOY);
-const incidencias = D.incidencias;
+// Solo las fuentes oficiales deciden el estado (19/11/2026). Un aviso de prensa sin verificar queda como contexto: se
+// ve en gris, con el nombre del medio, y no cambia el estado de un tramo ni el veredicto.
+const incidencias = D.incidencias.map((i) => {
+  const f = typeof i.fuente === 'string' ? D.fuentes.get(i.fuente) : i.fuente;
+  return f?.tipo !== 'oficial' && i.validacion !== 'verificado' && (i.gravedad || 'ambar') !== 'info' ? { ...i, gravedad: 'info', contexto: true, gravedadPrensa: i.gravedad || 'ambar' } : i;
+});
 const activas = incidencias.filter((i) => i.estado === 'activa');
 // HU-131: tres estados para los tramos de carretera, en lugar de «Sin confirmar».
 //   - Sin incidencias: el vigilante lee cada hora su fuente oficial (fila «activa» del CSV de fuentes) y no hay ningún
@@ -315,6 +320,7 @@ const fechaCorta = (iso) => {
 const diaSemana = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 const otras = (r) => (r?.otrasFuentes?.length ? ` · También: ${r.otrasFuentes.map((f) => fuenteEnlace(f)).join(', ')}` : '');
 const fuenteEnlace = (f) => (f?.url ? `<a href="${esc(f.url)}" rel="noopener">${txtEs(f.nombre)}</a>` : f?.nombre ? txtEs(f.nombre) : '');
+const TIPO_SELLO = { oficial: 'Fuente oficial', prensa: 'Prensa', referencia: 'Referencia', empresa: 'Declaración de la empresa', otra: 'Otra fuente' };
 const TIPO_FUENTE = { oficial: 'fuente oficial', prensa: 'prensa', referencia: 'obra de referencia', empresa: 'declaración de la empresa', otra: 'otra fuente' };
 /** Insignia de validación (texto + icono, no solo color). */
 /** HU-107: la insignia dice dónde se comprobó el dato, nunca quién. */
@@ -323,11 +329,12 @@ const verificadoEn = (fuente) => (fuente?.leidoAuto ? 'Leído de la web oficial'
 function selloCorto(n, verificado, fuente, publicado) {
   const quien = fuente?.nombre ? txtEs(fuente.nombre) : 'Sin fuente';
   const cuando = n === 'verificado' && verificado ? fechaCorta(verificado) : publicado ? fechaCorta(publicado) : '';
-  const marca = n === 'verificado' && verificado ? (fuente?.leidoAuto ? '<span class="sello-ok">✓ Web oficial</span>' : `<span class="sello-ok">✓ ${fuente?.tipo === 'oficial' ? 'Oficial' : 'Verificado'}</span>`) : `<span class="sello-no">${esc(NIVELES[n]?.texto || 'Sin verificar')}</span>`;
+  // 19/11/2026: sin el sello amarillo «Sin verificar». Lo no verificado dice de qué tipo es su fuente («Prensa»), en gris.
+  const marca = n === 'verificado' && verificado ? (fuente?.leidoAuto ? '<span class="sello-ok">✓ Web oficial</span>' : `<span class="sello-ok">✓ ${fuente?.tipo === 'oficial' ? 'Oficial' : 'Verificado'}</span>`) : `<span class="sello-tipo">${esc(TIPO_SELLO[fuente?.tipo] || 'Sin fuente')}</span>`;
   return [quien, cuando, marca].filter(Boolean).join(' · ');
 }
 function validacionHTML(n, verificado, fuente) {
-  const txt = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fechaCorta(verificado)}` : NIVELES[n]?.texto || n;
+  const txt = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fechaCorta(verificado)}` : n === 'por-verificar' || n === 'caducado' ? TIPO_SELLO[fuente?.tipo] || 'Sin fuente' : NIVELES[n]?.texto || n;
   return `<span class="val val-${esc(n)}">${esc(txt)}</span>`;
 }
 /** Estado operativo + línea de contexto: confirmado, o "Por verificar" con el último dato. */
@@ -1115,10 +1122,10 @@ function fichaOperativa(p, guiaPag) {
     `<dl class="datos">
       ${fila('Países', Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(PAISES[k])}: ${esc(v)}`).join('<br>'))}
       ${fila('Ubicación', `${txtEs(p.ubicacion.texto)}<span class="dato-fuente">${coordenadasHTML(p.ubicacion.coordenadas, p.ubicacion.coordenadasNota)}</span>`)}
-      ${fila('Operaciones habilitadas', p.operaciones ? `${txtEs(p.operaciones.texto)}${sello(p.operaciones)}` : '<span class="sin-dato">Sin verificar. Consulta con tu despachante.</span>')}
-      ${fila('Acceso', p.acceso?.length ? lista(p.acceso) : '<span class="sin-dato">Sin verificar</span>')}
-      ${fila('Servicios en el paso', p.servicios?.length ? lista(p.servicios) : '<span class="sin-dato">Sin verificar</span>')}
-      ${fila('Organismos', orgs.length ? `<ul class="lista-enlaces">${orgs.map(enlaceOrganismo).join('')}</ul>` : '<span class="sin-dato">Sin verificar</span>')}
+      ${fila('Operaciones habilitadas', p.operaciones ? `${txtEs(p.operaciones.texto)}${sello(p.operaciones)}` : '<span class="sin-dato">Sin datos. Consulta con tu despachante.</span>')}
+      ${fila('Acceso', p.acceso?.length ? lista(p.acceso) : '<span class="sin-dato">Sin datos</span>')}
+      ${fila('Servicios en el paso', p.servicios?.length ? lista(p.servicios) : '<span class="sin-dato">Sin datos</span>')}
+      ${fila('Organismos', orgs.length ? `<ul class="lista-enlaces">${orgs.map(enlaceOrganismo).join('')}</ul>` : '<span class="sin-dato">Sin datos</span>')}
       ${fila('Estado en detalle', `${txtEs(p.estado.texto)}${otras(p.estado) ? `<span class="dato-fuente">${otras(p.estado).replace(/^ · /, '')}</span>` : ''}`)}
       ${fila('Revisión', `Ficha revisada el ${fecha(p.revisado)}`)}
     </dl>
@@ -1913,7 +1920,7 @@ add(
     return f ? `<a class="etiqueta-festivo" href="${href}#calendario">${esc(diaSemana(f.fecha))} ${esc(fechaCorta(f.fecha))} · festivo en ${esc(PAISES[f.pais])}</a>` : '';
   })()}
   <dl class="paso-tarjeta-datos">
-    <div><dt>Horario</dt><dd>${h ? `${h.apertura && h.cierre && h.zona ? `${rangoDosHorasHTML(h.apertura, h.cierre, h.zona)}<span class="dato-fuente">${txtEs(h.texto)}</span>` : txtEs(h.texto)}${h.lado ? ` <span class="dato-fuente">${conBanderas(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin verificar</span>'}</dd></div>
+    <div><dt>Horario</dt><dd>${h ? `${h.apertura && h.cierre && h.zona ? `${rangoDosHorasHTML(h.apertura, h.cierre, h.zona)}<span class="dato-fuente">${txtEs(h.texto)}</span>` : txtEs(h.texto)}${h.lado ? ` <span class="dato-fuente">${conBanderas(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin datos</span>'}</dd></div>
     <div><dt>Tiempo de cruce</dt><dd>${cruceCorto(p.id).replace(/<[^>]+>/g, '').replace('Cruce ', '') || '<span class="sin-dato">Sin datos suficientes</span>'}</dd></div>
     <div><dt>Incidencias</dt><dd>${inc ? plural(inc, 'activa', 'activas') : 'Ninguna'}</dd></div>
   </dl>
