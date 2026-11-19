@@ -467,13 +467,13 @@
       "tipo": "corte",
       "estado": "activa",
       "gravedad": "rojo",
-      "descripcion": "BOQUERON – Ramales: Clausurado (P/T/T/V). Informe del MOPC del 19/11/2026, 07:00 (hora de Paraguay).",
+      "descripcion": "BOQUERON – Ramales: Clausurado (P/T/T/V). Informe del MOPC del 19/11/2026, 13:00 (hora de Paraguay).",
       "tramos": [
         "me-ph"
       ],
       "fuente": "py-mopc-estado-rutas",
       "publicado": "2026-11-19",
-      "horaFuente": "2026-11-19T10:00:00.000Z",
+      "horaFuente": "2026-11-19T16:00:00.000Z",
       "impacto": "Clausurado: no pasa ningún vehículo.",
       "actualizado": "2026-11-19",
       "evidencia": "oficial",
@@ -482,7 +482,7 @@
         "verificadoPor": "vigilante",
         "rol": "vigilante",
         "fecha": "2026-11-19",
-        "alcance": "Leído automáticamente de la web oficial el 19/11 a las 09:00 (hora de Argentina): BOQUERON – Ramales (RUTA 12 CHACOÍ – Gral. Bruguez): BOQUERON – Ramales: Clausurado (P/T/T/V). Informe del MOPC del 19/11/2026, 07:00 (hora de Paraguay).."
+        "alcance": "Leído automáticamente de la web oficial el 19/11 a las 14:00 (hora de Argentina): BOQUERON – Ramales (RUTA 12 CHACOÍ – Gral. Bruguez): BOQUERON – Ramales: Clausurado (P/T/T/V). Informe del MOPC del 19/11/2026, 13:00 (hora de Paraguay).."
       }
     },
     {
@@ -495,13 +495,13 @@
       "tipo": "corte",
       "estado": "activa",
       "gravedad": "rojo",
-      "descripcion": "BOQUERON · RAMALES NO PAVIMENTADOS: Clausurado para todo tipo de vehiculos por lluvia. Informe del MOPC del 19/11/2026, 07:00 (hora de Paraguay).",
+      "descripcion": "BOQUERON · RAMALES NO PAVIMENTADOS: Clausurado para todo tipo de vehiculos por lluvia. Informe del MOPC del 19/11/2026, 13:00 (hora de Paraguay).",
       "tramos": [
         "me-ph"
       ],
       "fuente": "py-mopc-estado-rutas",
       "publicado": "2026-11-19",
-      "horaFuente": "2026-11-19T10:00:00.000Z",
+      "horaFuente": "2026-11-19T16:00:00.000Z",
       "impacto": "Clausurado: no pasa ningún vehículo.",
       "actualizado": "2026-11-19",
       "evidencia": "oficial",
@@ -510,7 +510,7 @@
         "verificadoPor": "vigilante",
         "rol": "vigilante",
         "fecha": "2026-11-19",
-        "alcance": "Leído automáticamente de la web oficial el 19/11 a las 09:00 (hora de Argentina): Tramo: BOQUERON · RAMALES NO PAVIMENTADOS: BOQUERON · RAMALES NO PAVIMENTADOS: Clausurado para todo tipo de vehiculos por lluvia. Informe del MOPC del 19/11/2026, 07:00 (hora de Paraguay).."
+        "alcance": "Leído automáticamente de la web oficial el 19/11 a las 14:00 (hora de Argentina): Tramo: BOQUERON · RAMALES NO PAVIMENTADOS: BOQUERON · RAMALES NO PAVIMENTADOS: Clausurado para todo tipo de vehiculos por lluvia. Informe del MOPC del 19/11/2026, 13:00 (hora de Paraguay).."
       }
     },
     {
