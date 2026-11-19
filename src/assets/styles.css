@@ -862,8 +862,8 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .val-verificado::before { background: var(--ok-dot); border-radius: 50%; }
 .val-por-verificar { color: var(--muted-foreground); }
 .val-por-verificar::before { border: 2px solid currentColor; border-radius: 50%; width: 6px; height: 6px; }
-.val-caducado { color: var(--obras); }
-.val-caducado::before { background: var(--obras-dot); transform: rotate(45deg); }
+.val-caducado { color: var(--muted-foreground); }
+.val-caducado::before { border: 2px solid currentColor; border-radius: 50%; width: 6px; height: 6px; }
 .val-borrador { color: var(--muted-foreground); border-style: dashed; }
 .val-borrador::before { border-top: 2px solid currentColor; width: 8px; height: 0; }
 .paso-meta .val { margin-right: 4px; }
@@ -1350,6 +1350,7 @@ body { font-size: 17px; line-height: 1.5; }
 .sello-corto, .sello-linea { font-size: 14px; color: var(--muted-foreground); }
 .sello-ok { color: var(--ok); font-weight: 700; }
 .sello-no { color: var(--obras); font-weight: 700; }
+.sello-tipo { color: var(--muted-foreground); }
 
 /* Formas de estado también en los puntos del planificador */
 .pl-punto { width: 14px; height: 14px; flex: none; display: inline-block; }
