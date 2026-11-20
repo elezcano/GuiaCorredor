@@ -83,6 +83,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 20/11/2026 | #189 | Pie con 5 enlaces: mapa, anunciarse, cómo trabajamos, fuentes y contacto. |
 | 20/11/2026 | #187 | Rediseño V2: menú lateral/inferior, «Estado» con tablero de pasos, iconos Tabler y señales de carril, Rutas y Fronteras en dos columnas, página /cotizar/ (sin email personal) y prueba del sistema de diseño en 3 tamaños. |
 | 20/11/2026 | #183 | Avisos cortos (una línea + «Más información»), MOPC como mucho en ámbar (rojo solo si nombra la PY15: regla apagada) e historial de 90 días. |
 | 19/11/2026 | **Solo las fuentes oficiales deciden:** la prensa sin verificar queda como contexto y no cambia el estado; sin sello amarillo «Sin verificar» (cada dato dice de qué tipo es su fuente); «Tareas del día» solo con los partes de Chile por WhatsApp y las alertas sin clasificar | #175 |
