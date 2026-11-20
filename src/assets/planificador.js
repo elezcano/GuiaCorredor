@@ -183,7 +183,7 @@
         ${plegable(
           'Festivos',
           fest.length ? `${GC.plural(fest.length, 'festivo', 'festivos')} en las próximas 3 semanas` : 'Ninguno en las próximas 3 semanas',
-          `${fest.length ? `<ul class="lista-datos">${fest.map((f) => `<li><strong>${esc(fechaDia(f.fecha))}</strong> · ${esc(datos.paises[f.pais])}: ${esc(f.nombre)}${f.porConfirmar ? ' <span class="pl-nota">sin confirmar</span>' : ''}</li>`).join('')}</ul>` : `<p class="sin-dato">Ningún festivo en ${esc(paisesDe(op).map((p) => datos.paises[p]).join(', '))} en las próximas 3 semanas.</p>`}
+          `${fest.length ? `<ul class="lista-datos">${fest.map((f) => `<li class="fest-linea"><strong>${esc(fechaDia(f.fecha))}</strong> · ${datos.banderas?.[f.pais] || ''}${esc(datos.paises[f.pais])}: ${esc(f.nombre)}${f.porConfirmar ? ' <span class="pl-nota">sin confirmar</span>' : ''}</li>`).join('')}</ul>` : `<p class="sin-dato">Ningún festivo en ${esc(paisesDe(op).map((p) => datos.paises[p]).join(', '))} en las próximas 3 semanas.</p>`}
            <p class="pl-nota">Un festivo no implica que la aduana cierre. <a href="${esc(datos.calendario)}">Calendario aduanero</a></p>`
         )}
         ${empresas.length ? plegable('Empresas en la ruta', GC.plural(empresas.length, 'empresa', 'empresas'), `<ul class="lista-datos">${empresas.map((e) => `<li><strong>${esc(e.nombre)}</strong> · ${esc(e.cat)}${e.wa ? ` <a href="${esc(e.wa)}" rel="nofollow">WhatsApp</a>` : ''}</li>`).join('')}</ul>`) : ''}

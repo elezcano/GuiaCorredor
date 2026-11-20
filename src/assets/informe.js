@@ -108,7 +108,7 @@
     const afectados = pasos.filter((t) => [nodo(t.de).pais, nodo(t.a).pais].includes(f.pais));
     const especial = afectados.some((t) => especialesDia(t.paso.id).length);
     alertas.push(
-      `<li class="alerta-fila op-restricciones">${datos.operativa.restricciones.icono}<span><strong>${esc(fechaCorta(f.fecha))}: ${esc(f.nombre)} en ${esc(PAISES[f.pais])}${f.verificado ? '' : ' (por confirmar)'}.</strong> Afecta a ${esc(
+      `<li class="alerta-fila op-restricciones">${datos.operativa.restricciones.icono}<span><strong>${esc(fechaCorta(f.fecha))}: ${esc(f.nombre)} en ${datos.banderas?.[f.pais] || ''}${esc(PAISES[f.pais])}${f.verificado ? '' : ' (por confirmar)'}.</strong> Afecta a ${esc(
         afectados.map((t) => t.paso.nombre).join(', ') || 'la ruta'
       )}. ${especial ? 'Hay horario especial publicado: míralo abajo.' : 'Ningún organismo ha publicado horario especial para ese día.'}</span></li>`
     );
@@ -340,7 +340,7 @@
           <p class="nota-pie">${esc(datos.avisoDocumentos)}</p></section>`
             : ''
         }
-        ${festivosCerca.length ? `<section class="tarjeta"><h2>Festivos cerca</h2><p>${festivosCerca.map((f) => `${esc(fechaCorta(f.fecha))} · ${esc(PAISES[f.pais])}: ${esc(f.nombre)}`).join('<br>')}</p><p class="nota-pie">Un festivo no implica que la aduana cierre.</p></section>` : ''}
+        ${festivosCerca.length ? `<section class="tarjeta"><h2>Festivos cerca</h2><p>${festivosCerca.map((f) => `${esc(fechaCorta(f.fecha))} · ${datos.banderas?.[f.pais] || ''}${esc(PAISES[f.pais])}: ${esc(f.nombre)}`).join('<br>')}</p><p class="nota-pie">Un festivo no implica que la aduana cierre.</p></section>` : ''}
         <details class="tarjeta informe-fuentes-pl"><summary>Fuentes (${fuentes.size})</summary>
           <ul class="informe-lista informe-fuentes">${[...fuentes.values()].map((f) => `<li>${fuente(f)}</li>`).join('') || '<li>Sin fuentes</li>'}</ul>
         </details>

@@ -604,6 +604,7 @@ const datosRutas = (extra = {}) =>
     iconos: iconosCliente(['chat', 'enlace', 'imprimir', 'papeles', 'campana', 'derecha', 'guardar', 'abajo']),
     iconoGuardada: ico('guardar', { relleno: true }),
     paises: PAISES,
+    banderas: Object.fromEntries(Object.keys(PAISES).map((k) => [k, bandera(k)])),
     base: B,
     cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, sentidos: SENTIDOS, dias: DIAS },
     // Festivos de los próximos 45 días e incidencias activas por paso, para avisar en el planificador.
@@ -1189,6 +1190,7 @@ function calendarioPaso(p, { proximos: conProximos = true } = {}) {
   const fest = festivos.filter((f) => ps.includes(f.pais));
   const datos = {
     paises: Object.fromEntries(ps.map((k) => [k, PAISES[k]])),
+    banderas: Object.fromEntries(ps.map((k) => [k, bandera(k)])),
     festivos: fest.map((f) => ({ fecha: f.fecha, pais: f.pais, nombre: f.nombre, tipo: TIPOS_FESTIVO[f.tipo] || f.tipo, porConfirmar: f.validacion !== 'verificado' })),
     especiales: (p.horariosEspeciales || []).map((h) => ({ desde: h.desde, hasta: h.hasta, texto: h.texto })),
     hoy: HOY,
