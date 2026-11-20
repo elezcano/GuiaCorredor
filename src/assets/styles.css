@@ -1604,3 +1604,25 @@ html[lang^="pt"] .contenido-pt::before { content: none; }
 .pl-informe { margin-top: 12px; }
 @media (max-width: 1080px) { .rutas-col { grid-template-columns: minmax(0, 1fr); } }
 .pl-frontera .luz { width: 16px; height: 16px; }
+/* Servicios, cotización y alta */
+.caja-vacia { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 14px; background: var(--muted); font-size: 15px; }
+.caja-vacia strong { font-size: 17px; }
+.form-app { display: flex; flex-direction: column; gap: 12px; }
+.campos-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 10px; }
+.form-app .campo input, .form-app .campo select { border: 0; padding: 0; font: inherit; font-weight: 600; background: none; color: var(--foreground); min-height: 28px; }
+.segmentos { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 12px; background: var(--muted); }
+.segmentos label { position: relative; }
+.segmentos input { position: absolute; opacity: 0; }
+.segmentos span { display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 9px; font-weight: 700; color: var(--muted-foreground); cursor: pointer; }
+.segmentos input:checked + span { background: var(--background); color: var(--foreground); box-shadow: 0 1px 2px rgb(20 24 27 / 0.15); }
+.segmentos input:focus-visible + span { outline: 3px solid var(--ring-halo); }
+.chips-campo { border: 0; padding: 0; margin: 0; }
+.chips-campo legend { font-size: 13px; font-weight: 700; color: var(--muted-foreground); margin-bottom: 6px; }
+.chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.chips .chip { flex: none; }
+label.chip { position: relative; }
+label.chip input { position: absolute; opacity: 0; }
+label.chip:has(input:checked) { background: var(--foreground); color: var(--background); border-color: var(--foreground); }
+.form-error { margin: 0; color: var(--corte); font-weight: 700; }
+.form-ok { margin: 0; color: var(--ok); font-weight: 700; }
+.anunciate-col .planes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }

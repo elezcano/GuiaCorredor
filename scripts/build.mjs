@@ -41,7 +41,7 @@ import { cargar } from './datos.mjs';
 import { generarApi } from './api.mjs';
 import { aplicarEstimaciones } from './estimaciones.mjs';
 import { fiabilidad, ETIQUETAS_DIA } from './fiabilidad.mjs';
-import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO, CAMPOS_SOLICITUD } from './cruces.mjs';
+import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO, CAMPOS_SOLICITUD, CAMPOS_COTIZACION } from './cruces.mjs';
 
 const require = createRequire(import.meta.url);
 let marked;
@@ -360,9 +360,9 @@ const listaY = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(',
 
 // HU-133: accesos de negocio. Hasta la HU-95 (formulario con hoja privada), preparan un email al contacto del proyecto.
 const correo = (asunto, cuerpo) => `mailto:${site.contacto.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
-const cotizacion = (ruta = '') =>
-  correo(`Pedir cotización${ruta ? `: ${ruta}` : ''}`, `Origen y destino: ${ruta || ''}\nTipo de carga:\nPeso o volumen:\nFecha de carga:\nEmpresa y teléfono:\n`);
-const cargaRetorno = () => correo('Carga de retorno', 'Tengo un camión vacío en (ciudad):\nDisponible desde (fecha):\nTipo de camión:\nHacia (destino preferido):\nEmpresa y teléfono:\n');
+// Cotización y camión vacío: página propia con formulario (sin email personal en la web).
+const cotizacion = () => u('/cotizar/');
+const cargaRetorno = () => u('/cotizar/?tipo=retorno');
 
 // Horas siempre en la hora del país del paso: «19:00 en Argentina». Sin hora de España (confundía a quien cruza).
 // En portugués se añade la de Campo Grande (Brasil) como referencia: «19:00 en Argentina (18:00 em Campo Grande)».
@@ -1694,22 +1694,16 @@ for (const p of guia) {
   </section>`;
   const puertaNegocio = `<a class="negocio negocio-ancho" href="${u('/anunciate/')}">${icono('empresas')}<span><strong>¿Das servicio en el corredor?</strong><span>Aparece en tu paso y en el planificador</span></span></a>`;
   const vacioDirectorio = `
-<div class="contenedor servicios">
-  <header class="cabeza-pagina"><h1>Servicios</h1><p>Lo que necesitas en cada punto de la ruta: gasoil, taller, descanso, transporte y aduana.</p></header>
-  <p class="servicios-ruta" id="servicios-ruta" hidden></p>
-  <div class="servicios-grid">
-    <div>
-      ${categoriasHTML}
-      <section class="servicios-vacio" aria-labelledby="t-dir-vacio">
-        <p class="estado op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono}<span class="estado-texto">Sin empresas todavía</span></p>
-        <h2 id="t-dir-vacio">Aún no hay empresas verificadas en el corredor</h2>
-        <p>Solo publicamos empresas que han confirmado sus datos. Mientras tanto, puedes pedir una cotización por email.</p>
-      </section>
-    </div>
-    <aside class="servicios-lado">
-      ${puertaNegocio}
-      <a class="btn btn-negocio btn-grande" href="${cotizacion()}">Pedir cotización</a>
-    </aside>
+<div class="contenedor pagina-app servicios">
+  <div class="dos-col">
+    <section class="tarjeta" aria-labelledby="t-servicios">
+      <h1 id="t-servicios">Servicios</h1>
+      <p class="servicios-ruta" id="servicios-ruta" hidden></p>
+      <div class="caja-vacia"><strong>Aún no hay empresas verificadas en el corredor</strong><span>Solo publicamos empresas que han confirmado sus datos.</span></div>
+      <div class="acc"><a class="btn btn-negocio" href="${cotizacion()}">Pedir cotización</a><a class="btn btn-borde" href="${cargaRetorno()}">${icono('camion')}Camión vacío</a></div>
+      <p class="nota-pie">¿Das servicio en el corredor? <a href="${u('/anunciate/')}">Anunciar mi empresa</a></p>
+    </section>
+    <section class="tarjeta">${categoriasHTML.replace('class="sr-only">Qué necesitas', '>Qué necesitas')}</section>
   </div>
 </div>
 <script>document.addEventListener('DOMContentLoaded',function(){try{var r=JSON.parse(localStorage.getItem('guia-corredor:mi-ruta')||'null'),d=JSON.parse(document.getElementById('datos-nodos').textContent);if(r&&d[r.desde]&&d[r.hasta]){var e=document.getElementById('servicios-ruta');e.textContent='En tu ruta: '+d[r.desde]+' → '+d[r.hasta];e.hidden=false}}catch(x){}})</script>`;
@@ -1754,6 +1748,48 @@ for (const p of guia) {
   <div class="vacio" id="sin-resultados" hidden>
     <p>No hay empresas con esos filtros. Prueba con otro punto, país o tipo.</p>
     <button class="btn btn-borde" type="button" id="limpiar">Quitar filtros</button>
+  </div>
+</div>`,
+    })
+  );
+}
+
+// Pedir cotización / camión vacío (V2): un formulario, dos modos. Va a la hoja privada (Google Forms)
+// si está configurada en site.json → cotizaciones.enlacePrellenado; si no, prepara un email.
+{
+  const envio = configEnvio(site.cotizaciones?.enlacePrellenado, CAMPOS_COTIZACION);
+  const conGoogle = envio && !envio.error;
+  const nodos = rutas.nodos.map((n) => `<option value="${esc(n.nombre)}">${esc(n.nombre)}</option>`).join('');
+  const campo = (k, txt, input) => `<label class="campo" data-etiqueta="${esc(txt)}"><span>${esc(txt)}</span>${input}</label>`;
+  add(
+    '/cotizar/',
+    layout({
+      titulo: 'Pedir cotización',
+      descripcion: 'Pide precio de transporte por el Corredor Bioceánico o publica tu vuelta con el camión vacío.',
+      ruta: '/cotizar/',
+      scripts: ['/assets/formulario.js'],
+      cuerpo: `
+<div class="contenedor pagina-app">
+  <div class="dos-col">
+    <section class="tarjeta" aria-labelledby="t-cotizar">
+      <h1 id="t-cotizar">Pedir cotización</h1>
+      <form class="form-app" id="form-cotizar" data-asunto="Cotización" data-email="${esc(site.contacto.email || '')}"${conGoogle ? ` data-accion="${esc(envio.accion)}" data-campos="${esc(JSON.stringify(envio.campos))}"` : ''} novalidate>
+        <div class="segmentos" role="radiogroup" aria-label="Qué necesitas">
+          <label><input type="radio" name="tipo" value="Pido transporte" checked><span>Pido transporte</span></label>
+          <label><input type="radio" name="tipo" value="Tengo el camión vacío"><span>Tengo el camión vacío</span></label>
+        </div>
+        <div class="campos-2">${campo('desde', 'Desde', `<select name="desde" required><option value="">Elige</option>${nodos}</select>`)}${campo('hasta', 'Hasta', `<select name="hasta" required><option value="">Elige</option>${nodos}</select>`)}</div>
+        <fieldset class="chips-campo"><legend>Carga o camión</legend><div class="chips">${rutas.tiposCarga.map((c, i) => `<label class="chip"><input type="radio" name="carga" value="${esc(c.nombre)}"${i ? '' : ' checked'}><span>${esc(c.nombre)}</span></label>`).join('')}</div></fieldset>
+        <div class="campos-2">${campo('peso', 'Peso o volumen', '<input name="peso" placeholder="p. ej. 28 t">')}${campo('fecha', 'Fecha', `<input name="fecha" type="date" min="${HOY}">`)}</div>
+        <div class="campos-2">${campo('empresa', 'Empresa', '<input name="empresa" required autocomplete="organization">')}${campo('telefono', 'Teléfono o WhatsApp', '<input name="telefono" required type="tel" placeholder="+595 …" autocomplete="tel">')}</div>
+        ${campo('email', 'Email (opcional)', '<input name="email" type="email" autocomplete="email">')}
+        <p class="form-error" role="alert" hidden></p>
+        <p class="form-ok" role="status" hidden></p>
+        <div class="acc"><button class="btn btn-negocio" type="submit">Enviar solicitud</button></div>
+        <p class="nota-pie">Sin coste. Te contestamos por WhatsApp o email. No publicamos tus datos.</p>
+      </form>
+    </section>
+    <section class="tarjeta solo-ancho" aria-label="Mapa del corredor">${mapaHTML()}</section>
   </div>
 </div>`,
     })
@@ -1832,21 +1868,19 @@ for (const p of guia) {
       ruta: '/anunciate/',
       scripts: site.contacto.email ? ['/assets/solicitud.js'] : [],
       cuerpo: `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Anunciar mi empresa</h1><p>Tu empresa aparece en el punto de la ruta donde trabajas: en el planificador, en la guía y en el buscador.</p></header>
-  <div class="planes">${planes}</div>
-</div>
-${seccion({
-  titulo: 'Cómo darse de alta',
-  contexto: 'Cada solicitud la revisa una persona antes de publicarse.',
-  id: 'alta',
-  cuerpo: `<ol class="pasos-alta">
-    <li><b>Envía la solicitud</b><span>Alta, corrección o retirada, con los datos de la empresa.</span></li>
-    <li><b>La revisamos</b><span>Comprobamos los datos y las referencias. La solicitud no se publica sola.</span></li>
-    <li><b>Te avisamos</b><span>Si se publica, la ficha indica qué datos están verificados y cuáles los declara la empresa.</span></li>
-  </ol>
-  ${formSolicitud}`,
-})}`,
+<div class="contenedor pagina-app">
+  <div class="dos-col anunciate-col">
+    <section class="tarjeta" aria-labelledby="t-anunciate">
+      <h1 id="t-anunciate">Anunciar mi empresa</h1>
+      <p class="nota-pie">Aparece en tu paso, en el planificador y en el buscador. Cada alta la revisa una persona.</p>
+      <div class="planes">${planes}</div>
+    </section>
+    <section class="tarjeta" id="alta" aria-labelledby="t-alta">
+      <h2 id="t-alta">Darme de alta</h2>
+      ${formSolicitud}
+    </section>
+  </div>
+</div>`,
     })
   );
 }
