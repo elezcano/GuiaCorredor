@@ -83,6 +83,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 20/11/2026 | #194 | Avisos y Fuentes que vigilamos en V2: una línea por aviso o fuente, detalle al abrir y dos columnas. |
 | 20/11/2026 | #191 | Mapas con el mismo encuadre (corredor entero o centrado en el paso o la ruta) y tablero con bandera y nombre del país. |
 | 20/11/2026 | #192 | Vigilante: lee el «Motivo del cierre» de Gendarmería en la web oficial del paso y lo cita en el estado. |
 | 20/11/2026 | #189 | Pie con 5 enlaces: mapa, anunciarse, cómo trabajamos, fuentes y contacto. |
