@@ -113,7 +113,26 @@ const guiaDePaso = Object.fromEntries(rutas.tramos.flatMap((t) => [t.paso, t.alt
 /** Estado mostrable de un paso: combina la validación del dato y la de su ficha. */
 // Decisión del 15/11/2026: lo que importa es la operatividad. El estado de un paso o tramo se confirma
 // por su propia verificación; que el texto de la ficha de la guía esté en revisión no lo oculta.
-const estadoPaso = (id) => estadoMostrable(fichaPaso[id]?.estado, HOY);
+// Decisión del 20/11/2026 (diagnóstico de producto): un paso solo sale «Abierto» si TODOS sus lados tienen un parte
+// oficial de menos de 48 h (umbral de site.partes). Si a un lado le falta, el paso pasa a «Sin confirmar» y dice
+// en qué país está abierto y de cuál no hay parte: una situación incompleta no se presenta como transitable.
+// Una fuente que no es oficial (prensa) tampoco puede dejar un paso como abierto.
+const UMBRAL_LADO_H = site.partes?.umbralHoras ?? 48;
+const ahoraLados = process.env.FECHA_HOY ? Date.parse(`${HOY}T15:00:00Z`) : Date.now();
+const ladosSinParte = (p) =>
+  Object.keys(p?.lados || {}).filter((lado) => {
+    const ult = (p.partes || []).filter((x) => x.lado === lado).map((x) => Date.parse(`${x.publicado}T${x.hora || '12:00'}:00-03:00`)).sort((a, b) => b - a)[0];
+    return !ult || (ahoraLados - ult) / 36e5 > UMBRAL_LADO_H;
+  });
+const estadoPaso = (id) => {
+  const e = estadoMostrable(fichaPaso[id]?.estado, HOY);
+  if (!e.confirmado || e.valor !== 'operativo') return e;
+  if (e.evidencia && e.evidencia !== 'oficial') return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar' };
+  const sin = ladosSinParte(fichaPaso[id]);
+  if (!sin.length) return e;
+  const con = Object.keys(fichaPaso[id].lados).filter((l) => !sin.includes(l));
+  return { ...e, valor: 'pendiente', confirmado: false, parcial: { con, sin } };
+};
 const estadoTramo = (t) => (t.paso?.id ? estadoPaso(t.paso.id) : estadoMostrable(t.reporte, HOY));
 // Estimaciones provisionales de distancia (solo tramos sin km con fuente).
 aplicarEstimaciones(rutas, fichaPasos, site.estimaciones?.provisionales !== false);
@@ -325,7 +344,8 @@ function selloCorto(n, verificado, fuente, publicado) {
   const quien = fuente?.nombre ? txtEs(fuente.nombre) : 'Sin fuente';
   const cuando = n === 'verificado' && verificado ? fechaCorta(verificado) : publicado ? fechaCorta(publicado) : '';
   // 19/11/2026: sin el sello amarillo «Sin verificar». Lo no verificado dice de qué tipo es su fuente («Prensa»), en gris.
-  const marca = n === 'verificado' && verificado ? (fuente?.leidoAuto ? '<span class="sello-ok">✓ Web oficial</span>' : `<span class="sello-ok">✓ ${fuente?.tipo === 'oficial' ? 'Oficial' : 'Verificado'}</span>`) : `<span class="sello-tipo">${esc(TIPO_SELLO[fuente?.tipo] || 'Sin fuente')}</span>`;
+  // 20/11/2026: el ✓ es solo para organismos oficiales. Lo comprobado en prensa u otra fuente secundaria dice de qué tipo es.
+  const marca = n === 'verificado' && verificado && (fuente?.leidoAuto || fuente?.tipo === 'oficial') ? `<span class="sello-ok">✓ ${fuente?.leidoAuto ? 'Web oficial' : 'Oficial'}</span>` : `<span class="sello-tipo">${esc(TIPO_SELLO[fuente?.tipo] || 'Sin fuente')}${n === 'verificado' && verificado && fuente?.tipo !== 'oficial' ? ' · sin parte oficial' : ''}</span>`;
   return [quien, cuando, marca].filter(Boolean).join(' · ');
 }
 function validacionHTML(n, verificado, fuente) {
@@ -336,6 +356,7 @@ function validacionHTML(n, verificado, fuente) {
 function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
   // HU-131: tramo vigilado sin avisos, o con la vigilancia parada, o sin vigilancia.
   if (v.vigilado) return `${estado(v.valor === 'sin-incidencias' ? 'sin-incidencias' : v.valor, tipo, v.etiqueta)}<span class="estado-fecha sello-linea" data-vig-fuentes="${esc(v.vigilancia.fuentes.join(' '))}">${txtEs(v.vigilancia.organismos)} · <a href="${u('/fuentes/')}">vigilado cada hora</a></span>`;
+  if (v.parcial) return `${estado('pendiente', tipo, `Abierto solo en ${listaY(v.parcial.con.map((k) => PAISES[k]))}`)}<span class="estado-fecha sello-linea">Sin parte de ${listaY(v.parcial.sin.map((k) => PAISES[k]))} en ${UMBRAL_LADO_H} h · ${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
   if (v.etiqueta && !v.confirmado) return `${estado('pendiente', tipo, v.etiqueta)}<span class="estado-fecha">${v.vigilancia ? `${txtEs(v.vigilancia.organismos)} · sin lectura buena en las últimas ${HORAS_SIN_ACTUALIZAR} h` : 'Ninguna fuente oficial lo publica cada día'}</span>`;
   if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
   if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
@@ -888,8 +909,9 @@ const instanteParte = (x) => `${x.publicado}T${x.hora || '12:00'}:00${desfase(ZO
 function selloHTML(n, verificado, fuente, publicado) {
   // HU-133 (R3): un único sello en toda la web: «Organismo · cuándo · ✓ Web oficial».
   const corto = selloCorto(n, verificado, fuente, publicado);
-  const largo = n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fecha(verificado)}${fuente?.leidoAuto ? ', de forma automática' : ''}.` : n === 'caducado' ? 'Verificación caducada: confírmalo antes de salir.' : 'Publicado por su fuente, sin comprobar todavía.';
-  return `<details class="sello sello-${esc(n)}"><summary><span class="sello-corto">${corto}</span></summary><span class="sello-hoja">${esc(largo)} ${fuenteEnlace(fuente)}${publicado ? `, ${fecha(publicado)}` : ''}${fuente?.tipo ? ` (${TIPO_FUENTE[fuente.tipo]})` : ''}.</span></details>`;
+  const largo = n === 'verificado' && verificado && fuente?.tipo !== 'oficial' && !fuente?.leidoAuto ? `Comprobado por el equipo el ${fecha(verificado)} en una fuente que no es oficial: no hay parte oficial que lo confirme.` : n === 'verificado' && verificado ? `${verificadoEn(fuente)} el ${fecha(verificado)}${fuente?.leidoAuto ? ', de forma automática' : ''}.` : n === 'caducado' ? 'Verificación caducada: confírmalo antes de salir.' : 'Publicado por su fuente, sin comprobar todavía.';
+  const clase = n === 'verificado' && verificado && fuente?.tipo !== 'oficial' && !fuente?.leidoAuto ? 'secundaria' : n;
+  return `<details class="sello sello-${esc(clase)}"><summary><span class="sello-corto">${corto}</span></summary><span class="sello-hoja">${esc(largo)} ${fuenteEnlace(fuente)}${publicado ? `, ${fecha(publicado)}` : ''}${fuente?.tipo ? ` (${TIPO_FUENTE[fuente.tipo]})` : ''}.</span></details>`;
 }
 /** HU-73 / HU-113: lo que informa cada organismo, una línea por parte, con fecha, hora y sello de fuente. */
 function partesHTML(p, op) {
@@ -1064,7 +1086,9 @@ function fichaOperativa(p, guiaPag) {
             ? `<p class="respuesta-nota">${txtOf(resto)}</p>`
             : ''
           : `<p class="respuesta-nota">${
-              e.ultimo && e.ultimo !== 'pendiente'
+              e.parcial
+                ? `Abierto en ${esc(listaY(e.parcial.con.map((k) => PAISES[k])))} según su parte oficial. De ${esc(listaY(e.parcial.sin.map((k) => PAISES[k])))} no hay parte de las últimas ${UMBRAL_LADO_H} h: confírmalo antes de salir.`
+                : e.ultimo && e.ultimo !== 'pendiente'
                 ? `Último dato publicado: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${esc(haceTiempo(p.estado.publicado))}. Confírmalo antes de salir.`
                 : 'No hay un estado confirmado. Consulta el parte oficial antes de salir.'
             }</p>`
@@ -1250,7 +1274,7 @@ rutas.tramos.forEach((t) => {
 const estadoCorto = (id) => {
   const e = estadoPaso(id);
   const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
-  return `<span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${OPERATIVA[op].texto}</span></span>`;
+  return `<span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${OPERATIVA[op].texto}</span></span>${e.parcial ? `<small class="estado-parcial">Abierto solo en ${esc(listaY(e.parcial.con.map((k) => PAISES[k])))}</small>` : ''}`;
 };
 /** Horario habitual de un paso en hora local («09:00–19:15»), o «—». */
 const horarioCorto = (id) => {

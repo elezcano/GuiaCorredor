@@ -1046,7 +1046,7 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .sello summary:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
 .sello-verificado summary { color: var(--ok-fg, #145c32); background: color-mix(in srgb, var(--ok-dot) 16%, transparent); }
 .sello-verificado summary::before { content: "✓"; }
-.sello-por-verificar summary, .sello-borrador summary { color: var(--muted-foreground); border: 1px dashed var(--border-strong); }
+.sello-por-verificar summary, .sello-borrador summary, .sello-secundaria summary { color: var(--muted-foreground); border: 1px dashed var(--border-strong); }
 .sello-caducado summary { color: var(--foreground); background: color-mix(in srgb, var(--obras-dot) 22%, transparent); }
 .sello-hoja { display: block; margin-top: 6px; padding: 8px 10px; border-radius: var(--radius); background: var(--muted); color: var(--foreground); }
 .sello-hoja a { color: inherit; }
@@ -1645,3 +1645,4 @@ fieldset { min-width: 0; }
 
 /* Bandera junto al país en listas de festivos generadas en el navegador */
 .fest-linea .pais-bandera, .cal-festivo .pais-bandera, .informe .pais-bandera { display: inline-flex; vertical-align: -2px; margin: 0 6px 0 2px; }
+.estado-parcial { display: block; font-size: 12px; line-height: 16px; color: #b8c4d0; margin-top: 2px; }
