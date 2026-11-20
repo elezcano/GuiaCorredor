@@ -4,6 +4,20 @@
   const CLAVE_TEMA = 'guia-corredor:tema';
   const CLAVE_RUTA = 'guia-corredor:ruta';
   const CLAVE_MI_RUTA = 'guia-corredor:mi-ruta';
+  // Mapas (V2): encuadra el esquema en los puntos dados (o en todos), con margen y proporción 2:1.
+  const encuadrar = (svg, ids) => {
+    const P = JSON.parse(svg.dataset.puntos || '{}');
+    const ps = (ids && ids.length ? ids : Object.keys(P)).map((id) => P[id]).filter(Boolean);
+    if (!ps.length) return;
+    const m = ids && ids.length ? 90 : 40;
+    const xs = ps.map((p) => p[0]), ys = ps.map((p) => p[1]);
+    const x0 = Math.min(...xs) - m, x1 = Math.max(...xs) + m * 1.6, y0 = Math.min(...ys) - m, y1 = Math.max(...ys) + m;
+    let w = Math.max(x1 - x0, 320), h = Math.max(y1 - y0, 160);
+    if (w / h > 2) h = w / 2;
+    else w = h * 2;
+    svg.setAttribute('viewBox', [(x0 + x1) / 2 - w / 2, (y0 + y1) / 2 - h / 2, w, h].map((v) => v.toFixed(1)).join(' '));
+  };
+  document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('.mapa svg[data-foco]').forEach((s) => encuadrar(s, s.dataset.foco.split(' '))));
   const guardar = (k, v) => {
     try {
       localStorage.setItem(k, v);
@@ -55,6 +69,7 @@
   const sinParentesis = (s) => String(s).replace(/\s*\(.*\)$/, '');
 
   const GC = {
+    encuadrar,
     esc,
     plural,
     sinParentesis,

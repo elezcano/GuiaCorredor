@@ -711,7 +711,8 @@ function tablero() {
 }
 
 /** Mapa esquemático con posiciones aproximadas (proyección equirectangular). */
-function mapaHTML() {
+/** Esquema del corredor. foco: ids de localidades o pasos a encuadrar; leyenda: solo en la página del mapa. */
+function mapaHTML({ foco = null, leyenda = false } = {}) {
   const LON0 = -72.3, LAT0 = -19.3, K = 56.4, COS = 0.924;
   const X = (lon) => +((lon - LON0) * COS * K).toFixed(1);
   const Y = (lat) => +((LAT0 - lat) * K).toFixed(1);
@@ -794,9 +795,17 @@ function mapaHTML() {
     ['ARGENTINA', -25.0, -63.0],
     ['CHILE', -21.0, -69.4],
   ];
+  // Encuadre (V2): el SVG lleva la posición de cada punto; comun.js (GC.encuadrar) ajusta el viewBox
+  // al corredor entero o a los puntos de data-foco, con margen y siempre 2:1. Sin JavaScript se ve entero.
+  const punto = (id) => (n[id] ? n[id] : loc(id));
+  const puntosXY = Object.fromEntries([...rutas.nodos.map((x) => x.id), ...fichaPasos.map((q) => q.id)].map((id) => [id, [X(punto(id).lon), Y(punto(id).lat)]]));
+  const xs = Object.values(puntosXY).map((v) => v[0]), ys = Object.values(puntosXY).map((v) => v[1]);
+  const caja = [Math.min(...xs) - 40, Math.min(...ys) - 60, Math.max(...xs) - Math.min(...xs) + 110, 0];
+  caja[3] = Math.max((Math.max(...ys) - Math.min(...ys)) + 120, caja[2] / 2);
+  caja[2] = Math.max(caja[2], caja[3] * 2);
   return `<figure class="mapa">
   <div class="mapa-marco">
-    <svg viewBox="0 0 1000 356" role="img" aria-labelledby="mapa-titulo mapa-desc">
+    <svg viewBox="${caja.map((v) => +v.toFixed(1)).join(' ')}" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="mapa-titulo mapa-desc" data-puntos="${esc(JSON.stringify(puntosXY))}"${foco?.length ? ` data-foco="${esc(foco.join(' '))}"` : ''}>
       <title id="mapa-titulo">Mapa esquemático del Corredor Bioceánico</title>
       <desc id="mapa-desc">De Campo Grande (Brasil) a los puertos del norte de Chile, por Paraguay y Argentina. Esquema sin límites políticos. Las localidades y los pasos de Jama y Sico se sitúan con coordenadas con fuente; el Puente de la Bioceánica se dibuja entre sus dos localidades.</desc>
       <polygon class="m-oceano" points="${oceano}"/>
@@ -806,7 +815,7 @@ function mapaHTML() {
       ${ciudades}${pts}${pasos}
     </svg>
   </div>
-  <figcaption>
+${leyenda ? `  <figcaption>
     <ul class="mapa-leyenda">
       <li><span class="ley-color op-abierto" style="background:var(--ok-dot)"></span>Abierto</li>
       <li><span class="ley-color" style="background:var(--obras-dot)"></span>Con restricciones</li>
@@ -819,7 +828,7 @@ function mapaHTML() {
       <li><span class="ley-puerto"></span>Puerto</li>
     </ul>
     <p>Esquema sin límites políticos. Las coordenadas tienen fuente; la de Salta / Jujuy es un punto de referencia que agrupa las dos ciudades.</p>
-  </figcaption>
+  </figcaption>` : ''}
 </figure>`;
 }
 
@@ -1239,7 +1248,7 @@ const tableroPasos = ({ sel = null } = {}) => `<div class="tablero-pasos" role="
   ${pasosHistoria
     .map(
       (h) => `<a role="row" data-paso="${esc(h.id)}" class="tablero-fila${h.id === sel ? ' sel' : ''}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}"${h.id === sel ? ' aria-current="true"' : ''}>
-    <span role="cell" class="tablero-paso"><strong>${esc(h.nombre)}</strong><small>${h.cara.join(' → ')}</small></span>
+    <span role="cell" class="tablero-paso"><strong>${esc(h.nombre)}</strong><small>${h.cara.map((c) => `<span class="tablero-pais">${bandera(c)}<span>${PAISES[c]}</span></span>`).join(' → ')}</small></span>
     <span role="cell">${estadoCorto(h.id)}</span><span role="cell" class="tablero-hora">${horarioCorto(h.id)}</span></a>`
     )
     .join('')}
@@ -1300,10 +1309,12 @@ function datosMapa() {
   const datosMapa = { puntos, lineas, colores: { abierto: '#1f9d55', restricciones: '#e8a317', cerrado: '#d64545', 'sin-confirmar': '#8a939b' } };
   return datosMapa;
 }
+/** Tarjeta de mapa (V2): igual en todas las páginas; el pie enlaza al mapa interactivo. */
+const mapaTarjeta = (o = {}) => `<section class="tarjeta mapa-tarjeta${o.clase ? ` ${o.clase}` : ''}" aria-label="Mapa del corredor">${mapaHTML(o)}<p class="nota-pie">Esquema con el estado de hoy. <a href="${u('/mapa/')}">Mapa interactivo</a></p></section>`;
 /** Marco del mapa: el mapa vivo (oculto hasta que carga) y el esquema SVG de respaldo. */
-const mapaVivoHTML = () => `<div class="mapa-vivo-marco" data-estado="esquema">
+const mapaVivoHTML = (o = {}) => `<div class="mapa-vivo-marco" data-estado="esquema">
     <div id="mapa-vivo" class="mapa-vivo" role="region" aria-label="Mapa interactivo del corredor. La misma información está en la tabla de tramos de la página del mapa."></div>
-    <div class="mapa-respaldo">${mapaHTML()}</div>
+    <div class="mapa-respaldo">${mapaHTML(o)}</div>
   </div>`;
 const datosMapaScript = () => `<script type="application/json" id="datos-mapa">${JSON.stringify(datosMapa()).replace(/</g, '\\u003c')}</script>`;
 
@@ -1392,7 +1403,7 @@ const avisoHoy = (i) => {
       <div id="resultado" aria-live="polite"></div>
       <noscript><p class="aviso">Activa JavaScript para ver las opciones de ruta.</p></noscript>
     </section>
-    <section class="tarjeta solo-ancho" aria-label="Mapa del corredor">${mapaHTML()}<p class="nota-pie">Esquema del corredor con el estado de hoy. <a href="${u('/mapa/')}">Mapa interactivo</a></p></section>
+    ${mapaTarjeta({ clase: 'solo-ancho' })}
   </div>
 </div>`,
     })
@@ -1582,6 +1593,10 @@ function fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona, nov) {
   <div class="dos-col ficha-paso-col">
     <div class="ficha-lado">
       <section class="tarjeta solo-ancho" aria-label="Todos los pasos">${tableroPasos({ sel: paso.id })}</section>
+      ${(() => {
+        const t = rutas.tramos.find((x) => x.paso?.id === paso.id || x.alternativa?.id === paso.id);
+        return mapaTarjeta({ foco: [paso.id, t.desde, t.hasta] });
+      })()}
       ${cruce ? `<section class="tarjeta">${cruce}</section>` : ''}
       ${ayuda}
     </div>
@@ -1634,6 +1649,7 @@ for (const p of guia) {
       })()}
     </article>
     <aside class="lateral">
+      ${zona.length ? mapaTarjeta({ foco: zona }) : ''}
       ${cruce}
       ${
         zona.length
@@ -1781,7 +1797,7 @@ for (const p of guia) {
         <p class="nota-pie">Sin coste. Te contestamos por WhatsApp o email. No publicamos tus datos.</p>
       </form>
     </section>
-    <section class="tarjeta solo-ancho" aria-label="Mapa del corredor">${mapaHTML()}</section>
+    ${mapaTarjeta({ clase: 'solo-ancho' })}
   </div>
 </div>`,
     })
