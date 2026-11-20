@@ -13,7 +13,14 @@
   "indexable": false,
   "contacto": {
     "email": "elezcanofm@gmail.com",
-    "whatsapp": ""
+    "whatsapp": "",
+    "buzones": {
+      "nota": "Buzones del dominio cuando exista (info@, contacto@, soporte@, legal@). Vacíos: se usa email.",
+      "info": "",
+      "contacto": "",
+      "soporte": "",
+      "legal": ""
+    }
   },
   "planes": [
     {
@@ -29,7 +36,7 @@
     {
       "id": "destacada",
       "nombre": "Ficha destacada",
-      "precio": "45 € / mes",
+      "precio": "5 US$ / mes",
       "incluye": [
         "Sale primero en su ciudad y categoría",
         "Logo y descripción ampliada",

@@ -363,7 +363,9 @@ const plural = (n, s, p) => `${n} ${n === 1 ? s : p}`;
 const listaY = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} y ${xs[xs.length - 1]}`);
 
 // HU-133: accesos de negocio. Hasta la HU-95 (formulario con hoja privada), preparan un email al contacto del proyecto.
-const correo = (asunto, cuerpo) => `mailto:${site.contacto.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+// Buzón por uso (contacto, soporte, legal, info); mientras no haya dominio, el correo general.
+const buzon = (tipo) => site.contacto.buzones?.[tipo] || site.contacto.email || '';
+const correo = (asunto, cuerpo) => `mailto:${buzon('contacto')}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
 // Cotización y camión vacío: página propia con formulario (sin email personal en la web).
 const cotizacion = () => u('/cotizar/');
 const cargaRetorno = () => u('/cotizar/?tipo=retorno');
@@ -471,7 +473,7 @@ ${cuerpo}
       <a href="${u('/anunciate/')}">Anunciar mi empresa</a>
       <a href="${u('/sobre/')}">Cómo trabajamos la información</a>
       <a href="${u('/fuentes/')}">Fuentes que vigilamos</a>
-      ${site.contacto.email ? `<a href="mailto:${esc(site.contacto.email)}">Escríbenos</a>` : ''}
+      ${buzon('contacto') ? `<a href="mailto:${esc(buzon('contacto'))}">Escríbenos</a>` : ''}
     </nav>
     <p class="pie-aviso">${esc(site.aviso)}</p>
     ${firmaMadre('pie-marca')}
@@ -1791,7 +1793,7 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
   <div class="dos-col">
     <section class="tarjeta" aria-labelledby="t-cotizar">
       <h1 id="t-cotizar">Pedir cotización</h1>
-      <form class="form-app" id="form-cotizar" data-asunto="Cotización" data-email="${esc(site.contacto.email || '')}"${conGoogle ? ` data-accion="${esc(envio.accion)}" data-campos="${esc(JSON.stringify(envio.campos))}"` : ''} novalidate>
+      <form class="form-app" id="form-cotizar" data-asunto="Cotización" data-email="${esc(buzon('contacto'))}"${conGoogle ? ` data-accion="${esc(envio.accion)}" data-campos="${esc(JSON.stringify(envio.campos))}"` : ''} novalidate>
         <div class="segmentos" role="radiogroup" aria-label="Qué necesitas">
           <label><input type="radio" name="tipo" value="Pido transporte" checked><span>Pido transporte</span></label>
           <label><input type="radio" name="tipo" value="Tengo el camión vacío"><span>Tengo el camión vacío</span></label>
@@ -1821,7 +1823,7 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
       (pl) => `
 <section class="plan${pl.id === 'destacada' ? ' plan-destacado' : ''}" aria-labelledby="plan-${esc(pl.id)}">
   <h2 id="plan-${esc(pl.id)}">${esc(pl.nombre)}</h2>
-  <p class="precio">${esc(pl.precio.replace(' € / mes', '\u202f€ al mes'))}</p>
+  <p class="precio">${esc(pl.precio.replace(' / mes', ' al mes'))}</p>
   <ul class="lista-check">${pl.incluye.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>
   ${
     pl.id === 'destacada'
@@ -2006,7 +2008,7 @@ add(
     <section class="tarjeta" aria-labelledby="s-datos"><h2 id="s-datos">Tus datos</h2>
       <p>Tu ruta se guarda solo en tu navegador. No pedimos registro.${envioCruce ? ' Si cuentas tu tiempo de cruce, solo se envían el paso, el sentido, el tiempo y el día.' : ''}</p>
       <p>No transportamos mercancía ni cobramos comisiones: la contratación es directa entre empresas. Los datos son abiertos en <a href="${u('/api/v1/indice.json')}">api/v1</a>.</p>
-      ${site.contacto.email ? `<a class="btn btn-borde" href="mailto:${esc(site.contacto.email)}?subject=${encodeURIComponent('Dato desactualizado')}">${icono('correo')}Avisar de un dato desactualizado</a>` : ''}
+      ${buzon('soporte') ? `<a class="btn btn-borde" href="mailto:${esc(buzon('soporte'))}?subject=${encodeURIComponent('Dato desactualizado')}">${icono('correo')}Avisar de un dato desactualizado</a>` : ''}
     </section>
   </div>
 </div>`,
