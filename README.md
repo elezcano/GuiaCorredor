@@ -30,35 +30,34 @@
 
 ---
 
-## El proyecto en 6 bloques
+## Plan de 90 días
 
-Cada tarjeta de Trello lleva el número de su bloque (por ejemplo, **1.4**) y la historia de usuario entre paréntesis (**HU-134**).
+**Veredicto del comité (20/11/2026): CONTINUAR · 8/10.** Un ciclo de validación de 90 días sin crecer en amplitud. El núcleo: **fronteras y aduanas fiables, empresas verificadas y cotizaciones que reciban respuesta.** Ninguna funcionalidad nueva sin evidencia de uso.
+
+Las tarjetas de Trello llevan el número de su fase (por ejemplo, **2.1**) y la issue entre paréntesis.
 
 ```mermaid
 flowchart LR
-  B1["🚦 1 · Estado del corredor<br/>¿se puede pasar hoy?"]
-  B2["🗺️ 2 · La app<br/>rutas, fronteras y mapa"]
-  B3["📖 3 · Guía y contenido<br/>pasos, tramos, documentos"]
-  B4["💼 4 · Negocio y directorio<br/>empresas, cotización, cobro"]
-  B5["🏷️ 5 · Marca, legal y lanzamiento"]
-  B6["🧪 6 · Validación del negocio<br/>entrevistas y veredicto"]
-  B1 --> B2
-  B3 --> B2
-  B2 --> B4
-  B5 --> B4
-  B4 --> B6
+  F1["1 · Días 1–30<br/>Validar y ordenar<br/>20/11 – 20/12"]
+  F2["2 · Días 31–60<br/>Base de confianza<br/>21/12 – 19/01"]
+  F3["3 · Días 61–90<br/>Convertir y medir<br/>20/01 – 18/02"]
+  D{"🚦 18/02/2027<br/>¿seguir?"}
+  P["🌉 Ciclo 2<br/>90 días tras abrir<br/>los accesos del puente"]
+  F1 --> F2 --> F3 --> D -->|sí| P
 ```
 
-| Bloque | Qué resuelve | Tarjetas |
-|---|---|---|
-| 🚦 **1 · Estado del corredor** | Si hoy se puede pasar, con la fuente oficial de cada país leída cada hora | ✅ 1.1 Vigilante fiable · ✅ 1.2 Fuentes oficiales y página «Fuentes» · ✅ 1.3 Fuentes de Brasil · ✅ 1.4 Carreteras de Paraguay (MOPC) · ✅ 1.5 Carreteras de Brasil (DNIT) · ✅ 1.6 Tres estados por tramo · ⏳ 1.7 Partes a 24 h en invierno · ⏳ 1.8 Avísame si cambia |
-| 🗺️ **2 · La app** | Planificar la ruta y ver cada frontera desde el móvil | ✅ 2.1 Rediseño Versión 2 · ✅ 2.2 Portugués · 🔧 2.3 Red completa de Santos a Iquique · ⏳ 2.4 Datos esenciales de la fase 1 |
-| 📖 **3 · Guía y contenido** | Qué pide cada paso, cada tramo y cada documento | ⏳ 3.1 Las 15 páginas · ⏸ 3.2 Fichas de puerto · ⏳ 3.3 Ficha de ciudad · ⏳ 3.4 Despachante revisor · ⏳ 3.5 Artículos y boletín |
-| 💼 **4 · Negocio y directorio** | Que las empresas del corredor estén y paguen por destacar | 🔧 4.0 MVP · ⏳ 4.1 Cotización y camión vacío · ⏳ 4.2 300 empresas · ⏳ 4.3 Revisar solicitudes · 🚦 4.4 Hito 150 empresas / 10 de pago · ⏳ 4.5 Comercial en Paraguay · ⏳ 4.6 Generador CRT y MIC/DTA |
-| 🏷️ **5 · Marca, legal y lanzamiento** | Nombre propio, dominio y poder cobrar cumpliendo la ley | ⏳ 5.1 Tres nombres de marca · ⏳ 5.2 Dominio y perfiles · ⏳ 5.3 Textos legales y PayPal · ⏸ 5.4 Contador |
-| 🧪 **6 · Validación del negocio** | Saber si seguir o parar | ⏳ 6.1 12 entrevistas · ⏳ 6.2 Responsable de flota · 🚦 6.3 Veredicto (31/01/2027) |
+| Fase | Tarjetas |
+|---|---|
+| **1 · Validar y ordenar** (20/11 – 20/12) | 1.1 Entrevista con la responsable de flota · 1.2 12 entrevistas (hasta el 24/01) · 1.3 Auditar las fuentes · 1.4 Estándar común de estados del dato · 1.5 Probar la web en teléfonos reales · 1.6 Estadísticas sin cookies (#19) · 1.7 Ficha de empresa verificada y procedimiento (#46) |
+| **2 · Base de confianza** (21/12 – 19/01) | 🚦 2.1 30 empresas verificadas · 2.2 Circuito de cotización cerrado (#95) · 2.3 Fuente, hora y caducidad en todo dato crítico (#44, #23) · 2.4 Limpieza y proteger `main` (#49) · 2.5 Oferta de ficha destacada a 45 €/mes y textos legales (#48, #17) · 2.6 Despachante revisor (#22) |
+| **3 · Convertir y medir** (20/01 – 18/02) | 🚦 3.1 Primeros anunciantes: objetivo 10 (450 €/mes brutos potenciales; solo cuenta lo cobrado) · 3.2 Medir y concentrar el mantenimiento donde hay uso |
+| **🚦 Decisión** (18/02/2027) | Seguir si hay datos fiables, uso recurrente y primeras empresas que pagan. Se contrasta con los criterios propios: 8 de 12 entrevistados la usarían · 5 empresas pagarían, por escrito · los papeles de frontera son un problema real · 3 piden el generador de documentos sin ofrecérselo |
+| **🌉 Ciclo 2** (90 días tras abrir los accesos) | P.1 El puente habilitado en la web el día 1 (#43) · P.2 Ruta por el puente en el planificador · P.3 Avísame si cambia (#132) · P.4 Carga de retorno desde Brasil · P.5 Marca y dominio propios (#16) · P.6 Boletín y prensa · P.7 Comercial en Paraguay (si se valida el precio) · P.8 Partes a 24 h en invierno (#73) · P.9 Metas del ciclo con datos |
+| **🅿️ Aparcado** | Las 15 páginas de la guía (#21) · Fichas de puerto (#117) · Ficha de ciudad (#118) · Generador CRT y MIC/DTA (#24) · Estado por aspecto (#42) y tiempos de cruce (#47) |
 
-✅ hecho · 🔧 en curso · ⏳ pendiente · ⏸ aplazado · 🚦 hito de decisión
+**Cuándo empieza el ciclo 2.** Lo marca una fuente oficial, no la prensa. A 20/11/2026, según la prensa, el acceso paraguayo (PY15) está previsto para febrero de 2027 y el brasileño (BR-267 y contorno de Porto Murtinho, DNIT) para 2027 sin fecha cerrada; la aduana integrada no tiene fecha ([Última Hora](https://www.ultimahora.com/cuanto-tiempo-falta-para-terminar-el-corredor-bioceanico), [A Crítica](https://acritica.net/economia/rota-bioceanica-aduana-integrada-porto-murtinho-operacao-2028/)).
+
+**Cuadro de mando, cada lunes:** fiabilidad (datos críticos con fuente y fecha) · vigencia (caducados o sin confirmar) · empresas verificadas · uso · cotizaciones con respuesta · ingresos cobrados · horas y coste.
 
 ---
 
@@ -132,7 +131,7 @@ Lo más reciente, arriba.
 
 ## Próximos pasos
 
-Ver la tabla de [El proyecto en 6 bloques](#el-proyecto-en-6-bloques). Lo siguiente: **2.3** red completa de Santos a Iquique; con una decisión de Ernesto, **1.8** Avísame y **4.1** cotización; antes del lanzamiento, **5.1–5.3** marca, dominio y textos legales.
+Ver el [Plan de 90 días](#plan-de-90-días). Ahora: **0.1** terminar la red de Santos a Iquique, **1.6** estadísticas, **1.7** ficha de empresa verificada y, por parte de Ernesto, **1.1** reservar la entrevista con la responsable de flota.
 
 Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=label%3AP1) · [P2](../../issues?q=label%3AP2) · [P3](../../issues?q=label%3AP3).
 
@@ -169,6 +168,7 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 24 | Para los pasos argentinos, el vigilante lee las variables que escribe el servidor oficial (`estadoPrioridad` de Gendarmería, `estadoVialidad`, horario y recuadro «Atención»), nunca la etiqueta «Abierto/Cerrado» de pantalla, que calcula el navegador con la hora del dispositivo. «Cerrado» dentro del horario se publica en rojo; fuera del horario es el cierre de cada noche. Corte total o circulación restringida de Vialidad con el paso abierto: ámbar. Nunca marcha atrás; solo reabre lo que él cerró (#130) |
 | 25 | Carreteras: el vigilante lee la tabla oficial de Vialidad Nacional (la misma que carga su página «Estado de rutas») y las emergencias de Vialidad de Chile (SIEMOP, región de Antofagasta) y las publica como incidencias del tramo. Corte total o tránsito no operativo: rojo. «Peso restringido», «Sólo vehículos livianos» o «Sólo doble tracción»: «No habilitado para carga». Restringida o parcialmente operativa: ámbar. Observaciones de una ruta habilitada: informativas, sin cambiar el veredicto del planificador. En Chile cada emergencia se asigna por posición: rutas nacionales a menos de 3 km del trazado del tramo (los caminos secundarios que salen de la ruta no cuentan). Un registro chileno sin novedades de Vialidad en más de 14 días se publica en ámbar («puede estar ya resuelto, confírmalo») y no bloquea (#130) |
 | 26 | **Solo las fuentes oficiales deciden el estado** (19/11/2026). Un aviso de prensa sin verificar queda como contexto (gris, con el nombre del medio) y no cambia el estado ni el veredicto. Sin sello amarillo «Sin verificar»: cada dato dice de qué tipo es su fuente. «Tareas del día» solo con lo que necesita una persona (#175) |
+| 27 | **Plan de 90 días del comité** (20/11/2026): continuar sin crecer en amplitud; decisión el 18/02/2027; el ciclo 2 empieza con la apertura de los accesos al puente |
 
 </details>
 
