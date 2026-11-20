@@ -84,6 +84,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 20/11/2026 | #216 | P0: un paso solo sale «Abierto» con parte oficial de menos de 48 h de todos sus lados (si no, «Sin confirmar · Abierto solo en …»); el ✓ queda solo para organismos oficiales y la prensa dice «Prensa · sin parte oficial». |
 | 20/11/2026 | #214 | Banderas junto al país en los festivos del planificador, la ficha del paso («¿Cuándo cruzas?») y el informe de viaje. |
 | 20/11/2026 | #212 | Calendario aduanero V3: el mes en cuadrícula con las banderas de cada festivo, «¿Cuándo cruzas?» al tocar un día, próximo feriado por país y horarios de cada paso plegados (de 10.957 a 1.096 px en escritorio). |
 | 20/11/2026 | #210 | Planificador: cada aviso una sola vez, en su tramo (de 7.773 a 3.828 caracteres en Campo Grande → Iquique). Menos descarga: la caché sin conexión ya no se vuelve a bajar en cada publicación y el diccionario portugués va en un archivo aparte (portada PT de 146 a 69 KB). |
@@ -182,6 +183,7 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 26 | **Solo las fuentes oficiales deciden el estado** (19/11/2026). Un aviso de prensa sin verificar queda como contexto (gris, con el nombre del medio) y no cambia el estado ni el veredicto. Sin sello amarillo «Sin verificar»: cada dato dice de qué tipo es su fuente. «Tareas del día» solo con lo que necesita una persona (#175) |
 | 27 | **Plan de 90 días del comité** (20/11/2026): continuar sin crecer en amplitud; decisión el 18/02/2027; el ciclo 2 empieza con la apertura de los accesos al puente |
 | 28 | **Marca RadarCorredor by Vialta** (20/11/2026): el producto manda (cabecera) y Vialta respalda (pie, informe, documentos) detrás del interruptor `marcaMadre.mostrar`. Color en tres capas: corporativo, acento turquesa (nunca un estado) y estados; fuera el amarillo. DM Sans y DM Mono en lugar de Overpass ([MARCA.md](MARCA.md)) |
+| 29 | **Estado por país** (20/11/2026): un paso solo sale «Abierto» si todos sus lados tienen parte oficial de menos de 48 h; una situación incompleta no se presenta como transitable. El ✓ es solo para organismos oficiales: la prensa da contexto, no decide (#216) |
 
 </details>
 
