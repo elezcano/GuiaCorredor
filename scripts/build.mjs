@@ -452,14 +452,6 @@ ${cuerpo}
   <div class="contenedor pie-inner">
     <div class="pie-marca">${marca}<p>${esc(site.lema)}</p></div>
     <nav class="pie-nav" aria-label="Pie">
-      <a href="${u('/planificador/')}">Planificar ruta</a>
-      <a href="${u('/pasos/')}">Pasos fronterizos</a>
-      <a href="${u('/avisos/')}">Obras y avisos</a>
-      <a href="${u('/calendario/')}">Festivos</a>
-      <a href="${u('/papeles/')}">Papeles</a>
-      <a href="${u('/directorio/')}">Servicios</a>
-      <a href="${u('/novedades/')}">Novedades</a>
-      <a href="${u('/guia/')}">Todas las fichas</a>
       <a href="${u('/mapa/')}">Mapa interactivo</a>
       <a href="${u('/anunciate/')}">Anunciar mi empresa</a>
       <a href="${u('/sobre/')}">Cómo trabajamos la información</a>
