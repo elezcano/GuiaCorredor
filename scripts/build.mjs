@@ -130,7 +130,7 @@ const canalParte = (lados) =>
   lados
     .map((k) => site.canalesParte?.[k])
     .filter(Boolean)
-    .map((c) => ` <a href="${esc(c.url)}" rel="noopener">Compruébalo en el ${esc(c.canal)} de la ${esc(c.organismo.split(' (')[0])}</a>.`)
+    .map((c) => ` <a href="${esc(c.url)}" rel="noopener">Compruébalo en la ${esc(c.canal)} de la ${esc(c.organismo.split(' (')[0])}</a>.`)
     .join('');
 const estadoPaso = (id) => {
   const e = estadoMostrable(fichaPaso[id]?.estado, HOY);
