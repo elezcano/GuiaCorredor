@@ -1587,3 +1587,25 @@ html[lang^="pt"] .contenido-pt::before { content: none; }
   .buscar-pill { min-width: 0; width: 44px; padding: 0; justify-content: center; }
   .buscar-pill span, .cabecera-acciones .btn-negocio { display: none; }
 }
+
+/* ---------- Páginas de la app: dos columnas en tarjetas ---------- */
+.pagina-app { padding: 20px 0 32px; }
+.pagina-app h1 { margin: 0 0 8px; font-size: 28px; line-height: 1.15; }
+.pagina-app h2 { margin: 0 0 8px; font-size: 18px; }
+.dos-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 20px; align-items: start; }
+.dos-col > .tarjeta { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.resumen-estados { margin: 0; font-weight: 800; font-size: 16px; }
+.aviso-festivo { display: flex; gap: 8px; align-items: center; margin: 0; padding: 10px 14px; border-radius: 12px; background: #e8eefc; color: #13285c; font-weight: 700; font-size: 15px; }
+.nota-pie { margin: 0; color: var(--muted-foreground); font-size: 14px; }
+.tablero-hora { white-space: nowrap; }
+@media (max-width: 760px) { .tablero-fila { grid-template-columns: 1.1fr 1.5fr auto; padding: 0 12px; } .tablero-hora { font-size: 14px; } .tablero-paso strong { font-size: 15px; } }
+/* Ficha de paso: tablero a la izquierda (escritorio), ficha a la derecha */
+.ficha-paso-col { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+.ficha-lado { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.volver { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 15px; text-decoration: none; min-height: 44px; }
+.volver .icono { width: 20px; height: 20px; }
+.ficha-titulo h1 { margin: 0; font-size: 28px; }
+.ficha-titulo p { margin: 2px 0 0; color: var(--muted-foreground); }
+@media (max-width: 1080px) { .ficha-paso-col { grid-template-columns: minmax(0, 1fr); } .ficha-lado { order: 2; } }
+@media (max-width: 1080px) { .solo-ancho { display: none; } }
+.ficha-principal .ficha-operativa { border: 0; padding: 0; background: none; box-shadow: none; }

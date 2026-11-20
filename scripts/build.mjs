@@ -1331,9 +1331,6 @@ const avisoHoy = (i) => {
     const sinVig = carr.filter((x) => x.vista.etiqueta === 'Sin vigilancia' || x.vista.etiqueta === 'Vigilancia sin actualizar').length;
     return `<p class="hoy-info hoy-resto">${OPERATIVA.abierto.icono} El resto: ${sin} de ${plural(carr.length, 'tramo de carretera', 'tramos de carretera')} sin incidencias según su fuente oficial${sinVig ? `; ${sinVig} sin vigilancia al día` : ''}. <a href="${u('/fuentes/')}">Qué vigilamos</a></p>`;
   };
-  const tarjetaPaso = (h) => `<li data-paso="${esc(h.id)}"><a class="paso-hoy op-borde-${h.op}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}">
-    <span class="paso-hoy-nombre">${h.cara.map((c) => bandera(c)).join('')}<strong>${esc(h.nombre)}</strong></span>
-    <span class="paso-hoy-estado">${estadoPasoHTML(h.id, { corto: true })}</span></a></li>`;
   add(
     '/',
     layout({
@@ -1574,6 +1571,32 @@ const avisoHoy = (i) => {
   );
 }
 
+/** Ficha de un paso (V2): a la izquierda el tablero con el paso marcado (escritorio), a la derecha la ficha. */
+function fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona) {
+  const [, nombre, lados] = p.meta.titulo.match(/^(.*?)\s*(?:\((.*)\))?$/);
+  const ayuda = zona.length
+    ? `<section class="tarjeta" aria-labelledby="t-zona"><h2 id="t-zona">Servicios en ${esc(nombresZona)}</h2>
+      ${emp.length ? `<ul class="minis">${emp.slice(0, 3).map(empresaMini).join('')}</ul>` : '<p class="nota-pie">Aún no hay empresas verificadas en esta zona.</p>'}
+      <div class="acc"><a class="btn btn-borde" href="${u(`/directorio/?punto=${zona[0]}`)}">Ver servicios</a><a class="btn btn-borde" href="${u('/anunciate/')}">Anunciarme aquí</a></div></section>`
+    : '';
+  return `
+<div class="contenedor pagina-app">
+  <div class="dos-col ficha-paso-col">
+    <div class="ficha-lado">
+      <section class="tarjeta solo-ancho" aria-label="Todos los pasos">${tableroPasos({ sel: paso.id })}</section>
+      ${cruce ? `<section class="tarjeta">${cruce}</section>` : ''}
+      ${ayuda}
+    </div>
+    <article class="tarjeta ficha-principal">
+      <a class="volver" href="${u('/pasos/')}">${icono('izquierda')}Fronteras</a>
+      <header class="ficha-titulo"><h1>${esc(nombre)}</h1>${lados ? `<p>${esc(lados)}</p>` : ''}</header>
+      ${fichaOperativa(fichaPaso[paso.id], `${p.seccion}/${p.slug}`)}
+      <div class="plegables plegables-guia">${plegable('guia-paso', 'Guía del paso', esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase()), `${avisoValidacion(nivelGuia(p), p.meta.verificado)}<!--es--><div class="contenido-es" lang="es"><p class="resumen">${esc(p.meta.resumen)}</p>${p.html}</div><!--/es-->`)}</div>
+    </article>
+  </div>
+</div>`;
+}
+
 // Páginas de la guía
 for (const p of guia) {
   const zona = p.meta.puntos || [];
@@ -1590,7 +1613,7 @@ for (const p of guia) {
       descripcion: p.meta.resumen,
       ruta: p.ruta,
       scripts: [...(cruce && envioCruce ? ['/assets/cruces.js'] : []), ...(paso ? ['/assets/ahora.js'] : [])],
-      cuerpo: `
+      cuerpo: esPaso ? fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona) : `
 <div class="contenedor">
   <nav class="migas" aria-label="Estás en"><a href="${u('/guia/')}">Guía</a><span aria-hidden="true">/</span><span>${esc(SECCIONES[p.seccion] || p.seccion)}</span></nav>
   <header class="paso-cabeza senal">
@@ -1908,52 +1931,47 @@ add(
 
 // Fronteras
 {
-  const tarjeta = (p) => {
-    const ruta = rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id);
-    const href = u(`/guia/${ruta.guia}/`);
-    const inc = activas.filter((i) => i.paso === p.id).length;
-    const h = p.horarios?.[0];
-    return `<li class="paso-tarjeta">
-  <div class="paso-tarjeta-cabeza">
-    <h2><a href="${href}">${esc(p.nombre)}</a></h2>
-    <p>${Object.entries(p.lados).map(([k, v]) => `${bandera(k)} ${esc(v)}`).join(' – ')}</p>
-  </div>
-  <div class="paso-tarjeta-estado">${estadoPasoHTML(p.id)}</div>
-  ${(() => {
-    // HU-133 (R7): festivo en los próximos 7 días en alguno de los dos lados, en azul.
-    const f = festivos.find((x) => Object.keys(p.lados).includes(x.pais) && diasDesde(x.fecha) >= -7);
-    return f ? `<a class="etiqueta-festivo" href="${href}#calendario">${esc(diaSemana(f.fecha))} ${esc(fechaCorta(f.fecha))} · festivo en ${esc(PAISES[f.pais])}</a>` : '';
-  })()}
-  <dl class="paso-tarjeta-datos">
-    <div><dt>Horario</dt><dd>${h ? `${h.apertura && h.cierre && h.zona ? `${rangoDosHorasHTML(h.apertura, h.cierre, h.zona)}<span class="dato-fuente">${txtEs(h.texto)}</span>` : txtEs(h.texto)}${h.lado ? ` <span class="dato-fuente">${conBanderas(h.lado)}</span>` : ''}` : '<span class="sin-dato">Sin datos</span>'}</dd></div>
-    <div><dt>Tiempo de cruce</dt><dd>${cruceCorto(p.id).replace(/<[^>]+>/g, '').replace('Cruce ', '') || '<span class="sin-dato">Sin datos suficientes</span>'}</dd></div>
-    <div><dt>Incidencias</dt><dd>${inc ? plural(inc, 'activa', 'activas') : 'Ninguna'}</dd></div>
-  </dl>
-  <a class="btn btn-borde" href="${href}">Abrir la ficha</a>
-</li>`;
-  };
+  const conteo = pasosHistoria.reduce((a, h) => {
+    const e = estadoPaso(h.id);
+    const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
+    a[op] = (a[op] || 0) + 1;
+    return a;
+  }, {});
+  const resumen = [
+    ['abierto', 'abierto', 'abiertos'],
+    ['restricciones', 'con restricciones', 'con restricciones'],
+    ['cerrado', 'no habilitado', 'no habilitados'],
+    ['sin-confirmar', 'sin confirmar', 'sin confirmar'],
+  ]
+    .filter(([k]) => conteo[k])
+    .map(([k, s, pl]) => `<span class="op-${k}">${conteo[k]} ${conteo[k] === 1 ? s : pl}</span>`)
+    .join(' · ');
+  // Festivo en los próximos 7 días en algún país con paso: una sola línea, no en cada paso.
+  const paisesPaso = new Set(fichaPasos.flatMap((p) => Object.keys(p.lados)));
+  const fest = festivos.find((x) => paisesPaso.has(x.pais) && diasDesde(x.fecha) <= 0 && diasDesde(x.fecha) >= -7);
   add(
     '/pasos/',
     layout({
       titulo: 'Pasos fronterizos',
-      descripcion: 'Estado, horarios y organismos de cada paso fronterizo del Corredor Bioceánico, con fuente y fecha.',
+      descripcion: 'Estado y horario de cada paso fronterizo del Corredor Bioceánico, con fuente y fecha.',
       ruta: '/pasos/',
       cuerpo: `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Pasos fronterizos</h1><p>Estado, horarios y organismos de cada frontera del corredor. Cada dato lleva su fuente y su fecha.</p></header>
-  <ul class="pasos-lista">${fichaPasos.map(tarjeta).join('')}</ul>
-  <p class="nota-guardado">Solo se muestra como confirmado lo que se ha comprobado a mano en su fuente. Lo demás sale «Sin confirmar» con su último dato, su fecha y cuánto hace.</p>
-</div>
-${seccion({
-  titulo: 'Recorrido',
-  contexto: 'Cada tramo con su estado. Las empresas aparecen en el punto donde trabajan.',
-  cuerpo: `${rutaHTML()}<ul class="leyenda" aria-label="Leyenda de estados">${['operativo', 'restricciones', 'cerrado', 'pendiente'].map((k) => `<li>${estado(k)}</li>`).join('')}</ul>`,
-})}
-${seccion({
-  titulo: 'Partes oficiales',
-  contexto: 'Antes de salir, mira el parte del día en la fuente oficial.',
-  cuerpo: `<ul class="lista-enlaces lista-enlaces-grande">${organismos.filter((o) => o.tipo === 'estado-pasos').map(enlaceOrganismo).join('')}</ul>`,
-})}`,
+<div class="contenedor pagina-app">
+  <div class="dos-col">
+    <section class="tarjeta" aria-labelledby="t-fronteras">
+      <h1 id="t-fronteras">Fronteras</h1>
+      <p class="resumen-estados">${resumen}</p>
+      ${tableroPasos()}
+      ${fest ? `<p class="aviso-festivo">${icono('calendario')}${esc(diaSemana(fest.fecha))} ${esc(fechaCorta(fest.fecha))}: festivo en ${esc(PAISES[fest.pais])}</p>` : ''}
+      <p class="nota-pie">Toca un paso para ver su ficha: estado, papeles y calendario.</p>
+    </section>
+    <section class="tarjeta" aria-labelledby="t-partes">
+      <h2 id="t-partes">Partes oficiales</h2>
+      <p class="nota-pie">Antes de salir, mira el parte del día en su fuente.</p>
+      <ul class="lista-enlaces">${organismos.filter((o) => o.tipo === 'estado-pasos').map(enlaceOrganismo).join('')}</ul>
+    </section>
+  </div>
+</div>`,
     })
   );
 }
