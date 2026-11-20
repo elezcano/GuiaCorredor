@@ -41,13 +41,13 @@ async function comprobarMapa(p, ok, donde) {
     {
       const { chromium } = require('playwright');
       const nav = await chromium.launch();
-      const q = await nav.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: sch });
+      const q = await nav.newPage({ viewport: { width: 1440, height: 900 }, colorScheme: sch });
       q.on('pageerror', (e) => errs.push(e.message));
       q.on('console', (m) => /Mapa/.test(m.text()) && console.log('  consola portada:', m.text().slice(0, 200)));
       await q.addInitScript((t) => { try { localStorage.setItem('tema', t); } catch {} }, tema);
       await q.goto(B + '/');
       if (await q.$('.mapa-vivo-marco')) {
-        // HU-136: en «Hoy» (V2) el mapa está en la primera pantalla y se carga enseguida; si quedara más abajo,
+        // V2: en el móvil la portada no lleva mapa (una pantalla); se prueba en escritorio, donde sale en la primera pantalla.
         // seguiría cargándose solo al llegar a él.
         const lejos = await q.$eval('.mapa-vivo-marco', (e) => e.getBoundingClientRect().top > innerHeight + 400);
         if (lejos) ok((await q.getAttribute('.mapa-vivo-marco', 'data-estado')) === 'esquema', 'portada: el mapa no debe cargarse antes de llegar a él');
