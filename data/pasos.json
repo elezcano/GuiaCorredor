@@ -950,9 +950,9 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
-          "hora": "08:39",
+          "valor": null,
+          "texto": "Cierre de la jornada (fuera del horario 09:00–19:15, hora de Argentina).",
+          "hora": "20:20",
           "fuente": "ar-seguridad-paso-jama",
           "publicado": "2026-11-19",
           "actualizado": "2026-11-19",
@@ -962,7 +962,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-19",
-            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
+            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 21:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:15."
           }
         }
       ]
@@ -1318,9 +1318,9 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:00 (hora de Argentina).",
-          "hora": "09:47",
+          "valor": null,
+          "texto": "Cierre de la jornada (fuera del horario 09:00–19:00, hora de Argentina).",
+          "hora": "19:18",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-19",
           "actualizado": "2026-11-19",
@@ -1330,7 +1330,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-19",
-            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 11:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:00."
+            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 21:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
           }
         }
       ]
