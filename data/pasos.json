@@ -346,10 +346,10 @@
         }
       },
       "estado": {
-        "valor": "cerrado",
-        "texto": "Cerrado por Gendarmería (parte del 19/11, 20:20, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:15), sin motivo publicado.",
+        "valor": "operativo",
+        "texto": "Abierto de 09:00–19:15 (hora de Argentina), según Gendarmería (parte del 20/11, 10:08).",
         "fuente": "ar-seguridad-paso-jama",
-        "publicado": "2026-11-19",
+        "publicado": "2026-11-20",
         "actualizado": "2026-11-20",
         "evidencia": "oficial",
         "validacion": "verificado",
@@ -357,7 +357,7 @@
           "verificadoPor": "vigilante",
           "rol": "vigilante",
           "fecha": "2026-11-20",
-          "alcance": "Leído automáticamente de la web oficial el 20/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          "alcance": "Leído automáticamente de la web oficial el 20/11 a las 12:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
         }
       },
       "horarios": [
@@ -845,6 +845,22 @@
             "fecha": "2026-11-19",
             "alcance": "Leído automáticamente de la web oficial el 19/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
           }
+        },
+        {
+          "fecha": "2026-11-19",
+          "valor": "cerrado",
+          "texto": "Cerrado por Gendarmería (parte del 19/11, 20:20, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:15), sin motivo publicado.",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-19",
+          "actualizado": "2026-11-20",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-20",
+            "alcance": "Leído automáticamente de la web oficial el 20/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          }
         }
       ],
       "controles": [
@@ -966,11 +982,11 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.",
-          "hora": "20:20",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "10:08",
           "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-19",
+          "publicado": "2026-11-20",
           "actualizado": "2026-11-20",
           "evidencia": "oficial",
           "validacion": "verificado",
@@ -978,7 +994,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-20",
-            "alcance": "Leído automáticamente de la web oficial el 20/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO» dentro del horario."
+            "alcance": "Leído automáticamente de la web oficial el 20/11 a las 12:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
@@ -1003,10 +1019,10 @@
         }
       },
       "estado": {
-        "valor": "cerrado",
-        "texto": "Cerrado por Gendarmería (parte del 19/11, 19:18, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:00), sin motivo publicado.",
+        "valor": "operativo",
+        "texto": "Abierto de 09:00–19:00 (hora de Argentina), según Gendarmería (parte del 20/11, 10:04).",
         "fuente": "ar-seguridad-paso-sico",
-        "publicado": "2026-11-19",
+        "publicado": "2026-11-20",
         "actualizado": "2026-11-20",
         "evidencia": "oficial",
         "validacion": "verificado",
@@ -1014,7 +1030,7 @@
           "verificadoPor": "vigilante",
           "rol": "vigilante",
           "fecha": "2026-11-20",
-          "alcance": "Leído automáticamente de la web oficial el 20/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          "alcance": "Leído automáticamente de la web oficial el 20/11 a las 12:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
         }
       },
       "horarios": [
@@ -1273,6 +1289,22 @@
             "fecha": "2026-11-19",
             "alcance": "Leído automáticamente de la web oficial el 19/11 a las 11:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
           }
+        },
+        {
+          "fecha": "2026-11-19",
+          "valor": "cerrado",
+          "texto": "Cerrado por Gendarmería (parte del 19/11, 19:18, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:00), sin motivo publicado.",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-19",
+          "actualizado": "2026-11-20",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-20",
+            "alcance": "Leído automáticamente de la web oficial el 20/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          }
         }
       ],
       "controles": [
@@ -1350,11 +1382,11 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.",
-          "hora": "19:18",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:00 (hora de Argentina).",
+          "hora": "10:04",
           "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-19",
+          "publicado": "2026-11-20",
           "actualizado": "2026-11-20",
           "evidencia": "oficial",
           "validacion": "verificado",
@@ -1362,7 +1394,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-20",
-            "alcance": "Leído automáticamente de la web oficial el 20/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO» dentro del horario."
+            "alcance": "Leído automáticamente de la web oficial el 20/11 a las 12:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:00."
           }
         }
       ]
