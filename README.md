@@ -1,4 +1,6 @@
-# ◆ Guía del Corredor Bioceánico
+# ◆ RadarCorredor · Corredor Bioceánico
+
+*Antes «Guía del Corredor». RadarCorredor es un producto de Vialta (nombre en validación). Normas de marca: [MARCA.md](MARCA.md).*
 
 **Para qué sirve:** que un transportista, un despachante o una empresa que cotiza sepa en un minuto si puede cruzar el Corredor Bioceánico (Brasil – Paraguay – Argentina – Chile), por dónde, y con qué datos confirmados.
 
@@ -170,6 +172,7 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 25 | Carreteras: el vigilante lee la tabla oficial de Vialidad Nacional (la misma que carga su página «Estado de rutas») y las emergencias de Vialidad de Chile (SIEMOP, región de Antofagasta) y las publica como incidencias del tramo. Corte total o tránsito no operativo: rojo. «Peso restringido», «Sólo vehículos livianos» o «Sólo doble tracción»: «No habilitado para carga». Restringida o parcialmente operativa: ámbar. Observaciones de una ruta habilitada: informativas, sin cambiar el veredicto del planificador. En Chile cada emergencia se asigna por posición: rutas nacionales a menos de 3 km del trazado del tramo (los caminos secundarios que salen de la ruta no cuentan). Un registro chileno sin novedades de Vialidad en más de 14 días se publica en ámbar («puede estar ya resuelto, confírmalo») y no bloquea (#130) |
 | 26 | **Solo las fuentes oficiales deciden el estado** (19/11/2026). Un aviso de prensa sin verificar queda como contexto (gris, con el nombre del medio) y no cambia el estado ni el veredicto. Sin sello amarillo «Sin verificar»: cada dato dice de qué tipo es su fuente. «Tareas del día» solo con lo que necesita una persona (#175) |
 | 27 | **Plan de 90 días del comité** (20/11/2026): continuar sin crecer en amplitud; decisión el 18/02/2027; el ciclo 2 empieza con la apertura de los accesos al puente |
+| 28 | **Marca RadarCorredor by Vialta** (20/11/2026): el producto manda (cabecera) y Vialta respalda (pie, informe, documentos) detrás del interruptor `marcaMadre.mostrar`. Color en tres capas: corporativo, acento turquesa (nunca un estado) y estados; fuera el amarillo. DM Sans y DM Mono en lugar de Overpass ([MARCA.md](MARCA.md)) |
 
 </details>
 

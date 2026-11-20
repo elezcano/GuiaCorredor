@@ -78,12 +78,16 @@ const TRAZADOS = (() => {
 const kmCalc = (t, via) => TRAZADOS?.tramos?.[`${t.id}${via ? `@${via.id}` : ''}`]?.km ?? null;
 const hayFuente = (() => {
   try {
-    createRequire(import.meta.url).resolve('@fontsource-variable/overpass/package.json');
+    createRequire(import.meta.url).resolve('@fontsource-variable/dm-sans/package.json');
     return true;
   } catch {
     return false;
   }
 })();
+// Marca madre (Vialta): un solo interruptor en data/site.json (marcaMadre.mostrar).
+const madre = site.marcaMadre?.mostrar ? site.marcaMadre.nombre : '';
+// Sin símbolo por debajo de 24 px: a ese tamaño la «V» de Vialta se confunde con el ✓ de «verificado».
+const firmaMadre = (clase = 'firma-madre') => (madre ? `<p class="${clase}">${esc(site.nombre)} es un producto de <strong class="madre">${esc(madre)}</strong></p>` : '');
 
 const D = cargar();
 const categorias = D.categorias;
@@ -437,9 +441,9 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', e
 <meta property="og:description" content="${esc(descripcion || site.lema)}">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0e1012" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0b1826" media="(prefers-color-scheme: dark)">
 ${temaInicial}
-${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2')}" as="font" type="font/woff2" crossorigin>` : ''}
+${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/dm-sans-latin.woff2')}" as="font" type="font/woff2" crossorigin>` : ''}
 <link rel="icon" href="${u('/assets/marca/favicon.svg')}" type="image/svg+xml">
 <link rel="stylesheet" href="${u('/assets/styles.css')}">${estilos.map((e) => `\n<link rel="stylesheet" href="${u(e)}">`).join('')}
 </head>
@@ -470,6 +474,7 @@ ${cuerpo}
       ${site.contacto.email ? `<a href="mailto:${esc(site.contacto.email)}">Escríbenos</a>` : ''}
     </nav>
     <p class="pie-aviso">${esc(site.aviso)}</p>
+    ${firmaMadre('pie-marca')}
   </div>
 </footer>
 <nav class="menu-app" aria-label="Secciones">${menu}<a class="menu-extra" href="${u('/fuentes/')}"${ruta.startsWith('/fuentes/') ? ' aria-current="page"' : ''}>${icono('escudo')}<span>Fuentes</span></a></nav>
@@ -1311,7 +1316,7 @@ function datosMapa() {
       return { id: p.id, nombre: p.nombre, tipo: 'paso', op, estado: OPERATIVA[op].texto + (e.confirmado ? ` · verificado el ${fechaCorta(e.verificado)}` : ' · sin confirmar'), lon: g.lon, lat: g.lat, esquematica: g.esquematica, url: r?.guia ? u(`/guia/${r.guia}/`) : null };
     }),
   ];
-  const datosMapa = { puntos, lineas, colores: { abierto: '#1f9d55', restricciones: '#e8a317', cerrado: '#d64545', 'sin-confirmar': '#8a939b' } };
+  const datosMapa = { puntos, lineas, colores: { abierto: '#1f9d55', restricciones: '#e07a10', cerrado: '#d64545', 'sin-confirmar': '#8a939b' } };
   return datosMapa;
 }
 /** Tarjeta de mapa (V2): igual en todas las páginas; el pie enlaza al mapa interactivo. */
@@ -1455,6 +1460,7 @@ const avisoHoy = (i) => {
 <div class="contenedor informe-pagina">
   <div id="informe" aria-live="polite"><p class="texto-suave">Preparando el informe…</p></div>
   <noscript><p class="aviso">Activa JavaScript para ver el informe.</p></noscript>
+  ${firmaMadre('informe-firma')}
 </div>`,
     })
   );
@@ -2420,16 +2426,25 @@ try {
   console.warn('Aviso: no está instalado maplibre-gl; el mapa interactivo usará el esquema SVG.');
 }
 
-// Tipografía Overpass alojada en la propia web (opcional: si no está instalada, se usa la de sustitución).
-try {
-  const dirFuente = path.join(path.dirname(require.resolve('@fontsource-variable/overpass/package.json')), 'files');
-  fs.mkdirSync(path.join(DIST, 'assets', 'fonts'), { recursive: true });
-  for (const sub of ['latin', 'latin-ext']) {
-    const f = fs.readdirSync(dirFuente).find((x) => x.startsWith(`overpass-${sub}-wght-normal`) && x.endsWith('.woff2'));
-    if (f) fs.copyFileSync(path.join(dirFuente, f), path.join(DIST, 'assets', 'fonts', `overpass-${sub}.woff2`));
-  }
-} catch {
-  console.warn('Aviso: no está instalada la tipografía Overpass; se usará la de sustitución.');
+// Tipografías DM Sans y DM Mono alojadas en la propia web (opcional: si no están instaladas, se usa la de sustitución).
+{
+  const destino = path.join(DIST, 'assets', 'fonts');
+  fs.mkdirSync(destino, { recursive: true });
+  const copiar = (paquete, pares) => {
+    try {
+      const dir = path.join(path.dirname(require.resolve(`${paquete}/package.json`)), 'files');
+      const hay = fs.readdirSync(dir);
+      for (const [prefijo, nombre] of pares) {
+        const f = hay.find((x) => x.startsWith(prefijo) && x.endsWith('.woff2'));
+        if (f) fs.copyFileSync(path.join(dir, f), path.join(destino, nombre));
+        else console.warn(`Aviso: ${paquete} no trae ${prefijo}*.woff2.`);
+      }
+    } catch {
+      console.warn(`Aviso: no está instalada la tipografía ${paquete}; se usará la de sustitución.`);
+    }
+  };
+  copiar('@fontsource-variable/dm-sans', [['dm-sans-latin-wght-normal', 'dm-sans-latin.woff2'], ['dm-sans-latin-ext-wght-normal', 'dm-sans-latin-ext.woff2']]);
+  copiar('@fontsource/dm-mono', [['dm-mono-latin-400-normal', 'dm-mono-latin-400.woff2'], ['dm-mono-latin-500-normal', 'dm-mono-latin-500.woff2']]);
 }
 
 // HU-133 (R10): service worker para ver la Guía sin cobertura. Páginas: primero la red y, si no hay, lo último guardado.
