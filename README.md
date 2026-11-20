@@ -184,6 +184,7 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 27 | **Plan de 90 días del comité** (20/11/2026): continuar sin crecer en amplitud; decisión el 18/02/2027; el ciclo 2 empieza con la apertura de los accesos al puente |
 | 28 | **Marca RadarCorredor by Vialta** (20/11/2026): el producto manda (cabecera) y Vialta respalda (pie, informe, documentos) detrás del interruptor `marcaMadre.mostrar`. Color en tres capas: corporativo, acento turquesa (nunca un estado) y estados; fuera el amarillo. DM Sans y DM Mono en lugar de Overpass ([MARCA.md](MARCA.md)) |
 | 29 | **Estado por país** (20/11/2026): un paso solo sale «Abierto» si todos sus lados tienen parte oficial de menos de 48 h; una situación incompleta no se presenta como transitable. El ✓ es solo para organismos oficiales: la prensa da contexto, no decide (#216) |
+| 30 | **Parte chileno** (21/11/2026): Chile publica el estado diario de sus pasos solo por X y WhatsApp (Unidad de Pasos Fronterizos). No se lee de forma automática ni se da por abierto por silencio; la ficha enlaza la cuenta oficial cuando falta ese lado (#221) |
 
 </details>
 
