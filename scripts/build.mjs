@@ -176,11 +176,15 @@ const estadoVigilancia = (() => {
     return null;
   }
 })();
+// Cada cuánto publica el organismo, en corto (de la columna «frecuencia» del CSV de fuentes).
+const frecuenciaCorta = (txt = '') => (/irregular/i.test(txt) ? 'cuando hay alerta' : txt.split(/[,(;]/)[0].trim().replace(/^./, (c) => c.toLowerCase()));
 const vigilanciaDeTramo = (() => {
   const m = {};
   for (const f of cargarFuentesVigilancia().filas.filter((x) => x.estado === 'activa' && x.destino.startsWith('tramo:'))) {
     const id = f.destino.slice(6);
-    (m[id] ||= { fuentes: [], organismos: [] }).fuentes.includes(f.fuente_id) || m[id].fuentes.push(f.fuente_id);
+    (m[id] ||= { fuentes: [], organismos: [], frecuencias: [] }).fuentes.includes(f.fuente_id) || m[id].fuentes.push(f.fuente_id);
+    const fr = frecuenciaCorta(f.frecuencia);
+    if (fr && !m[id].frecuencias.includes(fr)) m[id].frecuencias.push(fr);
     const org = f.organismo.split(',')[0].trim(); // «MOPC, Departamento de Radiocomunicaciones» → «MOPC»
     if (!m[id].organismos.includes(org)) m[id].organismos.push(org);
   }
@@ -193,11 +197,17 @@ function fuenteParada(id) {
   const horas = f.ultimaLecturaBuena ? (ahoraBuild - new Date(f.ultimaLecturaBuena)) / 36e5 : Infinity;
   return (f.fallosSeguidos || 0) >= 3 || horas > HORAS_SIN_ACTUALIZAR;
 }
+// 21/11/2026: dos causas distintas. «Fuente atrasada»: la web del organismo responde pero no publica desde hace más de lo
+// habitual. «Fuente no disponible»: no se puede leer (error, o sin lectura buena en 12 h).
+const fuenteAtrasada = (id) => {
+  const f = estadoVigilancia?.fuentes?.[id];
+  return !!(f && (f.atrasada || /no se actualiza|último informe/.test(f.ultimoError || '')));
+};
 rutas.tramos.forEach((t) => {
   if (t.paso || t.vista.confirmado) return;
   const vig = vigilanciaDeTramo[t.id];
   const organismos = vig?.organismos.join(' · ');
-  const base = { ...t.vista, vigilancia: vig ? { fuentes: vig.fuentes, organismos } : null };
+  const base = { ...t.vista, vigilancia: vig ? { fuentes: vig.fuentes, organismos, frecuencia: vig.frecuencias.join(' / ') } : null };
   // Avisos activos del tramo (de cualquier fuente; los informativos no cuentan): «Cortado» o «Con incidencias».
   const avisos = activas.filter((i) => (i.tramos || []).includes(t.id) && !i.paso && (i.gravedad || 'ambar') !== 'info');
   const rojo = avisos.find((i) => i.gravedad === 'rojo');
@@ -208,7 +218,7 @@ rutas.tramos.forEach((t) => {
     return;
   }
   if (!vig) t.vista = { ...base, etiqueta: 'Sin vigilancia' };
-  else if (vig.fuentes.some(fuenteParada)) t.vista = { ...base, etiqueta: 'Vigilancia sin actualizar' };
+  else if (vig.fuentes.some(fuenteParada)) t.vista = { ...base, etiqueta: vig.fuentes.some(fuenteAtrasada) ? 'Fuente atrasada' : 'Fuente no disponible' };
   else t.vista = { ...base, confirmado: true, valor: 'sin-incidencias', etiqueta: 'Sin incidencias', fuente: { nombre: organismos, tipo: 'oficial', leidoAuto: true }, vigilado: true };
   t.estado = t.vista.valor;
   t.op = t.vista.op = t.vista.valor === 'sin-incidencias' ? 'abierto' : 'sin-confirmar';
@@ -355,9 +365,9 @@ function validacionHTML(n, verificado, fuente) {
 /** Estado operativo + línea de contexto: confirmado, o "Por verificar" con el último dato. */
 function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
   // HU-131: tramo vigilado sin avisos, o con la vigilancia parada, o sin vigilancia.
-  if (v.vigilado) return `${estado(v.valor === 'sin-incidencias' ? 'sin-incidencias' : v.valor, tipo, v.etiqueta)}<span class="estado-fecha sello-linea" data-vig-fuentes="${esc(v.vigilancia.fuentes.join(' '))}">${txtEs(v.vigilancia.organismos)} · <a href="${u('/fuentes/')}">vigilado cada hora</a></span>`;
+  if (v.vigilado) return `${estado(v.valor === 'sin-incidencias' ? 'sin-incidencias' : v.valor, tipo, v.etiqueta)}<span class="estado-fecha sello-linea" data-vig-fuentes="${esc(v.vigilancia.fuentes.join(' '))}">${txtEs(v.vigilancia.organismos)} · <a href="${u('/fuentes/')}">comprobado cada hora</a>${v.vigilancia.frecuencia ? ` · publica: ${esc(v.vigilancia.frecuencia)}` : ''}</span>`;
   if (v.parcial) return `${estado('pendiente', tipo, `Abierto solo en ${listaY(v.parcial.con.map((k) => PAISES[k]))}`)}<span class="estado-fecha sello-linea">Sin parte de ${listaY(v.parcial.sin.map((k) => PAISES[k]))} en ${UMBRAL_LADO_H} h · ${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
-  if (v.etiqueta && !v.confirmado) return `${estado('pendiente', tipo, v.etiqueta)}<span class="estado-fecha">${v.vigilancia ? `${txtEs(v.vigilancia.organismos)} · sin lectura buena en las últimas ${HORAS_SIN_ACTUALIZAR} h` : 'Ninguna fuente oficial lo publica cada día'}</span>`;
+  if (v.etiqueta && !v.confirmado) return `${estado('pendiente', tipo, v.etiqueta)}<span class="estado-fecha">${v.vigilancia ? `${txtEs(v.vigilancia.organismos)} · ${v.etiqueta === 'Fuente atrasada' ? `no publica desde hace más de lo habitual (publica: ${esc(v.vigilancia.frecuencia || '—')})` : `su web no responde: sin lectura buena en las últimas ${HORAS_SIN_ACTUALIZAR} h`}` : 'Ninguna fuente oficial lo publica cada día'}</span>`;
   if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
   if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
   const dias = diasDesde(v.publicado);
@@ -1054,10 +1064,10 @@ function carreterasParaLlegar(p, inc) {
     const suyos = inc.filter((i) => (i.gravedad || 'ambar') !== 'info' && nums.some((n) => numRuta(`${i.ubicacion} ${i.tramo || ''}`).includes(n)));
     const rojo = suyos.find((i) => i.gravedad === 'rojo');
     const [valor, etiqueta] =
-      f.estado !== 'activa' ? ['pendiente', f.estado === 'manual' ? 'Revisión manual' : 'Sin vigilancia'] : rojo ? ['cerrado', rojo.afecta === 'carga' ? 'Cortado para carga' : 'Cortado'] : suyos.length ? ['restricciones', 'Con incidencias'] : ['sin-incidencias', 'Sin incidencias'];
+      f.estado !== 'activa' ? ['pendiente', f.estado === 'manual' ? 'Revisión manual' : 'Sin vigilancia'] : !suyos.length && fuenteParada(f.fuente_id) ? ['pendiente', fuenteAtrasada(f.fuente_id) ? 'Fuente atrasada' : 'Fuente no disponible'] : rojo ? ['cerrado', rojo.afecta === 'carga' ? 'Cortado para carga' : 'Cortado'] : suyos.length ? ['restricciones', 'Con incidencias'] : ['sin-incidencias', 'Sin incidencias'];
     const org = f.organismo.split(',')[0].trim().replace(/^—$/, '');
     const nombre = nums.length ? f.carretera_o_paso : `${f.tramo} (${f.carretera_o_paso.toLowerCase()})`;
-    return `<li><strong>${txtEs(nombre)}</strong> ${estado(valor, 'tramo', etiqueta)}<span class="dato-fuente"${f.estado === 'activa' && f.fuente_id ? ` data-vig-fuentes="${esc(f.fuente_id)}"` : ''}>${org ? txtEs(org) : 'Ninguna fuente oficial la publica cada día'}${f.estado === 'activa' ? ` · <a href="${u('/fuentes/')}">vigilado cada hora</a>` : ''}${suyos.length ? ` · <a href="#avisos-paso">${plural(suyos.length, 'aviso', 'avisos')}</a>` : ''}</span></li>`;
+    return `<li><strong>${txtEs(nombre)}</strong> ${estado(valor, 'tramo', etiqueta)}<span class="dato-fuente"${f.estado === 'activa' && f.fuente_id ? ` data-vig-fuentes="${esc(f.fuente_id)}"` : ''}>${org ? txtEs(org) : 'Ninguna fuente oficial la publica cada día'}${f.estado === 'activa' ? ` · <a href="${u('/fuentes/')}">comprobado cada hora</a>${f.frecuencia ? ` · publica: ${esc(frecuenciaCorta(f.frecuencia))}` : ''}` : ''}${suyos.length ? ` · <a href="#avisos-paso">${plural(suyos.length, 'aviso', 'avisos')}</a>` : ''}</span></li>`;
   });
   return `<section class="carreteras-llegar" aria-labelledby="t-carreteras-${esc(p.id)}"><h3 id="t-carreteras-${esc(p.id)}">Carreteras para llegar</h3><ul class="lista-datos">${items.join('')}</ul></section>`;
 }
@@ -1371,7 +1381,7 @@ const avisoHoy = (i) => {
   const resumenTramosHoy = () => {
     const carr = rutas.tramos.filter((x) => !x.paso);
     const sin = carr.filter((x) => x.vista.valor === 'sin-incidencias').length;
-    const sinVig = carr.filter((x) => x.vista.etiqueta === 'Sin vigilancia' || x.vista.etiqueta === 'Vigilancia sin actualizar').length;
+    const sinVig = carr.filter((x) => ['Sin vigilancia', 'Fuente atrasada', 'Fuente no disponible'].includes(x.vista.etiqueta)).length;
     return `<p class="hoy-info hoy-resto">${OPERATIVA.abierto.icono} El resto: ${sin} de ${plural(carr.length, 'tramo de carretera', 'tramos de carretera')} sin incidencias según su fuente oficial${sinVig ? `; ${sinVig} sin vigilancia al día` : ''}. <a href="${u('/fuentes/')}">Qué vigilamos</a></p>`;
   };
   add(
@@ -1936,7 +1946,7 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
 {
   const { filas } = cargarFuentesVigilancia();
   const ESTADO_FUENTE = {
-    activa: ['abierto', 'Vigilada cada hora'],
+    activa: ['abierto', 'Comprobada cada hora'],
     pausada: ['sin-confirmar', 'Pausada'],
     pendiente: ['sin-confirmar', 'Pendiente'],
     manual: ['restricciones', 'Manual'],
@@ -1950,7 +1960,7 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
     const [op, txt] = ESTADO_FUENTE[f.estado];
     return `<li class="inc-tarjeta" id="f-${esc(f.id)}"><details class="inc-linea"><summary>
       ${OPERATIVA[op].icono}
-      <span class="inc-que"><strong>${esc(f.tramo)}</strong><span>${esc(f.fuente)}</span><small>${[txt, TIPO_TXT[f.tipo] || f.tipo].filter((x, k, l) => l.indexOf(x) === k).map(esc).join(' · ')}</small></span>
+      <span class="inc-que"><strong>${esc(f.tramo)}</strong><span>${esc(f.fuente)}</span><small>${[txt, f.estado === 'activa' && f.frecuencia ? `el organismo publica: ${frecuenciaCorta(f.frecuencia)}` : '', TIPO_TXT[f.tipo] || f.tipo].filter((x, k, l) => x && l.indexOf(x) === k).map(esc).join(' · ')}</small></span>
       ${icono('abajo')}</summary>
       <div class="inc-detalle"><dl class="inc-datos">
         <div><dt>Qué es</dt><dd>${esc(f.carretera_o_paso)}</dd></div>
@@ -1991,7 +2001,7 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
       <h2 id="t-como">Cómo funciona</h2>
       <p class="nota-pie">Solo fuentes oficiales. Es la misma lista que usa el vigilante.</p>
       <div class="plegables">
-        ${plegable('cada-hora', 'Vigilada cada hora', 'de 06:00 a 21:00, hora de Argentina', '<p>El vigilante lee la fuente y publica solo lo que cambia, con el sello «✓ Web oficial».</p>')}
+        ${plegable('cada-hora', 'Comprobada cada hora', 'de 06:00 a 21:00, hora de Argentina', '<p>El vigilante lee la fuente cada hora y publica solo lo que cambia, con el sello «✓ Web oficial». Comprobar cada hora no es lo mismo que un dato de hace una hora: cada organismo publica a su ritmo (cada línea dice cuál) y si deja de publicar más de lo habitual, el tramo pasa a «Fuente atrasada».</p>')}
         ${plegable('manuales', 'Manual', 'se revisa a mano', '<p>Fuentes sin web legible (WhatsApp, redes): se revisan a mano y se cargan con su fuente y su hora.</p>')}
         ${plegable('pendientes', 'Pendiente o sin fuente', 'todavía sin lectura', '<p>No hay fuente oficial que leer todavía. El tramo sale «Sin vigilancia».</p>')}
       </div>

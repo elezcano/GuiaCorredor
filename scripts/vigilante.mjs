@@ -239,6 +239,10 @@ function autoprueba() {
   const t0 = new Date('2026-11-17T12:00:00Z');
   for (let k = 0; k < 4; k++) e = actualizarEstado(e, [{ fuente: 'f', nombre: 'F', url: 'u', ok: k === 0, error: k ? 'HTTP 500' : null }], new Date(t0.getTime() + k * 36e5));
   ok(e.fuentes.f.fallosSeguidos === 3 && e.fuentes.f.ultimaLecturaBuena === '2026-11-17T12:00:00.000Z' && fuentesCiegas(e).length === 1 && fuentesCiegas(actualizarEstado(e, [{ fuente: 'f', ok: false, error: 'x' }])).length === 0, 'el estado avisa una vez al tercer fallo seguido.');
+  // 21/11/2026: se distingue «atrasada» (responde pero no publica) de «no disponible», y se guarda la última publicación.
+  const ea = actualizarEstado({}, [{ fuente: 'g', nombre: 'G', url: 'u', ok: false, error: 'la fuente no se actualiza desde hace 9 días', atrasada: true, publicacion: '2026-11-10T12:00:00.000Z' }], new Date('2026-11-19T12:00:00Z'));
+  const eb = actualizarEstado(ea, [{ fuente: 'g', nombre: 'G', url: 'u', ok: false, error: 'HTTP 503' }], new Date('2026-11-19T13:00:00Z'));
+  ok(ea.fuentes.g.atrasada && ea.fuentes.g.ultimaPublicacion === '2026-11-10T12:00:00.000Z' && !eb.fuentes.g.atrasada && eb.fuentes.g.ultimaPublicacion === '2026-11-10T12:00:00.000Z', 'Estado: «atrasada» frente a «no disponible», y la última publicación del organismo se conserva.');
 
   // HU-130: páginas oficiales guardadas el 17/11/2026 (pruebas/vigilante/).
   const pag = (n) => fs.readFileSync(new URL(`../pruebas/vigilante/${n}-2026-11-17.html`, import.meta.url), 'utf8');
@@ -638,7 +642,10 @@ async function revisarCarreteras(ahora = new Date(), previo = {}) {
     // HU-134: el MOPC no publica los fines de semana; está parado si falta el informe del último día laborable.
     const parada = f.id === FUENTE_MOPC ? mopcAtrasado(leido.dia, ahora, feriadosPY(json('data/festivos.json'))) : MAX_HORAS[f.id] && horas != null && horas > MAX_HORAS[f.id];
     const error = parada ? (f.id === FUENTE_MOPC ? `el último informe del MOPC es del ${leido.dia.split('-').reverse().join('/')}: falta el del último día laborable` : `la fuente no se actualiza desde hace ${Math.floor(horas / 24)} días`) : null;
-    resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: !parada, error, ...(leido.informe ? { informe: leido.informe } : {}) });
+    // 21/11/2026: se guarda cuándo publicó el organismo por última vez (no solo cuándo lo leímos) y si la fuente
+    // responde pero no se ha actualizado (atrasada) en lugar de no responder (no disponible).
+    const publicacion = leido.ultimaEdicion || leido.inc?.map((n) => n.horaFuente).filter(Boolean).sort().pop() || null;
+    resultados.push({ fuente: f.id, nombre: f.nombre, url: f.url, ok: !parada, error, ...(parada ? { atrasada: true } : {}), ...(publicacion ? { publicacion: new Date(publicacion).toISOString() } : {}), ...(leido.informe ? { informe: leido.informe } : {}) });
     // HU-134: un informe ya aplicado (o más viejo) no se vuelve a aplicar: «falta en dos informes seguidos» cuenta
     // informes, no pasadas del vigilante (el MOPC publica dos veces al día y el vigilante pasa cada hora).
     const yaVisto = previo.fuentes?.[f.id]?.ultimoInforme;
@@ -675,6 +682,8 @@ export function actualizarEstado(previo = {}, resultados = [], ahora = new Date(
       ultimaLecturaBuena: r.ok ? iso : a.ultimaLecturaBuena || null,
       fallosSeguidos: r.ok ? 0 : (a.fallosSeguidos || 0) + 1,
       ultimoError: r.ok ? null : r.error,
+      atrasada: !r.ok && !!r.atrasada,
+      ...(r.publicacion || a.ultimaPublicacion ? { ultimaPublicacion: r.publicacion || a.ultimaPublicacion } : {}),
       ...(r.informe || a.ultimoInforme ? { ultimoInforme: r.informe || a.ultimoInforme } : {}),
     };
   }
