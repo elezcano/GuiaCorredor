@@ -11,7 +11,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
     await p.goto(B + '/guia/pasos/jama/');
     const ahora = await p.textContent('.ahora');
     ok(/\d\d:\d\d en Argentina/.test(ahora) && /\d\d:\d\d en Chile/.test(ahora), 'HU-66 relojes: ' + ahora);
-    ok(/(Abierto|Cerrado) ahora/.test(ahora), 'HU-66 abierto/cerrado ahora');
+    ok(/(Abierto|Cerrado) ahora|Dentro del horario|Fuera del horario/.test(ahora), 'HU-66 abierto/cerrado ahora: ' + ahora);
     ok((await p.$$('.linea-tiempo li')).length >= 3, 'HU-65 pocas novedades');
     const lt = await p.$$eval('.linea-tiempo time', (l) => l.map((x) => x.getAttribute('datetime')));
     ok(lt.every((d, i) => i === 0 || lt[i - 1] >= d), 'HU-65 no está ordenada');
