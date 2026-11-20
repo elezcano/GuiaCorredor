@@ -1642,3 +1642,6 @@ fieldset { min-width: 0; }
   .cal-paises, .cal-mes-cab .boton-icono, .calendario-v3 .cal-cuando { display: none; }
   .cal-mes { break-inside: avoid; }
 }
+
+/* Bandera junto al país en listas de festivos generadas en el navegador */
+.fest-linea .pais-bandera, .cal-festivo .pais-bandera, .informe .pais-bandera { display: inline-flex; vertical-align: -2px; margin: 0 6px 0 2px; }

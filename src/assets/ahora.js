@@ -245,7 +245,7 @@
     const dos = ps.length === Object.keys(d.paises).length;
     salida.innerHTML = `<div class="cal-festivo" role="status">
       <p class="cal-festivo-titulo">${dos ? 'Festivo en los dos lados' : `Festivo en ${esc(nombres(ps))}`}</p>
-      <p>${esc(D[0].toUpperCase() + D.slice(1))}: ${fs.map((f) => `${esc(f.nombre)} (${esc(d.paises[f.pais])}${f.tipo !== 'Feriado' ? `, ${esc(f.tipo.toLowerCase())}` : ''}${f.porConfirmar ? ', por confirmar' : ''})`).join('; ')}.</p>
+      <p>${esc(D[0].toUpperCase() + D.slice(1))}: ${fs.map((f) => `${d.banderas?.[f.pais] || ''}${esc(f.nombre)} (${esc(d.paises[f.pais])}${f.tipo !== 'Feriado' ? `, ${esc(f.tipo.toLowerCase())}` : ''}${f.porConfirmar ? ', por confirmar' : ''})`).join('; ')}.</p>
       <p>${esp.length ? `Horario especial publicado: ${esp.map((h) => `<span lang="es" class="txt-es">${esc(h.texto)}</span>`).join(' ')}` : 'Nadie ha publicado horario especial. Antes de salir, confirma si la aduana atiende carga ese día.'}</p>
     </div>`;
   }
