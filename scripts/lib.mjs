@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { senal } from './iconos.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -22,12 +23,12 @@ export const ESTADOS = {
  * Cuatro valores con texto, icono y color; nunca solo color.
  * En un paso, «en obras» significa que no está habilitado; en un tramo de carretera, que se circula con obras.
  */
+// Estado operativo: palabra + señal de carril (iconos.mjs). La señal se entiende sin color.
 export const OPERATIVA = {
-  abierto: { texto: 'Abierto', icono: '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.6 8.3 7 10.6l4.4-4.9" fill="none" stroke="var(--background)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
-  restricciones: { texto: 'Con restricciones', icono: '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M8 1.2 15.2 14H.8z" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/><path d="M8 6v3.6" stroke="var(--background)" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.8" r="1" fill="var(--background)"/></svg>' },
-  // HU-133 (R2): cerrado = cuadrado (círculo abierto, triángulo con avisos, cuadrado cerrado, discontinuo sin confirmar).
-  cerrado: { texto: 'No habilitado', icono: '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><rect x="1.5" y="1.5" width="13" height="13" rx="2" fill="currentColor"/><rect x="4.2" y="6.9" width="7.6" height="2.2" rx="1" fill="var(--background)"/></svg>' },
-  'sin-confirmar': { texto: 'Sin confirmar', icono: '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3 2"/><path d="M6.3 6.3a1.8 1.8 0 1 1 2.5 1.6c-.5.3-.8.6-.8 1.2v.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg>' },
+  abierto: { texto: 'Abierto', icono: senal('abierto') },
+  restricciones: { texto: 'Con restricciones', icono: senal('restricciones') },
+  cerrado: { texto: 'No habilitado', icono: senal('cerrado') },
+  'sin-confirmar': { texto: 'Sin confirmar', icono: senal('sin-confirmar') },
 };
 export function operativaDe(valor, tipo = 'paso') {
   if (valor === 'operativo') return 'abierto';

@@ -17,6 +17,7 @@ export const MINIMO = 3; // reportes necesarios para dar un tiempo
 
 const CAMPOS_CRUCE = ['paso', 'sentido', 'tiempo', 'fecha', 'dispositivo'];
 /** Claves del formulario de solicitudes de empresas (docs/como-editar.md#formulario-de-google-de-solicitudes). */
+export const CAMPOS_COTIZACION = ['tipo', 'desde', 'hasta', 'carga', 'peso', 'fecha', 'empresa', 'telefono', 'email'];
 export const CAMPOS_SOLICITUD = ['tipo', 'nombre', 'razonsocial', 'pais', 'localidad', 'categoria', 'servicios', 'puntos', 'cobertura', 'persona', 'email', 'telefono', 'web', 'referencias', 'cambio'];
 
 /**

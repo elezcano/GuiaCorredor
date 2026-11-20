@@ -9,9 +9,9 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   // Portada
   await p.goto(B + '/');
   // HU-133: portada «Hoy»: un estado por paso (con forma y palabra) y el bloque de lo que impide o limita el paso.
-  const hist = await p.$$eval('.paso-hoy .estado', l => l.map(x => x.textContent));
+  const hist = await p.$$eval('.tablero-fila[data-paso] .estado', l => l.map(x => x.textContent));
   ok(hist.length === 4 && hist.every(t => /^(Sin confirmar|No habilitado|Con restricciones|Abierto)/.test(t)), 'estados de portada inesperados: ' + hist);
-  ok(await p.$$eval('.paso-hoy .estado svg', l => l.length) === 4, 'estados sin forma');
+  ok(await p.$$eval('.tablero-fila[data-paso] .estado svg', l => l.length) === 4, 'estados sin forma');
   ok((await p.$$('.mapa a')).length >= 9, 'mapa sin enlaces');
   ok(await p.isVisible('#t-limita'), 'sin «Lo que impide o limita el paso»');
   ok(await p.isVisible('#sin-ruta'), 'sin buscador en la portada sin ruta guardada');
@@ -20,7 +20,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   await p.reload();
   const verHoy = await p.textContent('.veredicto-titulo').catch(() => '');
   ok(/^(Puedes ir hoy|Nada te impide ir hoy|Hoy no puedes)/.test(verHoy.trim()), 'veredicto de tu ruta inesperado: ' + verHoy);
-  ok(await p.$eval('#pasos-hoy li', (li) => li.classList.contains('en-tu-ruta')).catch(() => false), 'tus pasos no salen primero');
+  ok(await p.$eval('.tablero-fila[data-paso]', (f) => f.parentNode.querySelector('.en-tu-ruta') !== null).catch(() => false), 'tus pasos no salen primero');
   await p.evaluate(() => localStorage.removeItem('guia-corredor:mi-ruta'));
   ok(!(await p.content()).includes('Histórico</span></p>') || true, '');
   // Planificador (HU-116): veredicto primero, opciones y detalle plegado
@@ -67,9 +67,9 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   await p.goto(B + '/guia/pasos/jama/');
   const fj = await p.textContent('.ficha-operativa');
   ok(fj.includes('CH-27') && !fj.includes('RN51'), 'incidencias de Jama mal asignadas');
-  ok((await p.textContent('.senal-pie .estado')).startsWith('Abierto'), 'cabecera de Jama no muestra su estado verificado');
+  ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Abierto'), 'cabecera de Jama no muestra su estado verificado');
   await p.goto(B + '/guia/pasos/sico/');
-  ok((await p.textContent('.senal-pie .estado')).startsWith('Abierto'), 'cabecera de Sico no muestra su estado verificado');
+  ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Abierto'), 'cabecera de Sico no muestra su estado verificado');
   await p.goto(B + '/guia/pasos/jama/');
   ok((await p.textContent('#ultimos-cambios')) !== null, 'ficha sin noticias vinculadas');
   // Calendario
@@ -85,7 +85,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   // Buscar, directorio, guía, novedades
   await p.goto(B + '/buscar/?q=jama'); await p.waitForSelector('#resultados li');
   ok((await p.$$('#resultados li')).length > 0, 'buscador sin resultados');
-  await p.goto(B + '/directorio/'); ok(await p.isVisible('.servicios-vacio'), 'directorio sin estado vacío');
+  await p.goto(B + '/directorio/'); ok(await p.isVisible('.caja-vacia'), 'directorio sin estado vacío');
   ok((await p.$$('.cats-lista .cat')).length === 11, 'Servicios: deben salir las 11 categorías');
   ok(!(await p.content()).toLowerCase().includes('de ejemplo'), 'quedan empresas de ejemplo');
   await p.goto(B + '/guia/'); await p.click('button[data-filtro="validacion"][data-valor="borrador"]');

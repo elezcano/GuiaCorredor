@@ -32,3 +32,12 @@ El resultado es una línea por prueba (✓ o ✗ con los fallos). Las capturas q
 1. Escribe `pruebas/<nombre>.cjs` con `require('./comun.cjs')` (`B`, `lanzar`, `captura`, `fin`).
 2. Si la historia añade campos a los datos, actualiza `pruebas/datos/` con un ejemplo de esos campos.
 3. `npm run pruebas` debe terminar con «Las N pruebas pasan».
+
+
+## Solo algunas pruebas
+
+`npm run pruebas -- diseno portugues` ejecuta solo las que empiezan por esos nombres.
+
+## diseno.cjs (V2)
+
+En móvil (390), tablet (820) y escritorio (1440): sin scroll lateral, filas de botones en una línea, menú lateral (escritorio y tablet) o inferior (móvil), iconos de Tabler (24, trazo 2, `currentColor`), botones de al menos 44 px, señal de carril en cada paso del tablero, modo noche y vistas de consulta en una pantalla. Deja capturas `diseno-*.png` en la carpeta de capturas.

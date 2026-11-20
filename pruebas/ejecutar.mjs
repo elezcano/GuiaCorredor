@@ -7,7 +7,7 @@
 //  3. La sirve en un puerto local y ejecuta cada pruebas/*.cjs (salvo comun.cjs).
 //  4. Sale con código 1 si alguna prueba falla: en GitHub, eso impide publicar.
 //
-// Uso: npm run pruebas   (necesita Playwright: npm i --no-save playwright && npx playwright install chromium)
+// Uso: npm run pruebas [-- nombre…]   (necesita Playwright: npm i --no-save playwright && npx playwright install chromium)
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -43,7 +43,12 @@ for (let i = 0; i < 50; i++) {
   await new Promise((r) => setTimeout(r, 100));
 }
 
-const pruebas = fs.readdirSync(path.join(RAIZ, 'pruebas')).filter((f) => f.endsWith('.cjs') && f !== 'comun.cjs').sort();
+// npm run pruebas -- portugues version2  → solo esas (útil al arreglar una).
+const solo = process.argv.slice(2);
+const pruebas = fs
+  .readdirSync(path.join(RAIZ, 'pruebas'))
+  .filter((f) => f.endsWith('.cjs') && f !== 'comun.cjs' && (!solo.length || solo.some((s) => f.startsWith(s))))
+  .sort();
 let fallidas = 0;
 for (const f of pruebas) {
   const r = spawnSync(process.execPath, [path.join(RAIZ, 'pruebas', f)], { env: { ...process.env, BASE_URL }, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
