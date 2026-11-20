@@ -70,9 +70,9 @@
     "nota": "Dónde publica cada país el parte diario de sus pasos cuando no hay web que el vigilante pueda leer (21/11/2026).",
     "CL": {
       "organismo": "Unidad de Pasos Fronterizos (Ministerio del Interior)",
-      "canal": "canal oficial de WhatsApp",
-      "url": "https://www.whatsapp.com/channel/0029VaEOckE3LdQRRRmLea3w",
-      "otro": "https://x.com/UPFronterizos"
+      "canal": "cuenta oficial en X",
+      "url": "https://x.com/UPFronterizos",
+      "nota": "También publica en un canal de WhatsApp; no se enlaza hasta verificar su dirección."
     }
   }
 }
