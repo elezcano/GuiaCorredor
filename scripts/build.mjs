@@ -1354,7 +1354,10 @@ const avisoHoy = (i) => {
       cuerpo: `
 <div class="contenedor hoy">
   <header class="hoy-cabeza">
-    <h1>Estado del corredor</h1>
+    <div class="hoy-titulo">
+      <h1>Estado del corredor</h1>
+      <p class="hoy-lema">Cada paso y carretera del Corredor Bioceánico, según su fuente oficial.</p>
+    </div>
     <p class="hoy-hora" data-generado="${GENERADO.toISOString()}">Datos de las ${horaEn(ZONAS.AR)} en Argentina${refHTML(horaEn(ZONA_ES), horaEn(ZONA_BR))}</p>
   </header>
   <div class="hoy-grid">
