@@ -47,7 +47,7 @@ const ES = /\b(Hoy|Rutas|Servicios|Pedir cotización|Abierto|Cerrado|Sin confirm
 
   // Menú, veredicto y horas.
   await p.goto(B + '/pt/');
-  ok((await p.$$eval('.barra-inferior a span', (l) => l.map((x) => x.textContent))).join(',') === 'Hoje,Rotas,Fronteiras,Serviços', 'menú en portugués');
+  ok((await p.$$eval('.menu-app a:not(.menu-marca):not(.menu-extra) span', (l) => l.map((x) => x.textContent))).join(',') === 'Situação,Rotas,Fronteiras,Serviços', 'menú en portugués');
   ok(/em Campo Grande/.test(await p.textContent('.hoy-hora')), 'la hora de referencia en PT es la de Campo Grande');
   await p.goto(B + '/pt/planificador/?desde=0&hasta=5');
   ok(/^(Você pode ir hoje|Nada impede você de ir hoje|Hoje não dá para fazer a rota inteira)/.test((await p.textContent('.veredicto-titulo')).trim()), 'veredicto en portugués');
@@ -59,7 +59,7 @@ const ES = /\b(Hoy|Rutas|Servicios|Pedir cotización|Abierto|Cerrado|Sin confirm
   ok(of.length && of.every((x) => x === 'es'), 'los avisos oficiales deben quedar en castellano con lang="es"');
 
   // Enlaces internos: a las páginas con versión PT.
-  ok(await p.$eval('.barra-inferior a[href$="/pt/planificador/"]', () => true).catch(() => false), 'el menú debe enlazar /pt/planificador/');
+  ok(await p.$eval('.menu-app a[href$="/pt/planificador/"]', () => true).catch(() => false), 'el menú debe enlazar /pt/planificador/');
 
   // Selector ES | PT: se recuerda.
   await p.goto(B + '/');

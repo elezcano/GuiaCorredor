@@ -8,6 +8,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
   // E1: generar desde el planificador
   await p.goto(B + '/planificador/?desde=0&hasta=8&carga=granel');
+  await p.click('#abrir-informe'); // el formulario va plegado tras el botón «Generar informe»
   await p.fill('#lanzar-informe input[name=fecha]', '2026-12-08');
   await Promise.all([p.waitForNavigation(), p.click('#lanzar-informe button[type=submit]')]);
   ok(p.url().includes('/informe/') && p.url().includes('fecha=2026-12-08'), 'E1 no navega al informe');

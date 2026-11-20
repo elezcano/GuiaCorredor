@@ -11,7 +11,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
 
   // Menú de 4 secciones en la barra inferior, y las páginas que salen del menú siguen respondiendo.
   await p.goto(B + '/');
-  ok((await p.$$('.barra-inferior a')).length === 4, 'la barra inferior debe tener 4 secciones');
+  ok((await p.$$('.menu-app a:not(.menu-marca):not(.menu-extra)')).length === 4, 'el menú debe tener 4 secciones');
   for (const r of ['/avisos/', '/calendario/', '/papeles/']) ok((await p.goto(B + r)).status() === 200, `${r} debe seguir respondiendo`);
 
   // Ficha del paso: pestañas Hoy · Papeles · Calendario.

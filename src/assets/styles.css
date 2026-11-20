@@ -231,9 +231,6 @@ main { padding-bottom: 64px; }
 .paises { display: inline-flex; gap: 4px; align-items: center; }
 
 /* ---------- Buscador de rutas (patrón buscador de vuelos) ---------- */
-.portada-hero { padding-top: 48px; padding-bottom: 8px; }
-.portada-hero h1 { font-size: 48px; line-height: 56px; letter-spacing: -0.02em; }
-.portada-hero .hero-sub { margin-top: 12px; font-size: 20px; line-height: 28px; color: var(--muted-foreground); max-width: 720px; }
 .buscador { margin-top: 32px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); box-shadow: var(--sombra); }
 .buscador fieldset { border: 0; margin: 0 0 12px; padding: 0; min-width: 0; }
 .buscador legend { padding: 0; margin-bottom: 8px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--muted-foreground); }
@@ -265,12 +262,6 @@ a.historia:hover .historia-nombre { text-decoration: underline; text-underline-o
 /* ---------- Tu ruta ---------- */
 .tu-ruta { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 16px 32px; padding: 20px 24px; border-radius: 0 var(--radius-lg) var(--radius-lg) 0; background: var(--muted); border-left: 4px solid var(--accent); margin-top: 24px; }
 .tu-ruta[hidden] { display: none; }
-.tu-ruta-cabeza p { font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
-.tu-ruta-cabeza h2 { font-size: 20px; line-height: 28px; }
-.tu-ruta-datos { list-style: none; display: grid; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
-.tu-ruta-alerta { color: var(--corte); font-weight: 500; }
-.tu-ruta-ok { color: var(--ok); font-weight: 500; }
-.tu-ruta-acciones { display: flex; align-items: center; gap: 16px; }
 
 /* ---------- La carretera (el corredor de un vistazo) ---------- */
 .carretera-marco { position: relative; overflow-x: auto; padding-bottom: 4px; }
@@ -302,8 +293,6 @@ a.historia:hover .historia-nombre { text-decoration: underline; text-underline-o
 .frontera { display: block; font-size: 12px; line-height: 16px; color: var(--muted-foreground); font-weight: 500; }
 .tramo-frontera .via { border-left: 4px solid var(--linea); border-right: 4px solid var(--linea); }
 .tramo-estado { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.ruta.con-ruta li:not(.en-ruta) { opacity: 0.35; }
-.ruta.con-ruta .parada.en-ruta .punto { border-color: var(--foreground); background: var(--accent); }
 .leyenda { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
 
 /* ---------- Novedades (patrón portal de noticias) ---------- */
@@ -318,9 +307,6 @@ a.historia:hover .historia-nombre { text-decoration: underline; text-underline-o
 .noticia > p { color: var(--muted-foreground); }
 .noticia-lugar { font-size: 14px; line-height: 20px; font-weight: 500; }
 .noticia-principal { padding: 24px; border-radius: 0 0 var(--radius-lg) var(--radius-lg); background: var(--muted); border-top: 4px solid var(--border-strong); }
-.noticia-principal.noticia-operativo { border-top-color: var(--ok-dot); }
-.noticia-principal.noticia-en-obras { border-top-color: var(--obras-dot); }
-.noticia-principal.noticia-intermitente { border-top-color: var(--corte-dot); }
 .noticia-principal h3 { font-size: 24px; line-height: 32px; }
 .lista-noticias { list-style: none; display: grid; }
 .lista-noticias > li { padding: 16px 0; border-top: 1px solid var(--border); }
@@ -334,12 +320,6 @@ a.historia:hover .historia-nombre { text-decoration: underline; text-underline-o
 .noticias-pagina > li[hidden] { display: none; }
 
 /* ---------- Bloque para empresas ---------- */
-.banda { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 32px; border-radius: var(--radius-lg); background: var(--primary); color: var(--primary-foreground); }
-.banda p { margin-top: 4px; max-width: 640px; color: #c9cfd4; }
-.banda .btn { background: var(--accent); color: var(--accent-foreground); flex: none; }
-.banda .btn:hover { background: #ffd633; }
-:root[data-tema="oscuro"] .banda { background: var(--muted); color: var(--foreground); border: 1px solid var(--border); }
-:root[data-tema="oscuro"] .banda p { color: var(--muted-foreground); }
 
 /* ---------- Señales (placa vial con ribete) ---------- */
 .senal {
@@ -359,7 +339,6 @@ table { width: 100%; border-collapse: collapse; font-size: 16px; line-height: 24
 th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
 thead th { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--muted-foreground); background: var(--muted); }
 tbody tr:last-child td { border-bottom: 0; }
-td.num, th.num { text-align: right; white-space: nowrap; }
 .tabla-guia td:first-child a { font-weight: 600; text-decoration: none; }
 .tabla-guia td:first-child a:hover { text-decoration: underline; }
 .tabla-guia tr[hidden] { display: none; }
@@ -405,53 +384,16 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 
 /* ---------- Resultados de ruta ---------- */
 .buscador-compacto { margin-top: 24px; }
-.resultado-cabeza { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 40px; }
-.resultado-cabeza h2 { font-size: 24px; line-height: 32px; }
-.resultado-cabeza p { margin-top: 4px; color: var(--muted-foreground); }
-.resultado-filtros { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
 .opciones { list-style: none; display: grid; gap: 12px; margin-top: 16px; }
 .opcion { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
 .opcion[hidden] { display: none; }
-.opcion-fila { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)) 44px; align-items: center; gap: 16px; width: 100%; padding: 16px 20px; background: none; border: 0; text-align: left; cursor: pointer; border-radius: var(--radius-lg); }
-.opcion-fila:hover { background: var(--muted); }
-.opcion-nombre strong { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 20px; line-height: 28px; font-weight: 600; }
-.opcion-nombre > span { display: block; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
 .dato { display: grid; }
 .dato b { font-size: 20px; line-height: 28px; font-weight: 600; }
 .dato span { font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
-.dato-alerta b { color: var(--corte); }
-.dato-ok b { color: var(--ok); }
 .etiqueta { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 4px; font-size: 12px; line-height: 16px; font-weight: 600; background: var(--accent); color: var(--accent-foreground); }
-.chevron { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border); transition: transform 0.2s; }
-.opcion-fila[aria-expanded="true"] .chevron { transform: rotate(180deg); }
-.opcion-detalle { padding: 8px 20px 24px; border-top: 1px solid var(--border); }
-.opcion-detalle[hidden] { display: none; }
 .alerta { margin-top: 16px; padding: 12px 16px; border-radius: 0 var(--radius) var(--radius) 0; background: var(--aviso-bg); border-left: 4px solid var(--aviso-borde); }
 .plan-viaje { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; align-items: start; margin-top: 16px; }
 
-.itinerario { list-style: none; }
-.itinerario > li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 16px; }
-.itinerario .via { position: relative; }
-.it-parada .via::before { content: ""; position: absolute; left: 50%; top: 2px; width: 24px; height: 24px; transform: translateX(-50%); border-radius: 50%; background: var(--background); border: 6px solid var(--asfalto); }
-.it-parada .contenido { padding-bottom: 8px; }
-.it-nombre { font-size: 20px; line-height: 28px; font-weight: 600; }
-.it-nombre span { margin-left: 8px; font-size: 14px; line-height: 20px; font-weight: 400; color: var(--muted-foreground); }
-.it-tramo .via::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 14px; transform: translateX(-50%); background: var(--asfalto); }
-.it-tramo .via::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; transform: translateX(-50%); background: repeating-linear-gradient(180deg, var(--linea) 0 12px, transparent 12px 24px); }
-.it-tramo .contenido { margin: 8px 0 16px; padding: 16px; border-radius: 0 var(--radius) var(--radius) 0; border: 1px solid var(--border); border-left: 4px solid var(--sin-dato); background: var(--card); }
-.it-tramo.tramo-operativo .contenido { border-left-color: var(--ok-dot); }
-.it-tramo.tramo-en-obras .contenido { border-left-color: var(--obras-dot); }
-.it-tramo.tramo-intermitente .contenido { border-left-color: var(--corte-dot); }
-.it-fila { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
-.it-km { font-size: 20px; line-height: 28px; font-weight: 600; }
-.it-km-falta { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--muted-foreground); }
-.it-frontera { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-strong); }
-.it-nota { margin-top: 8px; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
-.it-nota a, .it-frontera a { color: var(--foreground); font-weight: 500; }
-.it-ayuda { margin-top: 8px; margin-bottom: 16px; }
-.it-ayuda > p { font-size: 12px; line-height: 16px; font-weight: 500; color: var(--muted-foreground); }
-.it-ayuda .minis { margin-top: 8px; }
-.it-ayuda-vacia { font-size: 14px; line-height: 20px; color: var(--muted-foreground); margin-bottom: 16px; margin-top: 4px; }
 
 .papeles { position: sticky; top: 96px; }
 .papeles ul { list-style: none; display: grid; gap: 12px; margin-top: 16px; }
@@ -485,7 +427,6 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .empresa-desc { margin-top: 8px; }
 .empresa-puntos { margin-top: 8px; font-size: 14px; line-height: 20px; }
 .empresa-acciones { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: flex-end; gap: 8px; }
-.etiqueta-ejemplo { background: var(--muted); color: var(--muted-foreground); }
 .servicios { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .servicios li { font-size: 12px; line-height: 16px; font-weight: 500; padding: 4px 8px; border-radius: 4px; background: var(--muted); }
 .sin-contacto { font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
@@ -502,12 +443,6 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .lista-check li { position: relative; padding-left: 28px; }
 .lista-check li::before { content: ""; position: absolute; left: 6px; top: 3px; width: 7px; height: 13px; border: solid var(--ok-dot); border-width: 0 3px 3px 0; transform: rotate(45deg); }
 .plan .nota { margin-top: 12px; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
-.pasos-alta { list-style: none; counter-reset: paso; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; max-width: 880px; }
-.pasos-alta li { counter-increment: paso; padding-top: 16px; border-top: 2px solid var(--foreground); }
-.pasos-alta li::before { content: counter(paso); display: block; font-size: 32px; line-height: 40px; font-weight: 600; }
-.pasos-alta li b { display: block; margin-top: 8px; }
-.pasos-alta li span { display: block; margin-top: 4px; color: var(--muted-foreground); }
-.alta-acciones { margin-top: 32px; }
 
 /* ---------- Pie ---------- */
 .pie { border-top: 1px solid var(--border); background: var(--muted); }
@@ -626,8 +561,6 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .cruce-acciones .btn-principal { flex: 1; }
 .cruce-error { font-size: 14px; line-height: 20px; color: var(--corte); }
 .cruce-gracias { margin-top: 16px; padding: 12px; border-radius: var(--radius); background: var(--muted); font-size: 14px; line-height: 20px; }
-.it-cruce { margin-top: 8px; font-size: 14px; line-height: 20px; font-variant-numeric: tabular-nums; }
-.it-cruce span { color: var(--muted-foreground); font-size: 12px; }
 
 /* ---------- Modernización: estados con fecha, tablero, mapa, fichas, avisos, calendario, papeles, buscador ---------- */
 .sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
@@ -667,7 +600,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .lista-inc li > span:last-child { color: var(--muted-foreground); }
 .lista-enlaces li { display: flex; align-items: baseline; gap: 8px; padding: 8px 0; border-top: 1px solid var(--border); font-size: 14px; line-height: 20px; }
 .lista-enlaces li:first-child { border-top: 0; padding-top: 0; }
-.lista-enlaces-grande li { font-size: 16px; line-height: 24px; padding: 12px 0; }
 .nota-panel { margin-top: 16px; font-size: 14px; line-height: 20px; }
 .tipo-inc { display: inline-flex; align-items: center; gap: 4px; width: fit-content; padding: 0 8px 0 6px; border-radius: 4px; font-size: 12px; line-height: 24px; font-weight: 600; background: var(--muted); }
 .tipo-inc .icono { width: 16px; height: 16px; }
@@ -701,8 +633,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .mapa-leyenda { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 20px; }
 .mapa-leyenda li { display: inline-flex; align-items: center; gap: 8px; }
 .mapa-leyenda span { display: inline-block; flex: none; }
-.ley-ruta { width: 24px; height: 6px; border-radius: 3px; background: var(--asfalto); }
-.ley-alterna { width: 24px; height: 0; border-top: 3px dashed var(--asfalto); }
 .ley-paso { width: 10px; height: 10px; background: var(--sin-dato); transform: rotate(45deg); }
 .ley-ciudad { width: 12px; height: 12px; border-radius: 50%; border: 3px solid var(--foreground); }
 .ley-puerto { width: 10px; height: 10px; background: var(--foreground); }
@@ -722,16 +652,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .btn .icono, .btn-pequeno .icono { width: 16px; height: 16px; }
 
 /* Fronteras */
-.pasos-lista { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 32px; }
-.paso-tarjeta { display: flex; flex-direction: column; gap: 16px; padding: 24px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
-.paso-tarjeta h2 { font-size: 20px; line-height: 28px; }
-.paso-tarjeta h2 a { text-decoration: none; }
-.paso-tarjeta h2 a:hover { text-decoration: underline; }
-.paso-tarjeta-cabeza p { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
-.paso-tarjeta-datos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 0; padding-top: 16px; border-top: 1px solid var(--border); }
-.paso-tarjeta-datos dt { font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
-.paso-tarjeta-datos dd { margin: 4px 0 0; font-size: 14px; line-height: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.paso-tarjeta .btn { margin-top: auto; align-self: flex-start; }
 
 /* Avisos */
 .inc-lista { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 24px; }
@@ -784,7 +704,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .papeles-pagina h2 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .papeles-pagina section > p { margin-top: 8px; }
 .alcance { display: inline-flex; padding: 0 8px; border-radius: 999px; border: 1px solid var(--border-strong); font-size: 12px; line-height: 22px; font-weight: 500; color: var(--muted-foreground); }
-.lista-docs { margin-top: 12px; padding-left: 20px; display: grid; gap: 8px; }
 .papeles-pagina .datos { margin-top: 12px; }
 .papeles-pagina .dato-fila { font-size: 16px; line-height: 24px; grid-template-columns: 120px minmax(0, 1fr); }
 .papeles-pagina .dato-fila dd a { display: block; margin-top: 4px; font-size: 14px; line-height: 20px; }
@@ -802,9 +721,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 
 /* Planificador: festivos e incidencias en la ruta */
 .plan-lateral { display: grid; gap: 16px; align-content: start; }
-.festivos-ruta h3 { font-size: 16px; line-height: 24px; }
-.festivos-ruta ul { list-style: none; display: grid; gap: 8px; margin-top: 12px; font-size: 14px; line-height: 20px; }
-.festivos-ruta strong { text-transform: capitalize; font-variant-numeric: tabular-nums; }
 .it-aviso { margin-top: 8px; padding: 8px 12px; border-radius: 0 var(--radius) var(--radius) 0; background: var(--aviso-bg); border-left: 4px solid var(--aviso-borde); font-size: 14px; line-height: 20px; }
 
 @media (max-width: 1080px) {
@@ -854,33 +770,8 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .aviso-por-verificar { border-left-color: var(--border-strong); background: var(--muted); }
 .aviso-caducado { border-left-color: var(--obras-dot); }
 .tag { display: inline-flex; padding: 0 6px; border-radius: 4px; font-size: 12px; line-height: 18px; font-weight: 600; vertical-align: 1px; white-space: nowrap; }
-.tag-calculado { background: var(--muted); color: var(--foreground); }
 .tag-estimado, .tag-sin-dato { background: transparent; color: var(--muted-foreground); border: 1px dashed var(--border-strong); line-height: 16px; }
-.tag-verificado { color: var(--ok); border: 1px solid currentColor; line-height: 16px; }
-.tag-sin-verificar { color: var(--muted-foreground); border: 1px solid var(--border-strong); line-height: 16px; }
-.tag-ruta { background: var(--muted); color: var(--muted-foreground); }
-.ficha-resultado { margin-top: 24px; }
-.ficha-resultado h3 { font-size: 20px; line-height: 28px; }
-.res-datos { margin: 16px 0 0; }
-.res-fila { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-top: 1px solid var(--border); font-size: 14px; line-height: 20px; }
-.res-fila dt { font-weight: 600; }
-.res-fila dd { margin: 0; display: grid; gap: 4px; justify-items: start; }
-.res-fila ul { list-style: none; padding: 0; display: grid; gap: 8px; }
-.res-fila li .estado-fecha { display: inline; margin-left: 4px; }
-.res-nota { color: var(--muted-foreground); font-size: 12px; line-height: 16px; }
-.res-lista { margin: 4px 0 8px; padding-left: 18px; font-size: 14px; }
-.it-estimacion { border-left: 2px dashed var(--border-strong); padding-left: 8px; }
-.res-leyenda { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
-.res-leyenda b { color: var(--foreground); font-weight: 600; }
-.titulo-opciones { margin-top: 32px; font-size: 20px; line-height: 28px; }
-.it-fila .tag { margin-left: 4px; }
-.it-estado { margin-left: auto; text-align: right; }
-.it-estado .estado-fecha { margin-top: 2px; }
 .tramo-km { margin-top: 8px; }
-.directorio-vacio { margin-top: 32px; max-width: 720px; }
-.directorio-vacio h2 { font-size: 20px; line-height: 28px; }
-.directorio-vacio p { margin-top: 8px; }
-.directorio-vacio .btn { margin-top: 16px; }
 .cal-bloque { margin-top: 48px; }
 .cal-bloque > h2 { font-size: 24px; line-height: 32px; }
 .cal-bloque > .texto-suave { margin-top: 4px; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
@@ -940,18 +831,12 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .tramo-op-restricciones .via::after { background: var(--obras-dot); }
 .tramo-op-cerrado .via::after { background: var(--corte-dot); }
 .tramo-op-sin-confirmar .via::after { background: repeating-linear-gradient(90deg, var(--sin-dato) 0 6px, transparent 6px 10px); }
-.it-tramo.tramo-op-abierto .contenido { border-left-color: var(--ok-dot); }
-.it-tramo.tramo-op-restricciones .contenido { border-left-color: var(--obras-dot); }
-.it-tramo.tramo-op-cerrado .contenido { border-left-color: var(--corte-dot); }
-.it-tramo.tramo-op-sin-confirmar .contenido { border-left-color: var(--border-strong); border-left-style: dashed; }
 
 /* Respuesta grande de la ficha */
 .respuesta { display: grid; grid-template-columns: auto 1fr; gap: 12px 14px; align-items: start; padding: 16px 18px; margin: 0 0 20px; border-radius: var(--radius-lg); border: 2px solid currentColor; background: var(--card); }
 .respuesta > svg { width: 32px; height: 32px; }
 .respuesta .pais-bandera { display: inline-block; vertical-align: -2px; }
 .respuesta-titulo { margin: 0; font-size: 22px; line-height: 28px; font-weight: 800; }
-.respuesta-detalle { margin: 4px 0 0; font-size: 16px; line-height: 24px; color: var(--foreground); }
-.respuesta-meta { margin: 6px 0 0; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
 .respuesta.op-sin-confirmar { border-style: dashed; }
 @media (max-width: 640px) { .respuesta-titulo { font-size: 20px; } .respuesta > svg { width: 28px; height: 28px; } }
 
@@ -976,9 +861,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .ley-color { width: 14px; height: 14px; border-radius: 3px; }
 
 /* ---------- Informe de viaje (HU-45) ---------- */
-.informe-lanzar { display: grid; grid-template-columns: 1fr auto auto auto; gap: 12px 16px; align-items: end; margin: 16px 0 24px; }
-.informe-lanzar h3 { margin: 0 0 4px; }
-.informe-lanzar .nota { margin: 0; }
 .campo-fecha { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500; color: var(--muted-foreground); }
 .campo-fecha input, .campo-fecha select, .informe-fecha input, .informe-fecha select { font: inherit; font-size: 16px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--input); border-radius: var(--radius); background: var(--background); color: var(--foreground); }
 @media (max-width: 760px) { .informe-lanzar { grid-template-columns: 1fr; } }
@@ -1039,8 +921,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .contactos { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
 .contacto-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 2px; }
 .btn-llamar { min-height: 44px; font-variant-numeric: tabular-nums; }
-.novedades-paso { margin-top: 20px; }
-.novedades-paso h3 { margin: 0 0 10px; }
 .linea-tiempo { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 3px solid var(--border-strong); display: grid; gap: 14px; }
 .linea-tiempo li { position: relative; }
 .linea-tiempo li::before { content: ""; position: absolute; left: -26px; top: 4px; width: 13px; height: 13px; border-radius: 50%; background: var(--background); border: 3px solid var(--sin-dato); }
@@ -1134,7 +1014,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 /* ---------- Sentido del cruce (HU-105) ---------- */
 .sentido { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--muted); }
 .sentido-texto { margin: 0; font-size: 16px; flex: 1 1 220px; }
-.sentido-label { color: var(--muted-foreground); font-size: 14px; display: block; }
 .sentido-ruta { font-weight: 700; }
 .sentido-ruta .pais-bandera { display: inline-block; vertical-align: -2px; }
 .btn-sentido { min-height: 44px; font-weight: 700; }
@@ -1223,16 +1102,10 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 /* ---------- HU-115: mapa interactivo ---------- */
 .mapa-vivo-marco { margin: 16px 0; }
 .mapa-vivo { width: 100%; height: min(70vh, 640px); min-height: 380px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-.mapa-vivo .maplibregl-popup-content { font-family: inherit; font-size: 14px; line-height: 20px; color: #14181b; padding: 12px 14px; border-radius: 10px; }
-.mapa-vivo .maplibregl-popup-content p { margin: 4px 0 8px; }
-.mapa-vivo .maplibregl-popup-content a { color: #14181b; font-weight: 700; }
 .mapa-leyenda { list-style: none; margin: 0 0 24px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; }
 .mapa-leyenda li { display: inline-flex; align-items: center; gap: 8px; }
 .ley-linea { display: inline-block; width: 28px; height: 0; border-top: 5px solid #8a939b; border-radius: 3px; }
 .ley-linea-recta { border-top-style: dashed; }
-.tabla-tramos { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 15px; }
-.tabla-tramos th, .tabla-tramos td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
-.tabla-tramos thead th { font-size: 13px; color: var(--muted-foreground); }
 .seccion .mapa-vivo-marco { margin: 0; }
 .seccion .mapa-vivo { height: min(60vh, 520px); }
 /* Un solo estado en el marco del mapa (mapa.js): esquema → cargando → mapa (o de vuelta a esquema). */
@@ -1246,17 +1119,9 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 /* ---------- HU-116: planificador (veredicto primero, detalle plegado) ---------- */
 #resultado { margin-top: 20px; }
 .pl-veredicto a { color: inherit; font-weight: 700; }
-.pl-v-verde { border-color: var(--ok-dot); }
-.pl-v-ambar { border-color: var(--obras-dot); }
-.pl-v-rojo { border-color: var(--corte-dot); }
 .pl-dudas { margin: 8px 0 0; padding-left: 20px; font-size: 15px; line-height: 22px; }
 .pl-nota { margin: 6px 0 0; font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
 .pl-veredicto .pl-nota { font-size: 14px; }
-.pl-punto { display: inline-block; flex-shrink: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--border-strong); }
-.pl-abierto { background: var(--ok-dot); }
-.pl-restricciones { background: var(--obras-dot); }
-.pl-cerrado { background: var(--corte-dot); }
-.pl-sin-confirmar { background: transparent; border: 2px dashed var(--muted-foreground); }
 .pl-opciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 0 0 16px; }
 .pl-opcion { display: grid; gap: 8px; text-align: left; padding: 12px 14px; border: 2px solid var(--border); border-radius: var(--radius-lg); background: var(--card); color: var(--foreground); font: inherit; cursor: pointer; }
 .pl-opcion[aria-pressed="true"] { border-color: var(--foreground); }
@@ -1271,7 +1136,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .pl-detalle[hidden] { display: none; }
 .pl-tramos { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
 .pl-tramo { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.pl-tramo > .pl-punto { margin-top: 5px; }
 .pl-tramo-nombre { margin: 0; font-weight: 700; font-size: 15px; }
 .pl-tramo-nombre a { color: inherit; }
 .pl-tramo-datos { margin: 2px 0 0; display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 14px; }
@@ -1314,11 +1178,6 @@ body { font-size: 17px; line-height: 1.5; }
 .sello-tipo { color: var(--muted-foreground); }
 
 /* Formas de estado también en los puntos del planificador */
-.pl-punto { width: 14px; height: 14px; flex: none; display: inline-block; }
-.pl-punto.pl-abierto { border-radius: 50%; background: var(--ok-dot); }
-.pl-punto.pl-restricciones { background: var(--obras-dot); clip-path: polygon(50% 0, 100% 100%, 0 100%); border-radius: 0; }
-.pl-punto.pl-cerrado { background: var(--corte-dot); border-radius: 3px; }
-.pl-punto.pl-sin-confirmar { background: transparent; border: 2px dashed var(--sin-dato); border-radius: 50%; box-sizing: border-box; }
 
 /* ---------- Estado (portada) ---------- */
 .hoy { padding: 20px 0 32px; }
@@ -1420,16 +1279,10 @@ a.tablero-fila:hover, .tablero-fila.sel, .tablero-fila.en-tu-ruta { background: 
 .cal-ok { padding: 14px 16px; border-radius: 16px; background: var(--muted); margin: 0; }
 :root[data-tema="oscuro"] .cal-festivo { background: #1a2540; color: #c9d6f5; border-left-color: #8fa9e6; }
 .cal-cuando, .papeles-paso .pl-carga { border: 0; padding: 0; margin: 0; } .cal-cuando legend, .papeles-paso legend { font-weight: 800; font-size: 18px; margin-bottom: 8px; padding: 0; }
-.etiqueta-festivo { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 10px; background: #e6ecf8; color: #1d3f8f; font-size: 15px; font-weight: 800; text-decoration: none; }
-.etiqueta-festivo::before { content: ""; width: 12px; height: 12px; border: 2px solid currentColor; border-top-width: 4px; border-radius: 3px; box-sizing: border-box; }
-:root[data-tema="oscuro"] .etiqueta-festivo { background: #1a2540; color: #c9d6f5; }
-.paso-tarjeta { border-radius: 20px; }
 .papeles-paso .papeles-lista { padding-left: 0; } .papeles-paso .papeles-lista li { margin: 0; } .papeles-paso .papeles-lista li::before { content: none; }
 
 /* ---------- Servicios ---------- */
 .servicios-ruta { display: inline-flex; padding: 10px 16px; border-radius: 14px; background: var(--muted); font-weight: 800; margin: 0 0 16px; }
-.servicios-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 400px); gap: 28px; align-items: start; }
-.servicios-lado { display: flex; flex-direction: column; gap: 12px; }
 .cats-lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .cat { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 18px; background: var(--muted); text-decoration: none; color: var(--foreground); min-height: 96px; }
 .cat:hover { background: var(--secondary-hover); color: var(--foreground); }
@@ -1437,8 +1290,6 @@ a.tablero-fila:hover, .tablero-fila.sel, .tablero-fila.en-tu-ruta { background: 
 .cat strong { font-size: 16px; line-height: 1.25; }
 .cat span { font-size: 14px; color: var(--muted-foreground); }
 .cats-mas { display: none; margin-top: 12px; }
-.servicios-vacio { margin-top: 20px; padding: 18px; border-radius: 18px; border: 2px dashed var(--border-strong); }
-.servicios-vacio h2 { font-size: 20px; margin: 8px 0; }
 .negocio-ancho { padding: 18px; }
 @media (max-width: 1080px) { .servicios-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) {
@@ -1626,3 +1477,6 @@ label.chip:has(input:checked) { background: var(--foreground); color: var(--back
 .form-error { margin: 0; color: var(--corte); font-weight: 700; }
 .form-ok { margin: 0; color: var(--ok); font-weight: 700; }
 .anunciate-col .planes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media print { body { padding-left: 0 !important; background: none !important; } .tarjeta { padding: 0; } }
+fieldset { min-width: 0; }
+@media (max-width: 560px) { .anunciate-col .planes { grid-template-columns: 1fr; } }

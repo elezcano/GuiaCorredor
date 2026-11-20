@@ -1243,7 +1243,7 @@ const horarioCorto = (id) => {
 };
 /** Tablero de pasos (V2): una fila por paso, en el orden del corredor. Lo usan la portada y Fronteras. */
 const tableroPasos = ({ sel = null } = {}) => `<div class="tablero-pasos" role="table" aria-label="Pasos del corredor, de Brasil a Chile">
-  <div class="tablero-fila tablero-cab" role="row"><span role="columnheader">Paso</span><span role="columnheader">Hoy</span><span role="columnheader">Horario local</span></div>
+  <div class="tablero-fila tablero-cab" role="row"><span role="columnheader">Pasos</span><span role="columnheader">Hoy</span><span role="columnheader">Horario local</span></div>
   ${pasosHistoria
     .map(
       (h) => `<a role="row" data-paso="${esc(h.id)}" class="tablero-fila${h.id === sel ? ' sel' : ''}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}"${h.id === sel ? ' aria-current="true"' : ''}>
@@ -1321,7 +1321,7 @@ const horaEn = (zona, d = GENERADO) => new Intl.DateTimeFormat('es-ES', { hour: 
 const graveOrden = { rojo: 0, ambar: 1 };
 const avisoHoy = (i) => {
   const forma = (i.gravedad || 'ambar') === 'rojo' ? 'cerrado' : 'restricciones';
-  return `<li><a class="linea-aviso" href="${u(`/avisos/#inc-${i.id}`)}">${OPERATIVA[forma].icono}<span><strong>${esc(i.ubicacion)}</strong><small>${esc(i.resumen || primeraFrase(i.descripcion))}</small></span></a></li>`;
+  return `<li><a class="linea-aviso" href="${u(`/avisos/#inc-${i.id}`)}">${OPERATIVA[forma].icono}<span><strong>${esc(i.ubicacion)}</strong><small>${txtOf(i.resumen || primeraFrase(i.descripcion))}</small></span></a></li>`;
 };
 {
   const limitan = activas.filter((i) => (i.gravedad || 'ambar') !== 'info').sort((x, y) => graveOrden[x.gravedad || 'ambar'] - graveOrden[y.gravedad || 'ambar']);
@@ -1578,10 +1578,10 @@ const avisoHoy = (i) => {
 }
 
 /** Ficha de un paso (V2): a la izquierda el tablero con el paso marcado (escritorio), a la derecha la ficha. */
-function fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona) {
+function fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona, nov) {
   const [, nombre, lados] = p.meta.titulo.match(/^(.*?)\s*(?:\((.*)\))?$/);
   const ayuda = zona.length
-    ? `<section class="tarjeta" aria-labelledby="t-zona"><h2 id="t-zona">Servicios en ${esc(nombresZona)}</h2>
+    ? `<section class="tarjeta" aria-labelledby="t-zona"><h2 id="t-zona">Servicios en la zona</h2><p class="nota-pie">${esc(nombresZona)}</p>
       ${emp.length ? `<ul class="minis">${emp.slice(0, 3).map(empresaMini).join('')}</ul>` : '<p class="nota-pie">Aún no hay empresas verificadas en esta zona.</p>'}
       <div class="acc"><a class="btn btn-borde" href="${u(`/directorio/?punto=${zona[0]}`)}">Ver servicios</a><a class="btn btn-borde" href="${u('/anunciate/')}">Anunciarme aquí</a></div></section>`
     : '';
@@ -1597,7 +1597,7 @@ function fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona) {
       <a class="volver" href="${u('/pasos/')}">${icono('izquierda')}Fronteras</a>
       <header class="ficha-titulo"><h1>${esc(nombre)}</h1>${lados ? `<p>${esc(lados)}</p>` : ''}</header>
       ${fichaOperativa(fichaPaso[paso.id], `${p.seccion}/${p.slug}`)}
-      <div class="plegables plegables-guia">${plegable('guia-paso', 'Guía del paso', esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase()), `${avisoValidacion(nivelGuia(p), p.meta.verificado)}<!--es--><div class="contenido-es" lang="es"><p class="resumen">${esc(p.meta.resumen)}</p>${p.html}</div><!--/es-->`)}</div>
+      <div class="plegables plegables-guia">${plegable('guia-paso', 'Guía del paso', esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase()), `${avisoValidacion(nivelGuia(p), p.meta.verificado)}<!--es--><div class="contenido-es" lang="es"><p class="resumen">${esc(p.meta.resumen)}</p>${p.html}</div><!--/es-->${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}`)}</div>
     </article>
   </div>
 </div>`;
@@ -1619,7 +1619,7 @@ for (const p of guia) {
       descripcion: p.meta.resumen,
       ruta: p.ruta,
       scripts: [...(cruce && envioCruce ? ['/assets/cruces.js'] : []), ...(paso ? ['/assets/ahora.js'] : [])],
-      cuerpo: esPaso ? fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona) : `
+      cuerpo: esPaso ? fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona, nov) : `
 <div class="contenedor">
   <nav class="migas" aria-label="Estás en"><a href="${u('/guia/')}">Guía</a><span aria-hidden="true">/</span><span>${esc(SECCIONES[p.seccion] || p.seccion)}</span></nav>
   <header class="paso-cabeza senal">
@@ -2002,7 +2002,7 @@ add(
       <h1 id="t-fronteras">Fronteras</h1>
       <p class="resumen-estados">${resumen}</p>
       ${tableroPasos()}
-      ${fest ? `<p class="aviso-festivo">${icono('calendario')}${esc(diaSemana(fest.fecha))} ${esc(fechaCorta(fest.fecha))}: festivo en ${esc(PAISES[fest.pais])}</p>` : ''}
+      ${fest ? `<p class="aviso-festivo">${icono('calendario')}${esc(diaSemana(fest.fecha))} ${esc(fechaCorta(fest.fecha))} · Festivo en ${esc(PAISES[fest.pais])}</p>` : ''}
       <p class="nota-pie">Toca un paso para ver su ficha: estado, papeles y calendario.</p>
     </section>
     <section class="tarjeta" aria-labelledby="t-partes">
