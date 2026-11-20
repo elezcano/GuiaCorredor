@@ -390,7 +390,14 @@ const rangoDosHorasHTML = (a, c, zona, dia = HOY) => `${a}–${c} en ${paisDeZon
 const paisDeZona = (z) => ZONA_PAIS[z] || (/^America\/Argentina\//.test(z) ? 'Argentina' : 'hora local');
 const dosHoras = (hhmm, zona) => `${hhmm} en ${paisDeZona(zona)}`;
 
-const marca = `<span class="placa"><span class="placa-l1">Guía del</span><span class="placa-l2">Corredor</span></span>`;
+// Marca RadarCorredor (src/assets/marca): el logotipo va en línea; el azul marino toma el color del texto (modo oscuro).
+const marca = fs
+  .readFileSync(path.join(ROOT, 'src', 'assets', 'marca', 'logo-horizontal.svg'), 'utf8')
+  .trim()
+  .replace(/#10243A/gi, 'currentColor')
+  .replace(/ d="[^"]+"/g, (d) => d.replace(/(\d+\.\d)\d+/g, '$1'))
+  .replace('<svg ', '<svg class="logo-svg" aria-hidden="true" focusable="false" ')
+  .replace(/ width="321" height="64"/, '');
 
 const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema');if(t==='oscuro'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.tema='oscuro'}catch(e){}</script>`;
 
@@ -433,6 +440,7 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', e
 <meta name="theme-color" content="#0e1012" media="(prefers-color-scheme: dark)">
 ${temaInicial}
 ${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2')}" as="font" type="font/woff2" crossorigin>` : ''}
+<link rel="icon" href="${u('/assets/marca/favicon.svg')}" type="image/svg+xml">
 <link rel="stylesheet" href="${u('/assets/styles.css')}">${estilos.map((e) => `\n<link rel="stylesheet" href="${u(e)}">`).join('')}
 </head>
 <body>
