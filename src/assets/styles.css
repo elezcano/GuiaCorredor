@@ -1190,8 +1190,9 @@ body { font-size: 17px; line-height: 1.5; }
 
 /* ---------- Estado (portada) ---------- */
 .hoy { padding: 20px 0 32px; }
-.hoy-cabeza { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
-.hoy-lema { margin: 4px 0 0; color: var(--muted-foreground); font-size: 16px; line-height: 24px; }
+.hoy-cabeza { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.hoy-titulo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.hoy-lema { margin: 0; color: var(--muted-foreground); font-size: 15px; line-height: 22px; }
 .hoy-cabeza h1 { margin: 0; font-size: 32px; line-height: 1.1; }
 .hoy-hora { margin: 0; color: var(--muted-foreground); font-size: 14px; }
 .hoy-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 20px; align-items: start; }
