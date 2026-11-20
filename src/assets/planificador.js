@@ -12,10 +12,6 @@
   const max = datos.nodos.length - 1;
   let elegida = null; // id de la opción que se está viendo
 
-  const ICONO = (d) => `<svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
-  const I_CHAT = ICONO('M4 20l1.5-4.5A8 8 0 1 1 8.5 19z');
-  const I_ENLACE = ICONO('M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1');
-  const I_IMPRIMIR = ICONO('M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z');
 
   // --- Búsqueda inicial: URL, si no la última guardada, si no la ruta completa ---
   const params = new URLSearchParams(location.search);
@@ -44,7 +40,7 @@
   // HU-133: diagnóstico y veredicto compartidos con la portada (comun.js).
   const DG = GC.diag(datos);
   const { opDe, textoEstado, bloquea, motivoBloqueo, diagnostico, ORDEN } = DG;
-  const punto = (op) => `<span class="pl-punto pl-${op}" aria-hidden="true"></span>`;
+  const punto = (op) => datos.operativa[op].icono;
   const enlaceGuia = (g, txt, q = '') => (g ? `<a href="${datos.base}/guia/${g}/${q}">${esc(txt)}</a>` : esc(txt));
   // HU-105: la ficha del paso se abre en el sentido del viaje.
   const qSentido = (t) => {
@@ -73,15 +69,17 @@
     if (dg.sinParte) partes.push(`<p class="pl-nota">${GC.plural(dg.sinParte, 'tramo de carretera', 'tramos de carretera')} sin parte oficial: no sabemos su estado.</p>`);
     if (!partes.length) partes.push('<p>Todos los tramos y pasos de esta opción están abiertos según su fuente, con fecha. Lo tienes tramo a tramo más abajo.</p>');
     return `<section class="pl-veredicto veredicto veredicto-${dg.nivel}" role="status" aria-labelledby="t-veredicto">
-      <p class="veredicto-titulo" id="t-veredicto"><span class="veredicto-forma op-${forma}">${datos.operativa[forma].icono}</span>${esc(titulo)}</p>
-      ${porque ? `<p class="veredicto-porque">${esc(porque)}</p>` : ''}
-      <details class="veredicto-detalle"><summary>Por qué lo decimos</summary>${partes.join('')}</details>
+      <div class="veredicto-caja"><span class="veredicto-forma">${datos.operativa[forma].icono}</span><div>
+        <p class="veredicto-titulo" id="t-veredicto">${esc(titulo)}</p>
+        ${porque ? `<p class="veredicto-porque">${esc(porque)}</p>` : ''}
+        <details class="veredicto-detalle plegable"><summary>Por qué lo decimos</summary>${partes.join('')}</details>
+      </div></div>
     </section>`;
   }
 
   const distanciaTexto = (d) => {
     if (!d.total) return 'Sin distancia';
-    return `${d.estimado || d.sinDato ? '≈ ' : ''}${km(d.total)}`;
+    return `${d.estimado || d.sinDato ? '≈ ' : ''}${km(Math.round(d.total))}`;
   };
   const distanciaDesglose = (d) => {
     const t = [];
@@ -156,7 +154,7 @@
     const pasos = op.tramos.filter((t) => t.paso).length;
     return `<div class="pl-detalle" id="det-${op.id}"${visible ? '' : ' hidden'}>
       <div class="plegables">
-        ${plegable('Tramo a tramo', `${GC.plural(op.tramos.length, 'tramo', 'tramos')} · ${GC.plural(pasos, 'frontera', 'fronteras')} · ${esc(distanciaDesglose(op.distancia) || 'sin distancia')}`, tramoATramo(op))}
+        ${plegable('Tramo a tramo', `${GC.plural(op.tramos.length, 'tramo', 'tramos')} · ${GC.plural(pasos, 'frontera', 'fronteras')}`, `${tramoATramo(op)}<p class="pl-nota">${esc(distanciaDesglose(op.distancia) || 'Sin distancia')}</p>`)}
         ${plegable(
           'Avisos en la ruta',
           op.problemas.length ? GC.plural(op.problemas.length, 'aviso activo', 'avisos activos') : 'Ninguno registrado',
@@ -174,7 +172,7 @@
                   .join('')}</div></fieldset>
                  <ul class="pl-papeles">${papelesLista()}</ul>
                  <p class="pl-nota">${esc(datos.avisoDocumentos)}</p>
-                 <button type="button" class="btn btn-borde btn-pequeno no-imprimir" data-imprimir>${I_IMPRIMIR}Imprimir lista</button>`
+                 <button type="button" class="btn btn-borde btn-pequeno no-imprimir" data-imprimir>${datos.iconos.imprimir}Imprimir lista</button>`
               )
             : ''
         }
@@ -213,15 +211,14 @@
     const texto = `${desde} → ${hasta}: ${fr.titulo}. ${fr.porque} ${distanciaTexto(op.distancia)}. Confírmalo antes de salir. ${location.href}`;
     const miRuta = GC.leerMiRuta();
     const esMia = miRuta && miRuta.desde === a && miRuta.hasta === b;
-    const asunto = `Pedir cotización: ${desde} → ${hasta}`;
-    const cotizar = `mailto:${datos.contacto}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(`Origen y destino: ${desde} → ${hasta} (${op.nombre.toLowerCase()})\nTipo de carga: ${nombreCarga()}\nPeso o volumen:\nFecha de carga:\nEmpresa y teléfono:\n`)}`;
+    const cotizar = `${datos.base}/cotizar/?desde=${a}&hasta=${b}&carga=${encodeURIComponent(carga())}`;
+    const I = datos.iconos;
+    const ib = (id, icono, txt, extra = '') => `<button type="button" class="ib" id="${id}" aria-label="${txt}" title="${txt}"${extra}>${icono}</button>`;
     const hoy = new Date().toISOString().slice(0, 10);
     salida.innerHTML = `
-      <header class="pl-cabeza">
-        <div><h2>${esc(desde)} → ${esc(hasta)}</h2>
-        <p>${ops.length > 1 ? `${ops.length} opciones` : esc(op.nombre)}</p></div>
-        <button type="button" class="btn btn-borde btn-pequeno no-imprimir" id="cambiar-busqueda" aria-expanded="${!form.hidden}" aria-controls="buscador-plan">${form.hidden ? 'Cambiar' : 'Ocultar búsqueda'}</button>
-      </header>
+      <p class="ruta-pill pl-cabeza"><strong>${esc(desde)} → ${esc(hasta)}</strong>
+        <button type="button" class="btn-texto no-imprimir" id="cambiar-busqueda" aria-expanded="${!form.hidden}" aria-controls="buscador-plan">${form.hidden ? 'Cambiar' : 'Ocultar búsqueda'}</button>
+        <button type="button" class="btn-guardar no-imprimir" id="guardar-ruta" aria-pressed="${esMia}">${esMia ? datos.iconoGuardada : I.guardar}<span>${esMia ? 'Guardada' : 'Guardar'}</span></button></p>
       ${veredicto(op, dg, ops, dgs)}
       ${
         ops.length > 1
@@ -229,15 +226,13 @@
           : `<p class="pl-una">${esc(distanciaTexto(op.distancia))} · ${GC.plural(op.problemas.length, 'aviso', 'avisos')}</p>`
       }
       ${ops.map((o) => detalle(o, dgs[o.id], o.id === elegida)).join('')}
-      <div class="barra-accion barra-accion-fija no-imprimir">
-        <button class="btn btn-principal btn-grande" type="button" id="guardar-ruta" aria-pressed="${esMia}">${esMia ? 'Guardada en Hoy' : 'Guardar ruta'}</button>
-        ${datos.contacto ? `<a class="btn btn-negocio btn-grande" href="${cotizar}">Pedir cotización</a>` : ''}
+      <div class="acc no-imprimir">
+        <a class="btn btn-negocio" href="${cotizar}">Pedir cotización</a>
+        ${ib('abrir-informe', I.papeles, 'Generar informe', ' aria-expanded="false" aria-controls="lanzar-informe"')}
+        ${ib('copiar', I.enlace, 'Copiar enlace')}
+        <a class="ib wa" href="https://wa.me/?text=${encodeURIComponent(texto)}" rel="noopener" aria-label="Compartir por WhatsApp" title="Compartir por WhatsApp">${I.chat}</a>
       </div>
-      <div class="pl-acciones no-imprimir">
-        <a class="btn btn-wa" href="https://wa.me/?text=${encodeURIComponent(texto)}" rel="noopener">${I_CHAT}Compartir</a>
-        <button class="btn btn-borde" type="button" id="copiar">${I_ENLACE}<span>Copiar enlace</span></button>
-      </div>
-      <form class="pl-informe" id="lanzar-informe" aria-labelledby="t-informe">
+      <form class="pl-informe" id="lanzar-informe" aria-labelledby="t-informe" hidden>
         <p id="t-informe"><strong>Informe para enviar o imprimir</strong><span>Estado, horarios, festivos de ese día, avisos y papeles en una página.</span></p>
         <label class="campo-fecha"><span>Fecha de cruce</span><input type="date" name="fecha" required value="${hoy}" min="${hoy}"></label>
         <input type="hidden" name="op" value="${esc(op.id)}">
@@ -284,19 +279,26 @@
       return;
     }
     if (e.target.closest('[data-imprimir]')) window.print();
+    const inf = e.target.closest('#abrir-informe');
+    if (inf) {
+      const f = document.getElementById('lanzar-informe');
+      f.hidden = !f.hidden;
+      inf.setAttribute('aria-expanded', String(!f.hidden));
+      return;
+    }
     const guardar = e.target.closest('#guardar-ruta');
     if (guardar) {
       // HU-133 (R9): tu ruta queda en este dispositivo y la portada «Hoy» abre con su veredicto. No sale de aquí.
       GC.guardarMiRuta(Number(origen.value), Number(destino.value), carga());
-      guardar.textContent = 'Guardada en Hoy';
+      guardar.innerHTML = `${datos.iconoGuardada}<span>Guardada</span>`;
       guardar.setAttribute('aria-pressed', 'true');
       return;
     }
     const copiar = e.target.closest('#copiar');
     if (copiar) {
       navigator.clipboard?.writeText(location.href).then(
-        () => (copiar.querySelector('span').textContent = 'Enlace copiado'),
-        () => (copiar.querySelector('span').textContent = 'No se pudo copiar')
+        () => copiar.setAttribute('title', 'Enlace copiado'),
+        () => copiar.setAttribute('title', 'No se pudo copiar')
       );
     }
   });

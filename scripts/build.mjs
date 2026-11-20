@@ -590,7 +590,8 @@ const datosRutas = (extra = {}) =>
     tiposCarga: rutas.tiposCarga,
     estados: ESTADOS,
     operativa: OPERATIVA,
-    iconos: iconosCliente(['chat', 'enlace', 'imprimir', 'papeles', 'campana', 'derecha']),
+    iconos: iconosCliente(['chat', 'enlace', 'imprimir', 'papeles', 'campana', 'derecha', 'guardar']),
+    iconoGuardada: ico('guardar', { relleno: true }),
     paises: PAISES,
     base: B,
     cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, sentidos: SENTIDOS, dias: DIAS },
@@ -1391,11 +1392,16 @@ const avisoHoy = (i) => {
       scripts: ['/assets/planificador.js'],
       datos: datosRutas({ empresas: emp }),
       cuerpo: `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Planificar ruta</h1><p>¿Se puede hacer tu ruta hoy, y por dónde? Elige el origen y el destino.</p></header>
-  ${buscador('buscador-compacto')}
-  <div id="resultado" aria-live="polite"></div>
-  <noscript><p class="aviso">Activa JavaScript para ver las opciones de ruta.</p></noscript>
+<div class="contenedor pagina-app">
+  <div class="dos-col rutas-col">
+    <section class="tarjeta" aria-labelledby="t-rutas">
+      <h1 id="t-rutas">Rutas</h1>
+      ${buscador('buscador-compacto')}
+      <div id="resultado" aria-live="polite"></div>
+      <noscript><p class="aviso">Activa JavaScript para ver las opciones de ruta.</p></noscript>
+    </section>
+    <section class="tarjeta solo-ancho" aria-label="Mapa del corredor">${mapaHTML()}<p class="nota-pie">Esquema del corredor con el estado de hoy. <a href="${u('/mapa/')}">Mapa interactivo</a></p></section>
+  </div>
 </div>`,
     })
   );

@@ -1245,12 +1245,7 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 
 /* ---------- HU-116: planificador (veredicto primero, detalle plegado) ---------- */
 #resultado { margin-top: 20px; }
-.pl-cabeza h2 { font-size: 24px; line-height: 30px; margin: 0; }
-.pl-cabeza p { margin: 4px 0 0; color: var(--muted-foreground); font-size: 15px; }
-.pl-veredicto { margin: 16px 0; padding: 16px 18px; border: 3px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--card); }
-.pl-veredicto p { margin: 6px 0 0; font-size: 16px; line-height: 24px; }
 .pl-veredicto a { color: inherit; font-weight: 700; }
-.pl-veredicto-titulo { margin: 0 !important; font-size: 22px !important; line-height: 28px !important; font-weight: 800; }
 .pl-v-verde { border-color: var(--ok-dot); }
 .pl-v-ambar { border-color: var(--obras-dot); }
 .pl-v-rojo { border-color: var(--corte-dot); }
@@ -1285,7 +1280,6 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .pl-papeles { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .pl-papeles label { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
 .pl-papeles input { width: 20px; height: 20px; flex-shrink: 0; }
-.pl-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
 .pl-informe { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px 14px; align-items: end; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--card); }
 .pl-informe p { margin: 0; display: grid; gap: 2px; font-size: 15px; }
 .pl-informe p span { font-size: 14px; color: var(--muted-foreground); }
@@ -1294,11 +1288,8 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .pl-leyenda p { margin: 6px 0 0; }
 @media (max-width: 640px) {
   .pl-informe { grid-template-columns: 1fr; }
-  .pl-acciones .btn { flex: 1; }
-  .pl-veredicto-titulo { font-size: 20px !important; }
 }
 @media print { .pl-opciones, .pl-informe, .pl-leyenda { display: none; } .pl-detalle[hidden] { display: none; } }
-.pl-cabeza { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .buscador[hidden] { display: none; }
 .pl-carga { border: 0; margin: 0 0 12px; padding: 0; }
 .pl-carga legend { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
@@ -1401,17 +1392,11 @@ a.tablero-fila:hover, .tablero-fila.sel, .tablero-fila.en-tu-ruta { background: 
 }
 
 /* ---------- Rutas ---------- */
-.pl-veredicto.veredicto { margin: 16px 0; }
 .veredicto-detalle summary { cursor: pointer; font-weight: 700; font-size: 15px; min-height: 40px; display: flex; align-items: center; }
 .veredicto-detalle p, .veredicto-detalle ul { font-size: 16px; }
 .pl-opciones { gap: 10px; }
 .pl-opcion { border-radius: 18px; border-width: 2px; padding: 14px; }
 .pl-opcion[aria-pressed="true"] { border-color: var(--foreground); }
-.barra-accion-fija { margin: 16px 0; }
-@media (min-width: 761px) { .barra-accion-fija .btn { flex: none; } }
-.pl-veredicto .veredicto-titulo { font-size: 30px; line-height: 1.12; margin: 0; }
-.pl-veredicto .veredicto-porque { font-size: 17px; margin: 0; }
-@media (max-width: 760px) { .pl-veredicto .veredicto-titulo { font-size: 26px; } }
 .pl-opcion .etiqueta { background: var(--primary); color: var(--primary-foreground); }
 
 /* ---------- Ficha del paso: pestañas ---------- */
@@ -1609,3 +1594,13 @@ html[lang^="pt"] .contenido-pt::before { content: none; }
 @media (max-width: 1080px) { .ficha-paso-col { grid-template-columns: minmax(0, 1fr); } .ficha-lado { order: 2; } }
 @media (max-width: 1080px) { .solo-ancho { display: none; } }
 .ficha-principal .ficha-operativa { border: 0; padding: 0; background: none; box-shadow: none; }
+/* Rutas */
+.rutas-col { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+.pl-veredicto { margin: 12px 0; }
+.pl-veredicto .veredicto-detalle summary { min-height: 40px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.btn-guardar { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border-radius: 20px; border: 2px solid var(--foreground); background: var(--background); color: var(--foreground); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; }
+.btn-guardar .icono { width: 18px; height: 18px; }
+.btn-guardar[aria-pressed="true"] { background: var(--foreground); color: var(--background); }
+.pl-informe { margin-top: 12px; }
+@media (max-width: 1080px) { .rutas-col { grid-template-columns: minmax(0, 1fr); } }
+.pl-frontera .luz { width: 16px; height: 16px; }
