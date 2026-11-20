@@ -244,7 +244,12 @@
         <p>La última búsqueda se recuerda en este dispositivo. Con «Guardar ruta» la ves al abrir «Hoy». Nada sale de aquí.</p>
       </details>`;
     const svg = document.querySelector('.mapa svg[data-puntos]');
-    if (svg) GC.encuadrar(svg, [...new Set(op.tramos.flatMap((t) => [t.de, t.a, t.paso && t.paso.id].filter(Boolean)))]);
+    const ids = [...new Set(op.tramos.flatMap((t) => [t.de, t.a, t.paso && t.paso.id].filter(Boolean)))];
+    if (svg) GC.encuadrar(svg, ids);
+    // Mapa de OpenStreetMap: se centra en la opción elegida (mapa.js escucha «mapa:foco»).
+    const marco = document.querySelector('.mapa-vivo-marco');
+    if (marco) marco.dataset.foco = ids.join(' ');
+    document.dispatchEvent(new CustomEvent('mapa:foco', { detail: ids }));
   }
 
   // --- Eventos ---

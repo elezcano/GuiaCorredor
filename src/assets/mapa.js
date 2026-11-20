@@ -88,7 +88,21 @@
   mapa.on('load', () => {
     listo = true;
     mapa.resize();
-    mapa.fitBounds(encuadre, { padding: 16, animate: false });
+    // Foco (V2): ids de localidades o pasos en data-foco del marco (o ?foco= en la URL); si no, todo el corredor.
+    const enfocar = (ids, animar) => {
+      // Un paso o una localidad: sus puntos y las líneas que pasan por ellos.
+      const sel = new Set(ids);
+      const cs = [
+        ...d.puntos.filter((p) => sel.has(p.id)).map((p) => [p.lon, p.lat]),
+        ...d.lineas.filter((l) => [...sel].some((id) => l.id.includes(id))).flatMap((l) => (ids.length > 2 ? [] : l.coords)),
+      ];
+      if (!cs.length) return mapa.fitBounds(encuadre, { padding: 16, animate: animar });
+      const xs = cs.map((c) => c[0]), ys = cs.map((c) => c[1]);
+      mapa.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 40, maxZoom: 9, animate: animar });
+    };
+    const foco = (marco?.dataset.foco || new URLSearchParams(location.search).get('foco') || '').split(/[\s,]+/).filter(Boolean);
+    enfocar(foco, false);
+    document.addEventListener('mapa:foco', (e) => enfocar(e.detail || [], true));
     clearTimeout(plazo);
     mapa.addSource('lineas', { type: 'geojson', data: lineas });
     mapa.addSource('puntos', { type: 'geojson', data: puntos });

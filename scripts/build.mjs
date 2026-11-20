@@ -395,6 +395,10 @@ const marca = `<span class="placa"><span class="placa-l1">Guía del</span><span 
 const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema');if(t==='oscuro'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.tema='oscuro'}catch(e){}</script>`;
 
 function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', estilos = [] }) {
+  if (hayMapLibre && cuerpo.includes('id="mapa-vivo"') && !scripts.some((s) => /mapa(-perezoso)?\.js$/.test(s))) {
+    scripts = [...scripts, '/assets/mapa-perezoso.js'];
+    if (!datos.includes('id="datos-mapa"')) datos += datosMapaScript();
+  }
   const t = titulo ? `${titulo} | ${site.nombre}` : site.nombreCompleto;
   const canon = `${site.url.replace(/\/$/, '')}${u(ruta)}`;
   // HU-133 (Versión 2): cuatro secciones. Avisos cuelga de Hoy; calendario y papeles, de Fronteras (y de cada paso).
@@ -1310,9 +1314,9 @@ function datosMapa() {
   return datosMapa;
 }
 /** Tarjeta de mapa (V2): igual en todas las páginas; el pie enlaza al mapa interactivo. */
-const mapaTarjeta = (o = {}) => `<section class="tarjeta mapa-tarjeta${o.clase ? ` ${o.clase}` : ''}" aria-label="Mapa del corredor">${mapaHTML(o)}<p class="nota-pie">Esquema con el estado de hoy. <a href="${u('/mapa/')}">Mapa interactivo</a></p></section>`;
+const mapaTarjeta = (o = {}) => `<section class="tarjeta mapa-tarjeta${o.clase ? ` ${o.clase}` : ''}" aria-label="Mapa del corredor">${hayMapLibre ? mapaVivoHTML(o) : mapaHTML(o)}<p class="nota-pie">Estado de hoy · © OpenStreetMap. <a href="${u(`/mapa/${o.foco?.length ? `?foco=${o.foco.join(',')}` : ''}`)}">Ver en grande</a></p></section>`;
 /** Marco del mapa: el mapa vivo (oculto hasta que carga) y el esquema SVG de respaldo. */
-const mapaVivoHTML = (o = {}) => `<div class="mapa-vivo-marco" data-estado="esquema">
+const mapaVivoHTML = (o = {}) => `<div class="mapa-vivo-marco" data-estado="esquema"${o.foco?.length ? ` data-foco="${esc(o.foco.join(' '))}"` : ''}>
     <div id="mapa-vivo" class="mapa-vivo" role="region" aria-label="Mapa interactivo del corredor. La misma información está en la tabla de tramos de la página del mapa."></div>
     <div class="mapa-respaldo">${mapaHTML(o)}</div>
   </div>`;
@@ -1339,8 +1343,8 @@ const avisoHoy = (i) => {
     '/',
     layout({
       ruta: '/',
-      scripts: ['/assets/inicio.js', ...(hayMapLibre ? ['/assets/mapa-perezoso.js'] : [])],
-      datos: datosRutas() + (hayMapLibre ? datosMapaScript() : ''),
+      scripts: ['/assets/inicio.js'],
+      datos: datosRutas(),
       cuerpo: `
 <div class="contenedor hoy">
   <header class="hoy-cabeza">
@@ -1546,11 +1550,12 @@ const avisoHoy = (i) => {
 {
   const { lineas } = datosMapa();
   const km = (l) => (l.km != null ? `${GCkm(l.km)} con fuente` : l.kmCalculado != null ? `${GCkm(l.kmCalculado)} calculados con OpenStreetMap` : 'km por cargar');
+  // V2: una línea por tramo; al tocarla, el mapa se centra en él. El icono abre su ficha.
   const tarjeta = (l) => `<li class="mapa-tramo">
-    <span class="estado op-${l.op}">${OPERATIVA[l.op].icono}<span class="estado-texto">${esc(OPERATIVA[l.op].texto)}</span></span>
-    <strong>${esc(l.nombre)}</strong>
-    <span class="mapa-tramo-km">${esc(km(l))}${l.trazado === 'recta' ? ' · trazado pendiente (línea recta)' : ''}</span>
-    <span class="mapa-tramo-acciones">${hayMapLibre ? `<button class="btn btn-borde btn-pequeno" type="button" data-tramo-mapa="${esc(l.id)}">Ver en el mapa</button>` : ''}${l.url ? `<a class="btn btn-borde btn-pequeno" href="${esc(l.url)}">Abrir la ficha</a>` : ''}</span>
+    ${hayMapLibre ? `<button type="button" class="linea-tramo" data-tramo-mapa="${esc(l.id)}">` : '<span class="linea-tramo">'}
+      ${OPERATIVA[l.op].icono}<span class="inc-que"><strong>${esc(l.nombre)}</strong><small>${esc(OPERATIVA[l.op].texto)} · ${esc(km(l))}</small></span>
+    ${hayMapLibre ? '</button>' : '</span>'}
+    ${l.url ? `<a class="ib" href="${esc(l.url)}" aria-label="Ficha: ${esc(l.nombre)}" title="Ver la ficha">${icono('derecha')}</a>` : ''}
   </li>`;
   add(
     '/mapa/',
@@ -1562,16 +1567,16 @@ const avisoHoy = (i) => {
       scripts: hayMapLibre ? ['/assets/vendor/maplibre-gl.js', '/assets/mapa.js'] : [],
       datos: datosMapaScript(),
       cuerpo: `
-<div class="contenedor mapa-pagina">
-  <header class="cabeza-pagina"><h1>Mapa del corredor</h1><p>Estado de hoy de cada tramo y paso. Toca un paso o un tramo para ver su estado y abrir su ficha.</p></header>
-  <div class="mapa-grid">
-    <div class="mapa-principal">
-      ${mapaVivoHTML()}
-      <p class="leyenda-formas"><span class="op-abierto">${OPERATIVA.abierto.icono} Abierto</span><span class="op-restricciones">${OPERATIVA.restricciones.icono} Con restricciones</span><span class="op-cerrado">${OPERATIVA.cerrado.icono} No habilitado</span><span class="op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono} Sin confirmar</span><span><i class="ley-linea"></i> Por carretera (OpenStreetMap)</span><span><i class="ley-linea ley-linea-recta"></i> Línea recta: trazado pendiente</span></p>
-      <p class="dato-fuente">Mapa base: © OpenStreetMap y sus colaboradores, teselas de OpenFreeMap. Las distancias «calculadas con OpenStreetMap» son un cálculo de ruta por carretera, no un dato oficial.</p>
-    </div>
-    <section class="mapa-lado" aria-labelledby="t-tramos-mapa">
+<div class="contenedor pagina-app mapa-pagina">
+  <div class="dos-col mapa-col">
+    <section class="tarjeta" aria-labelledby="t-mapa">
+      <h1 id="t-mapa">Mapa del corredor</h1>
+      ${mapaVivoHTML({ leyenda: true })}
+      <p class="nota-pie">Mapa base: © OpenStreetMap y sus colaboradores, teselas de OpenFreeMap. Los km «calculados con OpenStreetMap» son un cálculo, no un dato oficial.</p>
+    </section>
+    <section class="tarjeta" aria-labelledby="t-tramos-mapa">
       <h2 id="t-tramos-mapa">Tramos</h2>
+      <p class="nota-pie">Toca un tramo para verlo en el mapa.</p>
       <ul class="mapa-tramos">${lineas.map(tarjeta).join('')}</ul>
     </section>
   </div>
