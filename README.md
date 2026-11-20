@@ -82,6 +82,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 20/11/2026 | #198 | Plan de 90 días según el veredicto del comité (continuar, 8/10): tres fases hasta el 18/02/2027 y ciclo 2 tras abrir los accesos al puente. Tablero de Trello reorganizado. |
 | 20/11/2026 | #196 | Mapas de OpenStreetMap interactivos en la ficha de paso, la guía de tramo y el planificador, centrados en lo que miras; Mapa interactivo en V2. |
 | 20/11/2026 | #194 | Avisos y Fuentes que vigilamos en V2: una línea por aviso o fuente, detalle al abrir y dos columnas. |
 | 20/11/2026 | #191 | Mapas con el mismo encuadre (corredor entero o centrado en el paso o la ruta) y tablero con bandera y nombre del país. |
