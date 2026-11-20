@@ -124,6 +124,14 @@ const ladosSinParte = (p) =>
     const ult = (p.partes || []).filter((x) => x.lado === lado).map((x) => Date.parse(`${x.publicado}T${x.hora || '12:00'}:00-03:00`)).sort((a, b) => b - a)[0];
     return !ult || (ahoraLados - ult) / 36e5 > UMBRAL_LADO_H;
   });
+// 21/11/2026: Chile publica el parte diario de sus pasos solo por WhatsApp y X (Unidad de Pasos Fronterizos), sin web
+// que el vigilante pueda leer. Cuando falta ese lado, se enlaza el canal oficial para que el transportista lo compruebe.
+const canalParte = (lados) =>
+  lados
+    .map((k) => site.canalesParte?.[k])
+    .filter(Boolean)
+    .map((c) => ` <a href="${esc(c.url)}" rel="noopener">Compruébalo en la ${esc(c.canal)} de la ${esc(c.organismo.split(' (')[0])}</a>.`)
+    .join('');
 const estadoPaso = (id) => {
   const e = estadoMostrable(fichaPaso[id]?.estado, HOY);
   if (!e.confirmado || e.valor !== 'operativo') return e;
@@ -1087,7 +1095,7 @@ function fichaOperativa(p, guiaPag) {
             : ''
           : `<p class="respuesta-nota">${
               e.parcial
-                ? `Abierto en ${esc(listaY(e.parcial.con.map((k) => PAISES[k])))} según su parte oficial. De ${esc(listaY(e.parcial.sin.map((k) => PAISES[k])))} no hay parte de las últimas ${UMBRAL_LADO_H} h: confírmalo antes de salir.`
+                ? `Abierto en ${esc(listaY(e.parcial.con.map((k) => PAISES[k])))} según su parte oficial. De ${esc(listaY(e.parcial.sin.map((k) => PAISES[k])))} no hay parte de las últimas ${UMBRAL_LADO_H} h: confírmalo antes de salir.${canalParte(e.parcial.sin)}`
                 : e.ultimo && e.ultimo !== 'pendiente'
                 ? `Último dato publicado: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${esc(haceTiempo(p.estado.publicado))}. Confírmalo antes de salir.`
                 : 'No hay un estado confirmado. Consulta el parte oficial antes de salir.'

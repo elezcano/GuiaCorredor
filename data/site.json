@@ -65,5 +65,14 @@
   "fiabilidad": {
     "vigenciaDias": 1,
     "nota": "HU-97: un día sin parte hereda el estado del último parte como mucho estos días; después cuenta como «sin datos». 1 = solo el día siguiente (decisión inicial: no inflar cierres ni aperturas)."
+  },
+  "canalesParte": {
+    "nota": "Dónde publica cada país el parte diario de sus pasos cuando no hay web que el vigilante pueda leer (21/11/2026).",
+    "CL": {
+      "organismo": "Unidad de Pasos Fronterizos (Ministerio del Interior)",
+      "canal": "cuenta oficial en X",
+      "url": "https://x.com/UPFronterizos",
+      "nota": "También publica en un canal de WhatsApp; no se enlaza hasta verificar su dirección."
+    }
   }
 }
