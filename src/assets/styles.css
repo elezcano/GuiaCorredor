@@ -1488,3 +1488,27 @@ fieldset { min-width: 0; }
 .tablero-pais { display: inline-flex; align-items: center; gap: 4px; }
 .tablero-pais .pais-bandera svg { width: 18px; height: 12px; }
 @media (max-width: 760px) { .tablero-pais > span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+/* Avisos (V2): una línea por aviso; el detalle, al abrirla */
+.avisos-col { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.avisos-col .filtros-noticias { display: flex; flex-direction: column; gap: 8px; }
+.inc-lista { list-style: none; margin: 0; padding: 0; }
+.inc-lista .inc-tarjeta { border: 0; border-bottom: 1px solid var(--border); border-radius: 0; padding: 0; margin: 0; background: none; box-shadow: none; }
+.inc-grupo h3 { margin: 14px 0 2px; font-size: 14px; color: var(--muted-foreground); }
+.inc-linea > summary { display: flex; gap: 10px; align-items: center; min-height: 56px; padding: 6px 0; cursor: pointer; list-style: none; }
+.inc-linea > summary::-webkit-details-marker { display: none; }
+.inc-linea > summary .luz { width: 20px; height: 20px; }
+.inc-linea > summary > .icono { margin-left: auto; width: 18px; height: 18px; flex: none; transition: transform 0.15s; }
+.inc-linea[open] > summary > .icono { transform: rotate(180deg); }
+.inc-que { display: flex; flex-direction: column; min-width: 0; }
+.inc-que > span { font-size: 14px; }
+.inc-que small { display: flex; align-items: center; gap: 4px; color: var(--muted-foreground); font-size: 12px; }
+.inc-que small .pais-bandera svg { width: 16px; height: 11px; }
+.inc-detalle { margin: 0 0 12px 30px; padding: 12px 14px; border-radius: 12px; background: var(--muted); font-size: 14px; }
+.inc-detalle .inc-datos { display: grid; gap: 4px; margin: 8px 0; }
+.inc-detalle .inc-datos div { display: flex; gap: 8px; }
+.inc-detalle dt { font-weight: 700; min-width: 110px; }
+.inc-detalle dd { margin: 0; }
+.chips .pais-bandera svg { width: 20px; height: 14px; }
+@media (max-width: 1080px) { .avisos-col { grid-template-columns: minmax(0, 1fr); } }
+.avisos-col .inc-lista { display: block; columns: auto; }
+.fuentes-pais { display: flex; align-items: center; gap: 8px; margin: 16px 0 0; font-size: 16px; } .fuentes-pais .pais-bandera svg { width: 22px; height: 15px; }

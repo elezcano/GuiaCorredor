@@ -1906,20 +1906,31 @@ for (const p of guia) {
   const TIPO_TXT = { automatico: 'Automático', semiautomatico: 'Semiautomático', manual: 'Manual', whatsapp: 'WhatsApp', 'sin-fuente': 'Sin fuente' };
   const orden = ['BR', 'PY', 'AR', 'CL'];
   const cuenta = (e) => filas.filter((f) => f.estado === e).length;
+  // V2: una línea por carretera o paso; al abrirla, cómo se lee, la regla y el enlace oficial.
   const fila = (f) => {
     const [op, txt] = ESTADO_FUENTE[f.estado];
-    return `<li class="fuente-fila" id="f-${esc(f.id)}">
-      <div class="fuente-cabeza"><p class="fuente-tramo"><strong>${esc(f.tramo)}</strong><span>${esc(f.carretera_o_paso)}</span></p><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${txt}</span></span></div>
-      <dl class="fuente-datos">
-        <div><dt>Fuente</dt><dd>${f.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.fuente)}</a>` : esc(f.fuente)}${f.organismo && f.organismo !== '—' ? ` <span class="dato-fuente">${txtEs(f.organismo)}</span>` : ''}</dd></div>
-        <div><dt>Tipo</dt><dd>${TIPO_TXT[f.tipo] || esc(f.tipo)}${f.formato && f.formato !== '—' ? ` · ${esc(f.formato)}` : ''}</dd></div>
+    return `<li class="inc-tarjeta" id="f-${esc(f.id)}"><details class="inc-linea"><summary>
+      ${OPERATIVA[op].icono}
+      <span class="inc-que"><strong>${esc(f.tramo)}</strong><span>${esc(f.fuente)}</span><small>${[txt, TIPO_TXT[f.tipo] || f.tipo].filter((x, k, l) => l.indexOf(x) === k).map(esc).join(' · ')}</small></span>
+      ${icono('abajo')}</summary>
+      <div class="inc-detalle"><dl class="inc-datos">
+        <div><dt>Qué es</dt><dd>${esc(f.carretera_o_paso)}</dd></div>
         <div><dt>Frecuencia</dt><dd>${esc(f.frecuencia)}</dd></div>
         ${f.como_se_lee && f.como_se_lee !== '—' ? `<div><dt>Cómo se lee</dt><dd>${esc(f.como_se_lee)}</dd></div>` : ''}
         <div><dt>Regla</dt><dd>${esc(f.regla)}</dd></div>
         ${f.notas ? `<div><dt>Notas</dt><dd>${esc(f.notas)}</dd></div>` : ''}
-      </dl>
-    </li>`;
+      </dl>${f.url ? `<a class="enlace-mas" href="${esc(f.url)}" rel="noopener">Ver la fuente oficial${icono('derecha')}</a>` : ''}</div>
+    </details></li>`;
   };
+  const resumen = [
+    ['abierto', cuenta('activa'), 'cada hora'],
+    ['restricciones', cuenta('manual'), 'manuales'],
+    ['sin-confirmar', cuenta('pendiente') + cuenta('pausada'), 'pendientes'],
+    ['cerrado', cuenta('sin-fuente'), 'sin fuente'],
+  ]
+    .filter(([, n]) => n)
+    .map(([op, n, txt]) => `<span class="op-${op}">${n} ${txt}</span>`)
+    .join(' · ');
   add(
     '/fuentes/',
     layout({
@@ -1927,19 +1938,26 @@ for (const p of guia) {
       descripcion: 'Qué fuente oficial se lee para cada carretera y paso del Corredor Bioceánico, cada cuánto y con qué regla.',
       ruta: '/fuentes/',
       cuerpo: `
-<div class="contenedor fuentes">
-  <header class="cabeza-pagina"><h1>Fuentes que vigilamos</h1><p>Para cada carretera y paso: qué fuente se lee, cada cuánto y qué regla se aplica. Es la misma lista que usa el vigilante.</p></header>
-  <ul class="fuentes-resumen">
-    <li><span class="estado op-abierto">${OPERATIVA.abierto.icono}<span class="estado-texto">${cuenta('activa')} vigiladas cada hora</span></span></li>
-    <li><span class="estado op-restricciones">${OPERATIVA.restricciones.icono}<span class="estado-texto">${cuenta('manual')} manuales</span></span></li>
-    <li><span class="estado op-sin-confirmar">${OPERATIVA['sin-confirmar'].icono}<span class="estado-texto">${cuenta('pendiente') + cuenta('pausada')} pendientes</span></span></li>
-    <li><span class="estado op-cerrado">${OPERATIVA.cerrado.icono}<span class="estado-texto">${cuenta('sin-fuente')} sin fuente</span></span></li>
-  </ul>
-  ${orden
-    .filter((k) => filas.some((f) => f.pais === k))
-    .map((k) => `<section class="fuentes-pais" aria-labelledby="fp-${k}"><h2 id="fp-${k}">${bandera(k)} ${esc(PAISES[k])}</h2><ul class="fuentes-lista">${filas.filter((f) => f.pais === k).map(fila).join('')}</ul></section>`)
-    .join('')}
-  <p class="dato-fuente">«Vigilada cada hora»: el vigilante la lee de 06:00 a 21:00 (hora de Argentina) y publica lo que cambia con el sello «✓ Web oficial». «Manual»: se revisa a mano y se carga con su fuente. Descarga la lista en <a href="${u('/assets/fuentes-vigilancia.csv')}" download>CSV</a>.</p>
+<div class="contenedor pagina-app">
+  <div class="dos-col avisos-col">
+    <section class="tarjeta" aria-labelledby="t-fuentes">
+      <h1 id="t-fuentes">Fuentes que vigilamos</h1>
+      <p class="resumen-estados">${resumen}</p>
+      ${orden
+        .filter((k) => filas.some((f) => f.pais === k))
+        .map((k) => `<h2 class="fuentes-pais" id="fp-${k}">${bandera(k)} ${esc(PAISES[k])}</h2><ul class="inc-lista">${filas.filter((f) => f.pais === k).map(fila).join('')}</ul>`)
+        .join('')}
+    </section>
+    <section class="tarjeta" aria-labelledby="t-como">
+      <h2 id="t-como">Cómo funciona</h2>
+      <p class="nota-pie">Solo fuentes oficiales. Es la misma lista que usa el vigilante.</p>
+      <div class="plegables">
+        ${plegable('cada-hora', 'Vigilada cada hora', 'de 06:00 a 21:00, hora de Argentina', '<p>El vigilante lee la fuente y publica solo lo que cambia, con el sello «✓ Web oficial».</p>')}
+        ${plegable('manuales', 'Manual', 'se revisa a mano', '<p>Fuentes sin web legible (WhatsApp, redes): se revisan a mano y se cargan con su fuente y su hora.</p>')}
+        ${plegable('pendientes', 'Pendiente o sin fuente', 'todavía sin lectura', '<p>No hay fuente oficial que leer todavía. El tramo sale «Sin vigilancia».</p>')}
+      </div>
+    </section>
+  </div>
 </div>`,
     })
   );
@@ -2036,28 +2054,35 @@ add(
     resuelta: ['abierto', 'Resueltos en los últimos 15 días'],
   };
   const grav = (i) => (i.estado !== 'activa' ? 'resuelta' : i.gravedad || 'ambar');
+  // V2: cada aviso es una línea (señal · lugar · qué pasa · fuente y fecha); al abrirla, el texto oficial y los datos.
   const tarjetaInc = (i) => {
     const g = grav(i);
     const op = GRAV[g][0];
-    return `<li class="inc-tarjeta inc-${g}" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-gravedad="${g}">
-  <div class="inc-cabeza"><span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</span></span>${i.estado !== 'activa' ? '<span class="etiqueta-suave">Resuelta</span>' : ''}${paises(i.paises)}</div>
-  <h3>${esc(i.ubicacion)}</h3>
-  <p class="inc-texto">${descInc(i.descripcion, i.resumen)}</p>
-  <details class="inc-mas"><summary>Fechas, impacto y tramos</summary>
-  <dl class="inc-datos">
-    <div><dt>Inicio</dt><dd>${i.inicio ? fecha(i.inicio) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
-    <div><dt>Fin previsto</dt><dd>${i.finPrevista ? txtEs(i.finPrevista) : '<span class="sin-dato">Sin fecha confirmada</span>'}</dd></div>
-    <div class="inc-impacto"><dt>Transporte pesado</dt><dd>${i.impacto ? txtEs(i.impacto) : '<span class="sin-dato">Sin datos verificados</span>'}</dd></div>
-    <div><dt>Tramos afectados</dt><dd>${(i.tramos || [])
+    const tramosA = (i.tramos || [])
       .map((id) => tramoPorId[id])
       .filter(Boolean)
       .map((t) => {
         const gg = t.paso?.guia || t.guia;
         return gg ? `<a href="${u(`/guia/${gg}/`)}">${esc(nombreTramo(t))}</a>` : esc(nombreTramo(t));
       })
-      .join('<br>') || (i.paso && fichaPaso[i.paso] ? esc(fichaPaso[i.paso].nombre) : '<span class="sin-dato">Sin asignar</span>')}</dd></div>
-  </dl></details>
-  <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}${otras(i)}</p>
+      .join(' · ');
+    return `<li class="inc-tarjeta inc-${g}" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-gravedad="${g}">
+  <details class="inc-linea"><summary>
+    ${OPERATIVA[op].icono}
+    <span class="inc-que"><strong>${esc(i.ubicacion)}</strong><span>${txtOf(i.resumen || primeraFrase(i.descripcion))}</span>
+    <small>${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''} · ${i.publicado ? fechaCorta(i.publicado) : 'sin fecha'} ${i.paises.map(bandera).join('')}</small></span>
+    ${icono('abajo')}
+  </summary>
+  <div class="inc-detalle">
+    <p class="inc-texto">${descLarga(i.descripcion)}</p>
+    <dl class="inc-datos">
+      ${i.inicio ? `<div><dt>Inicio</dt><dd>${fecha(i.inicio)}</dd></div>` : ''}
+      ${i.finPrevista ? `<div><dt>Fin previsto</dt><dd>${txtEs(i.finPrevista)}</dd></div>` : ''}
+      ${i.impacto ? `<div><dt>Transporte pesado</dt><dd>${txtEs(i.impacto)}</dd></div>` : ''}
+      ${tramosA ? `<div><dt>Afecta a</dt><dd>${tramosA}</dd></div>` : ''}
+    </dl>
+    <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}${otras(i)}</p>
+  </div></details>
 </li>`;
   };
   const ordenG = ['rojo', 'ambar', 'info', 'resuelta'];
@@ -2079,47 +2104,39 @@ add(
       ruta: '/avisos/',
       scripts: ['/assets/filtros.js'],
       cuerpo: `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Obras, restricciones y alertas</h1><p>Lo que puede cortar o retrasar tu viaje. Cada aviso indica su fuente y su fecha.</p></header>
-</div>
-${seccion({
-  id: 'obras',
-  titulo: 'Obras y restricciones',
-  contexto: `${plural(activas.length, 'aviso activo', 'avisos activos')} en el corredor.`,
-  cuerpo: `<div class="filtros-noticias" data-filtros="#lista-inc">
-    <div class="filtro-linea" role="group" aria-label="Qué significan"><span class="filtro-etiqueta">Qué significan</span>
-      <button class="chip" type="button" data-filtro="gravedad" data-valor="" aria-pressed="true">Todos ${incidencias.length}</button>
-      ${grupos.map(([g, l]) => `<button class="chip chip-${g}" type="button" data-filtro="gravedad" data-valor="${g}" aria-pressed="false">${OPERATIVA[GRAV[g][0]].icono}${{ rojo: 'Impiden pasar', ambar: 'Con restricciones', info: 'Informativos', resuelta: 'Resueltos' }[g]} ${l.length}</button>`).join('')}
-    </div>
-    <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>
-      <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
-      ${paisesI.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false">${bandera(p)} ${esc(PAISES[p])}</button>`).join('')}
+<div class="contenedor pagina-app">
+  <div class="dos-col avisos-col">
+    <section class="tarjeta" aria-labelledby="t-avisos">
+      <h1 id="t-avisos">Avisos</h1>
+      <div class="filtros-noticias" data-filtros="#lista-inc">
+        <div class="chips" role="group" aria-label="Qué significan">
+          <button class="chip" type="button" data-filtro="gravedad" data-valor="" aria-pressed="true">Todos ${incidencias.length}</button>
+          ${grupos.map(([g, l]) => `<button class="chip chip-${g}" type="button" data-filtro="gravedad" data-valor="${g}" aria-pressed="false">${{ rojo: 'Impiden', ambar: 'Limitan', info: 'Informativos', resuelta: 'Resueltos' }[g]} ${l.length}</button>`).join('')}
+        </div>
+        <div class="chips" role="group" aria-label="País">
+          <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
+          ${paisesI.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false" aria-label="${esc(PAISES[p])}" title="${esc(PAISES[p])}">${bandera(p)}</button>`).join('')}
+        </div>
+      </div>
+      <ul class="inc-lista" id="lista-inc">${listaInc}</ul>
+      <div class="vacio" data-vacio hidden><p>No hay avisos con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>
+    </section>
+    <div class="ficha-lado">
+      ${mapaTarjeta({ clase: 'solo-ancho' })}
+      <section class="tarjeta plegables" aria-label="Más información">
+        ${plegable('meteorologia', 'Meteorología y estado de rutas', avisosMeteo.length ? plural(avisosMeteo.length, 'aviso vigente', 'avisos vigentes') : 'enlaces oficiales por país', `${
+          avisosMeteo.length
+            ? `<ul class="inc-lista">${avisosMeteo.map((a) => `<li class="inc-tarjeta"><h3>${esc(a.titulo)}</h3><p>${esc(a.zona)}</p><p class="inc-revisado">Vigente hasta el ${fecha(a.vigenteHasta)}. Fuente: ${fuenteEnlace(a.fuente)}</p></li>`).join('')}</ul>`
+            : ''
+        }<div class="tabla-marco"><table class="tabla-oficial">
+          <thead><tr><th scope="col">País</th><th scope="col">Alertas meteorológicas</th><th scope="col">Estado de rutas y pasos</th></tr></thead>
+          <tbody>${porPais.join('')}</tbody></table></div>
+          <p class="nota-pie">En Jama y Sico el viento blanco, la nieve y el hielo pueden cerrar la ruta en pocas horas.</p>`)}
+        ${plegable('novedades', 'Novedades recientes', 'avances de obras y acuerdos', `<ul class="lista-noticias">${recientes.slice(0, 3).map((n) => `<li>${noticia(n)}</li>`).join('')}</ul><a class="enlace-mas" href="${u('/novedades/')}">Ver todas las novedades${icono('derecha')}</a>`)}
+      </section>
     </div>
   </div>
-  <ul class="inc-lista" id="lista-inc">${listaInc}</ul>
-  <div class="vacio" data-vacio hidden><p>No hay avisos con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>`,
-})}
-${seccion({
-  id: 'meteorologia',
-  titulo: 'Meteorología y estado de rutas',
-  contexto: avisosMeteo.length ? `${plural(avisosMeteo.length, 'aviso vigente', 'avisos vigentes')}, copiados de fuentes oficiales.` : 'No hay avisos cargados. Las alertas y predicciones las publica cada país.',
-  cuerpo: `${
-    avisosMeteo.length
-      ? `<ul class="inc-lista">${avisosMeteo
-          .map((a) => `<li class="inc-tarjeta"><h3>${esc(a.titulo)}</h3><p>${esc(a.zona)}</p><p class="inc-revisado">Vigente hasta el ${fecha(a.vigenteHasta)}. Fuente: ${fuenteEnlace(a.fuente)}</p></li>`)
-          .join('')}</ul>`
-      : ''
-  }<div class="tabla-marco"><table class="tabla-oficial">
-    <thead><tr><th scope="col">País</th><th scope="col">Alertas meteorológicas</th><th scope="col">Estado de rutas y pasos</th></tr></thead>
-    <tbody>${porPais.join('')}</tbody></table></div>
-    <p class="nota-guardado">En los pasos de cordillera (Jama y Sico) el viento blanco, la nieve y el hielo pueden cerrar la ruta en pocas horas.</p>`,
-})}
-${seccion({
-  titulo: 'Novedades recientes',
-  contexto: 'Avances de obras y acuerdos entre países, con su fuente.',
-  enlace: ['/novedades/', 'Ver todas las novedades'],
-  cuerpo: `<ul class="lista-noticias lista-noticias-tres">${recientes.slice(0, 3).map((n) => `<li>${noticia(n)}</li>`).join('')}</ul>`,
-})}`,
+</div>`,
     })
   );
 }

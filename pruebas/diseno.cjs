@@ -8,7 +8,7 @@ const f = [];
 const ok = (c, m) => c || f.push(m);
 
 const VISTAS = { movil: [390, 844], tablet: [820, 1180], web: [1440, 900] };
-const PAGINAS = ['/', '/pasos/', '/planificador/?desde=0&hasta=8', '/guia/pasos/jama/', '/directorio/', '/cotizar/', '/anunciate/', '/pt/'];
+const PAGINAS = ['/', '/avisos/', '/fuentes/', '/pasos/', '/planificador/?desde=0&hasta=8', '/guia/pasos/jama/', '/directorio/', '/cotizar/', '/anunciate/', '/pt/'];
 // Vistas de consulta que deben caber en una pantalla de escritorio (el pie puede quedar debajo).
 const UNA_PANTALLA = ['/', '/pasos/', '/directorio/'];
 
