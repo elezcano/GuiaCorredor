@@ -84,6 +84,11 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 20/11/2026 | #204 | Ficha destacada a 5 US$ al mes; buzones de correo por uso (info, contacto, soporte, legal) preparados para cuando haya dominio. |
+| 20/11/2026 | #203 | Portada con una línea que dice qué es el producto: cada paso y carretera, según su fuente oficial. |
+| 20/11/2026 | #202 | Identidad RadarCorredor by Vialta: color en tres capas (corporativo, acento turquesa, estados), fuera el amarillo, DM Sans y DM Mono, Vialta en el pie y en el informe con interruptor ([MARCA.md](MARCA.md)). |
+| 20/11/2026 | #205 | Marca RadarCorredor: logotipo en la cabecera, favicon y nombre. |
+| 20/11/2026 | #200 | V2 en las páginas que faltaban: informe, guía de tramo y documentos, ficha más corta, cómo trabajamos y novedades. |
 | 20/11/2026 | #198 | Plan de 90 días según el veredicto del comité (continuar, 8/10): tres fases hasta el 18/02/2027 y ciclo 2 tras abrir los accesos al puente. Tablero de Trello reorganizado. |
 | 20/11/2026 | #196 | Mapas de OpenStreetMap interactivos en la ficha de paso, la guía de tramo y el planificador, centrados en lo que miras; Mapa interactivo en V2. |
 | 20/11/2026 | #194 | Avisos y Fuentes que vigilamos en V2: una línea por aviso o fuente, detalle al abrir y dos columnas. |
