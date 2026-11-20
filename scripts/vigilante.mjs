@@ -86,9 +86,10 @@ export function leerAtencion(html) {
   const bloque = html.slice(i, fin > i ? fin : i + 4000);
   const res = [];
   for (const [, p] of bloque.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)) {
-    const em = p.match(/<span[^>]*fw-bold[^>]*>\s*([^<]+?)\s+informa:?\s*<\/span>/i);
+    // Cada línea en negrita es una etiqueta: «Vialidad Nacional informa:», «Motivo del cierre:»…
+    const em = p.match(/<span[^>]*fw-bold[^>]*>\s*([^<]+?)\s*:?\s*<\/span>/i);
     const texto = textoPlano(p.replace(/<span[^>]*fw-bold[^>]*>[\s\S]*?<\/span>/i, '')).trim();
-    if (em) res.push({ emisor: textoPlano(em[1]).trim(), texto });
+    if (em) res.push({ emisor: textoPlano(em[1]).trim().replace(/\s+informa$/i, ''), texto });
     else if (texto && res.length && !/^Atenci[óo]n$/i.test(texto)) res[res.length - 1].texto += `. ${texto}`;
   }
   return res.map((a) => ({ ...a, texto: a.texto.replace(/\s+/g, ' ').replace(/\.\s*\./g, '.').trim() })).filter((a) => a.texto);
@@ -158,9 +159,12 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
   const quitar = (emisor) => {
     for (let k = partes.length - 1; k >= 0; k--) if (partes[k].lado === 'AR' && partes[k].emisor.startsWith(emisor)) partes.splice(k, 1);
   };
+  // El recuadro «Atención» de la web oficial trae el motivo del cierre cuando Gendarmería lo publica (20/11/2026).
+  const motivo = lectura.atencion.find((a) => /^motivo/i.test(a.emisor))?.texto || null;
+  const conMotivo = motivo ? `: «${motivo.replace(/\.$/, '')}»` : ', sin motivo publicado';
   const textoGen = () =>
     cierre
-      ? 'Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.'
+      ? `Cerrado por Gendarmería${motivo ? conMotivo : ': la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado'}.`
       : cerradoGendarmeria
         ? `Cierre de la jornada (fuera del horario ${horTxt}, hora de Argentina).`
         : horTxt
@@ -197,7 +201,11 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
     cambios.push(`Estado del paso: ${texto}`);
   };
   if (cierre && e.valor !== 'cerrado') {
-    nuevoEstado('cerrado', `Cerrado por Gendarmería (${cuando}, hora de Argentina): la web oficial lo marca cerrado dentro de su horario${horTxt ? ` (${horTxt})` : ''}, sin motivo publicado.`);
+    nuevoEstado('cerrado', `Cerrado por Gendarmería (${cuando}, hora de Argentina)${motivo ? conMotivo : `: la web oficial lo marca cerrado dentro de su horario${horTxt ? ` (${horTxt})` : ''}, sin motivo publicado`}.`);
+  } else if (cierre && motivo && !e.texto.includes(motivo.replace(/\.$/, ''))) {
+    // Ya estaba cerrado y ahora se publica el motivo: se añade, sin abrir otra entrada en el historial.
+    paso.estado = { ...e, texto: `Cerrado por Gendarmería (${cuando}, hora de Argentina)${conMotivo}.`, ...sello(fuente, ahora, `motivo del cierre: ${motivo}`) };
+    cambios.push(`Motivo del cierre: ${motivo}`);
   } else if (!cerradoGendarmeria && restringida && e.valor === 'operativo') {
     const at = lectura.atencion.map((a) => `${a.emisor}: ${a.texto}`).join('. ');
     nuevoEstado('restricciones', `Abierto${horTxt ? ` de ${horTxt}` : ''} (hora de Argentina), con ${lectura.vialidad === 'CORTE TOTAL' ? 'corte total' : 'circulación restringida'} según Vialidad Nacional${at ? `. ${at}` : ''}.`);
@@ -260,6 +268,14 @@ function autoprueba() {
   let d = decidir(base, jama, 'f', A('17:00'));
   ok(d.cambios.length === 0 && d.paso === base, 'sin partes nuevos no publica nada.');
   const cerrado = conPag([['"ABIERTO"', '"CERRADO"'], ['17/11/2026 - 16:13', '17/11/2026 - 17:30']]);
+  const MOTIVO = 'PASO INTERNACIONAL PERMANECE CERRADO PARA TODO TIPO DE VEHÍCULOS EN AMBOS SENTIDOS.';
+  const conMot = conPag([['"ABIERTO"', '"CERRADO"'], ['17/11/2026 - 16:13', '17/11/2026 - 17:30'], ['<p><span class="fw-bold">Vialidad Nacional informa:', `<p><span class="fw-bold">Motivo del cierre:</span> ${MOTIVO}</p><p><span class="fw-bold">Vialidad Nacional informa:`]]);
+  ok(conMot.atencion.some((a) => /^Motivo/.test(a.emisor) && a.texto === MOTIVO), `el recuadro «Atención» trae el motivo del cierre (${JSON.stringify(conMot.atencion)}).`);
+  d = decidir(base, conMot, 'f', A('17:35'));
+  ok(d.paso.estado.valor === 'cerrado' && d.paso.estado.texto.includes('PERMANECE CERRADO') && !/sin motivo/.test(d.paso.estado.texto), 'con motivo publicado, el estado lo cita en lugar de «sin motivo publicado».');
+  const yaCerrado = decidir(base, cerrado, 'f', A('17:35')).paso;
+  d = decidir(yaCerrado, conMot, 'f', A('17:40'));
+  ok(d.paso.estado.texto.includes('PERMANECE CERRADO') && d.paso.historial.length === yaCerrado.historial.length, 'si el motivo llega después, se añade al cierre sin otra entrada en el historial.');
   d = decidir(base, cerrado, 'f', A('17:40'));
   const pg = d.paso.partes.find((x) => x.emisor.startsWith('Gend'));
   ok(d.paso.estado.valor === 'cerrado' && pg.valor === 'cerrado' && pg.hora === '17:30' && d.paso.estado.verificacion.verificadoPor === 'vigilante' && d.paso.historial.length === 1 && d.paso.partes.some((x) => x.lado === 'CL'), '«Cerrado» de Gendarmería dentro del horario: se publica el cierre.');

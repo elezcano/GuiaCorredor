@@ -78,3 +78,7 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 - **MOPC: como mucho ámbar.** Un «Clausurado» del informe sale en ámbar. Regla guardada, apagada: rojo solo si el informe nombra la PY15 (`MOPC_ROJO_SI_PY15` en `scripts/mopc.mjs`).
 - **Historial:** los avisos resueltos se guardan 90 días (antes 15). La web solo enseña los de los últimos 15.
 - **Avisos cortos:** cada aviso enseña una línea (`resumen` o la primera frase). El texto completo va en «Más información».
+
+## Motivo del cierre (20/11/2026)
+
+La página oficial de cada paso (Ministerio de Seguridad) trae a veces, en el recuadro «Atención», la línea **«Motivo del cierre:»** con el parte de Gendarmería. El vigilante lee todas las etiquetas en negrita del recuadro (no solo «… informa:»). Si el paso se cierra con motivo, el estado lo cita; si el motivo llega después, se añade al cierre sin abrir otra entrada en el historial. Sin motivo publicado, el texto lo dice.
