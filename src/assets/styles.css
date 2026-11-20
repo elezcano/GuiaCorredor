@@ -1485,3 +1485,6 @@ fieldset { min-width: 0; }
 .mapa-tarjeta { display: flex; flex-direction: column; gap: 8px; }
 .mapa-tarjeta .mapa figcaption { display: none; }
 .lateral .mapa-tarjeta { padding: 0; background: none; margin-bottom: 20px; }
+.tablero-pais { display: inline-flex; align-items: center; gap: 4px; }
+.tablero-pais .pais-bandera svg { width: 18px; height: 12px; }
+@media (max-width: 760px) { .tablero-pais > span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
