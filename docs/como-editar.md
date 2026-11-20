@@ -90,7 +90,7 @@ Abre `data/novedades.json` y añade un bloque al principio:
 
 ## Cobrar la ficha destacada con PayPal
 
-1. En PayPal Business: *Pagar y recibir pagos* → *Suscripciones* → crea el producto "Ficha destacada" con un plan de 45 €/mes.
+1. En PayPal Business: *Pagar y recibir pagos* → *Suscripciones* → crea el producto "Ficha destacada" con un plan de 5 US$ al mes (USD).
 2. Copia el enlace para compartir del plan.
 3. En `data/site.json`, dentro de `planes`, pégalo en `"enlacePago"` del plan `destacada`. El botón "Contratar con PayPal" aparece solo.
 4. Cuando entre un pago: pon `"destacada": true` en la empresa y emite la factura como autónomo.
