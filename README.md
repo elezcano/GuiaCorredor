@@ -84,6 +84,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 20/11/2026 | #212 | Calendario aduanero V3: el mes en cuadrícula con las banderas de cada festivo, «¿Cuándo cruzas?» al tocar un día, próximo feriado por país y horarios de cada paso plegados (de 10.957 a 1.096 px en escritorio). |
 | 20/11/2026 | #210 | Planificador: cada aviso una sola vez, en su tramo (de 7.773 a 3.828 caracteres en Campo Grande → Iquique). Menos descarga: la caché sin conexión ya no se vuelve a bajar en cada publicación y el diccionario portugués va en un archivo aparte (portada PT de 146 a 69 KB). |
 | 20/11/2026 | #207 | Portada: la línea de propuesta va junto al título para que la vista quepa en una pantalla con DM Sans. |
 | 20/11/2026 | #204 | Ficha destacada a 5 US$ al mes; buzones de correo por uso (info, contacto, soporte, legal) preparados para cuando haya dominio. |
