@@ -81,7 +81,7 @@
       const viejo = h >= umbral;
       li.classList.toggle('parte-vieja', viejo);
       av.hidden = !viejo;
-      if (viejo) av.textContent = `Este parte tiene ${h >= 48 ? Math.floor(h / 24) + ' días' : Math.floor(h) + ' h'}: confírmalo antes de salir.`;
+      if (viejo) av.textContent = `Tiene ${h >= 48 ? Math.floor(h / 24) + ' días' : Math.floor(h) + ' h'}: confírmalo antes de salir`;
     });
   }
   pintar();

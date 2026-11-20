@@ -26,14 +26,13 @@
   const hEnlace = params.get('h'); // huella de los estados al generar
 
   const ICONO = (d) => `<svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
-  const I_CHAT = ICONO('M4 20l1.5-4.5A8 8 0 1 1 8.5 19z');
-  const I_ENLACE = ICONO('M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1');
   const I_PDF = ICONO('M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M7 14h10v7H7z');
 
   const nodo = (id) => datos.nodos.find((n) => n.id === id);
-  const fechaLarga = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-  const fechaCorta = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).replace('.', '');
-  const dias = (iso) => Math.round((Date.parse(hoyISO) - Date.parse(iso)) / 864e5);
+  const dia = (iso) => String(iso).slice(0, 10);
+  const fechaLarga = (iso) => new Date(dia(iso) + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const fechaCorta = (iso) => new Date(dia(iso) + 'T12:00:00Z').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).replace('.', '');
+  const dias = (iso) => Math.round((Date.parse(hoyISO) - Date.parse(dia(iso))) / 864e5);
   const hace = (iso) => {
     const d = dias(iso);
     if (!Number.isFinite(d)) return '';
@@ -61,7 +60,8 @@
     return datos.operativa[op].texto + det;
   };
   const vistaTexto = (v) => {
-    if (v?.confirmado) return `${v.fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente'} el ${fechaCorta(v.verificado)}`;
+    if (v?.vigilado) return `Leído de la web oficial${v.vigilancia?.organismos ? ` (${esc(v.vigilancia.organismos)})` : ''}, vigilada cada hora`;
+    if (v?.confirmado) return `${v.fuente?.tipo === 'oficial' ? 'Verificado en fuente oficial' : 'Verificado en la fuente'}${v.verificado ? ` el ${fechaCorta(v.verificado)}` : ''}`;
     if (!v?.ultimo || v.ultimo === 'pendiente') return 'Sin estado publicado';
     const viejo = dias(v.publicado) > 30;
     return `Último dato: ${esc((datos.estados[v.ultimo] || v.ultimo).toLowerCase())}, ${v.publicado ? `${fechaCorta(v.publicado)} <span class="edad${viejo ? ' edad-vieja' : ''}">(${hace(v.publicado)})</span>` : 'sin fecha'}`;
@@ -172,7 +172,7 @@
       `Cruce: ${fechaCorta(fecha)} · ${carga.nombre}`,
       ...pasos.map((t) => {
         const ult = datos.pasosInfo[t.paso.id]?.partes?.[0];
-        return `• ${t.paso.nombre.replace(/\s*\(.*\)$/, '')}: ${textoOp(t)}${t.vista?.confirmado ? ` (verif. ${fechaCorta(t.vista.verificado)})` : ''}${ult ? ` · parte ${fechaCorta(ult.publicado)}${ult.hora ? ' ' + ult.hora : ''}` : ''}`;
+        return `• ${t.paso.nombre.replace(/\s*\(.*\)$/, '')}: ${textoOp(t)}${t.vista?.confirmado && t.vista.verificado ? ` (verif. ${fechaCorta(t.vista.verificado)})` : ''}${ult ? ` · parte ${fechaCorta(ult.publicado)}${ult.hora ? ' ' + ult.hora : ''}` : ''}`;
       }),
       ...festivosDia.map((f) => `• Festivo ${PAISES[f.pais]}: ${f.nombre}`),
       op.problemas.length ? `• ${GC.plural(op.problemas.length, 'aviso activo', 'avisos activos')}` : '',
@@ -184,16 +184,6 @@
     return t + pie;
   })();
 
-  const filaTramo = (t) => {
-    const op_ = opDe(t);
-    const esPaso = !!t.paso;
-    return `<tr class="tramo-op-${op_}">
-      <th scope="row" data-l="Tramo">${esc(nombreT(t))}${esPaso ? `<span class="inf-paso">Frontera: ${esc(t.paso.nombre)}</span>` : ''}</th>
-      <td data-l="Estado">${chip(op_, t.vista?.confirmado ? t.vista.valor : null)}<span class="estado-fecha">${vistaTexto(t.vista)}</span></td>
-      <td data-l="Fuente">${t.vista?.fuente ? fuente(t.vista.fuente) : '<span class="sin-dato">Sin fuente</span>'}</td>
-    </tr>`;
-  };
-
   // HU-73: partes por país con antigüedad y aviso a partir del umbral.
   const horasDesde = (ts) => (Date.now() - new Date(ts).getTime()) / 36e5;
   const edadParte = (h) => (h < 1 ? 'hace menos de 1 h' : h < 48 ? `hace ${Math.floor(h)} h` : `hace ${Math.floor(h / 24)} días`);
@@ -202,8 +192,6 @@
     [f.cerrado && `${f.cerrado} no habilitado`, f.soloCarga && `${f.soloCarga} sin paso para carga`, f.restricciones && `${f.restricciones} con restricciones`, f.abierto && `${f.abierto} habilitado`, f.sinDatos && `${f.sinDatos} sin datos`]
       .filter(Boolean)
       .join(' · ');
-  const fiabPaso = (p) =>
-    p.fiabilidad ? `<p class="inf-fiab"><strong>Fiabilidad:</strong> últimos 30 días: ${fiabTexto(p.fiabilidad.d30)}; últimos 90 días: ${fiabTexto(p.fiabilidad.d90)}.</p>` : '';
   const partesPaso = (p) =>
     p.partes || p.lados
       ? `<h4>Qué informa cada país</h4><ul class="inf-partes">${(p.lados || [])
@@ -222,30 +210,6 @@
           })
           .join('')}</ul>`
       : '';
-  const horariosPaso = (t) => {
-    const p = datos.pasosInfo[t.paso.id];
-    if (!p) return '';
-    const esp = especialesDia(t.paso.id);
-    return `<div class="inf-bloque-paso">
-      <h3>${esc(p.nombre)}</h3>
-      ${fiabPaso(p)}
-      ${partesPaso(p)}
-      <h4>Horarios</h4>
-      ${
-        p.horarios.length
-          ? `<ul>${p.horarios.map((h) => `<li><strong>${esc(h.lado || 'General')}${h.organismo && h.organismo !== 'general' ? ` · ${esc(h.organismo)}` : ''}:</strong> ${es(h.texto)} <span class="texto-suave">— ${h.verificado ? `verificado el ${fechaCorta(h.verificado)}` : 'sin verificar'}, ${fuente(h.fuente)}</span></li>`).join('')}</ul>`
-          : '<p class="sin-dato">Sin horario con fuente.</p>'
-      }
-      ${
-        esp.length
-          ? `<p class="inf-especial"><strong>Horario especial el ${esc(fechaCorta(fecha))}:</strong> ${esp.map((h) => `${es(h.texto)} (${fuente(h.fuente)})`).join('; ')}</p>`
-          : festivosDia.some((f) => [nodo(t.de).pais, nodo(t.a).pais].includes(f.pais))
-            ? '<p class="texto-suave">Sin horario especial publicado para el día del cruce.</p>'
-            : ''
-      }
-    </div>`;
-  };
-
   // HU-80: resumen en una página (para imprimir o enviar a quien cotiza).
   const resumenUrl = (() => {
     const u = new URL(enlaceCompartir);
@@ -267,7 +231,7 @@
   const filaResumenPaso = (t) => {
     const p = datos.pasosInfo[t.paso.id];
     const h = p?.horarios?.[0];
-    return `<tr><th scope="row">${esc(t.paso.nombre)}</th><td>${chip(opDe(t), t.vista?.confirmado ? t.vista.valor : null)}<span class="estado-fecha">${t.vista?.confirmado ? `verif. ${esc(fechaCorta(t.vista.verificado))}` : 'sin verificar'}</span></td><td>${ultimoParte(p)}</td><td>${h ? es(h.texto) : '<span class="sin-dato">Sin horario con fuente</span>'}</td></tr>`;
+    return `<tr><th scope="row">${esc(t.paso.nombre)}</th><td>${chip(opDe(t), t.vista?.confirmado ? t.vista.valor : null)}<span class="estado-fecha">${t.vista?.vigilado ? 'web oficial, cada hora' : t.vista?.confirmado && t.vista.verificado ? `verif. ${esc(fechaCorta(t.vista.verificado))}` : 'sin verificar'}</span></td><td>${ultimoParte(p)}</td><td>${h ? es(h.texto) : '<span class="sin-dato">Sin horario con fuente</span>'}</td></tr>`;
   };
   const tramosSin = op.tramos.filter((t) => !t.paso && opDe(t) === 'sin-confirmar').length;
   const MAX_AVISOS = 5;
@@ -288,103 +252,116 @@
       <p class="resumen-enlace"><strong>Informe completo, con horarios, fuentes y detalle de tramos:</strong> <a href="${esc(completoUrl)}">${esc(completoUrl)}</a></p>
     </section>`;
 
+  // V2: una línea por paso, tramo y aviso; el detalle, al abrirla.
+  const I = datos.iconos;
+  const linea = (op_, titulo, sub, det) =>
+    `<li class="inc-tarjeta"><details class="inc-linea"><summary>${datos.operativa[op_].icono}<span class="inc-que"><strong>${titulo}</strong><small>${sub}</small></span>${I.abajo}</summary><div class="inc-detalle">${det}</div></details></li>`;
+  const lineaTramo = (t) =>
+    linea(
+      opDe(t),
+      esc(nombreT(t)),
+      `${esc(textoOp(t))}${t.vista?.fuente ? ` · ${esc(t.vista.fuente.nombre)}` : ''}`,
+      `<p>${vistaTexto(t.vista)}.</p><p>Fuente: ${t.vista?.fuente ? fuente(t.vista.fuente) : 'sin fuente'}.</p>${typeof t.km === 'number' ? `<p>${GC.km(t.km)} con fuente.</p>` : ''}`
+    );
+  const lineaPaso = (t) => {
+    const p = datos.pasosInfo[t.paso.id];
+    const h = p?.horarios?.[0];
+    const esp = especialesDia(t.paso.id);
+    return linea(
+      opDe(t),
+      esc(t.paso.nombre),
+      `${esc(textoOp(t))}${h ? ` · ${esc(h.texto.split(/[(,]/)[0].trim())}` : ''}`,
+      `${p ? partesPaso(p) : ''}${p?.horarios?.length ? `<h4>Horarios</h4><ul>${p.horarios.map((x) => `<li><strong>${esc(x.lado || 'General')}:</strong> ${es(x.texto)} <span class="texto-suave">— ${fuente(x.fuente)}</span></li>`).join('')}</ul>` : ''}${
+        esp.length ? `<p class="inf-especial"><strong>Horario especial el ${esc(fechaCorta(fecha))}:</strong> ${esp.map((x) => es(x.texto)).join('; ')}</p>` : ''
+      }${p?.fiabilidad ? `<p><strong>Fiabilidad:</strong> últimos 30 días: ${fiabTexto(p.fiabilidad.d30)}.</p>` : ''}`
+    );
+  };
+  const lineaAviso = (i) => {
+    const x = datos.incidenciasInfo[i.id] || {};
+    return linea(
+      'restricciones',
+      `${esc(i.tipo)} · ${esc(i.ubicacion)}`,
+      `${x.verificado ? 'verificado' : 'sin verificar'}${i.publicado ? ` · ${esc(fechaCorta(i.publicado))}` : ''}`,
+      `<p>${es(i.texto)}${x.finPrevista ? ` <em>Previsión: ${es(x.finPrevista)}.</em>` : ''}</p><p>Fuente: ${fuente(x.fuente)}.</p>`
+    );
+  };
+  const kmTexto = conFuente.length
+    ? `${GC.km(Math.round(op.km * 10) / 10)} con fuente${op.estimados.length ? ` + ≈ ${GC.km(op.kmEstimado)} estimados` : ''}`
+    : op.estimados.length
+      ? `≈ ${GC.km(op.kmEstimado)} en línea recta, sin fuente`
+      : 'sin dato con fuente';
+  const lista = (items) => `<ul class="inc-lista">${items.join('')}</ul>`;
+  const tramosRuta = op.tramos.filter((t) => !t.paso);
+
   salida.innerHTML = `
   <article class="informe" aria-labelledby="inf-titulo">
-    <header class="informe-cabeza">
-      <p class="informe-marca">Guía del Corredor · Informe de viaje</p>
+    <header class="tarjeta informe-cabeza">
+      <p class="informe-marca">Informe de viaje · ${esc(genTexto)}</p>
       <h1 id="inf-titulo">${esc(datos.nodos[a].nombre)} → ${esc(datos.nodos[b].nombre)}</h1>
       <dl class="informe-datos">
-        <div><dt>Fecha de cruce</dt><dd>${esc(fechaLarga(fecha))}</dd></div>
+        <div><dt>Cruce</dt><dd>${esc(fechaLarga(fecha))}</dd></div>
         <div><dt>Carga</dt><dd>${esc(carga.nombre)}</dd></div>
-        <div><dt>Opción</dt><dd>${esc(op.nombre)}${ops.length > 1 && op.recomendada ? ' (menos incidencias)' : ''}</dd></div>
-        <div><dt>Generado</dt><dd>${esc(genTexto)}</dd></div>
+        <div><dt>Ruta</dt><dd>${esc(op.nombre)}</dd></div>
+        <div><dt>Distancia</dt><dd>${kmTexto}</dd></div>
       </dl>
+      ${alertas.length ? `<ul class="alertas">${alertas.join('')}</ul>` : `<p class="informe-ok">${datos.operativa.abierto.icono}<span>Ningún paso cerrado, festivo ni sin confirmar ese día.</span></p>`}
+      ${festivosDia.length ? '<p class="nota-pie">Un festivo no implica que la aduana cierre: confirma el horario con el organismo de cada paso.</p>' : ''}
+      <div class="acc no-imprimir">
+        <button class="btn btn-principal" type="button" id="inf-pdf">${I_PDF}Descargar PDF</button>
+        <button class="ib" type="button" id="inf-resumen-pdf" aria-label="Resumen en 1 página" title="Resumen en 1 página">${I.papeles}</button>
+        <button class="ib" type="button" id="inf-copiar" aria-label="Copiar enlace" title="Copiar enlace">${I.enlace}</button>
+        <a class="ib wa" href="https://wa.me/?text=${encodeURIComponent(resumenWA)}" rel="noopener" aria-label="Enviar por WhatsApp" title="Enviar por WhatsApp">${I.chat}</a>
+      </div>
+      <details class="no-imprimir informe-cambiar"><summary>Cambiar fecha, opción o ruta</summary>
+        <form class="informe-fecha" id="inf-fecha">
+          <label><span>Fecha de cruce</span><input type="date" name="fecha" value="${esc(fecha)}" min="${hoyISO}"></label>
+          ${ops.length > 1 ? `<label><span>Opción</span><select name="op">${ops.map((o) => `<option value="${o.id}"${o === op ? ' selected' : ''}>${esc(o.nombre)}</option>`).join('')}</select></label>` : ''}
+          <button class="btn btn-borde" type="submit">Actualizar</button>
+        </form>
+        <p><a href="${datos.base}/planificador/?desde=${a}&hasta=${b}&carga=${encodeURIComponent(carga.id)}">Cambiar ruta</a> · <a id="inf-ver" href="${esc(enResumen ? completoUrl : resumenUrl)}">${enResumen ? 'Ver informe completo' : 'Ver resumen'}</a></p>
+      </details>
     </header>
-
-    <div class="acciones no-imprimir informe-acciones">
-      <button class="btn btn-borde" type="button" id="inf-copiar">${I_ENLACE}<span>Copiar enlace</span></button>
-      <a class="btn btn-wa" href="https://wa.me/?text=${encodeURIComponent(resumenWA)}" rel="noopener">${I_CHAT}Enviar por WhatsApp</a>
-      <button class="btn btn-principal" type="button" id="inf-pdf">${I_PDF}Descargar PDF</button>
-      <button class="btn btn-borde" type="button" id="inf-resumen-pdf">${I_PDF}Resumen en 1 página</button>
-      <a class="btn btn-texto" id="inf-ver" href="${esc(enResumen ? completoUrl : resumenUrl)}">${enResumen ? 'Ver informe completo' : 'Ver resumen'}</a>
-      <a class="btn btn-texto" href="${datos.base}/planificador/?desde=${a}&hasta=${b}&carga=${encodeURIComponent(carga.id)}">Cambiar ruta</a>
-    </div>
-    <form class="informe-fecha no-imprimir" id="inf-fecha">
-      <label><span>Cambiar fecha de cruce</span><input type="date" name="fecha" value="${esc(fecha)}" min="${hoyISO}"></label>
-      ${ops.length > 1 ? `<label><span>Opción</span><select name="op">${ops.map((o) => `<option value="${o.id}"${o === op ? ' selected' : ''}>${esc(o.nombre)}</option>`).join('')}</select></label>` : ''}
-      <button class="btn btn-borde" type="submit">Actualizar informe</button>
-    </form>
 
     ${cambio ? `<p class="aviso aviso-cambio" role="alert"><strong>La situación ha cambiado desde que se generó este informe (${esc(genTexto)}).</strong> Lo que ves abajo son los datos actuales.</p>` : ''}
 
     ${resumenHTML}
 
-    <section class="informe-seccion" aria-labelledby="inf-alertas">
-      <h2 id="inf-alertas">Lo importante</h2>
-      ${alertas.length ? `<ul class="alertas">${alertas.join('')}</ul>` : `<p>${datos.operativa.abierto.icono} No hay pasos cerrados, festivos ni pasos sin confirmar en la fecha del cruce.</p>`}
-      ${festivosDia.length ? '<p class="texto-suave">Un festivo no implica que la aduana cierre: confirma el horario con el organismo de cada paso.</p>' : ''}
-      ${festivosCerca.length ? `<p class="texto-suave">Festivos cerca de la fecha: ${festivosCerca.map((f) => `${esc(fechaCorta(f.fecha))} ${esc(PAISES[f.pais])} (${esc(f.nombre)})`).join('; ')}.</p>` : ''}
-    </section>
-
-    <section class="informe-seccion" aria-labelledby="inf-estado">
-      <h2 id="inf-estado">Estado de cada tramo</h2>
-      <div class="tabla-marco"><table class="tabla-informe">
-        <thead><tr><th scope="col">Tramo</th><th scope="col">Estado</th><th scope="col">Fuente</th></tr></thead>
-        <tbody>${op.tramos.map(filaTramo).join('')}</tbody>
-      </table></div>
-    </section>
-
-    ${pasos.length ? `<section class="informe-seccion" aria-labelledby="inf-horarios"><h2 id="inf-horarios">Horarios en frontera</h2>${pasos.map(horariosPaso).join('')}</section>` : ''}
-
-    <section class="informe-seccion" aria-labelledby="inf-avisos">
-      <h2 id="inf-avisos">Avisos activos</h2>
-      ${
-        op.problemas.length
-          ? `<ul class="informe-lista">${op.problemas
-              .map((i) => {
-                const x = datos.incidenciasInfo[i.id] || {};
-                return `<li><strong>${esc(i.tipo)} · ${esc(i.ubicacion)}:</strong> ${es(i.texto)}${x.finPrevista ? ` <em>Previsión: ${es(x.finPrevista)}.</em>` : ''} <span class="texto-suave">— ${x.verificado ? `verificado el ${fechaCorta(x.verificado)}` : 'sin verificar'}, ${fuente(x.fuente)}${i.publicado ? `, ${fechaCorta(i.publicado)}` : ''}</span></li>`;
-              })
-              .join('')}</ul>`
-          : '<p>No hay avisos activos en esta ruta.</p>'
-      }
-    </section>
-
-    <section class="informe-seccion" aria-labelledby="inf-km">
-      <h2 id="inf-km">Distancias</h2>
-      <p><strong>Con fuente:</strong> ${conFuente.length ? `${GC.km(Math.round(op.km * 10) / 10)} en ${GC.plural(conFuente.length, 'tramo', 'tramos')} (${conFuente.map((t) => `${esc(nombreT(t))} ${GC.km(t.km)}`).join('; ')})` : 'ningún tramo'}.</p>
-      ${op.estimados.length ? `<p><strong>Estimación provisional, sin verificar:</strong> ≈ ${GC.km(op.kmEstimado)} en línea recta (${op.estimados.map((t) => `${esc(nombreT(t))} ≈ ${GC.km(t.estimacion.km)}`).join('; ')}). Por carretera es más.</p>` : ''}
-      ${op.sinKm - op.estimados.length > 0 ? `<p>${GC.plural(op.sinKm - op.estimados.length, 'tramo sin dato', 'tramos sin dato')}.</p>` : ''}
-      <p class="texto-suave">No se suman como distancia oficial.</p>
-    </section>
-
-    ${
-      pasos.length
-        ? `<section class="informe-seccion" aria-labelledby="inf-papeles"><h2 id="inf-papeles">Papeles para cruzar (${esc(carga.nombre.toLowerCase())})</h2>
-      <ul class="informe-lista informe-check">${docs.map((d) => `<li>${esc(d.nombre)}</li>`).join('')}</ul>
-      <p class="texto-suave">${esc(datos.avisoDocumentos)}</p></section>`
-        : ''
-    }
-
-    <section class="informe-seccion" aria-labelledby="inf-fuentes">
-      <h2 id="inf-fuentes">Fuentes</h2>
-      <ul class="informe-lista informe-fuentes">${[...fuentes.values()].map((f) => `<li>${fuente(f)}</li>`).join('') || '<li>Sin fuentes</li>'}</ul>
-    </section>
+    <div class="dos-col informe-col informe-seccion">
+      <div class="informe-principal">
+        ${pasos.length ? `<section class="tarjeta" aria-labelledby="inf-pasos"><h2 id="inf-pasos">Pasos de frontera</h2>${lista(pasos.map(lineaPaso))}</section>` : ''}
+        ${tramosRuta.length ? `<section class="tarjeta" aria-labelledby="inf-estado"><h2 id="inf-estado">Carreteras</h2>${lista(tramosRuta.map(lineaTramo))}</section>` : ''}
+        <section class="tarjeta" aria-labelledby="inf-avisos"><h2 id="inf-avisos">Avisos en la ruta${op.problemas.length ? ` (${op.problemas.length})` : ''}</h2>${op.problemas.length ? lista(op.problemas.map(lineaAviso)) : '<p>Ninguno.</p>'}</section>
+      </div>
+      <aside class="informe-lado">
+        ${
+          pasos.length
+            ? `<section class="tarjeta" aria-labelledby="inf-papeles"><h2 id="inf-papeles">Papeles · ${esc(carga.nombre.toLowerCase())}</h2>
+          <ul class="informe-lista informe-check">${docs.map((d) => `<li>${esc(d.nombre.split(' — ')[0])}</li>`).join('')}</ul>
+          <p class="nota-pie">${esc(datos.avisoDocumentos)}</p></section>`
+            : ''
+        }
+        ${festivosCerca.length ? `<section class="tarjeta"><h2>Festivos cerca</h2><p>${festivosCerca.map((f) => `${esc(fechaCorta(f.fecha))} · ${esc(PAISES[f.pais])}: ${esc(f.nombre)}`).join('<br>')}</p><p class="nota-pie">Un festivo no implica que la aduana cierre.</p></section>` : ''}
+        <details class="tarjeta informe-fuentes-pl"><summary>Fuentes (${fuentes.size})</summary>
+          <ul class="informe-lista informe-fuentes">${[...fuentes.values()].map((f) => `<li>${fuente(f)}</li>`).join('') || '<li>Sin fuentes</li>'}</ul>
+        </details>
+      </aside>
+    </div>
 
     <footer class="informe-pie">
-      <p><strong>Situación a ${esc(genTexto)}. Confirma antes de salir.</strong> «Verificado» significa comprobado a mano en la fuente oficial o en la fuente citada; «Sin confirmar», que solo hay un dato publicado por su fuente. Un festivo no implica cierre de aduana.</p>
-      <p class="texto-suave">${esc(location.origin + datos.base)}/</p>
+      <p><strong>Situación a ${esc(genTexto)}. Confirma antes de salir.</strong> «Verificado»: comprobado a mano en la fuente. «Sin confirmar»: solo hay un dato publicado por su fuente.</p>
     </footer>
   </article>`;
 
   // Si el enlace no llevaba fecha de generación, la fija ahora (para que el enlace compartido la conserve).
   if (!gen) history.replaceState(null, '', urlCon({ gen: genAhora, h: huella }));
 
+  // Al imprimir, el detalle va abierto.
+  addEventListener('beforeprint', () => document.querySelectorAll('.informe details').forEach((d) => (d.open = true)));
   document.getElementById('inf-copiar').addEventListener('click', (e) => {
-    const s = e.currentTarget.querySelector('span');
+    const b = e.currentTarget;
     navigator.clipboard?.writeText(enlaceCompartir).then(
-      () => (s.textContent = 'Enlace copiado'),
-      () => (s.textContent = 'No se pudo copiar')
+      () => (b.title = b.ariaLabel = 'Enlace copiado'),
+      () => (b.title = b.ariaLabel = 'No se pudo copiar')
     );
   });
   document.getElementById('inf-pdf').addEventListener('click', () => {

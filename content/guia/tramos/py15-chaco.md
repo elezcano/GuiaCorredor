@@ -12,7 +12,6 @@ validacion: borrador
 
 La **Ruta Nacional PY15** es el corredor bioceánico en Paraguay: **531 km** por el Chaco entre **Carmelo Peralta** (frontera con Brasil) y **Pozo Hondo** (frontera con Salta, Argentina).
 
-*El estado de cada tramo, su distancia y sus incidencias se muestran arriba, en «Estado de los tramos».*
 ## Por dónde se va hoy
 
 - **Carmelo Peralta → Loma Plata (tramo 1): asfaltado.** Unos 277 km con sus accesos, en servicio.
@@ -22,10 +21,6 @@ La **Ruta Nacional PY15** es el corredor bioceánico en Paraguay: **531 km** por
 ## Qué tráfico se espera
 
 El estudio de tránsito citado por el MOPC prevé unos **360 camiones al día** una vez habilitado el corredor.
-
-## Servicios en ruta
-
-*Pendiente: combustible, talleres, alojamiento y puntos de descanso. Se completará con el [directorio](/directorio/).*
 
 ## Fuentes
 
