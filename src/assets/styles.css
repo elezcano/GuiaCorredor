@@ -161,16 +161,11 @@ main { padding-bottom: 64px; }
 .cabeza-pagina { padding-top: 40px; padding-bottom: 8px; max-width: 720px; }
 .cabeza-pagina p { margin-top: 8px; color: var(--muted-foreground); }
 
-/* ---------- Placa (logo): señal de advertencia amarilla ---------- */
-.placa {
-  display: inline-flex; flex-direction: column; justify-content: center;
-  background: var(--accent); color: var(--accent-foreground);
-  padding: 8px 12px 4px; border-radius: 8px;
-  outline: 2px solid var(--accent-foreground); outline-offset: -5px;
-  line-height: 1;
-}
-.placa-l1 { font-size: 12px; line-height: 12px; font-weight: 500; }
-.placa-l2 { font-size: 20px; line-height: 20px; font-weight: 600; letter-spacing: -0.01em; }
+/* ---------- Marca: logotipo RadarCorredor ---------- */
+.logo { display: inline-flex; align-items: center; color: #10243a; text-decoration: none; }
+:root[data-tema="oscuro"] .logo { color: var(--foreground); }
+.logo-svg { display: block; height: 32px; width: auto; }
+@media (max-width: 760px) { .logo-svg { height: 28px; } }
 
 /* ---------- Cabecera ---------- */
 .cabecera { position: sticky; top: 0; z-index: 20; background: var(--background); border-bottom: 1px solid var(--border); }
