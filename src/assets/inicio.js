@@ -39,20 +39,13 @@
   const panel = document.getElementById('tu-ruta');
   panel.className = `veredicto veredicto-${dg.nivel}`;
   panel.innerHTML = `
-    <p class="veredicto-ruta"><span>Tu ruta · ${esc(recorrido)}</span><button type="button" class="btn-texto" id="olvidar-ruta">Quitar</button></p>
-    <p class="veredicto-titulo"><span class="veredicto-forma op-${forma}">${icono}</span>${esc(titulo)}</p>
-    ${porque ? `<p class="veredicto-porque">${esc(porque)}</p>` : ''}
-    <p class="veredicto-mas"><a href="${enlace}">Por qué lo decimos: tramo a tramo</a></p>
-    <div class="barra-accion">
-      <a class="btn btn-principal btn-grande" href="${enlace}">Ver ruta</a>
-      <a class="btn btn-borde btn-grande" href="https://wa.me/?text=${encodeURIComponent(texto)}" rel="noopener">Compartir</a>
-    </div>`;
+    <p class="ruta-pill"><strong>${esc(recorrido)}</strong><button type="button" class="btn-texto" id="olvidar-ruta">Quitar</button></p>
+    <div class="veredicto-caja"><span class="veredicto-forma">${icono}</span><div><p class="veredicto-titulo">${esc(titulo)}</p>${porque ? `<p class="veredicto-porque">${esc(porque)}</p>` : ''}</div></div>
+    <div class="acc"><a class="btn btn-principal" href="${enlace}">Ver ruta</a><a class="ib wa" href="https://wa.me/?text=${encodeURIComponent(texto)}" rel="noopener" aria-label="Compartir por WhatsApp" title="Compartir por WhatsApp">${datos.iconos.chat}</a></div>`;
   panel.hidden = false;
-  document.body.classList.add('con-barra-accion');
 
   // El buscador queda plegado debajo, para cambiar de ruta.
   const buscar = document.getElementById('sin-ruta');
-  buscar.querySelector('p').hidden = true;
   const h2 = buscar.querySelector('h2');
   const formBuscar = buscar.querySelector('form');
   h2.innerHTML = '<button type="button" class="hoy-plegar" aria-expanded="false">Planificar otra ruta</button>';
@@ -67,12 +60,8 @@
   // Tus pasos primero, marcados.
   const ids = new Set(op.tramos.filter((t) => t.paso).map((t) => t.paso.id));
   ops.forEach((o) => o.tramos.forEach((t) => t.paso && ids.add(t.paso.id)));
-  const lista = document.getElementById('pasos-hoy');
-  if (lista) {
-    [...lista.children].sort((a, b) => ids.has(b.dataset.paso) - ids.has(a.dataset.paso)).forEach((li) => lista.appendChild(li));
-    lista.querySelectorAll('li').forEach((li) => li.classList.toggle('en-tu-ruta', ids.has(li.dataset.paso)));
-    if (ids.size) document.getElementById('t-pasos-hoy').textContent = 'Tus pasos';
-  }
+  document.querySelectorAll('.tablero-fila[data-paso]').forEach((f) => f.classList.toggle('en-tu-ruta', ids.has(f.dataset.paso)));
+  if (ids.size) document.getElementById('t-pasos-hoy').textContent = 'Tus pasos';
 
   document.getElementById('olvidar-ruta').addEventListener('click', () => {
     GC.olvidarMiRuta();

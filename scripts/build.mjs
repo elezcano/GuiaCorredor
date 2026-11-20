@@ -6,6 +6,7 @@ import { createRequire } from 'node:module';
 // HU-135: textos de datos y de fuentes oficiales: se marcan en castellano (lang="es") y no se traducen.
 import { tienePT, cargarDiccionario, compilar, traducirHTML } from './i18n.mjs';
 import { cargar as cargarFuentesVigilancia } from './fuentes-vigilancia.mjs';
+import { icono as ico, iconoMenu, iconosCliente } from './iconos.mjs';
 import { ROOT, readJSON, loadGuia, parseFrontMatter, esc, ESTADOS, SECCIONES, PAISES, OPERATIVA, operativaDe } from './lib.mjs';
 const txtEs = (t) => `<span lang="es" class="txt-es">${esc(t)}</span>`;
 const txtOf = (t) => `<span lang="es" class="txt-es txt-oficial">${esc(t)}</span>`;
@@ -194,7 +195,7 @@ const organismoPorId = Object.fromEntries(organismos.map((o) => [o.id, o]));
 const TIPOS_INCIDENCIA = {
   obra: ['Obra', 'obra'],
   restriccion: ['Restricción', 'restriccion'],
-  corte: ['Cortes por clima', 'corte'],
+  corte: ['Cortes por clima', 'clima'],
   pendiente: ['Sin habilitar', 'pendiente'],
   peso: ['Límite de peso', 'restriccion'],
   desvio: ['Desvío', 'restriccion'],
@@ -259,39 +260,8 @@ const estadoGuia = (p) => vistaGuia(p)?.valor || 'sin-estado';
 const nivelGuia = (p) => nivelFicha(`${p.seccion}/${p.slug}`);
 
 // ---------- iconos (trazo, 24×24) ----------
-const ICONOS = {
-  telefono: 'M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z',
-  intercambiar: 'M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4',
-  buscar: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
-  sol: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
-  luna: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z',
-  ruta: 'M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 17V9a4 4 0 0 1 4-4h6M18 7v8a4 4 0 0 1-4 4H8',
-  noticias: 'M4 5h16v14H4zM8 9h8M8 13h8M8 17h4',
-  guia: 'M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM8 7h7',
-  empresas: 'M4 21V6l8-3v18M12 9l8 3v9M2 21h20M8 9v0M8 13v0M8 17v0M16 15v0M16 18v0',
-  chat: 'M4 20l1.5-4.5A8 8 0 1 1 8.5 19z',
-  correo: 'M3 5h18v14H3zM3 7l9 6 9-6',
-  frontera: 'M5 21V4M5 4h11l-2 4 2 4H5',
-  aviso: 'M12 3l10 18H2zM12 10v5M12 18v0',
-  calendario: 'M4 6h16v15H4zM4 10h16M8 3v4M16 3v4',
-  papeles: 'M6 3h9l4 4v14H6zM15 3v4h4M9 12h7M9 16h7',
-  imprimir: 'M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z',
-  obra: 'M3 21h18M5 21l5-14h4l5 14M8 14h8',
-  corte: 'M4 4l16 16M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z',
-  restriccion: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM7 12h10',
-  // HU-133: iconos de las categorías de Servicios.
-  surtidor: 'M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 3v6a2 2 0 0 0 4 0V8l-3-3',
-  llave: 'M14.5 6.5a4 4 0 0 0 5 5L21 13l-8 8-3-3 6-6-1.5-1.5M14.5 6.5 13 5l-9 9 3 3',
-  cama: 'M3 18V7M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5M7 11a1.5 1.5 0 1 0 0-.01',
-  bascula: 'M4 20h16M6 20l2-9h8l2 9M12 11V5M8 5h8',
-  camion: 'M3 6h11v10H3zM14 9h4l3 3v4h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
-  globo: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18',
-  deposito: 'M3 10l9-6 9 6v11H3zM7 21v-7h10v7M7 17h10',
-  escudo: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z',
-  pendiente: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2',
-};
-const icono = (n, clase = 'icono') =>
-  `<svg class="${clase}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICONOS[n]}"/></svg>`;
+
+const icono = (n, clase = 'icono') => ico(n, { clase });
 
 // ---------- piezas comunes ----------
 /** Chip del semáforo operativo: icono + texto (+ detalle del estado si aporta). */
@@ -429,13 +399,16 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', e
   const canon = `${site.url.replace(/\/$/, '')}${u(ruta)}`;
   // HU-133 (Versión 2): cuatro secciones. Avisos cuelga de Hoy; calendario y papeles, de Fronteras (y de cada paso).
   const secciones = [
-    ['/', 'Hoy', 'sol', (r) => r === '/' || r.startsWith('/avisos/') || r.startsWith('/novedades/')],
+    ['/', 'Estado', 'estado', (r) => r === '/' || r.startsWith('/avisos/') || r.startsWith('/novedades/')],
     ['/planificador/', 'Rutas', 'ruta', (r) => r.startsWith('/planificador/') || r.startsWith('/informe/')],
     ['/pasos/', 'Fronteras', 'frontera', (r) => r.startsWith('/pasos/') || r.startsWith('/guia/') || r.startsWith('/calendario/') || r.startsWith('/papeles/')],
     ['/directorio/', 'Servicios', 'empresas', (r) => r.startsWith('/directorio/') || r.startsWith('/anunciate/')],
   ];
-  const nav = secciones.map(([href, txt, , activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${txt}</a>`).join('');
-  const barra = secciones.map(([href, txt, ic, activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${icono(ic)}<span>${txt}</span></a>`).join('');
+  // Un solo menú: barra lateral en escritorio y tablet, barra inferior en móvil (lo decide el CSS).
+  const menu = secciones
+    .map(([href, txt, ic, activo]) => `<a href="${u(href)}"${activo(ruta) ? ' aria-current="page"' : ''}>${iconoMenu(ic, activo(ruta))}<span>${txt}</span></a>`)
+    .join('');
+  const leyenda = ['abierto', 'restricciones', 'cerrado'].map((o) => `<span>${OPERATIVA[o].icono}${OPERATIVA[o].texto}</span>`).join('');
   return `<!DOCTYPE html>
 <html lang="${site.idioma}" data-base="${B}" data-vigilancia="${esc(VIGILANCIA_URL)}">
 <head>
@@ -463,9 +436,9 @@ ${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/overpass-latin.woff2
 <header class="cabecera">
   <div class="contenedor cabecera-inner">
     <a class="logo" href="${u('/')}" aria-label="${esc(site.nombreCompleto)}, inicio">${marca}</a>
-    <nav class="nav" aria-label="Principal">${nav}</nav>
+    <a class="buscar-pill" href="${u('/buscar/')}"${ruta === '/buscar/' ? ' aria-current="page"' : ''}>${icono('buscar')}<span>Buscar</span></a>
+    <p class="leyenda-estados" aria-label="Leyenda de estados">${leyenda}</p>
     <div class="cabecera-acciones">
-      <a class="boton-icono" href="${u('/buscar/')}" aria-label="Buscar en la guía"${ruta === '/buscar/' ? ' aria-current="page"' : ''}>${icono('buscar')}</a>
       ${tienePT(ruta) ? `<nav class="idiomas" aria-label="Idioma"><a href="${u(ruta)}" data-idioma="es" aria-current="true" data-fijo lang="es" hreflang="es" aria-label="Español">ES</a><a href="${u('/pt' + ruta)}" data-idioma="pt" data-fijo lang="pt-BR" hreflang="pt-BR" aria-label="Português">PT</a></nav>` : ''}
       <a class="btn btn-negocio btn-pequeno" href="${cotizacion()}">${icono('papeles')}Pedir cotización</a>
       <button class="boton-icono" type="button" id="cambiar-tema" aria-label="Activar modo oscuro">${icono('luna', 'icono icono-luna')}${icono('sol', 'icono icono-sol')}</button>
@@ -496,7 +469,7 @@ ${cuerpo}
     <p class="pie-aviso">${esc(site.aviso)}</p>
   </div>
 </footer>
-<nav class="barra-inferior" aria-label="Secciones">${barra}</nav>
+<nav class="menu-app" aria-label="Secciones"><a class="menu-marca" href="${u('/')}" aria-label="${esc(site.nombreCompleto)}, inicio">${ico('ruta', { relleno: true })}</a>${menu}<a class="menu-extra" href="${u('/fuentes/')}"${ruta.startsWith('/fuentes/') ? ' aria-current="page"' : ''}>${icono('escudo')}<span>Fuentes</span></a></nav>
 ${datos}
 <script src="${u('/assets/comun.js')}" defer></script>
 ${scripts.map((s) => `<script src="${u(s)}" defer></script>`).join('\n')}
@@ -617,6 +590,7 @@ const datosRutas = (extra = {}) =>
     tiposCarga: rutas.tiposCarga,
     estados: ESTADOS,
     operativa: OPERATIVA,
+    iconos: iconosCliente(['chat', 'enlace', 'imprimir', 'papeles', 'campana', 'derecha']),
     paises: PAISES,
     base: B,
     cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, sentidos: SENTIDOS, dias: DIAS },
@@ -1255,6 +1229,28 @@ rutas.tramos.forEach((t) => {
   if (t.paso) pasosHistoria.push({ id: t.paso.id, nombre: t.paso.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, '').replace('Puente de la ', 'Puente '), guia: t.paso.guia, estado: t.estado, op: t.op, cara: [a.pais, b.pais] });
   if (t.alternativa) pasosHistoria.push({ id: t.alternativa.id, nombre: t.alternativa.nombre.replace(/\s*\(.*\)$/, '').replace(/^Paso (de )?/, ''), guia: t.alternativa.guia, estado: t.alternativa.estado || t.estado, op: t.alternativa.op || t.op, cara: [a.pais, b.pais] });
 });
+/** Estado de un paso en señal + palabra, sin fuente (el tablero no la repite: está en la ficha). */
+const estadoCorto = (id) => {
+  const e = estadoPaso(id);
+  const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
+  return `<span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${OPERATIVA[op].texto}</span></span>`;
+};
+/** Horario habitual de un paso en hora local («09:00–19:15»), o «—». */
+const horarioCorto = (id) => {
+  const h = fichaPaso[id]?.horarios?.find((x) => x.apertura && x.cierre);
+  return h ? `${h.apertura}–${h.cierre}` : '—';
+};
+/** Tablero de pasos (V2): una fila por paso, en el orden del corredor. Lo usan la portada y Fronteras. */
+const tableroPasos = ({ sel = null } = {}) => `<div class="tablero-pasos" role="table" aria-label="Pasos del corredor, de Brasil a Chile">
+  <div class="tablero-fila tablero-cab" role="row"><span role="columnheader">Paso</span><span role="columnheader">Hoy</span><span role="columnheader">Horario local</span></div>
+  ${pasosHistoria
+    .map(
+      (h) => `<a role="row" data-paso="${esc(h.id)}" class="tablero-fila${h.id === sel ? ' sel' : ''}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}"${h.id === sel ? ' aria-current="true"' : ''}>
+    <span role="cell" class="tablero-paso"><strong>${esc(h.nombre)}</strong><small>${h.cara.join(' → ')}</small></span>
+    <span role="cell">${estadoCorto(h.id)}</span><span role="cell" class="tablero-hora">${horarioCorto(h.id)}</span></a>`
+    )
+    .join('')}
+</div>`;
 const historia = (h) => {
   const contenido = `<span class="historia-anillo"><span class="historia-cara" role="img" aria-label="${esc(h.cara.map((c) => PAISES[c]).join(' – '))}">${h.cara.map((c) => bandera(c).replace(/ role="img" aria-label="[^"]*"/, '')).join('')}</span></span><span class="historia-nombre">${esc(h.nombre)}</span>${estadoPasoHTML(h.id, { corto: true })}${cruceCorto(h.id)}`;
   return `<li>${h.guia ? `<a class="historia historia-${esc(h.estado)} historia-op-${h.op}" href="${u(`/guia/${h.guia}/`)}">${contenido}</a>` : `<div class="historia historia-${esc(h.estado)} historia-op-${h.op}">${contenido}</div>`}</li>`;
@@ -1323,17 +1319,11 @@ const GENERADO = new Date(GENERADO_ISO);
 const horaEn = (zona, d = GENERADO) => new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zona }).format(d);
 const graveOrden = { rojo: 0, ambar: 1 };
 const avisoHoy = (i) => {
-  const g = i.gravedad || 'ambar';
-  const forma = g === 'rojo' ? 'cerrado' : 'restricciones';
-  return `<li class="aviso-hoy aviso-${g}" id="hoy-inc-${esc(i.id)}">${OPERATIVA[forma].icono.replace('<svg', `<svg class="op-${forma}"`)}<div>
-    <p class="aviso-hoy-titulo"><strong>${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''}</strong> · ${esc(i.ubicacion)} ${paises(i.paises || [])}</p>
-    <p class="aviso-hoy-texto">${descInc(i.descripcion, i.resumen)}</p>
-    <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</p>
-  </div></li>`;
+  const forma = (i.gravedad || 'ambar') === 'rojo' ? 'cerrado' : 'restricciones';
+  return `<li><a class="linea-aviso" href="${u(`/avisos/#inc-${i.id}`)}">${OPERATIVA[forma].icono}<span><strong>${esc(i.ubicacion)}</strong><small>${esc(i.resumen || primeraFrase(i.descripcion))}</small></span></a></li>`;
 };
 {
   const limitan = activas.filter((i) => (i.gravedad || 'ambar') !== 'info').sort((x, y) => graveOrden[x.gravedad || 'ambar'] - graveOrden[y.gravedad || 'ambar']);
-  const info = activas.length - limitan.length;
   // HU-131: el resto del corredor en una línea: cuántos tramos de carretera están sin incidencias según su fuente oficial.
   const resumenTramosHoy = () => {
     const carr = rutas.tramos.filter((x) => !x.paso);
@@ -1353,38 +1343,33 @@ const avisoHoy = (i) => {
       cuerpo: `
 <div class="contenedor hoy">
   <header class="hoy-cabeza">
-    <h1>Hoy</h1>
+    <h1>Estado del corredor</h1>
     <p class="hoy-hora" data-generado="${GENERADO.toISOString()}">Datos de las ${horaEn(ZONAS.AR)} en Argentina${refHTML(horaEn(ZONA_ES), horaEn(ZONA_BR))}</p>
   </header>
   <div class="hoy-grid">
-    <div class="hoy-col">
+    <div class="hoy-col tarjeta">
       <section class="veredicto" id="tu-ruta" aria-live="polite" hidden></section>
       <section class="hoy-buscar" id="sin-ruta" aria-labelledby="t-buscar">
         <h2 id="t-buscar">¿Adónde vas?</h2>
-        <p>Elige origen y destino y te decimos si se puede hoy y por dónde.</p>
         ${buscador('buscador-hoy').replace(`${icono('buscar')}Buscar ruta`, '¿Se puede hoy?')}
       </section>
       <section class="hoy-bloque" aria-labelledby="t-limita">
-        <div class="hoy-bloque-cabeza"><h2 id="t-limita">Lo que impide o limita el paso</h2><a href="${u('/avisos/')}">Ver todos los avisos</a></div>
-        ${limitan.length ? `<ul class="avisos-hoy">${limitan.slice(0, 5).map(avisoHoy).join('')}</ul>${limitan.length > 5 ? `<p class="hoy-info"><a href="${u('/avisos/')}">Y ${plural(limitan.length - 5, 'aviso más', 'avisos más')} con restricciones</a></p>` : ''}` : '<p class="sin-dato">Ningún corte ni restricción publicado ahora mismo.</p>'}
-        ${info ? `<p class="hoy-info"><a href="${u('/avisos/')}">${plural(info, 'aviso informativo más', 'avisos informativos más')}</a>: no cambian el veredicto.</p>` : ''}
-        ${resumenTramosHoy()}
-      </section>
-      <section class="hoy-bloque" aria-labelledby="t-pasos-hoy">
-        <div class="hoy-bloque-cabeza"><h2 id="t-pasos-hoy">Pasos de frontera</h2><a href="${u('/pasos/')}">Ver todos</a></div>
-        <ul class="pasos-hoy" id="pasos-hoy">${pasosHistoria.map(tarjetaPaso).join('')}</ul>
-      </section>
-      <section class="hoy-negocio" aria-label="Negocio">
-        <a class="negocio" href="${cotizacion()}">${icono('papeles')}<span><strong>Pedir cotización</strong><span>Dinos origen, destino y carga</span></span></a>
-        <a class="negocio" href="${cargaRetorno()}">${icono('ruta')}<span><strong>Carga de retorno</strong><span>¿Vuelves vacío? Avísanos</span></span></a>
+        <h2 id="t-limita">Lo que impide o limita</h2>
+        <ul class="lista-lineas">${limitan.slice(0, 3).map(avisoHoy).join('')}</ul>
+        <a class="enlace-mas" href="${u('/avisos/')}">Ver ${plural(activas.length, 'aviso', 'avisos')}${icono('derecha')}</a>
       </section>
     </div>
-    <section class="hoy-mapa" aria-labelledby="t-mapa-hoy">
-      <h2 id="t-mapa-hoy" class="sr-only">Mapa del corredor hoy</h2>
-      ${hayMapLibre ? mapaVivoHTML() : mapaHTML()}
-      ${hayMapLibre ? '' : '<!-- leyenda del esquema dentro del mapa -->'}<p class="leyenda-formas" aria-hidden="true"${hayMapLibre ? '' : ' hidden'}><span>${OPERATIVA.abierto.icono} Abierto</span><span>${OPERATIVA.restricciones.icono} Con avisos</span><span>${OPERATIVA.cerrado.icono} Cerrado</span><span>${OPERATIVA['sin-confirmar'].icono} Sin confirmar</span></p>
-      <a class="enlace-mas" href="${u('/mapa/')}">Ver tramos y distancias</a>
-    </section>
+    <div class="hoy-col tarjeta">
+      <section class="hoy-mapa" aria-labelledby="t-mapa-hoy">
+        <h2 id="t-mapa-hoy" class="sr-only">Mapa del corredor hoy</h2>
+        ${hayMapLibre ? mapaVivoHTML() : mapaHTML()}
+      </section>
+      <section class="hoy-bloque" aria-labelledby="t-pasos-hoy">
+        <h2 id="t-pasos-hoy">Pasos hoy</h2>
+        ${tableroPasos()}
+        ${resumenTramosHoy()}
+      </section>
+    </div>
   </div>
 </div>`,
     })
