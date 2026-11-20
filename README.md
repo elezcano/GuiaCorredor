@@ -84,6 +84,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 20/11/2026 | #207 | Portada: la línea de propuesta va junto al título para que la vista quepa en una pantalla con DM Sans. |
 | 20/11/2026 | #204 | Ficha destacada a 5 US$ al mes; buzones de correo por uso (info, contacto, soporte, legal) preparados para cuando haya dominio. |
 | 20/11/2026 | #203 | Portada con una línea que dice qué es el producto: cada paso y carretera, según su fuente oficial. |
 | 20/11/2026 | #202 | Identidad RadarCorredor by Vialta: color en tres capas (corporativo, acento turquesa, estados), fuera el amarillo, DM Sans y DM Mono, Vialta en el pie y en el informe con interruptor ([MARCA.md](MARCA.md)). |
