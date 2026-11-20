@@ -99,6 +99,17 @@
     </button>`;
   }
 
+  // Cada aviso sale una sola vez, en su tramo: qué pasa (2 líneas como mucho) y de quién es; el texto completo, en «Ver aviso».
+  const avisoLinea = (i) => `<div class="pl-tramo-aviso"><p class="pl-aviso-texto"><strong>${esc(i.tipo)}:</strong> <span lang="es" class="txt-es txt-oficial">${esc(i.texto)}</span></p><p class="pl-aviso-meta"><span lang="es" class="txt-es">${esc(i.fuente || '')}</span>${i.publicado ? `, ${esc(fechaCorta(i.publicado))}` : ''}${i.nivel === 'verificado' ? ' · verificado' : ' · sin verificar'} · <a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a></p></div>`;
+
+  // Lo grave primero; a partir del cuarto aviso, plegados para que el tramo no se coma la pantalla.
+  const PESO = { rojo: 0, ambar: 1 };
+  const avisosTramo = (avisos) => {
+    const l = [...avisos].sort((a, b) => (PESO[a.gravedad] ?? 2) - (PESO[b.gravedad] ?? 2));
+    if (l.length <= 3) return l.map(avisoLinea).join('');
+    return `${l.slice(0, 2).map(avisoLinea).join('')}<details class="pl-mas"><summary>${GC.plural(l.length - 2, 'aviso más', 'avisos más')} en este tramo</summary>${l.slice(2).map(avisoLinea).join('')}</details>`;
+  };
+
   function tramoATramo(op) {
     const filas = op.tramos
       .map((t) => {
@@ -109,7 +120,7 @@
         <div>
           <p class="pl-tramo-nombre">${t.paso ? `Frontera: ${enlaceGuia(t.paso.guia, sinParentesis(t.paso.nombre), qSentido(t))}` : esc(tramoNombre(t))}</p>
           <p class="pl-tramo-datos"><span>${esc(textoEstado(t))}</span>${d ? `<span>${d.tipo === 'estimado' ? '≈ ' : ''}${km(d.km)} <span class="pl-km-tipo">${TIPO_KM[d.tipo]}</span></span>` : '<span class="pl-km-tipo">Sin distancia</span>'}${t.paso ? `<span class="pl-km-tipo">${esc(tramoNombre(t))}</span>` : ''}</p>
-          ${avisos.map((i) => `<p class="pl-tramo-aviso"><strong>${esc(i.tipo)}:</strong> <span lang="es" class="txt-es txt-oficial">${esc(i.texto)}</span> <a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a></p>`).join('')}
+          ${avisosTramo(avisos)}
           ${cruce(t)}
           ${t.nota ? `<p class="pl-nota" lang="es">${esc(t.nota)}</p>` : ''}
           ${!t.paso && t.guia ? `<p class="pl-nota">${enlaceGuia(t.guia, 'Ficha del tramo')}</p>` : ''}
@@ -154,14 +165,7 @@
     const pasos = op.tramos.filter((t) => t.paso).length;
     return `<div class="pl-detalle" id="det-${op.id}"${visible ? '' : ' hidden'}>
       <div class="plegables">
-        ${plegable('Tramo a tramo', `${GC.plural(op.tramos.length, 'tramo', 'tramos')} · ${GC.plural(pasos, 'frontera', 'fronteras')}`, `${tramoATramo(op)}<p class="pl-nota">${esc(distanciaDesglose(op.distancia) || 'Sin distancia')}</p>`)}
-        ${plegable(
-          'Avisos en la ruta',
-          op.problemas.length ? GC.plural(op.problemas.length, 'aviso activo', 'avisos activos') : 'Ninguno registrado',
-          op.problemas.length
-            ? `<ul class="lista-datos">${op.problemas.map((i) => `<li><strong>${esc(i.tipo)}</strong> · ${esc(i.ubicacion)}: <span lang="es" class="txt-es txt-oficial">${esc(i.texto)}</span> <span class="pl-nota"><span lang="es" class="txt-es">${esc(i.fuente)}</span>${i.publicado ? `, ${esc(fechaCorta(i.publicado))}` : ''}${i.nivel === 'verificado' ? ' · verificado' : ' · sin verificar'}</span> <a href="${esc(datos.avisos)}#inc-${esc(i.id)}">Ver aviso</a></li>`).join('')}</ul>`
-            : '<p class="sin-dato">No hay avisos activos en esta ruta.</p>'
-        )}
+        ${plegable('Tramo a tramo', `${GC.plural(op.tramos.length, 'tramo', 'tramos')} · ${GC.plural(pasos, 'frontera', 'fronteras')} · ${op.problemas.length ? GC.plural(op.problemas.length, 'aviso', 'avisos') : 'sin avisos'}`, `${tramoATramo(op)}<p class="pl-nota">${esc(distanciaDesglose(op.distancia) || 'Sin distancia')}</p>`)}
         ${
           pasos
             ? plegable(

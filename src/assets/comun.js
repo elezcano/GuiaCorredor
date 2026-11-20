@@ -288,9 +288,10 @@
     const alt = document.querySelector('link[rel="alternate"][hreflang="pt-BR"]');
     if (alt) location.replace(new URL(alt.href).pathname + location.search + location.hash);
   }
-  const idioma = PT && document.getElementById('datos-idioma');
+  // El diccionario llega en assets/idioma-pt.js (se carga antes que este archivo y queda en caché).
+  const idioma = PT && window.GC_IDIOMA;
   if (idioma) {
-    const { frases, rutas } = JSON.parse(idioma.textContent);
+    const { frases, rutas } = idioma;
     const claves = Object.keys(frases).filter((k) => frases[k] && frases[k] !== k).sort((a, b) => b.length - a.length);
     const L = 'A-Za-zÀ-ÖØ-öø-ÿ0-9';
     const re = new RegExp(`(?<![${L}])(?:${claves.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![${L}])`, 'g');

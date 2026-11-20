@@ -2,6 +2,7 @@
 // Uso: npm run build   (variables opcionales: SITE_URL, BASE_PATH)
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 // HU-135: textos de datos y de fuentes oficiales: se marcan en castellano (lang="es") y no se traducen.
 import { tienePT, cargarDiccionario, compilar, traducirHTML } from './i18n.mjs';
@@ -2405,9 +2406,11 @@ paginas.push({
     return html.replace(/<!--es--><div class="contenido-es" lang="es">[\s\S]*?<\/div><!--\/es-->/, `<!--pt--><div class="contenido-pt"><p class="resumen">${esc(t.resumen)}</p>\n${cuerpo}</div><!--/pt-->`);
   };
   const urlBasePT = site.url.replace(/\/$/, '') + B;
-  const datosIdioma = `<script type="application/json" id="datos-idioma">${JSON.stringify({ frases, rutas: ['*'] }).replace(/</g, '\\u003c')}</script>`;
+  // El diccionario va en un archivo aparte (antes, ~76 KB dentro de cada página en portugués): se descarga una vez y queda en caché.
+  paginas.push({ ruta: '/assets/idioma-pt.js', archivo: true, html: `window.GC_IDIOMA = ${JSON.stringify({ frases, rutas: ['*'] })};\n` });
+  const conIdioma = (html) => html.replace(`<script src="${u('/assets/comun.js')}" defer></script>`, `<script src="${u('/assets/idioma-pt.js')}" defer></script>\n<script src="${u('/assets/comun.js')}" defer></script>`);
   for (const p of paginas.filter((x) => !x.archivo && tienePT(x.ruta)))
-    paginas.push({ ruta: `/pt${p.ruta}`, html: traducirHTML(conGuiaPT(p.ruta, p.html), trPT, { B, urlBase: urlBasePT, ruta: p.ruta }).replace('</body>', `${datosIdioma}\n</body>`) });
+    paginas.push({ ruta: `/pt${p.ruta}`, html: conIdioma(traducirHTML(conGuiaPT(p.ruta, p.html), trPT, { B, urlBase: urlBasePT, ruta: p.ruta })) });
 }
 
 // ---------- escribir ----------
@@ -2452,21 +2455,31 @@ try {
   copiar('@fontsource/dm-mono', [['dm-mono-latin-400-normal', 'dm-mono-latin-400.woff2'], ['dm-mono-latin-500-normal', 'dm-mono-latin-500.woff2']]);
 }
 
-// HU-133 (R10): service worker para ver la Guía sin cobertura. Páginas: primero la red y, si no hay, lo último guardado.
-// Archivos de la web: lo guardado y se actualiza por detrás. Cada publicación cambia la versión y limpia lo viejo.
+// HU-133 (R10): service worker para ver la web sin cobertura. Páginas: primero la red y, si no hay, lo último guardado.
+// Dos cachés para no volver a descargar todo en cada publicación (se publica varias veces al día por los datos):
+// - archivos (estilos, scripts, diccionario): versión = huella de su contenido; solo cambia si cambian ellos.
+// - páginas: una caché fija; se guarda cada página que se visita y, al instalar, solo las básicas que aún no estén.
 {
-  const version = GENERADO.toISOString();
-  const precarga = ['/', '/planificador/', '/pasos/', '/directorio/', '/avisos/', '/pt/', '/pt/planificador/', '/pt/pasos/', ...guia.filter((g) => pasoPorGuia[`${g.seccion}/${g.slug}`]).map((g) => g.ruta), '/assets/styles.css', '/assets/comun.js', '/assets/inicio.js', '/assets/planificador.js', '/assets/ahora.js'].map(u);
+  const archivos = ['/assets/styles.css', '/assets/comun.js', '/assets/inicio.js', '/assets/planificador.js', '/assets/ahora.js'];
+  const huella = createHash('sha256').update(archivos.map((a) => fs.readFileSync(path.join(DIST, a))).join('')).digest('hex').slice(0, 12);
+  const basicas = ['/', '/planificador/', '/pasos/', ...guia.filter((g) => pasoPorGuia[`${g.seccion}/${g.slug}`]).map((g) => g.ruta)];
   fs.writeFileSync(
     path.join(DIST, 'sw.js'),
-    `// Generado por scripts/build.mjs (HU-133). Versión ${version}
-const CACHE = 'guia-${version}';
-const PRECARGA = ${JSON.stringify(precarga)};
+    `// Generado por scripts/build.mjs (HU-133). Archivos: ${huella}
+const ARCHIVOS = 'guia-archivos-${huella}';
+const PAGINAS = 'guia-paginas';
+const LISTA_ARCHIVOS = ${JSON.stringify(archivos.map(u))};
+const BASICAS = ${JSON.stringify(basicas.map(u))};
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => Promise.allSettled(PRECARGA.map((x) => c.add(x)))).then(() => self.skipWaiting()));
+  e.waitUntil(
+    Promise.all([
+      caches.open(ARCHIVOS).then((c) => Promise.allSettled(LISTA_ARCHIVOS.map((x) => c.add(x)))),
+      caches.open(PAGINAS).then((c) => Promise.allSettled(BASICAS.map((x) => c.match(x).then((m) => m || c.add(x))))),
+    ]).then(() => self.skipWaiting())
+  );
 });
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('guia-') && k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('guia-') && k !== ARCHIVOS && k !== PAGINAS).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', (e) => {
   const r = e.request;
@@ -2475,11 +2488,13 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
       fetch(r)
         .then((res) => {
-          const copia = res.clone();
-          caches.open(CACHE).then((c) => c.put(r, copia));
+          if (res.ok) {
+            const copia = res.clone();
+            caches.open(PAGINAS).then((c) => c.put(r, copia));
+          }
           return res;
         })
-        .catch(() => caches.match(r, { ignoreSearch: true }).then((m) => m || caches.match(PRECARGA[0])))
+        .catch(() => caches.match(r, { ignoreSearch: true }).then((m) => m || caches.match(BASICAS[0])))
     );
     return;
   }
@@ -2489,7 +2504,7 @@ self.addEventListener('fetch', (e) => {
         .then((res) => {
           if (res.ok) {
             const copia = res.clone();
-            caches.open(CACHE).then((c) => c.put(r, copia));
+            caches.open(ARCHIVOS).then((c) => c.put(r, copia));
           }
           return res;
         })
