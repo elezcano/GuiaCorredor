@@ -56,13 +56,15 @@
     const c = lienzo(op, col);
     return c.getContext('2d').getImageData(0, 0, c.width, c.height);
   };
+  // Todo el corredor a la vista (V2): la misma caja al crear el mapa y al terminar de cargar.
+  const encuadre = [[Math.min(...lons) - 0.5, Math.min(...lats) - 0.5], [Math.max(...lons) + 0.5, Math.max(...lats) + 0.5]];
   let mapa;
   try {
     estado('cargando');
     mapa = new maplibregl.Map({
       container: caja,
       style: 'https://tiles.openfreemap.org/styles/positron',
-      bounds: [[Math.min(...lons) - 1, Math.min(...lats) - 1], [Math.max(...lons) + 1, Math.max(...lats) + 1]],
+      bounds: encuadre,
       attributionControl: { compact: true },
       cooperativeGestures: true,
       locale: { 'CooperativeGesturesHandler.WindowsHelpText': 'Usa Ctrl + rueda para acercar', 'CooperativeGesturesHandler.MacHelpText': 'Usa ⌘ + rueda para acercar', 'CooperativeGesturesHandler.MobileHelpText': 'Usa dos dedos para mover el mapa' },
@@ -85,6 +87,8 @@
   mapa.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
   mapa.on('load', () => {
     listo = true;
+    mapa.resize();
+    mapa.fitBounds(encuadre, { padding: 16, animate: false });
     clearTimeout(plazo);
     mapa.addSource('lineas', { type: 'geojson', data: lineas });
     mapa.addSource('puntos', { type: 'geojson', data: puntos });

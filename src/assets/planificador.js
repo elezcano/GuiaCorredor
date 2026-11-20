@@ -243,6 +243,8 @@
         <p><b>Km con fuente:</b> publicados por una fuente. <b>Calculados con OpenStreetMap:</b> ruta por carretera calculada, no oficial. <b>Estimados en línea recta:</b> por carretera son más.</p>
         <p>La última búsqueda se recuerda en este dispositivo. Con «Guardar ruta» la ves al abrir «Hoy». Nada sale de aquí.</p>
       </details>`;
+    const svg = document.querySelector('.mapa svg[data-puntos]');
+    if (svg) GC.encuadrar(svg, [...new Set(op.tramos.flatMap((t) => [t.de, t.a, t.paso && t.paso.id].filter(Boolean)))]);
   }
 
   // --- Eventos ---

@@ -35,12 +35,15 @@ const UNA_PANTALLA = ['/', '/pasos/', '/directorio/'];
             (s.getAttribute('stroke') === 'currentColor' && s.getAttribute('stroke-width') === '2') || s.getAttribute('fill') === 'currentColor')).length,
           // Objetivos táctiles del menú y de los botones de icono.
           pequenos: [...document.querySelectorAll('.menu-app a, .ib')].filter(vis).filter((x) => { const q = x.getBoundingClientRect(); return q.width && (q.width < 44 || q.height < 44); }).length,
+          // Mapas normalizados: todos con proporción 2:1 y sin desbordar su tarjeta.
+          mapasMal: [...document.querySelectorAll('.mapa svg')].filter((s) => { const v = s.viewBox.baseVal; const m = s.closest('.mapa-marco'); return Math.abs(v.width / v.height - 2) > 0.05 || (m && m.scrollWidth > m.clientWidth + 1); }).length,
           finMain: Math.round(document.querySelector('main').lastElementChild.getBoundingClientRect().bottom + scrollY),
         };
       });
       ok(r.lateral <= 0, `${donde}: scroll lateral de ${r.lateral} px`);
       ok(!r.filas, `${donde}: ${r.filas} fila(s) de botones saltan de línea`);
       ok(!r.iconosMal, `${donde}: ${r.iconosMal} icono(s) fuera del sistema (24, trazo 2, currentColor)`);
+      ok(!r.mapasMal, `${donde}: ${r.mapasMal} mapa(s) sin el encuadre común (2:1, sin desbordar)`);
       ok(!r.pequenos, `${donde}: ${r.pequenos} botón(es) de menos de 44 px`);
       if (w > 760) ok(r.menu.izq === 0 && r.menu.arriba === 0 && r.menu.alto === h, `${donde}: el menú debe ir en el lateral`);
       else ok(r.menu.izq === 0 && Math.round(r.menu.arriba + r.menu.alto) === h && r.menu.ancho === w, `${donde}: el menú debe ir abajo`);
@@ -50,7 +53,9 @@ const UNA_PANTALLA = ['/', '/pasos/', '/directorio/'];
     // Tablero de pasos: una señal de carril por paso, y una fila marcada en la ficha.
     await p.goto(B + '/pasos/');
     ok((await p.$$('.tablero-fila[data-paso] .luz')).length === (await p.$$('.tablero-fila[data-paso]')).length, `${vista}: cada paso del tablero lleva su señal`);
+    ok(!(await p.$$eval('.tablero-paso small', (l) => l.some((x) => /\b[A-Z]{2}\b/.test(x.textContent)))), `${vista}: el tablero debe nombrar los países, no sus códigos`);
     await p.goto(B + '/guia/pasos/jama/');
+    ok(await p.$eval('.mapa svg[data-foco]', (s) => s.viewBox.baseVal.width < 700).catch(() => false), `${vista}: el mapa de la ficha debe encuadrar el paso`);
     ok((await p.$$('.tablero-fila.sel')).length === 1, `${vista}: la ficha marca su paso en el tablero`);
     // Modo noche: el botón cambia el tema y se recuerda.
     await p.goto(B + '/');
