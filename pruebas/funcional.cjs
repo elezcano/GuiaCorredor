@@ -62,7 +62,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   // Ficha de tramo con incidencia
   await p.goto(B + '/guia/tramos/py15-chaco/');
   ok((await p.textContent('.ficha-operativa')).includes('40,5'), 'incidencia no aparece en la ficha del tramo');
-  ok(await p.$('.aviso-borrador'), 'ficha sin aviso de borrador');
+  ok(/borrador/.test(await p.textContent('.guia-meta')), 'ficha sin aviso de borrador');
   // Ficha de paso
   await p.goto(B + '/guia/pasos/jama/');
   const fj = await p.textContent('.ficha-operativa');

@@ -12,8 +12,9 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   await p.fill('#lanzar-informe input[name=fecha]', '2026-12-08');
   await Promise.all([p.waitForNavigation(), p.click('#lanzar-informe button[type=submit]')]);
   ok(p.url().includes('/informe/') && p.url().includes('fecha=2026-12-08'), 'E1 no navega al informe');
-  for (const id of ['inf-alertas', 'inf-estado', 'inf-horarios', 'inf-avisos', 'inf-km', 'inf-papeles', 'inf-fuentes']) ok(await p.$('#' + id), 'E1 falta sección ' + id);
-  ok((await p.$$('.tabla-informe tbody tr')).length === 8, 'E1 no salen los 8 tramos');
+  for (const id of ['inf-pasos', 'inf-estado', 'inf-avisos', 'inf-papeles']) ok(await p.$('#' + id), 'E1 falta sección ' + id);
+  ok((await p.$$('.informe-principal #inf-pasos ~ .inc-lista > li, .informe-principal .inc-lista > li')).length >= 8, 'E1 no salen los 8 tramos');
+  ok(!/Invalid Date/.test(await p.textContent('.informe')), 'fechas inválidas en el informe');
   const txt = await p.textContent('.informe');
   // E2: festivo
   ok(/8 dic 2026: .*Paraguay/.test(txt), 'E2 no avisa del festivo de Paraguay');
@@ -24,7 +25,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   const ps = await ctx.newPage(); await ps.goto(B + '/informe/?desde=0&hasta=8&carga=granel&fecha=2026-12-08&op=alternativa');
   ok(/RN 51/.test(await ps.textContent('.informe')) && !/Sico.*sin confirmar/i.test(await ps.textContent('.informe')), 'E3 alternativa por Sico: falta el aviso de la RN 51 o sigue sin confirmar'); await ps.close();
   // Regla 3: distancias no sumadas como oficiales
-  ok(txt.includes('No se suman como distancia oficial') && txt.includes('Estimación provisional'), 'Regla 3 distancias');
+  ok(/con fuente/.test(txt) && txt.includes('≈'), 'Regla 3 distancias: con fuente y estimación separadas');
   // E4: enlace
   await p.click('#inf-copiar');
   const enlace = await p.evaluate(() => navigator.clipboard.readText());
@@ -34,12 +35,12 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   await p2.goto(enlace.replace(/h=[^&]+/, 'h=zzz'));
   ok(await p2.$('.aviso-cambio'), 'E4 no avisa cuando la situación cambió');
   // E5: WhatsApp
-  const wa = decodeURIComponent((await p.getAttribute('.informe-acciones .btn-wa', 'href')).split('text=')[1]);
+  const wa = decodeURIComponent((await p.getAttribute('.informe-cabeza .ib.wa', 'href')).split('text=')[1]);
   ok(wa.length <= 600, 'E5 resumen WhatsApp > 600: ' + wa.length);
   ok(wa.includes('Puente') && wa.includes('Confirmar antes de salir'), 'E5 resumen incompleto');
   // E6: PDF
   await p.emulateMedia({ media: 'print' });
-  ok(!(await p.isVisible('.informe-acciones')) && !(await p.isVisible('.cabecera')), 'E6 menús visibles al imprimir');
+  ok(!(await p.isVisible('.informe-cabeza .acc')) && !(await p.isVisible('.cabecera')), 'E6 menús visibles al imprimir');
   await p.pdf({ path: captura('informe.pdf'), format: 'A4' });
   await p.emulateMedia({ media: 'screen' });
   // E7: móvil 360, claro y oscuro, sin desbordes; teclado

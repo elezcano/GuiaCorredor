@@ -318,10 +318,15 @@
       const [r, extra = ''] = h.slice(base.length).split(/(?=[?#])/);
       if (tieneRuta(r)) a.setAttribute('href', `${base}/pt${r}${extra}`);
     };
+    // Lo ya traducido no se vuelve a traducir: una traducción que contiene su frase («cada hora» → «a cada hora») no entra en bucle.
+    const hecho = new WeakMap();
+    const yaHecho = (n, clave, v) => (hecho.get(n) || {})[clave] === v;
+    const marcar = (n, clave, v) => hecho.set(n, { ...(hecho.get(n) || {}), [clave]: v });
     const traducir = (n) => {
       if (n.nodeType === 3) {
-        if (fuera(n.parentElement)) {
+        if (fuera(n.parentElement) && !yaHecho(n, '#', n.nodeValue)) {
           const t = tr(n.nodeValue);
+          marcar(n, '#', t);
           if (t !== n.nodeValue) n.nodeValue = t;
         }
         return;
@@ -329,8 +334,9 @@
       if (n.nodeType !== 1 || !fuera(n)) return;
       ['aria-label', 'title', 'placeholder'].forEach((at) => {
         const v = n.getAttribute(at);
-        if (v) {
+        if (v && !yaHecho(n, at, v)) {
           const t = tr(v);
+          marcar(n, at, t);
           if (t !== v) n.setAttribute(at, t);
         }
       });

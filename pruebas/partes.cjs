@@ -14,7 +14,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
     ok(partes.some((t) => /Gendarmería Nacional/.test(t) && /15 de noviembre de 2026, 09:50 h/.test(t) && /hace \d+ h/.test(t)), 'C1 parte de Gendarmería con fecha, hora y edad');
     ok(partes.some((t) => /Sin parte cargado de Chile/.test(t)), 'C2 lado de Chile sin parte');
     const viejos = await p.$$eval('.parte.parte-vieja', (l) => l.map((x) => x.innerText));
-    ok(viejos.length === 1 && /Vialidad/.test(viejos[0]) && /Este parte tiene 3 días: confírmalo antes de salir/.test(viejos[0]), 'C3 aviso solo en el parte de Vialidad: ' + viejos);
+    ok(viejos.length === 1 && /Vialidad/.test(viejos[0]) && /Tiene 3 días: confírmalo antes de salir/.test(viejos[0]), 'C3 aviso solo en el parte de Vialidad: ' + viejos);
     ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Abierto'), 'C3 el semáforo no cambia');
     ok(await p.$$eval('.partes a[href]', (l) => l.length >= 2), 'C1 enlaces a la fuente');
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'C5 desborde ' + tema);
