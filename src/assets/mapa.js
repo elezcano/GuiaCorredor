@@ -108,11 +108,11 @@
     mapa.addSource('puntos', { type: 'geojson', data: puntos });
     mapa.addLayer({ id: 'lineas-borde', type: 'line', source: 'lineas', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': ['case', ['get', 'alt'], 6, 8] } });
     mapa.addLayer({ id: 'lineas', type: 'line', source: 'lineas', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': color, 'line-width': ['case', ['get', 'alt'], 3, 5], 'line-dasharray': ['case', ['get', 'recta'], ['literal', [2, 2]], ['literal', [1, 0]]] } });
-    mapa.addLayer({ id: 'ciudades', type: 'circle', source: 'puntos', filter: ['!=', ['get', 'tipo'], 'paso'], paint: { 'circle-radius': 6, 'circle-color': '#ffffff', 'circle-stroke-color': '#14181b', 'circle-stroke-width': 3 } });
+    mapa.addLayer({ id: 'ciudades', type: 'circle', source: 'puntos', filter: ['!=', ['get', 'tipo'], 'paso'], paint: { 'circle-radius': 6, 'circle-color': '#ffffff', 'circle-stroke-color': '#10243a', 'circle-stroke-width': 3 } });
     // HU-136 (V2): cada paso con la forma de su estado (círculo, triángulo, cuadrado, círculo discontinuo), no solo color.
     for (const op of Object.keys(FORMAS)) mapa.addImage(`forma-${op}`, dibujar(op, d.colores[op]), { pixelRatio: 2 });
     mapa.addLayer({ id: 'pasos', type: 'symbol', source: 'puntos', filter: ['==', ['get', 'tipo'], 'paso'], layout: { 'icon-image': ['concat', 'forma-', ['get', 'op']], 'icon-allow-overlap': true, 'icon-ignore-placement': true } });
-    mapa.addLayer({ id: 'nombres', type: 'symbol', source: 'puntos', layout: { 'text-field': ['get', 'nombre'], 'text-font': ['Noto Sans Bold'], 'text-size': 13, 'text-offset': [0, 1.3], 'text-anchor': 'top', 'text-max-width': 9 }, paint: { 'text-color': '#14181b', 'text-halo-color': '#ffffff', 'text-halo-width': 2 } });
+    mapa.addLayer({ id: 'nombres', type: 'symbol', source: 'puntos', layout: { 'text-field': ['get', 'nombre'], 'text-font': ['Noto Sans Bold'], 'text-size': 13, 'text-offset': [0, 1.3], 'text-anchor': 'top', 'text-max-width': 9 }, paint: { 'text-color': '#10243a', 'text-halo-color': '#ffffff', 'text-halo-width': 2 } });
     const aviso = (e) => {
       const f = e.features[0];
       const p = f.properties;

@@ -71,12 +71,12 @@ export const iconoMenu = (n, activo) => icono(n, { relleno: activo });
 // Dos colores, trazo grueso: se lee a 16 px y sin color (flecha, diagonal, aspa, apagada).
 const LUZ = {
   abierto: ['#3ddc84', 'M12 5.5v12M7 12.5l5 5 5-5'],
-  restricciones: ['#ffc800', 'M17 6.5 7.5 16M7.5 9.5V16H14'],
+  restricciones: ['#f59a3c', 'M17 6.5 7.5 16M7.5 9.5V16H14'],
   cerrado: ['#ff5a4a', 'M7.5 7.5l9 9M16.5 7.5l-9 9'],
   'sin-confirmar': ['#9aa3ab', 'M8 12h8'],
 };
 export const senal = (op) =>
-  `<svg class="luz" ${SVG} width="16" height="16"><rect x="1" y="1" width="22" height="22" rx="5" fill="#14181b"/><path d="${LUZ[op][1]}" fill="none" stroke="${LUZ[op][0]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  `<svg class="luz" ${SVG} width="16" height="16"><rect x="1" y="1" width="22" height="22" rx="5" fill="#10243a"/><path d="${LUZ[op][1]}" fill="none" stroke="${LUZ[op][0]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 /** Para el navegador: { nombre: '<svg…>' } con los iconos que usa un script. */
 export const iconosCliente = (nombres) => Object.fromEntries(nombres.map((n) => [n, icono(n)]));

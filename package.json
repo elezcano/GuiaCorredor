@@ -2,7 +2,7 @@
   "name": "guia-corredor-bioceanico",
   "version": "0.2.0",
   "private": true,
-  "description": "Guía del Corredor Bioceánico: guía de rutas y pasos fronterizos, directorio de empresas y planificador de ruta. Web estática.",
+  "description": "RadarCorredor (by Vialta): rutas y pasos fronterizos del Corredor Bioceánico, directorio de empresas y planificador de ruta. Web estática.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
@@ -23,7 +23,8 @@
     "node": ">=20"
   },
   "optionalDependencies": {
-    "@fontsource-variable/overpass": "^5.0.0",
+    "@fontsource-variable/dm-sans": "^5.0.0",
+    "@fontsource/dm-mono": "^5.0.0",
     "maplibre-gl": "^5.0.0"
   },
   "devDependencies": {

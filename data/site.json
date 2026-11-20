@@ -1,6 +1,11 @@
 {
   "nombre": "RadarCorredor",
   "nombreCompleto": "RadarCorredor · Corredor Bioceánico",
+  "marcaMadre": {
+    "nombre": "Vialta",
+    "mostrar": true,
+    "nota": "Nombre en validación legal y de dominios. Con mostrar=false desaparece de toda la web."
+  },
   "lema": "Rutas, pasos fronterizos, papeles y empresas del corredor Brasil – Paraguay – Argentina – Chile, en un solo sitio.",
   "url": "https://elezcano.github.io",
   "basePath": "/GuiaCorredor",
