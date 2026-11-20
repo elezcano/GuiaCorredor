@@ -1587,6 +1587,58 @@ fieldset { min-width: 0; }
 @media print { .informe-firma { margin-top: 4pt; font-size: 8pt; } .modo-resumen .informe-firma { display: none; } }
 
 /* Datos: horarios, kilómetros y cifras en DM Mono para que se alineen. */
-.tablero-hora, .tabla-horarios td { font-family: var(--fuente-datos); letter-spacing: 0; }
+.tablero-hora { font-family: var(--fuente-datos); letter-spacing: 0; }
 
 :root[data-tema="oscuro"] .aviso-festivo { background: #13304a; color: #f2f5f8; }
+
+/* ---------- Calendario aduanero (V3) ---------- */
+.cal-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.cal-cab h1 { font-size: 28px; line-height: 34px; }
+.calendario-v3 .cal-respuesta { margin: 12px 0 0; }
+.calendario-v3 .cal-respuesta:empty { display: none; }
+.cal-paises { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.cal-paises .chip { flex: none; padding: 0 12px; }
+.cal-paises .chip { gap: 6px; }
+.cal-mes[hidden] { display: none; }
+.cal-mes-cab { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 0 8px; }
+.cal-mes-cab h2 { font-size: 20px; line-height: 28px; }
+.cal-mes-cab .boton-icono[disabled] { opacity: 0.35; cursor: default; }
+.cal-rejilla { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-sem { text-align: center; font-size: 12px; line-height: 20px; font-weight: 600; color: var(--muted-foreground); }
+.cal-dia { min-height: 44px; padding: 4px; border: 1px solid transparent; border-radius: 10px; background: var(--muted); color: var(--foreground); font: inherit; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; cursor: pointer; }
+.cal-dia.vacio { background: none; cursor: default; }
+.cal-dia.pasado { opacity: 0.45; }
+.cal-dia.hoy { border-color: var(--foreground); }
+.cal-dia.elegido { border-color: var(--ring); box-shadow: 0 0 0 3px var(--ring-halo); }
+.cal-dia.con-fest { background: #e6f1f6; }
+.cal-dia.con-fest .cal-num { font-weight: 700; color: #185a78; }
+.cal-dia.apagado { background: var(--muted); }
+.cal-dia.apagado .cal-banderas { opacity: 0.25; }
+.cal-num { font-size: 14px; line-height: 18px; font-variant-numeric: tabular-nums; }
+.cal-banderas { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; }
+.cal-banderas svg { width: 15px; height: 10px; }
+.cal-lista { list-style: none; margin: 12px 0 0; padding: 0; }
+.cal-lista > li[hidden] { display: none; }
+.cal-fest > summary .fila-fest { display: grid; grid-template-columns: 64px auto minmax(0, 1fr); gap: 10px; align-items: start; border: 0; padding: 0; }
+.cal-fest .plegable-cuerpo { font-size: 14px; line-height: 20px; color: var(--muted-foreground); }
+.cal-proximos { list-style: none; margin: 0; padding: 0; display: grid; }
+.cal-proximos li { display: grid; grid-template-columns: auto 88px auto minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--border); }
+.cal-proximos li:first-child { border-top: 0; padding-top: 0; }
+.cal-proximos strong { font-variant-numeric: tabular-nums; text-transform: capitalize; }
+.prox-nombre { color: var(--muted-foreground); font-size: 14px; }
+.prox-pais { font-size: 14px; font-weight: 600; }
+.cal-horarios { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.cal-h-quien { display: flex; align-items: center; gap: 6px; margin: 0; }
+.cal-horarios p { margin: 2px 0 0; }
+:root[data-tema="oscuro"] .cal-dia.con-fest { background: #13304a; }
+:root[data-tema="oscuro"] .cal-dia.con-fest .cal-num { color: #cfe6f1; }
+@media (max-width: 760px) {
+  .cal-proximos li { grid-template-columns: auto 1fr auto; }
+  .prox-nombre { grid-column: 2 / -1; }
+  .cal-dia { min-height: 44px; }
+}
+@media print {
+  .cal-mes[hidden] { display: block !important; }
+  .cal-paises, .cal-mes-cab .boton-icono, .calendario-v3 .cal-cuando { display: none; }
+  .cal-mes { break-inside: avoid; }
+}

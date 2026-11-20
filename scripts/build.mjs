@@ -2162,55 +2162,67 @@ add(
   );
 }
 
-// Calendario aduanero: festivos y horarios
+// Calendario aduanero (V3): una pantalla. A la izquierda, ¿qué día cruzas? y el mes en cuadrícula con los festivos
+// de cada país; a la derecha, el próximo feriado de cada país y los horarios de cada paso, plegados.
 {
   const ORGANISMOS_CAL = { general: 'Feriado nacional', aduana: 'Aduana', migraciones: 'Migraciones', sanitario: 'Sanitario', complejo: 'Complejo fronterizo' };
-  const anios = [...new Set(festivos.map((f) => f.fecha.slice(0, 4)))];
-  const meses = [...new Set(festivos.map((f) => f.fecha.slice(0, 7)))];
-  const nombreMes = (ym) => {
-    const t = new Date(ym + '-15T12:00:00Z').toLocaleDateString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const ym = (iso) => iso.slice(0, 7);
+  const meses = [];
+  for (let m = ym(HOY < festivosDoc.desde ? festivosDoc.desde : HOY); m <= ym(festivosDoc.hasta); ) {
+    meses.push(m);
+    const [y, mm] = m.split('-').map(Number);
+    m = mm === 12 ? `${y + 1}-01` : `${y}-${String(mm + 1).padStart(2, '0')}`;
+  }
+  const nombreMes = (m) => {
+    const t = new Date(m + '-15T12:00:00Z').toLocaleDateString('es-ES', { month: 'long', year: 'numeric', timeZone: 'UTC' });
     return t[0].toUpperCase() + t.slice(1);
   };
+  const DIAS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  const mesHTML = (m, i) => {
+    const [y, mm] = m.split('-').map(Number);
+    const primero = (new Date(Date.UTC(y, mm - 1, 1)).getUTCDay() + 6) % 7;
+    const n = new Date(Date.UTC(y, mm, 0)).getUTCDate();
+    const delMes = festivos.filter((f) => f.fecha.startsWith(m));
+    const celdas = [...Array(primero)].map(() => '<span class="cal-dia vacio" aria-hidden="true"></span>');
+    for (let d = 1; d <= n; d++) {
+      const iso = `${m}-${String(d).padStart(2, '0')}`;
+      const fs = delMes.filter((f) => f.fecha === iso);
+      const cls = ['cal-dia', fs.length ? 'con-fest' : '', iso === HOY ? 'hoy' : '', iso < HOY ? 'pasado' : ''].filter(Boolean).join(' ');
+      const titulo = fs.map((f) => `${f.nombre} (${PAISES[f.pais]})`).join('; ');
+      celdas.push(
+        `<button type="button" class="${cls}" data-dia="${iso}" data-paises="${esc([...new Set(fs.map((f) => f.pais))].join(' '))}"${titulo ? ` title="${esc(titulo)}"` : ''} aria-label="${esc(`${d} de ${nombreMes(m).split(' ')[0].toLowerCase()}${titulo ? `: ${titulo}` : ''}`)}"><span class="cal-num">${d}</span>${fs.length ? `<span class="cal-banderas">${[...new Set(fs.map((f) => f.pais))].map(bandera).join('')}</span>` : ''}</button>`
+      );
+    }
+    const lista = delMes.length
+      ? `<ul class="cal-lista">${delMes
+          .map(
+            (f) => `<li data-pais="${esc(f.pais)}"><details class="plegable cal-fest"><summary><span class="plegable-titulo">${filaFestivoCorta(f)}</span></summary><div class="plegable-cuerpo">${validacionHTML(nivelReg(f, 'festivo'), f.verificado, f.fuente)} ${f.nota ? `${txtEs(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</div></details></li>`
+          )
+          .join('')}</ul>`
+      : '<p class="sin-dato">Ningún festivo cargado este mes.</p>';
+    return `<section class="cal-mes" data-mes="${m}"${i ? ' hidden' : ''} aria-label="${esc(nombreMes(m))}">
+      <div class="cal-mes-cab"><button type="button" class="boton-icono" data-mes-ir="-1" aria-label="Mes anterior"${i ? '' : ' disabled'}>${icono('izquierda')}</button><h2>${esc(nombreMes(m))}</h2><button type="button" class="boton-icono" data-mes-ir="1" aria-label="Mes siguiente"${i === meses.length - 1 ? ' disabled' : ''}>${icono('derecha')}</button></div>
+      <div class="cal-rejilla"><span class="cal-sem" aria-hidden="true">${DIAS.join('</span><span class="cal-sem" aria-hidden="true">')}</span>${celdas.join('')}</div>
+      ${lista}
+    </section>`;
+  };
+  const filaFestivoCorta = (f) => `<span class="fila-fest"><time datetime="${esc(f.fecha)}"><span>${esc(diaSemana(f.fecha))}</span>${esc(fechaCorta(f.fecha))}</time>${bandera(f.pais)}<span class="fest-nombre">${esc(f.nombre)}${f.tipo !== 'feriado' ? `<span class="etiqueta-suave">${esc(TIPOS_FESTIVO[f.tipo])}</span>` : ''}${f.validacion !== 'verificado' ? '<span class="etiqueta-suave">Por confirmar</span>' : ''}</span></span>`;
+  const proximos = Object.keys(PAISES)
+    .map((k) => {
+      const f = festivos.find((x) => x.pais === k && x.tipo === 'feriado' && x.fecha >= HOY);
+      return f ? `<li>${bandera(k)}<span class="prox-pais">${esc(PAISES[k])}</span><strong>${esc(diaSemana(f.fecha))} ${esc(fechaCorta(f.fecha))}</strong><span class="prox-nombre">${esc(f.nombre)}</span></li>` : '';
+    })
+    .join('');
   const paisesDeLado = (lado, p) => {
     const ks = Object.keys(PAISES).filter((k) => lado.includes(k));
     return ks.length ? ks : Object.keys(p.lados);
   };
-  const proximoPais = Object.keys(PAISES)
-    .map((k) => {
-      const f = festivos.find((x) => x.pais === k && x.tipo === 'feriado');
-      return f ? `<li><span class="prox-pais">${esc(PAISES[k])}</span><strong>${esc(diaSemana(f.fecha))} ${esc(fechaCorta(f.fecha))}</strong><span>${esc(f.nombre)}</span></li>` : '';
-    })
+  const lineaHorario = (h, p) => `<li><p class="cal-h-quien">${paisesDeLado(h.lado || '', p).map(bandera).join('')} <strong>${esc(ORGANISMOS_CAL[h.organismo] || h.organismo || 'Complejo fronterizo')}</strong></p><p lang="es" class="txt-es">${esc(h.texto)}</p><p class="dato-fuente">${fuenteEnlace(h.fuente)}${h.publicado ? `, ${fechaCorta(h.publicado)}` : ''} · ${validacionHTML(nivelReg(h, 'horario'), h.verificado, h.fuente)}</p></li>`;
+  const horariosPaso = fichaPasos
+    .filter((p) => (p.horarios || []).length)
+    .map((p) => plegable(`h-${p.id}`, esc(p.nombre.replace(/\s*\(.*?\)/g, '')), plural(p.horarios.length, 'horario', 'horarios'), `<ul class="cal-horarios">${p.horarios.map((h) => lineaHorario(h, p)).join('')}</ul><a class="enlace-mas" href="${u(`/guia/${guiaDePaso[p.id]}/`)}">Ficha del paso</a>`))
     .join('');
-  const festivosHTML = meses
-    .map((m) => {
-      const delMes = festivos.filter((f) => f.fecha.startsWith(m));
-      return `<li class="mes-cab" data-cabecera><h3>${esc(nombreMes(m))}</h3></li>${delMes
-        .map(
-          (f) => `<li class="fest-item" data-cal data-pais="${esc(f.pais)}" data-organismo="${esc(f.organismo || 'general')}" data-fecha="${esc(f.fecha)}" data-mes="${esc(m)}">
-  <ul class="fest-fila">${filaFestivo(f)}</ul>
-  <p class="fest-detalle">${validacionHTML(nivelReg(f, 'festivo'), f.verificado, f.fuente)} ${f.nota ? `${txtEs(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</p>
-</li>`
-        )
-        .join('')}`;
-    })
-    .join('');
-  const horarios = fichaPasos.flatMap((p) => (p.horarios || []).map((h) => ({ p, h })));
   const especiales = fichaPasos.flatMap((p) => (p.horariosEspeciales || []).map((h) => ({ p, h })));
-  const filaHorario = ({ p, h }, especial = false) => `<tr data-cal data-pais="${esc(paisesDeLado(h.lado || '', p).join(' '))}" data-organismo="${esc(h.organismo || 'complejo')}"${
-    especial ? ` data-desde="${esc(h.desde)}" data-hasta="${esc(h.hasta)}"` : ''
-  }>
-    <th scope="row"><a href="${u(`/guia/${guiaDePaso[p.id]}/`)}">${esc(p.nombre)}</a></th>
-    <td data-l="Lado">${conBanderas(h.lado || '')}</td>
-    <td data-l="Organismo">${esc(ORGANISMOS_CAL[h.organismo] || h.organismo || '')}</td>
-    <td data-l="Horario">${especial ? `<strong>${fecha(h.desde)} – ${fecha(h.hasta)}:</strong> ` : ''}${txtEs(h.texto)}</td>
-    <td data-l="Fuente">${fuenteEnlace(h.fuente)}${h.publicado ? `, ${fechaCorta(h.publicado)}` : ''}<br>${validacionHTML(nivelReg(h, 'horario'), h.verificado, h.fuente)}</td>
-  </tr>`;
-  const tablaHorarios = (filas) => `<div class="tabla-marco"><table class="tabla-oficial tabla-horarios"><thead><tr><th scope="col">Paso</th><th scope="col">Lado</th><th scope="col">Organismo</th><th scope="col">Horario</th><th scope="col">Fuente y validación</th></tr></thead><tbody>${filas}</tbody></table></div>`;
-  const orgsUsados = [...new Set(['general', ...horarios.map((x) => x.h.organismo), ...especiales.map((x) => x.h.organismo)].filter(Boolean))];
-  const chips = (filtro, valores) =>
-    `<button class="chip" type="button" data-filtro="${filtro}" data-valor="" aria-pressed="true">Todos</button>${valores
-      .map(([v, t]) => `<button class="chip" type="button" data-filtro="${filtro}" data-valor="${esc(v)}" aria-pressed="false">${esc(t)}</button>`)
-      .join('')}`;
   add(
     '/calendario/',
     layout({
@@ -2219,52 +2231,28 @@ add(
       ruta: '/calendario/',
       scripts: ['/assets/ahora.js', '/assets/calendario.js'],
       cuerpo: `
-<div class="contenedor">
-  <header class="cabeza-pagina"><h1>Calendario aduanero</h1><p>Festivos ${esc(anios.join('–'))} y horarios de atención en frontera de los cuatro países. Cada dato indica su fuente y si está verificado.</p></header>
-  <section class="cal-cuando-bloque" aria-label="¿Qué día cruzas?">${calendarioPaso({ lados: Object.fromEntries(Object.keys(PAISES).map((k) => [k, PAISES[k]])) }, { proximos: false })}</section>
-  <section class="seccion-corta" aria-labelledby="t-prox">
-    <h2 id="t-prox" class="titulo-pequeno">Próximo feriado en cada país</h2>
-    <ul class="proximos">${proximoPais}</ul>
-  </section>
-  <div class="filtros-noticias filtros-cal" data-cal-filtros>
-    <div class="filtro-linea" role="group" aria-label="País"><span class="filtro-etiqueta">País</span>${chips('pais', Object.entries(PAISES))}</div>
-    <div class="filtro-linea" role="group" aria-label="Organismo"><span class="filtro-etiqueta">Organismo</span>${chips(
-      'organismo',
-      orgsUsados.map((o) => [o, ORGANISMOS_CAL[o] || o])
-    )}</div>
-    <div class="filtro-linea">
-      <label class="filtro-etiqueta" for="filtro-fecha">Fecha de cruce</label>
-      <input class="selector" type="date" id="filtro-fecha" min="${esc(festivosDoc.desde)}" max="${esc(festivosDoc.hasta)}">
-      <label class="filtro-etiqueta" for="filtro-mes">Mes</label>
-      <select class="selector" id="filtro-mes"><option value="">Todos los meses</option>${meses.map((m) => `<option value="${esc(m)}">${esc(nombreMes(m))}</option>`).join('')}</select>
-      <button class="btn btn-borde btn-pequeno boton-imprimir" type="button" onclick="window.print()">${icono('imprimir')}Imprimir</button>
+<div class="contenedor pagina-app calendario-v3">
+  <div class="dos-col">
+    <section class="tarjeta" aria-labelledby="t-cal">
+      <header class="cal-cab"><div><h1 id="t-cal">Calendario aduanero</h1><p class="texto-suave">Festivos y horarios de frontera de los cuatro países, con su norma o su fuente.</p></div>
+        <button class="ib no-imprimir" type="button" onclick="window.print()" aria-label="Imprimir" title="Imprimir">${icono('imprimir')}</button></header>
+      <div class="chips cal-paises" role="group" aria-label="País"><button class="chip" type="button" data-pais="" aria-pressed="true">Todos</button>${Object.entries(PAISES)
+        .map(([k, n]) => `<button class="chip" type="button" data-pais="${k}" aria-pressed="false">${bandera(k)}${esc(n)}</button>`)
+        .join('')}</div>
+      ${meses.map(mesHTML).join('')}
+      <p class="dato-fuente">Un festivo no implica que la aduana cierre. Festivos cargados del ${fecha(festivosDoc.desde)} al ${fecha(festivosDoc.hasta)}.</p>
+      ${plegable('cal-pendiente', 'Qué falta por verificar', plural((festivosDoc.pendiente || []).length + 1, 'punto', 'puntos'), `<ul class="lista-datos">${(festivosDoc.pendiente || []).map((x) => `<li>${esc(x)}</li>`).join('')}<li>Horarios del lado paraguayo y chileno de cada paso.</li></ul>`)}
+    </section>
+    <div class="guia-lado">
+      <section class="tarjeta cal-cuando-tarjeta" aria-label="¿Qué día cruzas?">${calendarioPaso({ lados: Object.fromEntries(Object.keys(PAISES).map((k) => [k, PAISES[k]])) }, { proximos: false })}</section>
+      <section class="tarjeta" aria-labelledby="t-prox"><h2 id="t-prox">Próximo feriado en cada país</h2><ul class="cal-proximos">${proximos}</ul></section>
+      <section class="tarjeta" aria-labelledby="t-horarios"><h2 id="t-horarios">Horarios de atención</h2>
+        <p class="texto-suave">En hora local de cada paso. La situación de hoy, en la ficha del paso.</p>
+        ${horariosPaso}
+        <p class="dato-fuente">${especiales.length ? `<strong>Horarios especiales:</strong> ${especiales.map(({ p, h }) => `${esc(p.nombre)}, ${fecha(h.desde)} – ${fecha(h.hasta)}: <span lang="es" class="txt-es">${esc(h.texto)}</span>`).join('; ')}` : 'Ningún horario especial publicado. Si se anuncia uno, aparecerá aquí con sus fechas.'}</p>
+      </section>
     </div>
-    <p class="cal-estado" id="cal-estado" role="status"></p>
   </div>
-  <section class="cal-bloque" aria-labelledby="t-horarios">
-    <h2 id="t-horarios">Horarios de atención en frontera</h2>
-    <p class="texto-suave">Horarios publicados para cada paso. Un horario de más de ${180} días sin verificar se marca como caducado.</p>
-    ${tablaHorarios(horarios.map((x) => filaHorario(x)).join(''))}
-    <p class="vacio" data-vacio-de="tabla-horarios" hidden>No hay horarios con esos filtros.</p>
-  </section>
-  <section class="cal-bloque" aria-labelledby="t-festivos">
-    <h2 id="t-festivos">Festivos</h2>
-    <p class="texto-suave">Festivos cargados: ${fecha(festivosDoc.desde)} – ${fecha(festivosDoc.hasta)}. En un feriado nacional, comprueba la atención de aduanas y organismos.</p>
-    <ul class="calendario" id="lista-fest">${festivosHTML}</ul>
-    <p class="vacio" data-vacio-de="lista-fest" hidden>No hay festivos con esos filtros.</p>
-  </section>
-  <section class="cal-bloque" aria-labelledby="t-especiales">
-    <h2 id="t-especiales">Horarios especiales</h2>
-    ${
-      especiales.length
-        ? tablaHorarios(especiales.map((x) => filaHorario(x, true)).join(''))
-        : '<p class="sin-dato">No hay horarios especiales publicados. Cuando Migraciones, Aduanas o un complejo fronterizo anuncien un horario temporal, aparecerá aquí con sus fechas.</p>'
-    }
-  </section>
-  <section class="panel pendientes" aria-labelledby="t-pend">
-    <h2 id="t-pend">Qué falta por verificar</h2>
-    <ul>${festivosDoc.pendiente.map((x) => `<li>${esc(x)}</li>`).join('')}<li>Horarios del lado paraguayo y chileno de cada paso.</li></ul>
-  </section>
 </div>`,
     })
   );

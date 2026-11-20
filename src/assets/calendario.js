@@ -1,77 +1,44 @@
-// Calendario aduanero: filtros por país, organismo, mes y fecha de cruce.
-// La fecha de cruce muestra los festivos de 2 días antes a 3 días después y los horarios especiales vigentes ese día.
+// Calendario aduanero (V3): un mes a la vista con flechas; filtro por país; tocar un día lo responde arriba («¿Qué día cruzas?»).
 (function () {
-  const caja = document.querySelector('[data-cal-filtros]');
-  if (!caja) return;
-  const fechaIn = document.getElementById('filtro-fecha');
-  const mesIn = document.getElementById('filtro-mes');
-  const estadoTxt = document.getElementById('cal-estado');
-  const f = { pais: '', organismo: '', mes: '', fecha: '' };
-  const dia = (iso, d) => {
-    const x = new Date(iso + 'T12:00:00Z');
-    x.setUTCDate(x.getUTCDate() + d);
-    return x.toISOString().slice(0, 10);
+  const raiz = document.querySelector('.calendario-v3');
+  if (!raiz) return;
+  const meses = [...raiz.querySelectorAll('.cal-mes')];
+  const fecha = raiz.querySelector('.calendario-paso input[name="fecha"]');
+  let pais = '';
+  const ver = (i) => meses.forEach((m, j) => (m.hidden = j !== i));
+  const filtrar = () => {
+    raiz.querySelectorAll('.cal-paises .chip').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pais === pais)));
+    raiz.querySelectorAll('.cal-lista > li').forEach((li) => (li.hidden = !!pais && li.dataset.pais !== pais));
+    raiz.querySelectorAll('.cal-dia.con-fest').forEach((d) => d.classList.toggle('apagado', !!pais && !d.dataset.paises.split(' ').includes(pais)));
   };
-  const fmt = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', timeZone: 'UTC' });
-
-  function aplicar() {
-    const desde = f.fecha && dia(f.fecha, -2);
-    const hasta = f.fecha && dia(f.fecha, 3);
-    let nFest = 0;
-    document.querySelectorAll('[data-cal]').forEach((el) => {
-      const d = el.dataset;
-      let ok = (!f.pais || (d.pais || '').split(' ').includes(f.pais)) && (!f.organismo || d.organismo === f.organismo);
-      if (d.fecha) {
-        if (f.mes) ok = ok && d.mes === f.mes;
-        if (f.fecha) ok = ok && d.fecha >= desde && d.fecha <= hasta;
-        if (ok) nFest++;
-      } else if (d.desde && f.fecha) ok = ok && d.desde <= f.fecha && d.hasta >= f.fecha;
-      el.hidden = !ok;
-    });
-    // Cabeceras de mes sin festivos visibles
-    let cab = null;
-    let con = false;
-    document.querySelectorAll('#lista-fest > li').forEach((li) => {
-      if (li.hasAttribute('data-cabecera')) {
-        if (cab) cab.hidden = !con;
-        cab = li;
-        con = false;
-      } else if (!li.hidden) con = true;
-    });
-    if (cab) cab.hidden = !con;
-    document.querySelectorAll('[data-vacio-de]').forEach((v) => {
-      const lista = document.getElementById(v.dataset.vacioDe) || document.querySelector('.' + v.dataset.vacioDe);
-      v.hidden = !lista || [...lista.querySelectorAll('[data-cal]')].some((x) => !x.hidden);
-    });
-    caja.querySelectorAll('button[data-filtro]').forEach((b) => b.setAttribute('aria-pressed', String(f[b.dataset.filtro] === b.dataset.valor)));
-    estadoTxt.textContent = f.fecha
-      ? nFest
-        ? `${nFest} ${nFest === 1 ? 'festivo' : 'festivos'} entre el ${fmt(desde)} y el ${fmt(hasta)}.`
-        : `Ningún festivo entre el ${fmt(desde)} y el ${fmt(hasta)} con esos filtros.`
-      : '';
-  }
-
-  caja.addEventListener('click', (e) => {
-    const b = e.target.closest('button[data-filtro]');
-    if (!b) return;
-    f[b.dataset.filtro] = b.dataset.valor;
-    aplicar();
-  });
-  fechaIn.addEventListener('change', () => {
-    f.fecha = fechaIn.value;
-    if (f.fecha) {
-      f.mes = '';
-      mesIn.value = '';
+  const marcar = (dia) => raiz.querySelectorAll('.cal-dia').forEach((d) => d.classList.toggle('elegido', d.dataset.dia === dia));
+  raiz.addEventListener('click', (e) => {
+    const ir = e.target.closest('[data-mes-ir]');
+    if (ir) {
+      const i = meses.findIndex((m) => !m.hidden) + Number(ir.dataset.mesIr);
+      if (meses[i]) ver(i);
+      return;
     }
-    aplicar();
-  });
-  mesIn.addEventListener('change', () => {
-    f.mes = mesIn.value;
-    if (f.mes) {
-      f.fecha = '';
-      fechaIn.value = '';
+    const chip = e.target.closest('.cal-paises .chip');
+    if (chip) {
+      pais = chip.dataset.pais;
+      filtrar();
+      return;
     }
-    aplicar();
+    const dia = e.target.closest('.cal-dia[data-dia]');
+    if (dia && fecha) {
+      fecha.value = dia.dataset.dia;
+      fecha.dispatchEvent(new Event('change', { bubbles: true }));
+      marcar(dia.dataset.dia);
+      fecha.closest('.calendario-paso').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
   });
-  aplicar();
+  // La fecha elegida arriba lleva al mes que toca.
+  raiz.addEventListener('change', (e) => {
+    if (e.target.name !== 'fecha' || !e.target.value) return;
+    const i = meses.findIndex((m) => m.dataset.mes === e.target.value.slice(0, 7));
+    if (i >= 0) ver(i);
+    marcar(e.target.value);
+  });
+  filtrar();
 })();

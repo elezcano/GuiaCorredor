@@ -72,16 +72,19 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Abierto'), 'cabecera de Sico no muestra su estado verificado');
   await p.goto(B + '/guia/pasos/jama/');
   ok((await p.textContent('#ultimos-cambios')) !== null, 'ficha sin noticias vinculadas');
-  // Calendario
+  // Calendario (V3): un mes a la vista, filtro por país y tocar un día responde «¿Cuándo cruzas?»
   await p.goto(B + '/calendario/');
-  await p.click('button[data-filtro="organismo"][data-valor="migraciones"]');
-  ok((await p.$$eval('.fest-item:not([hidden])', l => l.length)) === 0 && (await p.$$eval('.tabla-horarios tbody tr:not([hidden])', l => l.length)) > 0, 'filtro organismo');
-  await p.click('button[data-filtro="organismo"][data-valor=""]');
-  await p.fill('#filtro-fecha', '2026-11-21'); await p.dispatchEvent('#filtro-fecha', 'change');
-  const est = await p.textContent('#cal-estado');
-  ok(/2 festivos/.test(est), 'filtro fecha: ' + est);
-  await p.click('button[data-filtro="pais"][data-valor="BR"]');
-  ok(/1 festivo /.test(await p.textContent('#cal-estado')), 'filtro fecha+país');
+  ok((await p.$$('.cal-mes:not([hidden])')).length === 1, 'calendario: debe verse un solo mes');
+  const mes1 = await p.textContent('.cal-mes:not([hidden]) h2');
+  await p.click('.cal-mes:not([hidden]) [data-mes-ir="1"]');
+  ok((await p.textContent('.cal-mes:not([hidden]) h2')) !== mes1, 'calendario: la flecha no cambia de mes');
+  await p.click('.cal-mes:not([hidden]) [data-mes-ir="-1"]');
+  const diaF = await p.$eval('.cal-mes:not([hidden]) .cal-dia.con-fest', (d) => d.dataset.dia);
+  await p.click(`.cal-dia[data-dia="${diaF}"]`);
+  ok(/Festivo en/.test(await p.textContent('.cal-respuesta')), 'calendario: tocar un día festivo debe avisar');
+  await p.click('.cal-paises .chip[data-pais="BR"]');
+  ok((await p.$$eval('.cal-lista > li:not([hidden])', (l) => l.every((x) => x.dataset.pais === 'BR'))), 'calendario: filtro por país');
+  ok((await p.$$('.cal-horarios li')).length >= 3, 'calendario: faltan los horarios de los pasos');
   // Buscar, directorio, guía, novedades
   await p.goto(B + '/buscar/?q=jama'); await p.waitForSelector('#resultados li');
   ok((await p.$$('#resultados li')).length > 0, 'buscador sin resultados');
