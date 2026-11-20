@@ -1150,6 +1150,10 @@ td .pais-bandera, strong .pais-bandera, .dato-fuente .pais-bandera { display: in
 .pl-tramo-datos { margin: 2px 0 0; display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 14px; }
 .pl-km-tipo { color: var(--muted-foreground); }
 .pl-tramo-aviso { margin: 6px 0 0; padding: 6px 10px; border-radius: var(--radius); background: var(--aviso-bg); font-size: 14px; line-height: 20px; }
+.pl-aviso-texto { margin: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.pl-aviso-meta { margin: 2px 0 0; font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
+.pl-mas > summary { margin-top: 6px; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+@media print { .pl-aviso-texto { display: block; -webkit-line-clamp: unset; line-clamp: none; overflow: visible; } }
 .pl-papeles { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .pl-papeles label { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
 .pl-papeles input { width: 20px; height: 20px; flex-shrink: 0; }
