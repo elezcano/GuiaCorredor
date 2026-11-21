@@ -397,18 +397,24 @@
           const parada = fs.some((f) => (f.fallosSeguidos || 0) >= 3 || !f.ultimaLecturaBuena || (ahora - Date.parse(f.ultimaLecturaBuena)) / 36e5 > 12);
           const chip = el.previousElementSibling?.classList.contains('estado') ? el.previousElementSibling : null;
           if (parada) {
+            // 21/11/2026: la web del organismo responde pero no publica («atrasada») o no se puede leer («no disponible»).
+            const atrasada = fs.some((f) => f.atrasada || /no se actualiza|último informe/.test(f.ultimoError || ''));
             if (chip && chip.classList.contains('op-abierto')) {
               chip.className = chip.className.replace('op-abierto', 'op-sin-confirmar');
-              chip.querySelector('.estado-texto').textContent = PT ? 'Vigilância sem atualizar' : 'Vigilancia sin actualizar';
+              chip.querySelector('.estado-texto').textContent = atrasada ? (PT ? 'Fonte atrasada' : 'Fuente atrasada') : PT ? 'Fonte indisponível' : 'Fuente no disponible';
             }
             return;
           }
+          const hace = (ms) => {
+            const min = Math.max(1, Math.round(ms / 6e4));
+            return min < 60 ? `${min} min` : min < 2880 ? `${Math.round(min / 60)} h` : `${Math.round(min / 1440)} días`;
+          };
           const ultima = Math.min(...fs.map((f) => ahora - Date.parse(f.ultimaLecturaBuena)));
-          const min = Math.max(1, Math.round(ultima / 6e4));
-          const hace = min < 60 ? `${min} min` : `${Math.round(min / 60)} h`;
+          const pubs = fs.map((f) => f.ultimaPublicacion && ahora - Date.parse(f.ultimaPublicacion)).filter((x) => x >= 0);
           const s = document.createElement('span');
           s.className = 'vig-leido';
-          s.textContent = PT ? ` · lido há ${hace}` : ` · leído hace ${hace}`;
+          // Dos fechas distintas: cuándo lo comprobamos y de cuándo es lo último que publicó el organismo.
+          s.textContent = (PT ? ` · conferido há ${hace(ultima)}` : ` · comprobado hace ${hace(ultima)}`) + (pubs.length ? (PT ? ` · último boletim do órgão há ${hace(Math.min(...pubs))}` : ` · último parte del organismo hace ${hace(Math.min(...pubs))}`) : '');
           el.append(s);
         });
       })
