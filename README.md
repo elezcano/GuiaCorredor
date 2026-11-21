@@ -84,6 +84,8 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 21/11/2026 | #221 | Jama y Sico: si falta el parte chileno, la ficha enlaza la cuenta oficial en X de la Unidad de Pasos Fronterizos (Chile no publica el estado en una web legible). |
+| 21/11/2026 | #220 | P0: «comprobado cada hora» se separa de cuándo publica el organismo; nuevas etiquetas «Fuente atrasada» y «Fuente no disponible». |
 | 20/11/2026 | #216 | P0: un paso solo sale «Abierto» con parte oficial de menos de 48 h de todos sus lados (si no, «Sin confirmar · Abierto solo en …»); el ✓ queda solo para organismos oficiales y la prensa dice «Prensa · sin parte oficial». |
 | 20/11/2026 | #214 | Banderas junto al país en los festivos del planificador, la ficha del paso («¿Cuándo cruzas?») y el informe de viaje. |
 | 20/11/2026 | #212 | Calendario aduanero V3: el mes en cuadrícula con las banderas de cada festivo, «¿Cuándo cruzas?» al tocar un día, próximo feriado por país y horarios de cada paso plegados (de 10.957 a 1.096 px en escritorio). |
