@@ -1066,7 +1066,9 @@ function frasesFiab(f) {
   return partes.join(' · ');
 }
 function fiabilidadHTML(p) {
-  if (p.estado?.valor === 'en-obras') return ''; // un paso que aún no se ha habilitado no tiene fiabilidad que medir
+  // Un paso que aún no se ha habilitado no tiene fiabilidad que medir: se dice, para que no parezca un dato que falta.
+  if (p.estado?.valor === 'en-obras')
+    return `<section class="fiabilidad" aria-labelledby="t-fiab"><h3 id="t-fiab">Últimos 30 días</h3><p class="fiab-resumen">Aún no habilitado: la fiabilidad se medirá desde que abra. Los hitos de la obra están en el Historial.</p></section>`;
   const f30 = fiabPaso(p, 30);
   const f90 = fiabPaso(p, 90);
   if (f90.sinDatos === 90 && !f90.pendientesDeVerificar) return '';

@@ -40,7 +40,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'desborde en móvil ' + sch);
     await (await p.$('.fiabilidad')).screenshot({ path: captura(`fiabilidad-sico-${sch}.png`) });
     await p.goto(B + '/guia/pasos/carmelo-peralta-porto-murtinho/');
-    ok(!(await p.$('.fiabilidad')), 'el puente no habilitado no debe mostrar fiabilidad');
+    ok(!(await p.$('.fiabilidad .fiab-tira')) && /se medirá desde que abra/.test(await p.textContent('.fiabilidad')), 'el puente no habilitado no muestra días: dice que se medirá desde que abra');
     await p.close();
   }
   const p = await b.newPage();

@@ -1,3 +1,5 @@
+import { pathToFileURL } from 'node:url';
+import { diasDelPaso } from './fiabilidad.mjs';
 // Vigilante de webs oficiales (HU-77).
 //
 // Lee la página oficial de cada paso del Ministerio de Seguridad de Argentina y la hora de
@@ -131,6 +133,8 @@ const aHistorial = (e) => ({ fecha: e.publicado, valor: e.valor, texto: e.texto,
  * HU-130. Decide qué publicar en un paso a partir de lo leído. Puro: devuelve { paso, cambios, avisos }
  * sin tocar el original. cambios = lo publicado; avisos = lo que el responsable debe mirar.
  */
+const motivoDe = (lectura) => lectura.atencion.find((a) => /^motivo/i.test(a.emisor))?.texto || null;
+const MARGEN_APERTURA_MIN = 60;
 export function decidir(original, lectura, fuente, ahora = new Date()) {
   const paso = structuredClone(original);
   const cambios = [];
@@ -153,14 +157,18 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
     return { paso: original, cambios, avisos };
   }
   const cerradoGendarmeria = lectura.estado === 'CERRADO';
-  // Regla 2: cierre real si Gendarmería lo marca dentro del horario (ahora, o al publicar su parte).
-  const cierre = cerradoGendarmeria && (!horario || entre(horaAR(ahora), horario) || (gen && entre(gen.hora, horario)));
+  // Regla 2 (corregida el 22/11/2026): es un cierre si Gendarmería publica «Cerrado» DENTRO del horario, o si publica el
+  // motivo. Un «Cerrado» publicado de noche que sigue a primera hora no es un cierre: Gendarmería aún no ha publicado la
+  // apertura (así se colaron como cierres los del 17, 18 y 19/11). Si una hora después de abrir sigue igual, el paso
+  // pasa a «Sin confirmar» (no a «Cerrado»): no lo sabemos.
+  const cierre = cerradoGendarmeria && (!horario || !!motivoDe(lectura) || (gen ? entre(gen.hora, horario) : entre(horaAR(ahora), horario)));
+  const sinApertura = cerradoGendarmeria && !cierre && !!horario && aMin(horaAR(ahora)) >= aMin(horario.apertura) + MARGEN_APERTURA_MIN && aMin(horaAR(ahora)) <= aMin(horario.cierre);
   const restringida = ['RESTRINGIDA', 'CORTE TOTAL'].includes(lectura.vialidad);
   const quitar = (emisor) => {
     for (let k = partes.length - 1; k >= 0; k--) if (partes[k].lado === 'AR' && partes[k].emisor.startsWith(emisor)) partes.splice(k, 1);
   };
   // El recuadro «Atención» de la web oficial trae el motivo del cierre cuando Gendarmería lo publica (20/11/2026).
-  const motivo = lectura.atencion.find((a) => /^motivo/i.test(a.emisor))?.texto || null;
+  const motivo = motivoDe(lectura);
   const conMotivo = motivo ? `: «${motivo.replace(/\.$/, '')}»` : ', sin motivo publicado';
   const textoGen = () =>
     cierre
@@ -206,10 +214,12 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
     // Ya estaba cerrado y ahora se publica el motivo: se añade, sin abrir otra entrada en el historial.
     paso.estado = { ...e, texto: `Cerrado por Gendarmería (${cuando}, hora de Argentina)${conMotivo}.`, ...sello(fuente, ahora, `motivo del cierre: ${motivo}`) };
     cambios.push(`Motivo del cierre: ${motivo}`);
+  } else if (sinApertura && e.valor === 'operativo') {
+    nuevoEstado('pendiente', `Sin confirmar: a las ${horaAR(ahora)} (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (${cuando}) y no ha publicado la apertura de hoy.`);
   } else if (!cerradoGendarmeria && restringida && e.valor === 'operativo') {
     const at = lectura.atencion.map((a) => `${a.emisor}: ${a.texto}`).join('. ');
     nuevoEstado('restricciones', `Abierto${horTxt ? ` de ${horTxt}` : ''} (hora de Argentina), con ${lectura.vialidad === 'CORTE TOTAL' ? 'corte total' : 'circulación restringida'} según Vialidad Nacional${at ? `. ${at}` : ''}.`);
-  } else if (!cerradoGendarmeria && !restringida && ['cerrado', 'restricciones'].includes(e.valor)) {
+  } else if (!cerradoGendarmeria && !restringida && ['cerrado', 'restricciones', 'pendiente'].includes(e.valor)) {
     if (delVigilante) nuevoEstado('operativo', `Abierto${horTxt ? ` de ${horTxt}` : ''} (hora de Argentina), según Gendarmería (${cuando}).`);
     // Unas restricciones cargadas a mano suelen ser estructurales (un puente, la carga): no se avisan a diario.
     else if (e.valor === 'cerrado') avisos.push('la web oficial lo da abierto, pero en la Guía está «cerrado» cargado a mano: revísalo (el vigilante solo reabre lo que cerró él)');
@@ -296,8 +306,27 @@ function autoprueba() {
   const noche = conPag([['"ABIERTO"', '"CERRADO"'], ['17/11/2026 - 16:13', '17/11/2026 - 19:40']]);
   d = decidir(base, noche, 'f', A('19:50'));
   ok(d.paso.estado.valor === 'operativo' && d.paso.partes.find((x) => x.emisor.startsWith('Gend')).valor === null, '«Cerrado» fuera del horario es el cierre de cada noche: no cambia el estado.');
+  {
+    const lec = [
+      { paso: 'jama', dia: '2026-11-18', hora: '09:00', clase: 'abierto' },
+      { paso: 'jama', dia: '2026-11-18', hora: '14:00', clase: 'carga' },
+      { paso: 'jama', dia: '2026-11-18', hora: '18:00', clase: 'abierto' },
+    ];
+    const dd = actualizarDiario({ jama: { '2026-07-01': { clase: 'abierto', lecturas: 1, desde: '10:00', hasta: '10:00' } } }, lec, new Date('2026-11-18T22:00:00Z'));
+    ok(dd.jama['2026-11-18'].clase === 'carga' && dd.jama['2026-11-18'].lecturas === 3 && dd.jama['2026-11-18'].desde === '09:00' && dd.jama['2026-11-18'].hasta === '18:00', 'registro diario: el peor estado del día, con cuántas lecturas y entre qué horas.');
+    ok(!dd.jama['2026-07-01'], 'registro diario: se guardan 120 días.');
+    const conDiario = { id: 'x', estado: null, historial: [{ fecha: '2026-11-16', valor: 'operativo', verificado: '2026-11-16' }], diario: { '2026-11-17': { clase: 'abierto', lecturas: 9, desde: '09:00', hasta: '19:00' }, '2026-11-19': { clase: 'carga', lecturas: 4, desde: '09:00', hasta: '12:00' } } };
+    const dias = diasDelPaso(conDiario, '2026-11-19', 4, 1).map((x) => x.clase).join(',');
+    ok(dias === 'abierto,abierto,sin-datos,carga', `fiabilidad: con registro diario, un día sin lectura buena es «sin datos» y no hereda el anterior (${dias}).`);
+    ok(claseDia({ valor: 'pendiente', evidencia: 'oficial' }) === null && claseDia({ valor: 'cerrado', afecta: 'carga', evidencia: 'oficial' }) === 'carga' && claseDia({ valor: 'operativo', evidencia: 'tercero' }) === null, 'registro diario: «Sin confirmar» y los estados de prensa no se apuntan; un cierre solo para carga, como «sin paso para carga».');
+  }
+  const tras = decidir(d.paso, noche, 'f', new Date('2026-11-18T09:20:00-03:00'));
+  ok(tras.paso.estado.valor === 'operativo' && !tras.cambios.length, '«Cerrado» de anoche que sigue a primera hora: no es un cierre (Gendarmería aún no ha publicado la apertura).');
+  const sinAbrir = decidir(d.paso, noche, 'f', new Date('2026-11-18T10:30:00-03:00'));
+  ok(sinAbrir.paso.estado.valor === 'pendiente' && /no ha publicado la apertura/.test(sinAbrir.paso.estado.texto), 'si una hora después de abrir sigue el cierre de anoche: «Sin confirmar», nunca «Cerrado».');
+  const abre = decidir(sinAbrir.paso, conPag([['17/11/2026 - 16:13', '18/11/2026 - 10:40']]), 'f', new Date('2026-11-18T10:45:00-03:00'));
+  ok(abre.paso.estado.valor === 'operativo', 'cuando Gendarmería publica la apertura, vuelve a «Abierto».');
   d = decidir(d.paso, noche, 'f', new Date('2026-11-18T09:20:00-03:00'));
-  ok(d.paso.estado.valor === 'cerrado', 'si a la hora de abrir sigue «Cerrado», ya es un cierre.');
   const vieja = conPag([['17/11/2026 - 16:13', '17/11/2026 - 15:00']]);
   d = decidir(base, vieja, 'f', A('17:00'));
   ok(d.descartada && d.paso === base, 'nunca marcha atrás: una copia más antigua se descarta.');
@@ -494,6 +523,7 @@ async function revisar(ahora = new Date()) {
   const errores = [];
   const resultados = [];
   const publicados = []; // HU-130: { paso, url, cambios, avisos }
+  const diario = []; // 22/11/2026: { paso, dia, hora, clase } de cada lectura buena dentro del horario
   for (const { paso: id, fuente } of PAGINAS) {
     const k = lista.findIndex((p) => p.id === id);
     const paso = lista[k];
@@ -521,10 +551,15 @@ async function revisar(ahora = new Date()) {
     console.log(`${paso.nombre}: Gendarmería «${lectura.estado}», Vialidad «${lectura.vialidad || '—'}», horario ${lectura.horarioCrudo}${lectura.atencion.length ? `, Atención: ${lectura.atencion.map((x) => `${x.emisor}: ${x.texto}`).join(' / ')}` : ''}`);
     if (fallo) continue;
     const d = decidir(paso, lectura, fuente, ahora);
+    // Registro diario: solo con lectura buena y dentro del horario del paso (de noche no se juzga).
+    const final = d.cambios.length ? d.paso : paso;
+    const hc = lectura.horario || (final.horarios || []).find((x) => x.apertura && x.cierre);
+    const cl = claseDia(final.estado);
+    if (!fallo && hc && cl && entre(horaAR(ahora), hc)) diario.push({ paso: id, dia: diaAR(ahora), hora: horaAR(ahora), clase: cl });
     if (d.cambios.length) lista[k] = d.paso;
     if (d.cambios.length || d.avisos.length) publicados.push({ paso: { id: paso.id, nombre: paso.nombre }, url, cambios: d.cambios, avisos: d.avisos });
   }
-  return { lecturas, errores, resultados, publicados, pasos };
+  return { lecturas, errores, resultados, publicados, pasos, diario };
 }
 
 // ---------- HU-130 fase 2: carreteras ----------
@@ -684,6 +719,37 @@ async function revisarCarreteras(ahora = new Date(), previo = {}) {
   return { archivo: { ...archivo, incidencias: lista }, resultados, publicados, hayQueEscribir };
 }
 
+// ---------- Registro diario de los pasos (22/11/2026) ----------
+const ORDEN_DIA = { abierto: 1, restricciones: 2, carga: 3, cerrado: 4 };
+/** Clase del día según el estado del paso: «pendiente» (sin confirmar) no se apunta. */
+// Solo un estado de fuente oficial cuenta: uno de prensa (aunque esté verificado) no hace historial fehaciente.
+export const claseDia = (e) => (e?.evidencia !== 'oficial' ? null : e?.valor === 'operativo' ? 'abierto' : e?.valor === 'restricciones' ? 'restricciones' : e?.valor === 'cerrado' ? (e.afecta === 'carga' ? 'carga' : 'cerrado') : null);
+/** Suma las lecturas de esta pasada al registro: el peor estado del día, cuántas lecturas y entre qué horas. Puro. */
+export function actualizarDiario(previo = {}, lecturas = [], ahora = new Date(), dias = 120) {
+  const d = structuredClone(previo || {});
+  for (const l of lecturas) {
+    const p = (d[l.paso] ||= {});
+    const a = p[l.dia];
+    if (!a) p[l.dia] = { clase: l.clase, lecturas: 1, desde: l.hora, hasta: l.hora };
+    else {
+      a.lecturas++;
+      if (l.hora < a.desde) a.desde = l.hora;
+      if (l.hora > a.hasta) a.hasta = l.hora;
+      if (ORDEN_DIA[l.clase] > ORDEN_DIA[a.clase]) a.clase = l.clase;
+    }
+  }
+  const limite = diaAR(new Date(ahora.getTime() - dias * 864e5));
+  for (const p of Object.values(d)) for (const k of Object.keys(p)) if (k < limite) delete p[k];
+  return d;
+}
+const semillaDiario = () => {
+  try {
+    return json('data/diario-pasos-semilla.json').pasos || {};
+  } catch {
+    return {};
+  }
+};
+
 // ---------- Estado de la vigilancia (HU-129) ----------
 export const FALLOS_PARA_AVISAR = 3;
 // 22/11/2026: el umbral depende de lo que se pierde por no leer. Gendarmería (pasos) es crítica: 3 h. El DNIT publica
@@ -787,7 +853,7 @@ async function principal() {
     return;
   }
 
-  const { lecturas, errores, resultados, publicados, pasos } = await revisar();
+  const { lecturas, errores, resultados, publicados, pasos, diario } = await revisar();
   // HU-130 fase 2: carreteras (Vialidad Nacional y Vialidad de Chile).
   // HU-129: estado de la vigilancia (si se indica dónde guardarlo). HU-134: se lee antes, para no reaplicar un informe.
   const archivoEstado = process.env.VIGILANCIA_ARCHIVO;
@@ -801,6 +867,7 @@ async function principal() {
   let estado = null;
   if (archivoEstado) {
     estado = actualizarEstado(previo, resultados);
+    estado.diario = actualizarDiario(previo.diario || semillaDiario(), diario);
     fs.writeFileSync(archivoEstado, JSON.stringify(estado, null, 1) + '\n');
     for (const [id, f] of Object.entries(estado.fuentes)) console.log(`Estado ${id}: ${f.fallosSeguidos ? `${f.fallosSeguidos} fallos seguidos` : 'lectura buena'}`);
   }
@@ -848,4 +915,5 @@ async function principal() {
   }
 }
 
-await principal();
+// Solo al ejecutarlo (node scripts/vigilante.mjs); importado (p. ej. por una migración) no hace nada.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await principal();
