@@ -190,6 +190,12 @@
       "tipo": "oficial"
     },
     {
+      "id": "mopc-py15-lote3-2026-09-07",
+      "nombre": "MOPC – Ruta PY15: el Lote 3 roza el 41 % de avance (7/9/2026)",
+      "url": "https://mopc.gov.py/ruta-py15-el-lote-3-roza-el-41-de-avance-en-el-corazon-del-chaco/",
+      "tipo": "oficial"
+    },
+    {
       "id": "portalportuario-reapertura-sico",
       "nombre": "PortalPortuario: reapertura de Sico, comunicado del Ministerio de Seguridad Nacional (14/07/2026)",
       "url": "https://portalportuario.cl/anuncian-reapertura-del-paso-internacional-de-sico-que-conecta-las-zonas-norte-de-chile-y-argentina/",
@@ -253,12 +259,6 @@
       "id": "todojujuy-parte-de-migraciones",
       "nombre": "TodoJujuy (parte de Migraciones)",
       "url": "https://www.todojujuy.com/paso-jama-habilitado-aunque-advierten-las-condiciones-circular-n298530",
-      "tipo": "prensa"
-    },
-    {
-      "id": "ultima-hora",
-      "nombre": "Última Hora",
-      "url": "https://www.ultimahora.com//corredor-bioceanico-a987.html",
       "tipo": "prensa"
     },
     {
