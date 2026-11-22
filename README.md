@@ -187,6 +187,7 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 28 | **Marca RadarCorredor by Vialta** (20/11/2026): el producto manda (cabecera) y Vialta respalda (pie, informe, documentos) detrás del interruptor `marcaMadre.mostrar`. Color en tres capas: corporativo, acento turquesa (nunca un estado) y estados; fuera el amarillo. DM Sans y DM Mono en lugar de Overpass ([MARCA.md](MARCA.md)) |
 | 29 | **Estado por país** (20/11/2026): un paso solo sale «Abierto» si todos sus lados tienen parte oficial de menos de 48 h; una situación incompleta no se presenta como transitable. El ✓ es solo para organismos oficiales: la prensa da contexto, no decide (#216) |
 | 30 | **Parte chileno** (21/11/2026): Chile publica el estado diario de sus pasos solo por X y WhatsApp (Unidad de Pasos Fronterizos). No se lee de forma automática ni se da por abierto por silencio; la ficha enlaza la cuenta oficial cuando falta ese lado (#221) |
+| 31 | **Cada país informa a su manera** (22/11/2026): Argentina confirma a diario; Chile (UPF) solo avisa cuando hay un problema. Un lado «por aviso» sin mensajes cuenta como «Sin avisos desde…» desde la última revisión de su canal, durante 15 días (`site.canalesParte`); después, «Sin dato». Cada lado tiene su línea en la ficha, y el horario («Fuera de horario · abre en…») va aparte del estado operativo |
 
 </details>
 
