@@ -1,0 +1,45 @@
+# Vigía de la web publicada (scripts/humo.mjs): después de cada publicación y cada 6 horas comprueba en la web real
+# que responden las páginas clave, que el tablero tiene sus pasos, que los formularios envían a su hoja y Google los
+# acepta, que GoatCounter está puesto y que el vigilante y la publicación no se han parado.
+# Si algo falla, abre (o actualiza) el issue «Vigía: la web publicada tiene fallos»; cuando vuelve a estar bien, lo cierra.
+name: Vigía de la web
+
+on:
+  workflow_run:
+    workflows: ['Publicar web']
+    types: [completed]
+    branches: [main]
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Tras publicar, GitHub Pages tarda un poco en servir la versión nueva.
+      - if: github.event_name == 'workflow_run'
+        run: sleep 90
+      - id: humo
+        run: node scripts/humo.mjs
+        continue-on-error: true
+      - name: Abrir, actualizar o cerrar el issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITULO="Vigía: la web publicada tiene fallos"
+          N=$(gh issue list --state open --search "in:title \"$TITULO\"" --json number --jq '.[0].number')
+          if [ "${{ steps.humo.outcome }}" = "failure" ]; then
+            if [ -n "$N" ]; then gh issue comment "$N" --body-file vigia.md; else gh issue create --title "$TITULO" --body-file vigia.md; fi
+            exit 1
+          elif [ -n "$N" ]; then
+            gh issue close "$N" --comment "Vuelve a estar todo operativo. $(head -1 vigia.md)"
+          fi

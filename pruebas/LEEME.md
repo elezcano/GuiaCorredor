@@ -41,3 +41,17 @@ El resultado es una línea por prueba (✓ o ✗ con los fallos). Las capturas q
 ## diseno.cjs (V2)
 
 En móvil (390), tablet (820) y escritorio (1440): sin scroll lateral, filas de botones en una línea, menú lateral (escritorio y tablet) o inferior (móvil), iconos de Tabler (24, trazo 2, `currentColor`), botones de al menos 44 px, señal de carril en cada paso del tablero, modo noche y vistas de consulta en una pantalla. Deja capturas `diseno-*.png` en la carpeta de capturas.
+
+## lados.cjs (decisión 31)
+
+Estado por lado del paso: Sico abierto con parte argentino y Chile «sin avisos» (Chile informa por aviso); Jama, con estado de prensa, sigue «Sin confirmar». Horario aparte del estado («cierra en…», «Fuera de horario · abre…»). Cotizar envía a su formulario de Google (se intercepta el envío: no llega nada a la hoja real), confirma «Solicitud enviada» y cuenta el evento en GoatCounter sin nada de lo escrito. Anunciarme también envía a su formulario. Sin script de estadísticas fuera de la web publicada.
+
+## Tres niveles de comprobación
+
+| Nivel | Qué | Cuándo |
+|---|---|---|
+| `npm run check` | Datos reales: esquemas, fuentes, fechas, enlaces internos | En cada PR y publicación |
+| `npm run pruebas` | Código, en navegador, con datos fijos (estas pruebas) | En cada PR y publicación: si fallan, no se publica |
+| `scripts/humo.mjs` (Vigía) | La web publicada de verdad: páginas, tablero, formularios de Google que aceptan respuestas, GoatCounter, vigilante y publicación al día | Tras cada publicación y cada 6 h. Si falla, abre el issue «Vigía: la web publicada tiene fallos»; si se arregla, lo cierra |
+
+En local: `HUMO_URL=http://localhost:4321 node scripts/humo.mjs --sin-externos` (sin Google ni GitHub).
