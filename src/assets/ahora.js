@@ -57,8 +57,8 @@
     const nota = d.horario.verificado ? '' : ' (según el horario publicado, sin verificar)';
     const pref = d.op === 'sin-confirmar' ? 'Estado sin confirmar. ' : '';
     if (ahora >= a && ahora < c) salida.innerHTML = `${pref}<strong>${d.op === 'abierto' ? 'Abierto ahora' : 'Dentro del horario'}</strong> · hasta las ${doble(d.horario.cierre, d.horario.zona)}, en ${dur(c - ahora)}${nota}.`;
-    else if (ahora < a) salida.innerHTML = `${pref}<strong>Cerrado ahora</strong> · abre a las ${doble(d.horario.apertura, d.horario.zona)}, en ${dur(a - ahora)}${nota}.`;
-    else salida.innerHTML = `${pref}<strong>Cerrado ahora</strong> · abre mañana a las ${doble(d.horario.apertura, d.horario.zona)}${nota}.`;
+    else if (ahora < a) salida.innerHTML = `${pref}<strong>Fuera de horario</strong> · abre a las ${doble(d.horario.apertura, d.horario.zona)}, en ${dur(a - ahora)}${nota}.`;
+    else salida.innerHTML = `${pref}<strong>Fuera de horario</strong> · abre mañana a las ${doble(d.horario.apertura, d.horario.zona)}${nota}.`;
   }
   pintar();
   setInterval(pintar, 60000);
