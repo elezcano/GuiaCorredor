@@ -428,3 +428,26 @@
     o.dispatchEvent(new Event('change', { bubbles: true }));
   });
 })();
+
+// 22/11/2026: estado del horario en el tablero de pasos, aparte del estado operativo (no es una alarma: es previsible).
+(function () {
+  const celdas = document.querySelectorAll('.tablero-hora[data-zona]');
+  if (!celdas.length) return;
+  const T = (t) => (window.GC_IDIOMA && window.GC_IDIOMA[t]) || t;
+  const min = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
+  const dur = (m) => (m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}`);
+  function pintar() {
+    celdas.forEach((c) => {
+      let ahora;
+      try { ahora = min(new Intl.DateTimeFormat('es', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: c.dataset.zona }).format(new Date())); } catch (e) { return; }
+      const a = min(c.dataset.apertura), z = min(c.dataset.cierre);
+      let s = c.querySelector('.hora-estado');
+      if (!s) { s = document.createElement('small'); s.className = 'hora-estado'; c.appendChild(s); }
+      const dentro = ahora >= a && ahora < z;
+      s.classList.toggle('hora-fuera', !dentro);
+      s.textContent = dentro ? `${T('cierra en')} ${dur(z - ahora)}` : `${T('Fuera de horario')} · ${T('abre')} ${ahora < a ? T('en') + ' ' + dur(a - ahora) : T('mañana') + ' ' + c.dataset.apertura}`;
+    });
+  }
+  pintar();
+  setInterval(pintar, 60000);
+})();

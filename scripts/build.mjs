@@ -132,17 +132,62 @@ const canalParte = (lados) =>
     .filter(Boolean)
     .map((c) => ` <a href="${esc(c.url)}" rel="noopener">Compruébalo en la ${esc(c.canal)} de la ${esc(c.organismo.split(' (')[0])}</a>.`)
     .join('');
+// 22/11/2026: cada país informa a su manera. Argentina confirma a diario (parte positivo); Chile (UPF) solo avisa cuando
+// hay un problema. Para un lado «por-aviso» (site.canalesParte.<país>.modo), su silencio cuenta como «sin avisos» desde
+// la última revisión del canal o su último parte, durante plazoDias. Si su último aviso fue un problema, no hay silencio
+// que valga; pasado el plazo, el lado vuelve a «sin dato».
+const ladoPorAviso = (p, lado) => {
+  const c = site.canalesParte?.[lado];
+  if (c?.modo !== 'por-aviso') return null;
+  const ult = (p.partes || []).filter((x) => x.lado === lado).sort((a, b) => `${b.publicado}${b.hora || ''}`.localeCompare(`${a.publicado}${a.hora || ''}`))[0];
+  if (ult?.valor && ult.valor !== 'operativo') return null;
+  const desde = [c.revisado, ult?.publicado].filter(Boolean).sort().pop();
+  if (!desde) return null;
+  const dias = (ahoraLados - Date.parse(`${desde}T12:00:00-03:00`)) / 864e5;
+  return dias <= (c.plazoDias ?? 15) ? { lado, desde, explicacion: c.explicacion || '' } : null;
+};
 const estadoPaso = (id) => {
   const e = estadoMostrable(fichaPaso[id]?.estado, HOY);
   if (!e.confirmado || e.valor !== 'operativo') return e;
   if (e.evidencia && e.evidencia !== 'oficial') return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar' };
-  const sin = ladosSinParte(fichaPaso[id]);
-  if (!sin.length) return e;
-  const con = Object.keys(fichaPaso[id].lados).filter((l) => !sin.includes(l));
-  // Ningún lado con parte reciente: no hay «abierto solo en» que decir; queda «Sin confirmar» sin más.
-  if (!con.length) return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar', sinPartes: true };
-  return { ...e, valor: 'pendiente', confirmado: false, parcial: { con, sin } };
+  const sinParte = ladosSinParte(fichaPaso[id]);
+  if (!sinParte.length) return e;
+  const porAviso = sinParte.map((l) => ladoPorAviso(fichaPaso[id], l)).filter(Boolean);
+  const sin = sinParte.filter((l) => !porAviso.some((a) => a.lado === l));
+  // Todos los lados que callan informan por excepción y están dentro de plazo: abierto, diciendo cómo lo sabemos.
+  if (!sin.length) return { ...e, porAviso };
+  const con = Object.keys(fichaPaso[id].lados).filter((l) => !sinParte.includes(l));
+  // Ningún lado con parte reciente ni sin avisos: no hay «abierto solo en» que decir; queda «Sin confirmar» sin más.
+  if (!con.length && !porAviso.length) return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar', sinPartes: true };
+  return { ...e, valor: 'pendiente', confirmado: false, parcial: { con, sin, porAviso } };
 };
+/** 22/11/2026: una línea por lado del paso. Cómo informa ese país y qué sabemos hoy, en palabras llanas. */
+const ladosHTML = (p, e) => {
+  const lados = Object.keys(p?.lados || {});
+  if (lados.length < 2) return '';
+  const sinParte = ladosSinParte(p);
+  const porAviso = e.porAviso || e.parcial?.porAviso || [];
+  const fila = (lado) => {
+    const ult = (p.partes || []).filter((x) => x.lado === lado).sort((a, b) => `${b.publicado}${b.hora || ''}`.localeCompare(`${a.publicado}${a.hora || ''}`))[0];
+    const av = porAviso.find((a) => a.lado === lado);
+    const quien = ult?.emisor ? txtEs(ult.emisor.replace(/\s*\(.*\)$/, '')) : '';
+    let cls, txt;
+    if (!sinParte.includes(lado)) {
+      cls = 'parte';
+      txt = `<strong>${ult?.valor === 'operativo' || !ult?.valor ? 'Habilitado' : esc(ESTADOS[ult.valor] || ult.valor)}</strong> · parte oficial del ${fechaCorta(ult.publicado)}${ult.hora ? `, ${esc(ult.hora)}` : ''}${quien ? ` (${quien})` : ''}`;
+    } else if (av) {
+      cls = 'aviso';
+      txt = `<strong>Sin avisos</strong> desde el ${fechaCorta(av.desde)}${av.explicacion ? ` · ${esc(av.explicacion)}` : ''}`;
+    } else {
+      cls = 'sin-dato';
+      txt = `<strong>Sin dato</strong> · no hay parte oficial de las últimas ${UMBRAL_LADO_H} h`;
+    }
+    return `<li class="lado lado-${cls}">${bandera(lado)}<span class="lado-pais">${esc(PAISES[lado])}</span><span class="lado-texto">${txt}${cls !== 'parte' ? canalParte([lado]).replace(/\.$/, '') : ''}</span></li>`;
+  };
+  return `<ul class="lados-paso">${lados.map(fila).join('')}</ul>`;
+};
+/** «Chile: sin avisos desde el 22 nov». */
+const textoPorAviso = (xs) => xs.map((a) => `${PAISES[a.lado]}: sin avisos desde el ${fechaCorta(a.desde)}`).join(' · ');
 const estadoTramo = (t) => (t.paso?.id ? estadoPaso(t.paso.id) : estadoMostrable(t.reporte, HOY));
 // Estimaciones provisionales de distancia (solo tramos sin km con fuente).
 aplicarEstimaciones(rutas, fichaPasos, site.estimaciones?.provisionales !== false);
@@ -376,7 +421,12 @@ function validacionHTML(n, verificado, fuente) {
 function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
   // HU-131: tramo vigilado sin avisos, o con la vigilancia parada, o sin vigilancia.
   if (v.vigilado) return `${estado(v.valor === 'sin-incidencias' ? 'sin-incidencias' : v.valor, tipo, v.etiqueta)}<span class="estado-fecha sello-linea" data-vig-fuentes="${esc(v.vigilancia.fuentes.join(' '))}">${txtEs(v.vigilancia.organismos)} · <a href="${u('/fuentes/')}">comprobado cada hora</a>${v.vigilancia.frecuencia ? ` · publica: ${esc(v.vigilancia.frecuencia)}` : ''}</span>`;
-  if (v.parcial) return `${estado('pendiente', tipo, `Abierto solo en ${listaY(v.parcial.con.map((k) => PAISES[k]))}`)}<span class="estado-fecha sello-linea">Sin parte de ${listaY(v.parcial.sin.map((k) => PAISES[k]))} en ${UMBRAL_LADO_H} h · ${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
+  if (v.parcial) {
+    const { con, sin, porAviso } = v.parcial;
+    const lineas = [con.length ? `Abierto en ${listaY(con.map((k) => PAISES[k]))}` : '', porAviso.length ? textoPorAviso(porAviso) : '', `sin parte de ${listaY(sin.map((k) => PAISES[k]))} en ${UMBRAL_LADO_H} h`].filter(Boolean);
+    return `${estado('pendiente', tipo, con.length ? `Abierto solo en ${listaY(con.map((k) => PAISES[k]))}` : null)}<span class="estado-fecha sello-linea">${lineas.slice(con.length ? 1 : 0).join(' · ')}</span>`;
+  }
+  if (v.porAviso) return `${estado('operativo', tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)} · <span class="por-aviso">${textoPorAviso(v.porAviso)}</span></span>`;
   if (v.etiqueta && !v.confirmado) return `${estado('pendiente', tipo, v.etiqueta)}<span class="estado-fecha">${v.vigilancia ? `${txtEs(v.vigilancia.organismos)} · ${v.etiqueta === 'Fuente atrasada' ? `no publica desde hace más de lo habitual (publica: ${esc(v.vigilancia.frecuencia || '—')})` : `su web no responde: sin lectura buena en las últimas ${HORAS_SIN_ACTUALIZAR} h`}` : 'Ninguna fuente oficial lo publica cada día'}</span>`;
   if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
   if (!v.ultimo) return `${estado('pendiente')}<span class="estado-fecha">Sin datos</span>`;
@@ -834,7 +884,7 @@ function mapaHTML({ foco = null, leyenda = false } = {}) {
       const ruta = rutas.tramos.flatMap((t) => [t.paso, t.alternativa]).find((q) => q?.id === p.id);
       const href = ruta?.guia ? u(`/guia/${ruta.guia}/`) : u('/pasos/');
       const opP = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
-      return `<a href="${href}" aria-label="${esc(p.nombre)}: ${esc(OPERATIVA[opP].texto)}. Abrir la ficha"><rect class="m-paso m-${esc(e.valor)} m-pasoop-${opP}" x="${x - 7}" y="${y - 7}" width="14" height="14" transform="rotate(45 ${x} ${y})"/>${etiqueta(
+      return `<a href="${href}" aria-label="${esc(p.nombre)}: ${esc(OPERATIVA[opP].texto)}. Abrir la ficha"><rect class="m-paso m-${esc(e.valor)} m-pasoop-${opP}${e.porAviso ? ' m-por-aviso' : ''}" x="${x - 7}" y="${y - 7}" width="14" height="14" transform="rotate(45 ${x} ${y})"/>${etiqueta(
         x + dx,
         y + dy,
         p.nombre,
@@ -1106,13 +1156,14 @@ function fichaOperativa(p, guiaPag) {
             ? `<p class="respuesta-nota">${txtOf(resto)}</p>`
             : ''
           : `<p class="respuesta-nota">${
-              e.parcial
-                ? `Abierto en ${esc(listaY(e.parcial.con.map((k) => PAISES[k])))} según su parte oficial. De ${esc(listaY(e.parcial.sin.map((k) => PAISES[k])))} no hay parte de las últimas ${UMBRAL_LADO_H} h: confírmalo antes de salir.${canalParte(e.parcial.sin)}`
+              e.parcial || e.sinPartes
+                ? 'No todos los lados confirman hoy. Compruébalo antes de salir.'
                 : e.ultimo && e.ultimo !== 'pendiente'
                 ? `Último dato publicado: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${esc(haceTiempo(p.estado.publicado))}. Confírmalo antes de salir.`
                 : 'No hay un estado confirmado. Consulta el parte oficial antes de salir.'
             }</p>`
       }
+      ${ladosHTML(p, e)}
       ${prevision ? `<p class="respuesta-nota">Previsión: ${txtOf(prevision)}</p>` : ''}
       ${selloHTML(e.nivel, e.verificado, p.estado.fuente, p.estado.publicado)}
     </div>
@@ -1294,12 +1345,18 @@ rutas.tramos.forEach((t) => {
 const estadoCorto = (id) => {
   const e = estadoPaso(id);
   const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
-  return `<span class="estado op-${op}">${OPERATIVA[op].icono}<span class="estado-texto">${OPERATIVA[op].texto}</span></span>${e.parcial ? `<small class="estado-parcial">Abierto solo en ${esc(listaY(e.parcial.con.map((k) => PAISES[k])))}</small>` : ''}`;
+  const nota = e.porAviso ? textoPorAviso(e.porAviso) : e.parcial ? [e.parcial.con.length ? `Abierto solo en ${listaY(e.parcial.con.map((k) => PAISES[k]))}` : '', textoPorAviso(e.parcial.porAviso)].filter(Boolean).join(' · ') : '';
+  return `<span class="estado op-${op}${e.porAviso ? ' estado-por-aviso' : ''}">${OPERATIVA[op].icono}<span class="estado-texto">${OPERATIVA[op].texto}</span></span>${nota ? `<small class="estado-parcial">${esc(nota)}</small>` : ''}`;
 };
 /** Horario habitual de un paso en hora local («09:00–19:15»), o «—». */
 const horarioCorto = (id) => {
   const h = fichaPaso[id]?.horarios?.find((x) => x.apertura && x.cierre);
   return h ? `${h.apertura}–${h.cierre}` : '—';
+};
+/** 22/11/2026: el horario va aparte del estado operativo. comun.js añade «abre en…/cierra en…» con la hora del paso. */
+const horarioDatos = (id) => {
+  const h = fichaPaso[id]?.horarios?.find((x) => x.apertura && x.cierre);
+  return h?.zona ? ` data-apertura="${esc(h.apertura)}" data-cierre="${esc(h.cierre)}" data-zona="${esc(h.zona)}"` : '';
 };
 /** Tablero de pasos (V2): una fila por paso, en el orden del corredor. Lo usan la portada y Fronteras. */
 const tableroPasos = ({ sel = null } = {}) => `<div class="tablero-pasos" role="table" aria-label="Pasos del corredor, de Brasil a Chile">
@@ -1308,7 +1365,7 @@ const tableroPasos = ({ sel = null } = {}) => `<div class="tablero-pasos" role="
     .map(
       (h) => `<a role="row" data-paso="${esc(h.id)}" class="tablero-fila${h.id === sel ? ' sel' : ''}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}"${h.id === sel ? ' aria-current="true"' : ''}>
     <span role="cell" class="tablero-paso"><strong>${esc(h.nombre)}</strong><small>${h.cara.map((c) => `<span class="tablero-pais">${bandera(c)}<span>${PAISES[c]}</span></span>`).join(' → ')}</small></span>
-    <span role="cell">${estadoCorto(h.id)}</span><span role="cell" class="tablero-hora">${horarioCorto(h.id)}</span></a>`
+    <span role="cell">${estadoCorto(h.id)}</span><span role="cell" class="tablero-hora"${horarioDatos(h.id)}>${horarioCorto(h.id)}</span></a>`
     )
     .join('')}
 </div>`;

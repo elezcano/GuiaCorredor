@@ -1646,3 +1646,19 @@ fieldset { min-width: 0; }
 /* Bandera junto al país en listas de festivos generadas en el navegador */
 .fest-linea .pais-bandera, .cal-festivo .pais-bandera, .informe .pais-bandera { display: inline-flex; vertical-align: -2px; margin: 0 6px 0 2px; }
 .estado-parcial { display: block; font-size: 12px; line-height: 16px; color: #b8c4d0; margin-top: 2px; }
+
+/* 22/11/2026: lados del paso y «sin avisos» (Chile informa por excepción). Sólido = confirmado; contorno = sin avisos. */
+.lados-paso { list-style: none; margin: 10px 0 4px; padding: 0; display: grid; gap: 6px; }
+.lados-paso .lado { display: grid; grid-template-columns: auto 84px 1fr; gap: 8px; align-items: baseline; font-size: 14px; line-height: 20px; padding: 6px 10px; border-radius: 8px; border: 1.5px solid transparent; }
+.lados-paso .lado-parte { background: color-mix(in srgb, var(--ok-dot) 12%, transparent); }
+.lados-paso .lado-aviso { border-color: var(--ok-dot); border-style: dashed; }
+.lados-paso .lado-sin-dato { border-color: var(--sin-dato); border-style: dashed; }
+.lados-paso .lado-pais { font-weight: 600; }
+.lados-paso .lado-texto a { display: block; font-size: 13px; }
+.estado-por-aviso { text-decoration: underline dashed; text-underline-offset: 4px; }
+.por-aviso { white-space: nowrap; }
+.m-paso.m-por-aviso { fill-opacity: .25; stroke-width: 2.5; stroke-dasharray: 3 2; }
+.hora-estado { display: block; font-family: var(--fuente); letter-spacing: 0; font-size: 12px; line-height: 16px; color: var(--muted-foreground, #5b6b7b); }
+.hora-estado.hora-fuera { color: var(--accent, #1d6a8c); font-weight: 600; }
+[data-tema="oscuro"] .hora-estado.hora-fuera { color: #7fb8d6; }
+@media (max-width: 480px) { .lados-paso .lado { grid-template-columns: auto 1fr; } .lados-paso .lado-texto { grid-column: 1 / -1; } }
