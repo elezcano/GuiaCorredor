@@ -84,6 +84,10 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 22/11/2026 | #233 | Pruebas de la decisión 31 (estado por lado, horario, formularios) y Vigía: comprueba la web publicada tras cada publicación y cada 6 h, y abre un issue si algo falla. |
+| 22/11/2026 | #232 | Formularios de la cuenta del producto: cotizaciones (con aviso por correo), solicitudes de empresas y tiempos de cruce envían a sus hojas privadas. |
+| 22/11/2026 | #231 | Contacto de la web: la cuenta del producto en lugar del correo personal. |
+| 22/11/2026 | #230 | Estadísticas sin cookies con GoatCounter: visitas por página y envíos de formulario, solo en la web publicada. |
 | 22/11/2026 | #228 | Estado por lado: cada país con su línea en la ficha; Chile informa por aviso («Sin avisos desde…», contorno) y deja de salir «Sin confirmar» cuando calla; el horario («Fuera de horario · abre en…») va aparte del estado. |
 | 22/11/2026 | #226 | Parte chileno de Jama del 22/11 (UPF); Sico sin partes ya no dice «Abierto solo en» vacío. |
 | 21/11/2026 | #221 | Jama y Sico: si falta el parte chileno, la ficha enlaza la cuenta oficial en X de la Unidad de Pasos Fronterizos (Chile no publica el estado en una web legible). |
