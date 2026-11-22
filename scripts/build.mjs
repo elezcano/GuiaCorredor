@@ -119,10 +119,31 @@ const guiaDePaso = Object.fromEntries(rutas.tramos.flatMap((t) => [t.paso, t.alt
 // Una fuente que no es oficial (prensa) tampoco puede dejar un paso como abierto.
 const UMBRAL_LADO_H = site.partes?.umbralHoras ?? 48;
 const ahoraLados = process.env.FECHA_HOY ? Date.parse(`${HOY}T15:00:00Z`) : Date.now();
+// 22/11/2026: un lado que el vigilante lee él solo en la web oficial (Gendarmería) está confirmado mientras esas lecturas
+// sean recientes, aunque el organismo no haya fechado un parte nuevo: si el estado cambiara, el vigilante lo habría
+// publicado. El parte fechado sigue a la vista («último parte de Gendarmería: 17 nov»).
+const LECTURA_LADO_H = 6;
+const lecturaAutoDeLado = (() => {
+  let estado = null;
+  try {
+    estado = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'vigilancia-estado.json'), 'utf8'));
+  } catch {}
+  const porPaso = {};
+  for (const f of cargarFuentesVigilancia().filas.filter((x) => x.estado === 'activa' && x.lector === 'gendarmeria-paso' && x.destino.startsWith('paso:')))
+    (porPaso[f.destino.slice(5)] ||= {})[f.pais] = { fuente: f.fuente_id, organismo: f.organismo.replace(/\s*\(.*\)$/, '') };
+  return (pasoId, lado) => {
+    const m = porPaso[pasoId]?.[lado];
+    const f = m && estado?.fuentes?.[m.fuente];
+    if (!f?.ultimaLecturaBuena || (f.fallosSeguidos || 0) >= 3) return null;
+    const horas = (ahoraLados - Date.parse(f.ultimaLecturaBuena)) / 36e5;
+    return horas <= LECTURA_LADO_H ? { lado, comprobado: f.ultimaLecturaBuena, organismo: m.organismo } : null;
+  };
+})();
 const ladosSinParte = (p) =>
   Object.keys(p?.lados || {}).filter((lado) => {
     const ult = (p.partes || []).filter((x) => x.lado === lado).map((x) => Date.parse(`${x.publicado}T${x.hora || '12:00'}:00-03:00`)).sort((a, b) => b - a)[0];
-    return !ult || (ahoraLados - ult) / 36e5 > UMBRAL_LADO_H;
+    // Sin ningún parte cargado no hay estado que la lectura pueda confirmar.
+    return !ult || ((ahoraLados - ult) / 36e5 > UMBRAL_LADO_H && !lecturaAutoDeLado(p.id, lado));
   });
 // 21/11/2026: Chile publica el parte diario de sus pasos solo por WhatsApp y X (Unidad de Pasos Fronterizos), sin web
 // que el vigilante pueda leer. Cuando falta ese lado, se enlaza el canal oficial para que el transportista lo compruebe.
@@ -172,7 +193,14 @@ const ladosHTML = (p, e) => {
     const av = porAviso.find((a) => a.lado === lado) || (sinParte.includes(lado) ? ladoPorAviso(p, lado) : null);
     const quien = ult?.emisor ? txtEs(ult.emisor.replace(/\s*\(.*\)$/, '')) : '';
     let cls, txt;
-    if (!sinParte.includes(lado)) {
+    const auto = lecturaAutoDeLado(p.id, lado);
+    const ultTs = ult ? Date.parse(`${ult.publicado}T${ult.hora || '12:00'}:00-03:00`) : 0;
+    if (auto && ult && (ahoraLados - ultTs) / 36e5 > UMBRAL_LADO_H) {
+      // Parte fechado antiguo, pero leído hace poco en la web oficial: se dicen las dos fechas.
+      cls = 'parte';
+      const hora = new Date(auto.comprobado).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' });
+      txt = `<strong>${ult.valor === 'operativo' || !ult.valor ? 'Habilitado' : esc(ESTADOS[ult.valor] || ult.valor)}</strong> · comprobado en la web oficial el ${fechaCorta(auto.comprobado.slice(0, 10))}, ${hora} (hora de Argentina) · último parte de ${quien || esc(auto.organismo)}: ${fechaCorta(ult.publicado)}`;
+    } else if (!sinParte.includes(lado)) {
       cls = 'parte';
       txt = `<strong>${ult?.valor === 'operativo' || !ult?.valor ? 'Habilitado' : esc(ESTADOS[ult.valor] || ult.valor)}</strong> · parte oficial del ${fechaCorta(ult.publicado)}${ult.hora ? `, ${esc(ult.hora)}` : ''}${quien ? ` (${quien})` : ''}`;
     } else if (av) {

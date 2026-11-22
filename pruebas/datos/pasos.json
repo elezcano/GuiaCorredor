@@ -262,6 +262,27 @@
           "validacion": "por-verificar",
           "verificacion": null
         }
+      ],
+      "partes": [
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Abierto (dato de prueba).",
+          "hora": "08:00",
+          "fuente": "ar-seguridad-paso-mision-la-paz",
+          "publicado": "2026-11-12",
+          "actualizado": "2026-11-15",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-15",
+            "alcance": "Ernesto confirmó el 15/11/2026 el parte de Gendarmería (09:50) en la página del Ministerio de Seguridad."
+          }
+        }
       ]
     },
     {
