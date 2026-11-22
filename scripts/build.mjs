@@ -459,6 +459,8 @@ const listaY = (xs) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(',
 const buzon = (tipo) => site.contacto.buzones?.[tipo] || site.contacto.email || '';
 const correo = (asunto, cuerpo) => `mailto:${buzon('contacto')}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
 // Cotización y camión vacío: página propia con formulario (sin email personal en la web).
+// 22/11/2026 (1.6): estadísticas sin cookies ni datos personales (GoatCounter). Solo en la web publicada: ni en local ni en las pruebas.
+const estadisticas = site.estadisticas?.goatcounter && process.env.GITHUB_ACTIONS === 'true' ? `\n<script data-goatcounter="${esc(site.estadisticas.goatcounter)}" async src="https://gc.zgo.at/count.js"></script>` : '';
 const cotizacion = () => u('/cotizar/');
 const cargaRetorno = () => u('/cotizar/?tipo=retorno');
 
@@ -539,7 +541,7 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', e
 ${temaInicial}
 ${hayFuente ? `<link rel="preload" href="${u('/assets/fonts/dm-sans-latin.woff2')}" as="font" type="font/woff2" crossorigin>` : ''}
 <link rel="icon" href="${u('/assets/marca/favicon.svg')}" type="image/svg+xml">
-<link rel="stylesheet" href="${u('/assets/styles.css')}">${estilos.map((e) => `\n<link rel="stylesheet" href="${u(e)}">`).join('')}
+<link rel="stylesheet" href="${u('/assets/styles.css')}">${estilos.map((e) => `\n<link rel="stylesheet" href="${u(e)}">`).join('')}${estadisticas}
 </head>
 <body>
 <a class="saltar" href="#contenido">Ir al contenido</a>
@@ -2110,7 +2112,7 @@ add(
       <p>Con fuente, o calculadas con OpenStreetMap y marcadas así. Si no hay ninguna, una estimación en línea recta, siempre como «estimación»: por carretera es más.</p>
     </section>
     <section class="tarjeta" aria-labelledby="s-datos"><h2 id="s-datos">Tus datos</h2>
-      <p>Tu ruta se guarda solo en tu navegador. No pedimos registro.${envioCruce ? ' Si cuentas tu tiempo de cruce, solo se envían el paso, el sentido, el tiempo y el día.' : ''}</p>
+      <p>Tu ruta se guarda solo en tu navegador. No pedimos registro. Contamos las visitas a cada página con GoatCounter, sin cookies y sin guardar datos personales: solo la página, el país y el tipo de navegador, en conjunto.${envioCruce ? ' Si cuentas tu tiempo de cruce, solo se envían el paso, el sentido, el tiempo y el día.' : ''}</p>
       <p>No transportamos mercancía ni cobramos comisiones: la contratación es directa entre empresas. Los datos son abiertos en <a href="${u('/api/v1/indice.json')}">api/v1</a>.</p>
       ${buzon('soporte') ? `<a class="btn btn-borde" href="mailto:${esc(buzon('soporte'))}?subject=${encodeURIComponent('Dato desactualizado')}">${icono('correo')}Avisar de un dato desactualizado</a>` : ''}
     </section>

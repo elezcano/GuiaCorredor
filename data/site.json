@@ -78,5 +78,9 @@
       "plazoDias": 15,
       "revisado": "2026-11-22"
     }
+  },
+  "estadisticas": {
+    "nota": "Estadísticas de uso sin cookies (GoatCounter, panel radarcorredor.goatcounter.com). Solo en la web publicada (GitHub Actions). Al cambiar a dominio propio, actualizar el dominio en el panel: la cuenta y el histórico se mantienen.",
+    "goatcounter": "https://radarcorredor.goatcounter.com/count"
   }
 }
