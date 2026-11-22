@@ -6,7 +6,7 @@
 
 - 🌐 Web: **https://elezcano.github.io/GuiaCorredor/**
 - 📦 Datos abiertos: [`/api/v1/indice.json`](https://elezcano.github.io/GuiaCorredor/api/v1/indice.json)
-- ✉️ Contacto: elezcanofm@gmail.com · Responsable editorial y de verificación: **Ernesto**
+- ✉️ Contacto: radarcorredor@gmail.com · Responsable editorial y de verificación: **Ernesto**
 
 > **Estado: borrador (MVP).** Regla de oro: **la fiabilidad va antes que la cantidad.** El estado de pasos y carreteras lo deciden solo las fuentes oficiales, y todo dato lleva su fuente y su fecha.
 
@@ -166,7 +166,7 @@ Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=
 | 5 | GitHub es la fuente de verdad del código y de los datos publicados |
 | 6 | Issues de GitHub y Trello (tablero *Guía del Corredor Bioceánico*) para tareas |
 | 7 | La verificación humana corresponde a Ernesto (`responsable-editorial`). Nunca a la IA |
-| 8 | Contacto del proyecto: elezcanofm@gmail.com |
+| 8 | Contacto del proyecto: radarcorredor@gmail.com (cuenta del producto desde el 22/11/2026; antes, el correo personal) |
 | 9 | Prioridad: datos fronterizos, información aduanera y primeras empresas verificadas |
 | 10 | Distancias: estimación provisional en línea recta donde no hay dato con fuente, indicando el tramo exacto |
 | 11 | Lo que no se pueda justificar con fuente se retira provisionalmente |
