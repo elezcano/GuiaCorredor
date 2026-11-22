@@ -26,6 +26,8 @@
     const v = valores();
     const asunto = `[${f.dataset.asunto}] ${v.tipo || ''}: ${v.desde} → ${v.hasta}`;
     const porEmail = () => (location.href = `mailto:${f.dataset.email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(texto(v))}`);
+    // 1.6: cuenta el envío (solo el tipo de formulario, nunca lo que se escribe). Sin GoatCounter, no pasa nada.
+    try { window.goatcounter?.count?.({ path: `envio-${(f.dataset.asunto || 'formulario').toLowerCase().replace(/\s+/g, '-')}`, title: `Envío: ${f.dataset.asunto || 'formulario'}`, event: true }); } catch (err) {}
     if (!f.dataset.accion) return porEmail();
     const cuerpo = new URLSearchParams();
     for (const [clave, entry] of Object.entries(JSON.parse(f.dataset.campos))) cuerpo.append(entry, v[clave] || '');
