@@ -1400,9 +1400,9 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:00 (hora de Argentina).",
-          "hora": "13:58",
+          "valor": null,
+          "texto": "Cierre de la jornada (fuera del horario 09:00–19:00, hora de Argentina).",
+          "hora": "19:05",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-22",
           "actualizado": "2026-11-22",
@@ -1412,7 +1412,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-22",
-            "alcance": "Leído automáticamente de la web oficial el 22/11 a las 15:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:00."
+            "alcance": "Leído automáticamente de la web oficial el 22/11 a las 19:28 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
           }
         }
       ]
