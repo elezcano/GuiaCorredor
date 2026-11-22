@@ -98,8 +98,10 @@ if (!SIN_EXTERNOS) {
     const r = await traer(`https://raw.githubusercontent.com/${repo}/datos-vigilancia/vigilancia.json`);
     const v = JSON.parse(r.texto);
     comprobar(horasDesde(v.ultimaPasada) < ESPERA_VIGILANTE_H, 'Vigilante: ha pasado en las últimas 3 h', `última pasada hace ${horasDesde(v.ultimaPasada).toFixed(1)} h`);
-    const caidas = Object.entries(v.fuentes || {}).filter(([, f]) => f.ultimaLecturaBuena && horasDesde(f.ultimaLecturaBuena) > 6).map(([id]) => id);
-    comprobar(!caidas.length, 'Vigilante: todas las fuentes leídas en las últimas 6 h', caidas.join(', '));
+    // Igual que el vigilante: el DNIT (Brasil) corta a ratos y publica cuando hay alertas, así que tiene más margen.
+    const margen = (id) => (id === 'br-dnit-alertas' ? 12 : 6);
+    const caidas = Object.entries(v.fuentes || {}).filter(([id, f]) => f.ultimaLecturaBuena && horasDesde(f.ultimaLecturaBuena) > margen(id)).map(([id, f]) => `${id} (última buena hace ${horasDesde(f.ultimaLecturaBuena).toFixed(1)} h)`);
+    comprobar(!caidas.length, 'Vigilante: todas las fuentes leídas a tiempo (6 h; DNIT, 12 h)', caidas.join(', '));
   } catch (e) {
     comprobar(false, 'Vigilante: estado legible', e.message);
   }

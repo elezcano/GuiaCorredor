@@ -239,6 +239,14 @@ function autoprueba() {
   const t0 = new Date('2026-11-17T12:00:00Z');
   for (let k = 0; k < 4; k++) e = actualizarEstado(e, [{ fuente: 'f', nombre: 'F', url: 'u', ok: k === 0, error: k ? 'HTTP 500' : null }], new Date(t0.getTime() + k * 36e5));
   ok(e.fuentes.f.fallosSeguidos === 3 && e.fuentes.f.ultimaLecturaBuena === '2026-11-17T12:00:00.000Z' && fuentesCiegas(e).length === 1 && fuentesCiegas(actualizarEstado(e, [{ fuente: 'f', ok: false, error: 'x' }])).length === 0, 'el estado avisa una vez al tercer fallo seguido.');
+  {
+    let d = {};
+    for (let n = 1; n <= 6; n++) {
+      d = actualizarEstado(d, [{ fuente: FUENTE_DNIT, nombre: 'DNIT', ok: false, error: 'fetch failed' }]);
+      if (n === 3) ok(fuentesCiegas(d).length === 0, 'DNIT: 3 fallos seguidos todavía no avisan (su web corta a ratos).');
+    }
+    ok(fuentesCiegas(d).length === 1 && umbralAviso(FUENTE_DNIT) === 6 && umbralAviso('ar-seguridad-paso-jama') === 3, 'DNIT avisa a los 6 fallos seguidos; los pasos, a los 3.');
+  }
   // 21/11/2026: se distingue «atrasada» (responde pero no publica) de «no disponible», y se guarda la última publicación.
   const ea = actualizarEstado({}, [{ fuente: 'g', nombre: 'G', url: 'u', ok: false, error: 'la fuente no se actualiza desde hace 9 días', atrasada: true, publicacion: '2026-11-10T12:00:00.000Z' }], new Date('2026-11-19T12:00:00Z'));
   const eb = actualizarEstado(ea, [{ fuente: 'g', nombre: 'G', url: 'u', ok: false, error: 'HTTP 503' }], new Date('2026-11-19T13:00:00Z'));
@@ -521,10 +529,22 @@ async function revisar(ahora = new Date()) {
 
 // ---------- HU-130 fase 2: carreteras ----------
 const UA = { 'User-Agent': 'GuiaCorredor-vigilante (+https://elezcano.github.io/GuiaCorredor/)' };
+// 22/11/2026: las webs de gov.br cortan a ratos la conexión desde GitHub («fetch failed»). Un corte de red o un 5xx
+// se reintenta dentro de la misma pasada (a los 10 s y a los 30 s); un 4xx no, porque no se arregla esperando.
+const ESPERAS_REINTENTO = [10000, 30000];
 const traer = async (url, opciones = {}) => {
-  const r = await fetch(url, { ...opciones, headers: { ...UA, ...(opciones.headers || {}) }, signal: AbortSignal.timeout(45000) });
-  if (!r.ok) throw new Error(`HTTP ${r.status} en ${url.split('?')[0]}`);
-  return r;
+  for (let intento = 0; ; intento++) {
+    try {
+      const r = await fetch(url, { ...opciones, headers: { ...UA, ...(opciones.headers || {}) }, signal: AbortSignal.timeout(45000) });
+      if (r.status >= 500 && intento < ESPERAS_REINTENTO.length) throw Object.assign(new Error(`HTTP ${r.status}`), { reintentable: true });
+      if (!r.ok) throw new Error(`HTTP ${r.status} en ${url.split('?')[0]}`);
+      return r;
+    } catch (e) {
+      const deRed = e.reintentable || e.name === 'TypeError' || e.name === 'TimeoutError' || e.name === 'AbortError';
+      if (!deRed || intento >= ESPERAS_REINTENTO.length) throw e;
+      await new Promise((ok) => setTimeout(ok, process.env.VIGILANTE_SIN_ESPERAS ? 0 : ESPERAS_REINTENTO[intento]));
+    }
+  }
 };
 // Chile publica una vez a la semana (lunes): más de 8 días sin cambios es que la fuente se ha parado.
 const MAX_HORAS = { 'cl-vialidad-siemop': CHILE?.maxHoras ?? 8 * 24, [FUENTE_DNIT]: 7 * 24 }; // HU-138: el DNIT publica alertas de todo Brasil casi a diario
@@ -666,6 +686,10 @@ async function revisarCarreteras(ahora = new Date(), previo = {}) {
 
 // ---------- Estado de la vigilancia (HU-129) ----------
 export const FALLOS_PARA_AVISAR = 3;
+// 22/11/2026: el umbral depende de lo que se pierde por no leer. Gendarmería (pasos) es crítica: 3 h. El DNIT publica
+// alertas cuando las hay y su web corta a ratos desde GitHub: avisar tras 6 h sin ninguna lectura buena.
+const FALLOS_POR_FUENTE = { [FUENTE_DNIT]: 6 };
+export const umbralAviso = (id) => FALLOS_POR_FUENTE[id] ?? FALLOS_PARA_AVISAR;
 /**
  * Nuevo estado a partir del anterior y de lo leído en esta pasada.
  * resultados: [{ fuente, nombre, url, ok, error }]. Puro: no toca disco ni red.
@@ -690,7 +714,7 @@ export function actualizarEstado(previo = {}, resultados = [], ahora = new Date(
   return { nota: 'Estado del vigilante (scripts/vigilante.mjs). Lo escribe cada pasada.', ultimaPasada: iso, fuentes };
 }
 /** Fuentes que acaban de llegar al umbral de fallos seguidos (se avisa una vez al cruzarlo). */
-export const fuentesCiegas = (estado) => Object.entries(estado.fuentes || {}).filter(([, f]) => f.fallosSeguidos === FALLOS_PARA_AVISAR);
+export const fuentesCiegas = (estado) => Object.entries(estado.fuentes || {}).filter(([id, f]) => f.fallosSeguidos === umbralAviso(id));
 
 // ---------- GitHub ----------
 const REPO = process.env.GITHUB_REPOSITORY || 'elezcano/GuiaCorredor';
@@ -818,7 +842,7 @@ async function principal() {
     }
   // HU-129: si una fuente falla 3 pasadas seguidas, el vigilante está ciego con ella: un aviso.
   // Sin estado guardado (ejecución suelta), se avisa al primer fallo, como antes.
-  const ciegas = estado ? fuentesCiegas(estado).map(([, f]) => `${f.nombre}: ${FALLOS_PARA_AVISAR} lecturas seguidas fallidas; última buena ${f.ultimaLecturaBuena ? new Date(f.ultimaLecturaBuena).toLocaleString('es-ES', { timeZone: ZONA_AR }) + ' (hora AR)' : 'nunca'}. Error: ${f.ultimoError} (${f.url})`) : errores.map((e) => `${e.paso.nombre}: ${e.error} (${e.url})`);
+  const ciegas = estado ? fuentesCiegas(estado).map(([id, f]) => `${f.nombre}: ${umbralAviso(id)} lecturas seguidas fallidas; última buena ${f.ultimaLecturaBuena ? new Date(f.ultimaLecturaBuena).toLocaleString('es-ES', { timeZone: ZONA_AR }) + ' (hora AR)' : 'nunca'}. Error: ${f.ultimoError} (${f.url})`) : errores.map((e) => `${e.paso.nombre}: ${e.error} (${e.url})`);
   if (ciegas.length) {
     await abrirOCompletar(`Vigilante · fuentes oficiales sin leer (${hoy})`, `El vigilante no puede leer estas fuentes. Mientras tanto, la web no puede decir «sin incidencias» para ellas.\n\n${ciegas.map((l) => `- ${l}`).join('\n')}${PIE}`, ciegas.join(' · '));
   }
