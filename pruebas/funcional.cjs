@@ -69,7 +69,7 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   ok(fj.includes('CH-27') && !fj.includes('RN51'), 'incidencias de Jama mal asignadas');
   ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Sin confirmar'), 'cabecera de Jama: con el estado sacado de prensa debe salir «Sin confirmar»');
   await p.goto(B + '/guia/pasos/sico/');
-  ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Sin confirmar') && /Abierto solo en Argentina/.test(await p.textContent('.tablero-fila.sel')), 'cabecera de Sico: sin parte de Chile debe salir «Sin confirmar · Abierto solo en Argentina»');
+  ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Abierto') && /Chile: sin avisos desde el 12 nov/.test(await p.textContent('.tablero-fila.sel')), 'cabecera de Sico: Chile por aviso dentro de plazo debe salir «Abierto · Chile: sin avisos desde el 12 nov»');
   await p.goto(B + '/guia/pasos/jama/');
   ok((await p.textContent('#ultimos-cambios')) !== null, 'ficha sin noticias vinculadas');
   // Calendario (V3): un mes a la vista, filtro por país y tocar un día responde «¿Cuándo cruzas?»

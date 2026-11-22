@@ -16,7 +16,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
     const viejos = await p.$$eval('.parte.parte-vieja', (l) => l.map((x) => x.innerText));
     ok(viejos.length === 1 && /Vialidad/.test(viejos[0]) && /Tiene 3 días: confírmalo antes de salir/.test(viejos[0]), 'C3 aviso solo en el parte de Vialidad: ' + viejos);
     // 20/11/2026: un lado sin parte en 48 h → el paso sale «Sin confirmar» y dice dónde está abierto.
-    ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Sin confirmar') && /Abierto solo en Argentina/.test(await p.textContent('.tablero-fila.sel')), 'C3 Sico sin parte de Chile: «Sin confirmar · Abierto solo en Argentina»');
+    ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Abierto') && /Chile: sin avisos desde el 12 nov/.test(await p.textContent('.tablero-fila.sel')), 'C3 Sico: Argentina con parte y Chile por aviso dentro de plazo → «Abierto · Chile: sin avisos desde el 12 nov» (decisión 31)');
     ok(await p.$$eval('.partes a[href]', (l) => l.length >= 2), 'C1 enlaces a la fuente');
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'C5 desborde ' + tema);
     const box = await p.$('.partes'); await box.screenshot({ path: captura(`partes-sico-${tema}.png`) });

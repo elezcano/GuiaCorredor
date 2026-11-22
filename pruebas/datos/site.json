@@ -49,5 +49,20 @@
   "partes": {
     "umbralHoras": 48,
     "nota": "Antigüedad a partir de la cual un parte sale con aviso. Decisión de Ernesto: en mayo/junio de 2027 (invierno austral) bajar a 24."
+  },
+  "canalesParte": {
+    "nota": "Datos de prueba: Chile informa por aviso; canal revisado el 12/11 (dentro del plazo de 15 días).",
+    "CL": {
+      "organismo": "Unidad de Pasos Fronterizos (Ministerio del Interior)",
+      "canal": "cuenta oficial en X",
+      "url": "https://x.com/UPFronterizos",
+      "modo": "por-aviso",
+      "explicacion": "Chile solo avisa cuando hay un problema",
+      "plazoDias": 15,
+      "revisado": "2026-11-12"
+    }
+  },
+  "cotizaciones": {
+    "enlacePrellenado": "https://docs.google.com/forms/d/e/PRUEBA-COTIZACIONES/viewform?usp=pp_url&entry.1=tipo&entry.2=desde&entry.3=hasta&entry.4=carga&entry.5=peso&entry.6=fecha&entry.7=empresa&entry.8=telefono&entry.9=email"
   }
 }

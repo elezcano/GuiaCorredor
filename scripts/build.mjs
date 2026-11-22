@@ -169,7 +169,7 @@ const ladosHTML = (p, e) => {
   const porAviso = e.porAviso || e.parcial?.porAviso || [];
   const fila = (lado) => {
     const ult = (p.partes || []).filter((x) => x.lado === lado).sort((a, b) => `${b.publicado}${b.hora || ''}`.localeCompare(`${a.publicado}${a.hora || ''}`))[0];
-    const av = porAviso.find((a) => a.lado === lado);
+    const av = porAviso.find((a) => a.lado === lado) || (sinParte.includes(lado) ? ladoPorAviso(p, lado) : null);
     const quien = ult?.emisor ? txtEs(ult.emisor.replace(/\s*\(.*\)$/, '')) : '';
     let cls, txt;
     if (!sinParte.includes(lado)) {
