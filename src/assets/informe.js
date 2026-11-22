@@ -226,7 +226,9 @@
     if (!x) return '<span class="sin-dato">Sin parte cargado</span>';
     const h = horasDesde(x.ts);
     const viejo = h >= (datos.umbralPartesH || 48);
-    return `${esc(x.emisor)}, ${esc(fechaCorta(x.publicado))}${x.hora ? ` ${x.hora} h` : ''} (${edadParte(Math.max(h, 0))})${viejo ? ' <strong class="parte-aviso">· parte antiguo: confírmalo</strong>' : ''}`;
+    // Resumen de una página: el emisor en corto y la fecha; la antigüedad, solo si pide confirmar.
+    const quien = x.emisor.replace(/\s*\(.*\)$/, '').replace(/ Nacional$/, '');
+    return `${esc(quien)}, ${esc(fechaCorta(x.publicado))}${x.hora ? ` ${x.hora} h` : ''}${viejo ? ` <strong class="parte-aviso">· ${esc(edadParte(Math.max(h, 0)))}: confírmalo</strong>` : ''}`;
   };
   const filaResumenPaso = (t) => {
     const p = datos.pasosInfo[t.paso.id];
