@@ -34,6 +34,14 @@ const ok = (c, m) => c || f.push(m);
   const lj = await p.$$eval('.lados-paso .lado', (l) => l.map((x) => ({ cls: x.className, t: x.innerText })));
   ok(lj.some((x) => /Chile/.test(x.t) && /lado-aviso/.test(x.cls)), 'Jama: el lado chileno dice igualmente «Sin avisos»: ' + JSON.stringify(lj));
 
+  // 2b. Pozo Hondo: el último parte de Gendarmería es del 12/11, pero el vigilante leyó la web oficial el 15/11:
+  // el lado argentino cuenta como comprobado y dice las dos fechas.
+  await p.goto(B + '/guia/pasos/pozo-hondo/');
+  const lp = await p.$$eval('.lados-paso .lado', (l) => l.map((x) => ({ cls: x.className, t: x.innerText })));
+  const arp = lp.find((x) => /Argentina/.test(x.t));
+  ok(arp && /lado-parte/.test(arp.cls) && /comprobado en la web oficial el 15 nov/.test(arp.t) && /último parte de Gendarmería Nacional: 12 nov/.test(arp.t), 'Pozo Hondo: Argentina comprobada hoy en la web oficial, con la fecha del último parte: ' + arp?.t);
+  ok(lp.some((x) => /Paraguay/.test(x.t) && /lado-sin-dato/.test(x.cls)), 'Pozo Hondo: Paraguay «Sin dato»');
+
   // 3. Horario aparte: el tablero dice si está dentro o fuera de horario, sin tocar el estado.
   const horas = await p.$$eval('.tablero-hora .hora-estado', (l) => l.map((x) => x.textContent));
   ok(horas.length >= 2 && horas.every((t) => /cierra en|Fuera de horario · abre/.test(t)), 'Tablero: estado del horario en cada paso con horario: ' + horas);

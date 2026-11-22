@@ -25,7 +25,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
     await p.goto(B + '/guia/pasos/carmelo-peralta-porto-murtinho/');
     ok(!(await p.$('.partes')), 'Puente no habilitado: sin bloque de partes');
     await p.goto(B + '/guia/pasos/pozo-hondo/');
-    ok((await p.$$('.partes .parte-vacio')).length === 2, 'Pozo Hondo: dos lados sin parte');
+    ok((await p.$$('.partes .parte-vacio')).length === 1, 'Pozo Hondo: Paraguay sin parte (Argentina tiene el de Gendarmería del 12/11)');
     await p.goto(B + '/informe/?desde=0&hasta=8&carga=granel&fecha=2026-12-08&op=alternativa');
     const inf = await p.textContent('.informe');
     ok(/Qué informa cada país/.test(inf) && /Gendarmería Nacional/.test(inf) && /Chile: sin parte cargado/.test(inf), 'C4 informe con partes');

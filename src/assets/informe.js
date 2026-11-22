@@ -176,10 +176,10 @@
       }),
       ...festivosDia.map((f) => `• Festivo ${PAISES[f.pais]}: ${f.nombre}`),
       op.problemas.length ? `• ${GC.plural(op.problemas.length, 'aviso activo', 'avisos activos')}` : '',
-      'Confirmar antes de salir.',
     ].filter(Boolean);
+    // Si no cabe en 600 caracteres se recorta el detalle, nunca el aviso final ni el enlace.
     let t = lineas.join('\n');
-    const pie = `\n${enlaceCompartir}`;
+    const pie = `\nConfirmar antes de salir.\n${enlaceCompartir}`;
     if (t.length + pie.length > 600) t = t.slice(0, 600 - pie.length - 1) + '…';
     return t + pie;
   })();
