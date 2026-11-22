@@ -1,0 +1,19 @@
+# Temporal: descarga la relación TRIC de la ANTT (datos abiertos) para la base privada de prospección. Se borra después.
+name: Tmp ANTT
+on:
+  push:
+    branches: [tmp-antt]
+permissions:
+  contents: read
+jobs:
+  bajar:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          set -e
+          B=https://dados.antt.gov.br/dataset/6c71f67c-abde-45ee-ada6-54b3a5bbec97/resource
+          curl -sSL --retry 3 -A "Mozilla/5.0" -o t.json "$B/d9154d08-b860-4f41-8133-a58307d1f48b/download/empresas_habilitadas_tric.json" || true
+          curl -sSL --retry 3 -A "Mozilla/5.0" -o t.csv "$B/a14d0e93-c550-4112-898f-596f63255140/download/empresas_habilitadas_tric.csv" || true
+          ls -la t.json t.csv || true
+          head -c 300 t.json; echo; head -c 300 t.csv; echo
+          for f in t.json t.csv; do [ -s "$f" ] && { echo "=== $f ==="; gzip -9c "$f" | base64 -w0; echo; echo "=== fin $f ==="; }; done
