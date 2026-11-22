@@ -139,6 +139,8 @@ const estadoPaso = (id) => {
   const sin = ladosSinParte(fichaPaso[id]);
   if (!sin.length) return e;
   const con = Object.keys(fichaPaso[id].lados).filter((l) => !sin.includes(l));
+  // Ningún lado con parte reciente: no hay «abierto solo en» que decir; queda «Sin confirmar» sin más.
+  if (!con.length) return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar', sinPartes: true };
   return { ...e, valor: 'pendiente', confirmado: false, parcial: { con, sin } };
 };
 const estadoTramo = (t) => (t.paso?.id ? estadoPaso(t.paso.id) : estadoMostrable(t.reporte, HOY));
