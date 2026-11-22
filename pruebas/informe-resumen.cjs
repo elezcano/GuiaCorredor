@@ -25,7 +25,7 @@ const paginasPDF = (buf) => (buf.toString('latin1').match(/\/Type\s*\/Page(?!s)/
     ok(/Informe completo/.test(t) && !/formato=resumen/.test(await p.getAttribute('.resumen-enlace a', 'href')), `${nombre}: falta el enlace al informe completo`);
     ok(/sin verificar|verif\./.test(t), `${nombre}: no distingue verificado / sin verificar (C3)`);
     ok(/Confirma antes de salir/.test(await p.textContent('.informe-pie')), `${nombre}: falta «Confirma antes de salir»`);
-    if (q) ok(/Gendarmería Nacional, 15 nov 2026 09:50 h/.test(t), `${nombre}: falta el último parte de Sico: ${t.slice(0, 300)}`);
+    if (q) ok(/Gendarmería, 15 nov 2026 09:50 h/.test(t), `${nombre}: falta el último parte de Sico: ${t.slice(0, 300)}`);
     const pdf = await p.pdf({ format: 'A4', printBackground: false });
     const n = paginasPDF(pdf);
     ok(n === 1, `${nombre}: el PDF del resumen ocupa ${n} páginas (C1)`);
