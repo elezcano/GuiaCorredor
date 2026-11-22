@@ -19,6 +19,8 @@ permissions:
 
 jobs:
   vigilar:
+    # Tras una publicación cancelada o fallida, la web sigue en la versión anterior: no se vigila hasta la siguiente buena.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
