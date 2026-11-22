@@ -181,13 +181,13 @@
       ],
       "acceso": [
         {
-          "texto": "Del lado paraguayo, la PY15 entre Mariscal Estigarribia y Pozo Hondo está en obras (Lote 3).",
-          "fuente": "ultima-hora",
-          "publicado": null,
+          "texto": "Del lado paraguayo, la PY15 entre Mariscal Estigarribia y Pozo Hondo está en obras de pavimentación (el Lote 3, al 40,5 % según el MOPC).",
+          "fuente": "mopc-py15-lote3-2026-09-07",
+          "publicado": "2026-09-07",
           "validacion": "por-verificar",
           "actualizado": null,
           "verificacion": null,
-          "evidencia": "tercero"
+          "evidencia": "oficial"
         }
       ],
       "servicios": [],

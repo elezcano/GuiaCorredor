@@ -188,16 +188,16 @@
       "km": 224,
       "guia": "tramos/py15-chaco",
       "kmTipo": "fuente",
-      "kmFuente": "ultima-hora",
+      "kmFuente": "mopc-py15-lote3-2026-09-07",
       "reporte": {
         "valor": "en-obras",
-        "texto": "Pavimentación del lote 3 en ejecución.",
-        "fuente": "ultima-hora",
-        "publicado": "2026-10-24",
+        "texto": "Pavimentación en ejecución en sus 4 lotes; el Lote 3, al 40,5 % de avance físico.",
+        "fuente": "mopc-py15-lote3-2026-09-07",
+        "publicado": "2026-09-07",
         "validacion": "por-verificar",
         "actualizado": null,
         "verificacion": null,
-        "evidencia": "tercero"
+        "evidencia": "oficial"
       },
       "kmEvidencia": "tercero"
     },

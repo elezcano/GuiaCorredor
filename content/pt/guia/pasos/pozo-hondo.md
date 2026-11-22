@@ -17,4 +17,4 @@ Passagem sobre o rio Pilcomayo entre **Pozo Hondo** (departamento de Boquerón, 
 ## Fontes (em espanhol)
 
 - [Migraciones Argentina – Pasos internacionales y horarios](https://www.argentina.gob.ar/interior/migraciones/pasos-internacionales)
-- [Última Hora – PY15: avance del lote 3](https://www.ultimahora.com//corredor-bioceanico-a987.html)
+- [MOPC – Ruta PY15: el Lote 3 roza el 41 % de avance (7/9/2026)](https://mopc.gov.py/ruta-py15-el-lote-3-roza-el-41-de-avance-en-el-corazon-del-chaco/)

@@ -19,19 +19,19 @@
       "evidencia": "tercero"
     },
     {
-      "publicado": "2026-10-24",
+      "publicado": "2026-09-07",
       "tema": "Obras",
       "titulo": "PY15: el Lote 3 (Mariscal Estigarribia – Pozo Hondo) llega al 40,5 % de avance",
-      "detalle": "Tramo estratégico de la ruta en el Chaco paraguayo.",
+      "detalle": "Según el MOPC, avance físico en el tramo de 224 km, dividido en 4 lotes.",
       "guia": "tramos/py15-chaco",
       "paises": [
         "PY"
       ],
-      "fuente": "ultima-hora",
+      "fuente": "mopc-py15-lote3-2026-09-07",
       "validacion": "por-verificar",
       "actualizado": null,
       "verificacion": null,
-      "evidencia": "tercero"
+      "evidencia": "oficial"
     },
     {
       "publicado": "2026-10-14",

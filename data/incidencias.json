@@ -45,19 +45,19 @@
       "tramo": "Ruta PY15, lote 3 (224 km)",
       "tipo": "obra",
       "estado": "activa",
-      "descripcion": "Pavimentación en ejecución, con un 40,5 % de avance.",
+      "descripcion": "Pavimentación en ejecución: el Lote 3 va al 40,5 % de avance físico.",
       "inicio": null,
-      "finPrevista": "Primer semestre de 2027",
+      "finPrevista": null,
       "impacto": null,
-      "fuente": "ultima-hora",
-      "publicado": "2026-10-24",
+      "fuente": "mopc-py15-lote3-2026-09-07",
+      "publicado": "2026-09-07",
       "validacion": "por-verificar",
       "tramos": [
         "me-ph"
       ],
       "actualizado": null,
       "verificacion": null,
-      "evidencia": "tercero"
+      "evidencia": "oficial"
     },
     {
       "id": "rn51-sico",

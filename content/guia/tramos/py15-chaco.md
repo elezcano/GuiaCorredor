@@ -24,6 +24,7 @@ El estudio de tránsito citado por el MOPC prevé unos **360 camiones al día** 
 
 ## Fuentes
 
+- [MOPC – Ruta PY15: el Lote 3 roza el 41 % de avance (7/9/2026)](https://mopc.gov.py/ruta-py15-el-lote-3-roza-el-41-de-avance-en-el-corazon-del-chaco/)
 - [La Nación – Corredor Bioceánico: una autopista para transformar la logística nacional](https://www.lanacion.com.py/negocios/2026/07/12/corredor-bioceanico-una-autopista-para-transformar-la-logistica-nacional/)
 - [Última Hora – Gran Chaco y Corredor Bioceánico](https://www.ultimahora.com/gran-chaco-y-corredor-bioceanico-ii)
 - [La Nación – MOPC reporta progreso en el Lote 2](https://www.lanacion.com.py/negocios/2026/04/24/mopc-reporta-progreso-sostenido-en-lote-2-del-corredor-bioceanico/)
