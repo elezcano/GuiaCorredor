@@ -7,7 +7,27 @@
 // - Un registro vale para su día y se arrastra a los días siguientes hasta el próximo registro, como
 //   mucho `vigenciaDias` días. Más allá, el día cuenta como «sin datos», nunca como abierto.
 // - Un día con varios registros (p. ej. cierre por la mañana y reapertura por la tarde) toma el peor.
+import fs from 'node:fs';
+import path from 'node:path';
 import { OPERATIVA, operativaDe } from './lib.mjs';
+
+// 22/11/2026: registro diario del vigilante. Cada pasada dentro del horario del paso, con lectura buena de la web
+// oficial, apunta el estado del día (el peor visto). Vive en el estado de la vigilancia (rama datos-vigilancia,
+// copiada en data/vigilancia-estado.json al publicar) y, para los días anteriores, en data/diario-pasos-semilla.json
+// (reconstruido de las lecturas guardadas). Es un registro verificado: sale de lecturas de la web oficial.
+let DIARIO = null;
+export function diarioDe(id) {
+  if (!DIARIO) {
+    DIARIO = {};
+    for (const f of ['diario-pasos-semilla.json', 'vigilancia-estado.json']) {
+      try {
+        const d = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', f), 'utf8'));
+        for (const [paso, dias] of Object.entries(d.diario || d.pasos || {})) Object.assign((DIARIO[paso] ||= {}), dias);
+      } catch {}
+    }
+  }
+  return DIARIO[id] || {};
+}
 
 const ORDEN = { cerrado: 4, carga: 3, restricciones: 2, abierto: 1 };
 const sumarDias = (iso, n) => {
@@ -34,6 +54,7 @@ function registros(paso) {
     .map((h) => ({ fecha: h.fecha, hora: h.hora || '12:00', clase: clase(h.valor, h.afecta), verificado: !!h.verificado, texto: h.texto }));
   // Los partes de cada organismo con estado también son observaciones de ese día.
   for (const x of paso.partes || []) if (x.valor && x.publicado) lista.push({ fecha: x.publicado, hora: x.hora || '12:00', clase: clase(x.valor, x.afecta), verificado: !!x.verificado, texto: x.texto });
+  for (const [fecha, d] of Object.entries(paso.diario || diarioDe(paso.id))) if (d?.clase) lista.push({ fecha, hora: '12:00', clase: d.clase, verificado: true, texto: `Lectura diaria de la web oficial (${d.lecturas} lecturas, ${d.desde}–${d.hasta})` });
   const e = paso.estado;
   if (e?.valor && e.publicado) lista.push({ fecha: e.publicado, hora: '23:59', clase: clase(e.valor, e.afecta), verificado: !!e.verificado, texto: e.texto, actual: true });
   // El estado actual verificado también vale para el día en que se verificó.
@@ -44,13 +65,17 @@ function registros(paso) {
 /** Estado de cada día de la ventana [hoy-dias+1, hoy]. */
 export function diasDelPaso(paso, hoy, dias, vigenciaDias = 7) {
   const regs = registros(paso).filter((r) => r.verificado);
+  // Desde que el vigilante lleva registro diario de este paso, un día sin lectura buena dentro del horario es «sin datos»:
+  // no hereda el día anterior (si Gendarmería no publicó la apertura, no sabemos si abrió).
+  const diasDiario = Object.keys(paso.diario || diarioDe(paso.id)).sort();
+  const desdeDiario = diasDiario[0] || null;
   const salida = [];
   for (let i = dias - 1; i >= 0; i--) {
     const dia = sumarDias(hoy, -i);
     // Un día con partes propios se juzga por ellos; sin partes, hereda el último (como mucho vigenciaDias).
     const delDia = regs.filter((r) => r.fecha === dia).map((r) => r.clase);
     const previo = [...regs].reverse().find((r) => r.fecha < dia);
-    if (!delDia.length && previo && diasEntre(previo.fecha, dia) <= vigenciaDias) delDia.push(previo.clase);
+    if (!delDia.length && previo && diasEntre(previo.fecha, dia) <= vigenciaDias && !(desdeDiario && dia >= desdeDiario)) delDia.push(previo.clase);
     const peor = delDia.sort((a, b) => ORDEN[b] - ORDEN[a])[0] || 'sin-datos';
     salida.push({ dia, clase: peor });
   }

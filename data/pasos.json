@@ -816,8 +816,8 @@
         },
         {
           "fecha": "2026-11-18",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería (parte del 18/11, 20:19, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:15), sin motivo publicado.",
+          "valor": null,
+          "texto": "Cierre de la jornada: Gendarmería publicó «Cerrado» a las 20:19 del 18/11, después del cierre de las 19:15 (hora de Argentina). No fue un cierre. (Corregido el 22/11/2026: el vigilante lo leyó por la mañana, antes de que Gendarmería publicara la apertura, y lo había apuntado como cierre.)",
           "fuente": "ar-seguridad-paso-jama",
           "publicado": "2026-11-18",
           "actualizado": "2026-11-19",
@@ -848,8 +848,8 @@
         },
         {
           "fecha": "2026-11-19",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería (parte del 19/11, 20:20, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:15), sin motivo publicado.",
+          "valor": null,
+          "texto": "Cierre de la jornada: Gendarmería publicó «Cerrado» a las 20:20 del 19/11, después del cierre de las 19:15 (hora de Argentina). No fue un cierre. (Corregido el 22/11/2026: el vigilante lo leyó por la mañana, antes de que Gendarmería publicara la apertura, y lo había apuntado como cierre.)",
           "fuente": "ar-seguridad-paso-jama",
           "publicado": "2026-11-19",
           "actualizado": "2026-11-20",
@@ -1278,8 +1278,8 @@
         },
         {
           "fecha": "2026-11-17",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:00), sin motivo publicado.",
+          "valor": null,
+          "texto": "Cierre de la jornada: Gendarmería publicó «Cerrado» a las 19:07 del 17/11, después del cierre de las 19:00 (hora de Argentina). No fue un cierre. (Corregido el 22/11/2026: el vigilante lo leyó por la mañana, antes de que Gendarmería publicara la apertura, y lo había apuntado como cierre.)",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-17",
           "actualizado": "2026-11-18",
@@ -1310,8 +1310,8 @@
         },
         {
           "fecha": "2026-11-19",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería (parte del 19/11, 19:18, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:00), sin motivo publicado.",
+          "valor": null,
+          "texto": "Cierre de la jornada: Gendarmería publicó «Cerrado» a las 19:18 del 19/11, después del cierre de las 19:00 (hora de Argentina). No fue un cierre. (Corregido el 22/11/2026: el vigilante lo leyó por la mañana, antes de que Gendarmería publicara la apertura, y lo había apuntado como cierre.)",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-19",
           "actualizado": "2026-11-20",

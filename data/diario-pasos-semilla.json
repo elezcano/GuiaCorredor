@@ -1,0 +1,100 @@
+{
+ "nota": "Registro diario de los pasos reconstruido el 22/11/2026 con scripts/migraciones/002-diario-pasos-semilla.mjs a partir de las lecturas guardadas (rama datos-vigilancia) y del estado publicado en main. Desde entonces lo lleva el vigilante en el estado de la vigilancia. Clase = el peor estado del día con lectura buena dentro del horario.",
+ "reconstruido": "2026-11-22T20:53:11.892Z",
+ "pasadasRevisadas": 138,
+ "lecturasDescartadas": [
+  "sico 2026-11-18 09:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 10:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 11:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 12:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 13:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 14:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 15:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 15:02: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 16:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 17:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 18:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-18 19:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "jama 2026-11-19 09:00: Cerrado por Gendarmería (parte del 18/11, 20:19, hora de Argentina): la web ofic…",
+  "sico 2026-11-19 09:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "sico 2026-11-19 10:00: Cerrado por Gendarmería (parte del 17/11, 19:07, hora de Argentina): la web ofic…",
+  "jama 2026-11-20 09:01: Cerrado por Gendarmería (parte del 19/11, 20:20, hora de Argentina): la web ofic…",
+  "sico 2026-11-20 09:01: Cerrado por Gendarmería (parte del 19/11, 19:18, hora de Argentina): la web ofic…",
+  "jama 2026-11-20 10:00: Cerrado por Gendarmería (parte del 19/11, 20:20, hora de Argentina): la web ofic…",
+  "sico 2026-11-20 10:00: Cerrado por Gendarmería (parte del 19/11, 19:18, hora de Argentina): la web ofic…",
+  "jama 2026-11-20 11:00: Cerrado por Gendarmería (parte del 19/11, 20:20, hora de Argentina): la web ofic…",
+  "sico 2026-11-20 11:00: Cerrado por Gendarmería (parte del 19/11, 19:18, hora de Argentina): la web ofic…"
+ ],
+ "pasos": {
+  "jama": {
+   "2026-11-17": {
+    "clase": "abierto",
+    "lecturas": 8,
+    "desde": "16:53",
+    "hasta": "19:00"
+   },
+   "2026-11-18": {
+    "clase": "abierto",
+    "lecturas": 12,
+    "desde": "09:00",
+    "hasta": "19:00"
+   },
+   "2026-11-19": {
+    "clase": "abierto",
+    "lecturas": 11,
+    "desde": "10:00",
+    "hasta": "19:00"
+   },
+   "2026-11-20": {
+    "clase": "abierto",
+    "lecturas": 9,
+    "desde": "12:00",
+    "hasta": "19:00"
+   },
+   "2026-11-21": {
+    "clase": "abierto",
+    "lecturas": 13,
+    "desde": "09:00",
+    "hasta": "19:11"
+   },
+   "2026-11-22": {
+    "clase": "abierto",
+    "lecturas": 10,
+    "desde": "09:00",
+    "hasta": "17:00"
+   }
+  },
+  "sico": {
+   "2026-11-17": {
+    "clase": "abierto",
+    "lecturas": 8,
+    "desde": "16:53",
+    "hasta": "19:00"
+   },
+   "2026-11-19": {
+    "clase": "abierto",
+    "lecturas": 10,
+    "desde": "11:00",
+    "hasta": "19:00"
+   },
+   "2026-11-20": {
+    "clase": "abierto",
+    "lecturas": 9,
+    "desde": "12:00",
+    "hasta": "19:00"
+   },
+   "2026-11-21": {
+    "clase": "abierto",
+    "lecturas": 12,
+    "desde": "09:00",
+    "hasta": "19:00"
+   },
+   "2026-11-22": {
+    "clase": "abierto",
+    "lecturas": 10,
+    "desde": "09:00",
+    "hasta": "17:00"
+   }
+  }
+ }
+}
