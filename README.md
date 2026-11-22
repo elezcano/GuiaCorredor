@@ -84,6 +84,10 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 22/11/2026 | #239 | El lado que el vigilante lee en la web oficial cuenta como comprobado aunque el parte fechado sea antiguo («comprobado hoy 17:00 · último parte de Gendarmería: 17 nov»); el resumen de WhatsApp ya no pierde «Confirmar antes de salir». |
+| 22/11/2026 | #238 | PY15 Mariscal Estigarribia – Pozo Hondo: fuente oficial del MOPC (7/9/2026, Lote 3 al 40,5 %) en lugar de Última Hora. |
+| 22/11/2026 | #237 | Vigilante: reintentos ante cortes de red; el DNIT avisa a las 6 h sin lectura (los pasos, a las 3 h). |
+| 22/11/2026 | #236 | Vigía: solo tras una publicación que terminó bien. |
 | 22/11/2026 | #233 | Pruebas de la decisión 31 (estado por lado, horario, formularios) y Vigía: comprueba la web publicada tras cada publicación y cada 6 h, y abre un issue si algo falla. |
 | 22/11/2026 | #232 | Formularios de la cuenta del producto: cotizaciones (con aviso por correo), solicitudes de empresas y tiempos de cruce envían a sus hojas privadas. |
 | 22/11/2026 | #231 | Contacto de la web: la cuenta del producto en lugar del correo personal. |
