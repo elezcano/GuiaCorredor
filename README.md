@@ -84,6 +84,8 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 22/11/2026 | #228 | Estado por lado: cada país con su línea en la ficha; Chile informa por aviso («Sin avisos desde…», contorno) y deja de salir «Sin confirmar» cuando calla; el horario («Fuera de horario · abre en…») va aparte del estado. |
+| 22/11/2026 | #226 | Parte chileno de Jama del 22/11 (UPF); Sico sin partes ya no dice «Abierto solo en» vacío. |
 | 21/11/2026 | #221 | Jama y Sico: si falta el parte chileno, la ficha enlaza la cuenta oficial en X de la Unidad de Pasos Fronterizos (Chile no publica el estado en una web legible). |
 | 21/11/2026 | #220 | P0: «comprobado cada hora» se separa de cuándo publica el organismo; nuevas etiquetas «Fuente atrasada» y «Fuente no disponible». |
 | 20/11/2026 | #216 | P0: un paso solo sale «Abierto» con parte oficial de menos de 48 h de todos sus lados (si no, «Sin confirmar · Abierto solo en …»); el ✓ queda solo para organismos oficiales y la prensa dice «Prensa · sin parte oficial». |
