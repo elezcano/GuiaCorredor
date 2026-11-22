@@ -84,6 +84,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 22/11/2026 | #242 | Arreglo: el resumen del informe vuelve a caber en una página con la tipografía publicada (bloqueaba la publicación de #236–#241). |
 | 22/11/2026 | #239 | El lado que el vigilante lee en la web oficial cuenta como comprobado aunque el parte fechado sea antiguo («comprobado hoy 17:00 · último parte de Gendarmería: 17 nov»); el resumen de WhatsApp ya no pierde «Confirmar antes de salir». |
 | 22/11/2026 | #238 | PY15 Mariscal Estigarribia – Pozo Hondo: fuente oficial del MOPC (7/9/2026, Lote 3 al 40,5 %) en lugar de Última Hora. |
 | 22/11/2026 | #237 | Vigilante: reintentos ante cortes de red; el DNIT avisa a las 6 h sin lectura (los pasos, a las 3 h). |
