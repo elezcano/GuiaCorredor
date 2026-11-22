@@ -48,7 +48,7 @@
   ],
   "aviso": "Información en revisión. Antes de viajar confirma siempre con la aduana o tu despachante.",
   "cruces": {
-    "enlacePrellenado": "",
+    "enlacePrellenado": "https://docs.google.com/forms/d/e/1FAIpQLSfO51GJ3xFID_QuTt4LIrr5ZvGuQ2-U_Sezx5mptodvAigUdQ/viewform?usp=pp_url&entry.2082456333=paso&entry.1035156291=sentido&entry.1698049471=tiempo&entry.575624358=fecha&entry.941612996=dispositivo",
     "csv": ""
   },
   "estimaciones": {
@@ -56,7 +56,7 @@
     "nota": "Estimaciones provisionales en línea recta para tramos sin distancia con fuente, hasta tener distancias oficiales (P1.7). Por carretera la distancia es mayor."
   },
   "solicitudes": {
-    "enlacePrellenado": "https://docs.google.com/forms/d/e/1FAIpQLScgXG99uam2-Grpk2SYjhtfuV83ccFEAbArfkpUUI4JsaJppg/viewform?usp=pp_url&entry.1255883272=tipo&entry.448162807=nombre&entry.1968944158=razonsocial&entry.1804617035=pais&entry.1451998506=localidad&entry.1748333152=categoria&entry.221834179=servicios&entry.439954182=puntos&entry.2019229882=cobertura&entry.1942973470=persona&entry.1061762802=email&entry.2083910659=telefono&entry.1382411993=web&entry.1620073363=referencias&entry.1512003458=cambio"
+    "enlacePrellenado": "https://docs.google.com/forms/d/e/1FAIpQLSf9wpBozeeC_Lvuv7PGhkZDlyt8dln1bdNX4MGPSHlRA0u9og/viewform?usp=pp_url&entry.1751618338=tipo&entry.465901736=nombre&entry.762652922=razonsocial&entry.585009001=pais&entry.222841961=localidad&entry.1118809529=categoria&entry.1001288543=servicios&entry.282897169=puntos&entry.48149574=cobertura&entry.638649475=persona&entry.1677665394=email&entry.1243767692=telefono&entry.533505979=web&entry.1217038756=referencias&entry.916578881=cambio"
   },
   "partes": {
     "umbralHoras": 48,
@@ -82,5 +82,8 @@
   "estadisticas": {
     "nota": "Estadísticas de uso sin cookies (GoatCounter, panel radarcorredor.goatcounter.com). Solo en la web publicada (GitHub Actions). Al cambiar a dominio propio, actualizar el dominio en el panel: la cuenta y el histórico se mantienen.",
     "goatcounter": "https://radarcorredor.goatcounter.com/count"
+  },
+  "cotizaciones": {
+    "enlacePrellenado": "https://docs.google.com/forms/d/e/1FAIpQLSdVK4SOSEdcenslh95Yi4kSJ0gaz4pCp80tqWTva2xWr7wJVg/viewform?usp=pp_url&entry.2131512641=tipo&entry.1112425483=desde&entry.843332973=hasta&entry.373403768=carga&entry.12545181=peso&entry.410979864=fecha&entry.900194835=empresa&entry.1694481821=telefono&entry.403110214=email"
   }
 }
