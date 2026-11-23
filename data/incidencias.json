@@ -201,21 +201,21 @@
       "tipo": "otro",
       "estado": "activa",
       "gravedad": "info",
-      "descripcion": "RN 34 (Acc. a San Pedro -Lte. Con Salta): Circular con precaución en pte. A° El Zanjón (km 1207,31), pte.Rio Negro I (km.1210,37), pte.Rio Negro II (km.1210,80), Pte Rio Negro III (km.1211,21), un vehículo por vez. Circular con extrema precaución por calzada deteriorada entre Calilegua (km 1247) y el limimite con Salta (km 1287).",
+      "descripcion": "RN 34 (Acc. a San Pedro -Lte. Con Salta): Circular con precaución en pte. A° El Zanjón (km 1207,31), pte.Rio Negro I (km.1210,37), pte.Rio Negro II (km.1210,80), Pte Rio Negro III (km.1211,21), un vehículo por vez. Circular con extrema precaución por desvio de transito en Libertador Gral. San Martin, km 1246, por obra sobre la calzada.",
       "tramos": [
         "pozo-hondo"
       ],
       "fuente": "ar-vialidad-estado-rutas",
-      "publicado": "2026-11-17",
-      "horaFuente": "2026-11-17T12:00:00.000Z",
-      "actualizado": "2026-11-17",
+      "publicado": "2026-11-23",
+      "horaFuente": "2026-11-23T12:00:00.000Z",
+      "actualizado": "2026-11-23",
       "evidencia": "oficial",
       "validacion": "verificado",
       "verificacion": {
         "verificadoPor": "vigilante",
         "rol": "vigilante",
-        "fecha": "2026-11-17",
-        "alcance": "Leído automáticamente de la web oficial el 17/11 a las 18:12 (hora de Argentina): RN 34, Acc. a San Pedro -Lte. Con Salta (Jujuy): RN 34 (Acc. a San Pedro -Lte. Con Salta): Circular con precaución en pte. A° El Zanjón (km 1207,31), pte.Rio Negro I (km.1210,37), pte.Rio Negro II (km.1210,80), Pte Rio Negro III (km.1211,21), un vehículo por vez. Circular con extrema precaución por calzada deteriorada entre Calilegua (km 1247) y el limimite con Salta (km 1287).."
+        "fecha": "2026-11-23",
+        "alcance": "Leído automáticamente de la web oficial el 23/11 a las 19:00 (hora de Argentina): RN 34, Acc. a San Pedro -Lte. Con Salta (Jujuy): RN 34 (Acc. a San Pedro -Lte. Con Salta): Circular con precaución en pte. A° El Zanjón (km 1207,31), pte.Rio Negro I (km.1210,37), pte.Rio Negro II (km.1210,80), Pte Rio Negro III (km.1211,21), un vehículo por vez. Circular con extrema precaución por desvio de transito en Libertador Gral. San Martin, km 1246, por obra sobre la calzada.."
       }
     },
     {
@@ -550,21 +550,21 @@
       "tipo": "otro",
       "estado": "activa",
       "gravedad": "info",
-      "descripcion": "RN 66 (Emp. RN 9 - El Cadillal): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.",
+      "descripcion": "RN 66 (Emp. RN 9 - El Cadillal): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.Circular con etrema precaución por reducción a un solo carril en la circulación vehicular. por construcción de intercambiador en avenida Intersindical.",
       "tramos": [
         "pozo-hondo"
       ],
       "fuente": "ar-vialidad-estado-rutas",
-      "publicado": "2026-11-18",
-      "horaFuente": "2026-11-18T12:00:00.000Z",
-      "actualizado": "2026-11-19",
+      "publicado": "2026-11-23",
+      "horaFuente": "2026-11-23T12:00:00.000Z",
+      "actualizado": "2026-11-23",
       "evidencia": "oficial",
       "validacion": "verificado",
       "verificacion": {
         "verificadoPor": "vigilante",
         "rol": "vigilante",
-        "fecha": "2026-11-19",
-        "alcance": "Leído automáticamente de la web oficial el 19/11 a las 11:00 (hora de Argentina): RN 66, Emp. RN 9 - El Cadillal (Jujuy): RN 66 (Emp. RN 9 - El Cadillal): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.."
+        "fecha": "2026-11-23",
+        "alcance": "Leído automáticamente de la web oficial el 23/11 a las 19:00 (hora de Argentina): RN 66, Emp. RN 9 - El Cadillal (Jujuy): RN 66 (Emp. RN 9 - El Cadillal): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.Circular con etrema precaución por reducción a un solo carril en la circulación vehicular. por construcción de intercambiador en avenida Intersindical.."
       }
     },
     {

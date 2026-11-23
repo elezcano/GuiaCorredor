@@ -996,24 +996,6 @@
         },
         {
           "lado": "AR",
-          "emisor": "Vialidad Nacional",
-          "valor": null,
-          "texto": "RN 52 tramo Susques - Lte. con Chile.",
-          "hora": "09:00",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-18",
-          "actualizado": "2026-11-18",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-18",
-            "alcance": "Leído automáticamente de la web oficial el 18/11 a las 11:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 52 tramo Susques - Lte. con Chile."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
           "valor": "cerrado",
@@ -1029,6 +1011,24 @@
             "rol": "vigilante",
             "fecha": "2026-11-22",
             "alcance": "Leído automáticamente de la web oficial el 22/11 a las 23:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:15."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "RN 52 tramo Susques - Lte. con Chile.",
+          "hora": "09:00",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-23",
+          "actualizado": "2026-11-23",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-23",
+            "alcance": "Leído automáticamente de la web oficial el 23/11 a las 19:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 52 tramo Susques - Lte. con Chile."
           }
         }
       ]
