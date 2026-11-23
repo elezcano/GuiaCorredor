@@ -1053,18 +1053,18 @@
         }
       },
       "estado": {
-        "valor": "operativo",
-        "texto": "Abierto de 09:00–19:00 (hora de Argentina), según Gendarmería (parte del 20/11, 10:04).",
+        "valor": "pendiente",
+        "texto": "Sin confirmar: a las 10:00 (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (parte del 22/11, 19:05) y no ha publicado la apertura de hoy.",
         "fuente": "ar-seguridad-paso-sico",
-        "publicado": "2026-11-20",
-        "actualizado": "2026-11-20",
+        "publicado": "2026-11-22",
+        "actualizado": "2026-11-23",
         "evidencia": "oficial",
         "validacion": "verificado",
         "verificacion": {
           "verificadoPor": "vigilante",
           "rol": "vigilante",
-          "fecha": "2026-11-20",
-          "alcance": "Leído automáticamente de la web oficial el 20/11 a las 12:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
+          "fecha": "2026-11-23",
+          "alcance": "Leído automáticamente de la web oficial el 23/11 a las 10:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
         }
       },
       "horarios": [
@@ -1338,6 +1338,22 @@
             "rol": "vigilante",
             "fecha": "2026-11-20",
             "alcance": "Leído automáticamente de la web oficial el 20/11 a las 09:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          }
+        },
+        {
+          "fecha": "2026-11-20",
+          "valor": "operativo",
+          "texto": "Abierto de 09:00–19:00 (hora de Argentina), según Gendarmería (parte del 20/11, 10:04).",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-20",
+          "actualizado": "2026-11-20",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-20",
+            "alcance": "Leído automáticamente de la web oficial el 20/11 a las 12:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
           }
         }
       ],
