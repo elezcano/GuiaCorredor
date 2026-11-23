@@ -1,12 +1,12 @@
 {
  "nota": "Estado del vigilante (scripts/vigilante.mjs). Lo escribe cada pasada.",
- "ultimaPasada": "2026-11-23T21:24:12.847Z",
+ "ultimaPasada": "2026-11-23T22:01:54.281Z",
  "fuentes": {
   "ar-seguridad-paso-jama": {
    "nombre": "Paso de Jama (Ministerio de Seguridad)",
    "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/19/Jama",
-   "ultimoIntento": "2026-11-23T21:24:12.847Z",
-   "ultimaLecturaBuena": "2026-11-23T21:24:12.847Z",
+   "ultimoIntento": "2026-11-23T22:01:54.281Z",
+   "ultimaLecturaBuena": "2026-11-23T22:01:54.281Z",
    "fallosSeguidos": 0,
    "ultimoError": null,
    "atrasada": false
@@ -14,8 +14,8 @@
   "ar-seguridad-paso-sico": {
    "nombre": "Paso de Sico (Ministerio de Seguridad)",
    "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/20/Sico",
-   "ultimoIntento": "2026-11-23T21:24:12.847Z",
-   "ultimaLecturaBuena": "2026-11-23T21:24:12.847Z",
+   "ultimoIntento": "2026-11-23T22:01:54.281Z",
+   "ultimaLecturaBuena": "2026-11-23T22:01:54.281Z",
    "fallosSeguidos": 0,
    "ultimoError": null,
    "atrasada": false
@@ -23,8 +23,8 @@
   "ar-seguridad-paso-mision-la-paz": {
    "nombre": "Pozo Hondo – Misión La Paz (Ministerio de Seguridad)",
    "url": "https://www.argentina.gob.ar/seguridad/pasosinternacionales/detalle/ruta/72/Misi%C3%B3n-La-Paz-Pozo-Hondo",
-   "ultimoIntento": "2026-11-23T21:24:12.847Z",
-   "ultimaLecturaBuena": "2026-11-23T21:24:12.847Z",
+   "ultimoIntento": "2026-11-23T22:01:54.281Z",
+   "ultimaLecturaBuena": "2026-11-23T22:01:54.281Z",
    "fallosSeguidos": 0,
    "ultimoError": null,
    "atrasada": false
@@ -32,18 +32,18 @@
   "ar-vialidad-estado-rutas": {
    "nombre": "Carreteras de Argentina (Vialidad Nacional)",
    "url": "https://www.argentina.gob.ar/transporte/vialidad-nacional/estado-de-rutas",
-   "ultimoIntento": "2026-11-23T21:24:12.847Z",
-   "ultimaLecturaBuena": "2026-11-23T21:24:12.847Z",
+   "ultimoIntento": "2026-11-23T22:01:54.281Z",
+   "ultimaLecturaBuena": "2026-11-23T22:01:54.281Z",
    "fallosSeguidos": 0,
    "ultimoError": null,
    "atrasada": false,
-   "ultimaPublicacion": "2026-11-19T11:30:00.000Z"
+   "ultimaPublicacion": "2026-11-23T12:00:00.000Z"
   },
   "cl-vialidad-siemop": {
    "nombre": "Carreteras de Chile (Vialidad, MOP)",
    "url": "https://sitministerial.maps.arcgis.com/apps/webappviewer/index.html?id=500fa188342a4b6cb9acd7b96d5a12d0",
-   "ultimoIntento": "2026-11-23T21:24:12.847Z",
-   "ultimaLecturaBuena": "2026-11-23T21:24:12.847Z",
+   "ultimoIntento": "2026-11-23T22:01:54.281Z",
+   "ultimaLecturaBuena": "2026-11-23T22:01:54.281Z",
    "fallosSeguidos": 0,
    "ultimoError": null,
    "atrasada": false,
@@ -52,8 +52,8 @@
   "py-mopc-estado-rutas": {
    "nombre": "Carreteras de Paraguay (MOPC)",
    "url": "https://mopc.gov.py/servicios/estado-de-las-rutas/",
-   "ultimoIntento": "2026-11-23T21:24:12.847Z",
-   "ultimaLecturaBuena": "2026-11-23T21:24:12.847Z",
+   "ultimoIntento": "2026-11-23T22:01:54.281Z",
+   "ultimaLecturaBuena": "2026-11-23T22:01:54.281Z",
    "fallosSeguidos": 0,
    "ultimoError": null,
    "atrasada": false,
@@ -63,9 +63,9 @@
   "br-dnit-alertas": {
    "nombre": "Carreteras de Brasil (DNIT)",
    "url": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos",
-   "ultimoIntento": "2026-11-23T21:24:12.847Z",
+   "ultimoIntento": "2026-11-23T22:01:54.281Z",
    "ultimaLecturaBuena": "2026-11-23T03:43:37.464Z",
-   "fallosSeguidos": 19,
+   "fallosSeguidos": 20,
    "ultimoError": "fetch failed",
    "atrasada": false,
    "ultimaPublicacion": "2026-11-19T19:05:00.000Z"
@@ -111,9 +111,9 @@
    },
    "2026-11-23": {
     "clase": "cerrado",
-    "lecturas": 11,
+    "lecturas": 12,
     "desde": "09:00",
-    "hasta": "18:22"
+    "hasta": "19:00"
    }
   },
   "sico": {
