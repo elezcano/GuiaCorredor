@@ -1,5 +1,6 @@
 // Prueba de navegador. Se ejecuta con: npm run pruebas (ver pruebas/LEEME.md).
 // Decisión 31 (22/11/2026): estado por lado del paso, Chile informa por aviso, horario aparte del estado.
+// Decisión 33 (24/11/2026): regla por país (Argentina diario; Chile y Paraguay por aviso); el cruce es el peor lado.
 // Y lo que sostiene el negocio: los formularios envían a su hoja y cuentan el envío sin datos personales.
 // Datos de prueba: Chile informa por aviso y su canal se revisó el 12/11 (plazo de 15 días). Sico tiene parte oficial
 // argentino del 15/11 y ninguno chileno; Jama tiene su estado de prensa.
@@ -40,7 +41,11 @@ const ok = (c, m) => c || f.push(m);
   const lp = await p.$$eval('.lados-paso .lado', (l) => l.map((x) => ({ cls: x.className, t: x.innerText })));
   const arp = lp.find((x) => /Argentina/.test(x.t));
   ok(arp && /lado-parte/.test(arp.cls) && /comprobado en la web oficial el 15 nov/.test(arp.t) && /último parte de Gendarmería Nacional: 12 nov/.test(arp.t), 'Pozo Hondo: Argentina comprobada hoy en la web oficial, con la fecha del último parte: ' + arp?.t);
-  ok(lp.some((x) => /Paraguay/.test(x.t) && /lado-sin-dato/.test(x.cls)), 'Pozo Hondo: Paraguay «Sin dato»');
+  // Decisión 33: Paraguay informa por aviso (Migraciones); su canal aún no se ha revisado → «Sin confirmar», con enlace.
+  ok(lp.some((x) => /Paraguay/.test(x.t) && /lado-sin-dato/.test(x.cls) && /Sin confirmar/.test(x.t) && /no se ha revisado/.test(x.t)), 'Pozo Hondo: Paraguay «Sin confirmar · su canal oficial no se ha revisado»: ' + JSON.stringify(lp));
+  ok(await p.$('.lados-paso a[href*="migraciones.gov.py"]'), 'Pozo Hondo: el lado paraguayo enlaza la web de Migraciones');
+  await p.goto(B + '/');
+  ok(!/Abierto solo en/.test(await p.textContent('body')), 'Decisión 33: ya no existe «Abierto solo en…»');
 
   // 3. Horario aparte: el tablero dice si está dentro o fuera de horario, sin tocar el estado.
   const horas = await p.$$eval('.tablero-hora .hora-estado', (l) => l.map((x) => x.textContent));

@@ -77,6 +77,16 @@
       "explicacion": "Chile solo avisa cuando hay un problema",
       "plazoDias": 15,
       "revisado": "2026-11-22"
+    },
+    "PY": {
+      "organismo": "Dirección Nacional de Migraciones (Paraguay)",
+      "canal": "web oficial",
+      "url": "https://www.migraciones.gov.py/index.php/servicios/puesto",
+      "nota": "Migraciones publica en su web y redes el cierre y la reapertura de sus puestos de control (p. ej. por crecidas). Es el único canal oficial paraguayo sobre el estado de Pozo Hondo; el MOPC informa de la ruta (PY15), no del paso.",
+      "modo": "por-aviso",
+      "explicacion": "Paraguay solo avisa cuando cierra",
+      "plazoDias": 15,
+      "revisado": null
     }
   },
   "estadisticas": {

@@ -60,6 +60,15 @@
       "explicacion": "Chile solo avisa cuando hay un problema",
       "plazoDias": 15,
       "revisado": "2026-11-12"
+    },
+    "PY": {
+      "organismo": "Dirección Nacional de Migraciones (Paraguay)",
+      "canal": "web oficial",
+      "url": "https://www.migraciones.gov.py/index.php/servicios/puesto",
+      "modo": "por-aviso",
+      "explicacion": "Paraguay solo avisa cuando cierra",
+      "plazoDias": 15,
+      "revisado": null
     }
   },
   "cotizaciones": {
