@@ -346,8 +346,8 @@
         }
       },
       "estado": {
-        "valor": "operativo",
-        "texto": "Abierto de 09:00–19:15 (hora de Argentina). Fuera de ese horario está cerrado cada noche; el último «Cerrado» (parte del 22/11, 20:49) es ese cierre, no una incidencia.",
+        "valor": "pendiente",
+        "texto": "Sin confirmar: a las 10:00 (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (parte del 22/11, 20:49) y no ha publicado la apertura de hoy.",
         "fuente": "ar-seguridad-paso-jama",
         "publicado": "2026-11-22",
         "actualizado": "2026-11-24",
@@ -357,7 +357,7 @@
           "verificadoPor": "vigilante",
           "rol": "vigilante",
           "fecha": "2026-11-24",
-          "alcance": "Leído automáticamente de la web oficial el 24/11 a las 08:29 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          "alcance": "Leído automáticamente de la web oficial el 24/11 a las 10:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
         }
       },
       "horarios": [
@@ -892,6 +892,22 @@
             "rol": "vigilante",
             "fecha": "2026-11-22",
             "alcance": "Leído automáticamente de la web oficial el 22/11 a las 23:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          }
+        },
+        {
+          "fecha": "2026-11-22",
+          "valor": "operativo",
+          "texto": "Abierto de 09:00–19:15 (hora de Argentina). Fuera de ese horario está cerrado cada noche; el último «Cerrado» (parte del 22/11, 20:49) es ese cierre, no una incidencia.",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-22",
+          "actualizado": "2026-11-24",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-24",
+            "alcance": "Leído automáticamente de la web oficial el 24/11 a las 08:29 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
           }
         }
       ],
@@ -1428,24 +1444,6 @@
       "partes": [
         {
           "lado": "AR",
-          "emisor": "Vialidad Nacional",
-          "valor": null,
-          "texto": "RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material.",
-          "hora": "08:30",
-          "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-19",
-          "actualizado": "2026-11-19",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-19",
-            "alcance": "Leído automáticamente de la web oficial el 19/11 a las 10:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
           "valor": null,
@@ -1461,6 +1459,24 @@
             "rol": "vigilante",
             "fecha": "2026-11-22",
             "alcance": "Leído automáticamente de la web oficial el 22/11 a las 19:28 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material.",
+          "hora": "08:30",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-24",
+          "actualizado": "2026-11-24",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-24",
+            "alcance": "Leído automáticamente de la web oficial el 24/11 a las 10:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material."
           }
         }
       ]
