@@ -346,18 +346,18 @@
         }
       },
       "estado": {
-        "valor": "cerrado",
-        "texto": "Cerrado por Gendarmería (parte del 22/11, 20:49, hora de Argentina): «CDT 4882/26. (CL - ACI \"JAMA\").- SIG MTO CDT 4880/26 (22NOV26), PARA CONOCIMIENTO INFORMO: 222000NOV26, CONFORME REPORTE PASO INTERNACIONAL PERMANECE CERRADO PARA TODO TIPO DE VEHÍCULOS EN AMBOS SENTIDOS».",
+        "valor": "operativo",
+        "texto": "Abierto de 09:00–19:15 (hora de Argentina). Fuera de ese horario está cerrado cada noche; el último «Cerrado» (parte del 22/11, 20:49) es ese cierre, no una incidencia.",
         "fuente": "ar-seguridad-paso-jama",
         "publicado": "2026-11-22",
-        "actualizado": "2026-11-22",
+        "actualizado": "2026-11-24",
         "evidencia": "oficial",
         "validacion": "verificado",
         "verificacion": {
           "verificadoPor": "vigilante",
           "rol": "vigilante",
-          "fecha": "2026-11-22",
-          "alcance": "Leído automáticamente de la web oficial el 22/11 a las 23:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          "fecha": "2026-11-24",
+          "alcance": "Leído automáticamente de la web oficial el 24/11 a las 08:29 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
         }
       },
       "horarios": [
@@ -876,6 +876,22 @@
             "rol": "vigilante",
             "fecha": "2026-11-20",
             "alcance": "Leído automáticamente de la web oficial el 20/11 a las 12:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
+          }
+        },
+        {
+          "fecha": "2026-11-22",
+          "valor": "cerrado",
+          "texto": "Cerrado por Gendarmería (parte del 22/11, 20:49, hora de Argentina): «CDT 4882/26. (CL - ACI \"JAMA\").- SIG MTO CDT 4880/26 (22NOV26), PARA CONOCIMIENTO INFORMO: 222000NOV26, CONFORME REPORTE PASO INTERNACIONAL PERMANECE CERRADO PARA TODO TIPO DE VEHÍCULOS EN AMBOS SENTIDOS».",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-22",
+          "actualizado": "2026-11-22",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-22",
+            "alcance": "Leído automáticamente de la web oficial el 22/11 a las 23:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
           }
         }
       ],
