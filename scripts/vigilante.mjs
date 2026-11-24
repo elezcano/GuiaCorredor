@@ -153,6 +153,12 @@ export function motivoReal(texto, horario, horaParte = null) {
 }
 const motivoCrudo = (lectura) => lectura.atencion.find((a) => /^motivo/i.test(a.emisor))?.texto || null;
 const MARGEN_APERTURA_MIN = 60;
+const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+export function aperturaExigible(horario, ahora = new Date()) {
+  const lim = aMin(horario.apertura) + MARGEN_APERTURA_MIN;
+  const dia = aMin(horaAR(ahora)) >= lim ? diaAR(ahora) : diaAR(new Date(ahora.getTime() - 864e5));
+  return `${dia} ${hhmm(lim)}`;
+}
 export function decidir(original, lectura, fuente, ahora = new Date()) {
   const paso = structuredClone(original);
   const cambios = [];
@@ -181,7 +187,10 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
   // pasa a «Sin confirmar» (no a «Cerrado»): no lo sabemos.
   const motivo = motivoReal(motivoCrudo(lectura), horario, gen?.hora);
   const cierre = cerradoGendarmeria && (!horario || !!motivo || (gen ? entre(gen.hora, horario) : entre(horaAR(ahora), horario)));
-  const sinApertura = cerradoGendarmeria && !cierre && !!horario && aMin(horaAR(ahora)) >= aMin(horario.apertura) + MARGEN_APERTURA_MIN && aMin(horaAR(ahora)) <= aMin(horario.cierre);
+  // «Sin confirmar» si el último parte de Gendarmería es anterior a la última apertura que ya debía estar publicada
+  // (apertura + margen de hoy, o la de ayer si aún no se llegó a la de hoy). 24/11/2026: a las 08:30 Jama salía «Abierto»
+  // con el último parte del 22/11 y el 23/11 sin publicar; ahora sigue «Sin confirmar» hasta que Gendarmería publique.
+  const sinApertura = cerradoGendarmeria && !cierre && !!horario && !!gen && `${gen.dia} ${gen.hora}` < aperturaExigible(horario, ahora);
   const restringida = ['RESTRINGIDA', 'CORTE TOTAL'].includes(lectura.vialidad);
   const quitar = (emisor) => {
     for (let k = partes.length - 1; k >= 0; k--) if (partes[k].lado === 'AR' && partes[k].emisor.startsWith(emisor)) partes.splice(k, 1);
@@ -236,10 +245,10 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
     // Un «Cerrado» que el vigilante dio por cierre y con la regla vigente es el cierre de la noche (p. ej. el parte
     // rutinario de Chile, 22/11/2026): se corrige sin esperar a la apertura.
     nuevoEstado(sinApertura ? 'pendiente' : 'operativo', sinApertura
-      ? `Sin confirmar: a las ${horaAR(ahora)} (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (${cuando}) y no ha publicado la apertura de hoy.`
+      ? `Sin confirmar: a las ${horaAR(ahora)} (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (${cuando}) y no ha publicado la apertura desde entonces.`
       : `Abierto${horTxt ? ` de ${horTxt}` : ''} (hora de Argentina). Fuera de ese horario está cerrado cada noche; el último «Cerrado» (${cuando}) es ese cierre, no una incidencia.`);
   } else if (sinApertura && e.valor === 'operativo') {
-    nuevoEstado('pendiente', `Sin confirmar: a las ${horaAR(ahora)} (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (${cuando}) y no ha publicado la apertura de hoy.`);
+    nuevoEstado('pendiente', `Sin confirmar: a las ${horaAR(ahora)} (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (${cuando}) y no ha publicado la apertura desde entonces.`);
   } else if (!cerradoGendarmeria && restringida && e.valor === 'operativo') {
     const at = lectura.atencion.map((a) => `${a.emisor}: ${a.texto}`).join('. ');
     nuevoEstado('restricciones', `Abierto${horTxt ? ` de ${horTxt}` : ''} (hora de Argentina), con ${lectura.vialidad === 'CORTE TOTAL' ? 'corte total' : 'circulación restringida'} según Vialidad Nacional${at ? `. ${at}` : ''}.`);
@@ -367,6 +376,9 @@ function autoprueba() {
   const corrige = decidir(malCerrado, nocheChile, 'f', A('21:00'));
   ok(corrige.paso.estado.valor === 'operativo' && /cierre de la noche|no una incidencia/.test(corrige.paso.estado.texto), 'un cierre que el vigilante dio por bueno y que es el de la noche se corrige sin esperar a la apertura.');
   ok(motivoReal('CDT 4890/26 PASO CERRADO POR NEVADAS 222100NOV26', { apertura: '09:00', cierre: '19:15' }) && motivoReal(MOTIVO, { apertura: '09:00', cierre: '19:15' }, '17:30') && !motivoReal(MOTIVO, { apertura: '09:00', cierre: '19:15' }, '20:49'), 'un motivo con causa cuenta siempre; uno sin causa, solo si se emitió dentro del horario.');
+  const dosDias = decidir(d.paso, noche, 'f', new Date('2026-11-19T08:30:00-03:00'));
+  ok(dosDias.paso.estado.valor === 'pendiente', 'si ayer Gendarmería no publicó la apertura, antes de abrir hoy sigue «Sin confirmar», no «Abierto».');
+  ok(aperturaExigible({ apertura: '09:00', cierre: '19:15' }, new Date('2026-11-24T08:30:00-03:00')) === '2026-11-23 10:00' && aperturaExigible({ apertura: '09:00', cierre: '19:15' }, new Date('2026-11-24T10:30:00-03:00')) === '2026-11-24 10:00', 'apertura exigible: la de ayer antes de las 10:00; la de hoy desde las 10:00.');
   d = decidir(d.paso, noche, 'f', new Date('2026-11-18T09:20:00-03:00'));
   const vieja = conPag([['17/11/2026 - 16:13', '17/11/2026 - 15:00']]);
   d = decidir(base, vieja, 'f', A('17:00'));
