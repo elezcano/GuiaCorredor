@@ -345,6 +345,11 @@ function autoprueba() {
     const cd = corregirDiario({ jama: { '2026-11-23': { clase: 'cerrado', lecturas: 2, desde: '09:00', hasta: '10:00' }, '2026-11-22': { clase: 'abierto', lecturas: 11, desde: '09:00', hasta: '19:00' } } }, []);
     const cd2 = corregirDiario({ jama: { '2026-11-23': { clase: 'abierto', lecturas: 1, desde: '11:00', hasta: '11:00' } } }, cd.hechas);
     ok(!cd.diario.jama['2026-11-23'] && cd.diario.jama['2026-11-22'] && cd.hechas.includes('2026-11-23-jama') && cd2.diario.jama['2026-11-23'], 'registro diario: una corrección borra ese día una sola vez y las lecturas siguientes lo rehacen.');
+    const H = { apertura: '09:00', cierre: '19:00' }, op = { valor: 'operativo', evidencia: 'oficial' };
+    ok(cuentaEnDiario(op, { dia: '2026-11-23', hora: '09:05' }, H, new Date('2026-11-23T09:30:00-03:00')) === 'abierto'
+      && cuentaEnDiario(op, { dia: '2026-11-22', hora: '19:05' }, H, new Date('2026-11-23T09:00:00-03:00')) === null
+      && cuentaEnDiario(op, { dia: '2026-11-23', hora: '09:05' }, H, new Date('2026-11-23T21:00:00-03:00')) === null,
+    'registro diario: solo apunta dentro del horario y si Gendarmería publicó ese día (el parte de ayer no dice nada de hoy).');
     ok(claseDia({ valor: 'pendiente', evidencia: 'oficial' }) === null && claseDia({ valor: 'cerrado', afecta: 'carga', evidencia: 'oficial' }) === 'carga' && claseDia({ valor: 'operativo', evidencia: 'tercero' }) === null, 'registro diario: «Sin confirmar» y los estados de prensa no se apuntan; un cierre solo para carga, como «sin paso para carga».');
   }
   const tras = decidir(d.paso, noche, 'f', new Date('2026-11-18T09:20:00-03:00'));
@@ -590,8 +595,8 @@ async function revisar(ahora = new Date()) {
     // Registro diario: solo con lectura buena y dentro del horario del paso (de noche no se juzga).
     const final = d.cambios.length ? d.paso : paso;
     const hc = lectura.horario || (final.horarios || []).find((x) => x.apertura && x.cierre);
-    const cl = claseDia(final.estado);
-    if (!fallo && hc && cl && entre(horaAR(ahora), hc)) diario.push({ paso: id, dia: diaAR(ahora), hora: horaAR(ahora), clase: cl });
+    const cl = cuentaEnDiario(final.estado, act.find((a) => a.emisor === 'Gendarmería Nacional'), hc, ahora);
+    if (!fallo && cl) diario.push({ paso: id, dia: diaAR(ahora), hora: horaAR(ahora), clase: cl });
     if (d.cambios.length) lista[k] = d.paso;
     if (d.cambios.length || d.avisos.length) publicados.push({ paso: { id: paso.id, nombre: paso.nombre }, url, cambios: d.cambios, avisos: d.avisos });
   }
@@ -760,6 +765,16 @@ const ORDEN_DIA = { abierto: 1, restricciones: 2, carga: 3, cerrado: 4 };
 /** Clase del día según el estado del paso: «pendiente» (sin confirmar) no se apunta. */
 // Solo un estado de fuente oficial cuenta: uno de prensa (aunque esté verificado) no hace historial fehaciente.
 export const claseDia = (e) => (e?.evidencia !== 'oficial' ? null : e?.valor === 'operativo' ? 'abierto' : e?.valor === 'restricciones' ? 'restricciones' : e?.valor === 'cerrado' ? (e.afecta === 'carga' ? 'carga' : 'cerrado') : null);
+/**
+ * Qué apunta esta lectura en el registro del día (o null). Solo dentro del horario y solo si Gendarmería ha publicado HOY:
+ * si su último parte es de un día anterior, no sabemos nada de hoy (24/11/2026: el 23/11 Gendarmería no publicó en Sico
+ * ni en Jama y la lectura de las 09:00 apuntó «abierto» heredando el día anterior).
+ */
+export function cuentaEnDiario(estado, gen, horario, ahora = new Date()) {
+  const cl = claseDia(estado);
+  if (!cl || !horario || !entre(horaAR(ahora), horario)) return null;
+  return gen && gen.dia === diaAR(ahora) ? cl : null;
+}
 /** Suma las lecturas de esta pasada al registro: el peor estado del día, cuántas lecturas y entre qué horas. Puro. */
 export function actualizarDiario(previo = {}, lecturas = [], ahora = new Date(), dias = 120) {
   const d = structuredClone(previo || {});
@@ -782,6 +797,7 @@ export function actualizarDiario(previo = {}, lecturas = [], ahora = new Date(),
 // las lecturas siguientes lo rehacen con la regla buena.
 export const CORRECCIONES_DIARIO = [
   { id: '2026-11-23-jama', paso: 'jama', dia: '2026-11-23', por: 'el parte rutinario de Chile de las 20:00 del 22/11 se tomó como cierre y siguió a primera hora' },
+  { id: '2026-11-23-sico', paso: 'sico', dia: '2026-11-23', por: 'Gendarmería no publicó ese día y la lectura de las 09:00 heredó «abierto» del 22/11' },
 ];
 export function corregirDiario(diario = {}, hechas = [], correcciones = CORRECCIONES_DIARIO) {
   const d = structuredClone(diario || {});
