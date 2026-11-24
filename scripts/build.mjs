@@ -188,7 +188,9 @@ const ladosHTML = (p, e) => {
   const lados = Object.keys(p?.lados || {});
   if (lados.length < 2) return '';
   const fila = (lado) => {
-    const ult = (p.partes || []).filter((x) => x.lado === lado).sort((a, b) => `${b.publicado}${b.hora || ''}`.localeCompare(`${a.publicado}${a.hora || ''}`))[0];
+    const delLado = (p.partes || []).filter((x) => x.lado === lado).sort((a, b) => `${b.publicado}${b.hora || ''}`.localeCompare(`${a.publicado}${a.hora || ''}`));
+    // El parte que decide el lado es el del organismo del paso (Gendarmería), no el de la ruta (Vialidad).
+    const ult = delLado.find((x) => !/^Vialidad/.test(x.emisor || '')) || delLado[0];
     const quien = ult?.emisor ? txtEs(ult.emisor.replace(/\s*\(.*\)$/, '')) : '';
     let cls, txt;
     if (modoLado(lado) === 'por-aviso') {

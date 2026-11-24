@@ -225,6 +225,11 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
   // Si el cierre llega con un parte ya cargado (p. ej. publicado antes de abrir), se rehace ese parte.
   const pg = partes.find((x) => x.lado === 'AR' && x.emisor.startsWith('Gendarmería'));
   if (cierre && pg && pg.valor !== 'cerrado' && gen && pg.hora === gen.hora && pg.publicado === gen.dia) Object.assign(pg, { valor: 'cerrado', texto: textoGen(), ...sello(fuente, ahora, 'estado de Gendarmería «CERRADO» dentro del horario'), publicado: gen.dia });
+  // Y al revés (24/11/2026): un parte que se cargó como cierre y con la regla vigente es el de la noche se rehace.
+  if (!cierre && cerradoGendarmeria && pg && pg.valor === 'cerrado' && gen && pg.hora === gen.hora && pg.publicado === gen.dia) {
+    Object.assign(pg, { valor: valorGen(), texto: textoGen(), ...sello(fuente, ahora, 'estado de Gendarmería «CERRADO» fuera del horario y sin causa: cierre de la jornada'), publicado: gen.dia });
+    cambios.push(`Gendarmería (${fmt(gen.dia, gen.hora)}): ${textoGen()}`);
+  }
 
   // Estado del paso.
   const e = paso.estado;
@@ -373,6 +378,10 @@ function autoprueba() {
   const rut = decidir(base, nocheChile, 'f', A('20:55'));
   ok(horaDTG(CDT) === '20:00' && rut.paso.estado.valor === 'operativo' && /Cierre de la jornada/.test(rut.paso.partes.find((x) => x.emisor.startsWith('Gend')).texto), 'el parte rutinario de Chile de las 20:00 en «Motivo del cierre» es el cierre de la noche, no un cierre.');
   const malCerrado = { ...base, estado: { ...base.estado, valor: 'cerrado', texto: 'Cerrado por Gendarmería…', verificacion: { verificadoPor: 'vigilante' } } };
+  const malParte = structuredClone(malCerrado);
+  (malParte.partes ||= []).forEach((x) => { if (x.emisor.startsWith('Gend')) Object.assign(x, { valor: 'cerrado', hora: '20:49', publicado: '2026-11-17', texto: 'Cerrado por Gendarmería: «CDT…»' }); });
+  const rehecho = decidir(malParte, nocheChile, 'f', A('21:00')).paso.partes.find((x) => x.emisor.startsWith('Gend'));
+  ok(rehecho && rehecho.valor === null && /Cierre de la jornada/.test(rehecho.texto), 'un parte cargado como cierre que es el de la noche se rehace como «Cierre de la jornada»: ' + JSON.stringify(rehecho?.texto));
   const corrige = decidir(malCerrado, nocheChile, 'f', A('21:00'));
   ok(corrige.paso.estado.valor === 'operativo' && /cierre de la noche|no una incidencia/.test(corrige.paso.estado.texto), 'un cierre que el vigilante dio por bueno y que es el de la noche se corrige sin esperar a la apertura.');
   ok(motivoReal('CDT 4890/26 PASO CERRADO POR NEVADAS 222100NOV26', { apertura: '09:00', cierre: '19:15' }) && motivoReal(MOTIVO, { apertura: '09:00', cierre: '19:15' }, '17:30') && !motivoReal(MOTIVO, { apertura: '09:00', cierre: '19:15' }, '20:49'), 'un motivo con causa cuenta siempre; uno sin causa, solo si se emitió dentro del horario.');
