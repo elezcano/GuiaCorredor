@@ -133,7 +133,25 @@ const aHistorial = (e) => ({ fecha: e.publicado, valor: e.valor, texto: e.texto,
  * HU-130. Decide qué publicar en un paso a partir de lo leído. Puro: devuelve { paso, cambios, avisos }
  * sin tocar el original. cambios = lo publicado; avisos = lo que el responsable debe mirar.
  */
-const motivoDe = (lectura) => lectura.atencion.find((a) => /^motivo/i.test(a.emisor))?.texto || null;
+// 23/11/2026: la web oficial pone en «Motivo del cierre» también el parte rutinario de Chile al cerrar la jornada
+// («CDT 4882/26 … 222000NOV26 … PERMANECE CERRADO PARA TODO TIPO DE VEHÍCULOS»: a las 20:00, la hora de cierre del
+// complejo). Eso no es un motivo: no dice por qué. Un texto que nombra una causa (nieve, viento, paro…) siempre cuenta;
+// uno sin causa cuenta solo si se emitió dentro del horario (por su grupo fecha-hora DDHHMM MES AA o, si no lo trae, por la
+// hora del parte). Sin causa y fuera de horario es el cierre de cada noche.
+const CAUSA = /NIEVE|NEVAD|VIENTO|TEMPORAL|CLIM|METEOR|TORMENTA|LLUVIA|HIELO|ESCARCHA|VISIBILIDAD|NIEBLA|ALUD|DERRUMBE|ACCIDENT|SINIESTR|PARO|HUELGA|MEDIDA DE FUERZA|MANIFEST|PIQUETE|BLOQUEO|EMERGENCIA|INCENDIO|FALLA|SISTEMA|INFORM[AÁ]TIC|CONECTIVIDAD|ENERG[IÍ]A|ELECTRIC|OBRA|REPARACI|MANTENIMIENTO|SANITARI|ELECCION|FERIADO|DUELO/;
+const MESES_DTG = { ENE: 1, JAN: 1, FEB: 2, MAR: 3, ABR: 4, APR: 4, MAY: 5, JUN: 6, JUL: 7, AGO: 8, AUG: 8, SEP: 9, SET: 9, OCT: 10, NOV: 11, DIC: 12, DEC: 12 };
+export const horaDTG = (texto) => {
+  const m = String(texto || '').toUpperCase().match(/\b(\d{2})(\d{2})(\d{2})(ENE|JAN|FEB|MAR|ABR|APR|MAY|JUN|JUL|AGO|AUG|SEP|SET|OCT|NOV|DIC|DEC)(\d{2})\b/);
+  return m && MESES_DTG[m[4]] && +m[2] < 24 && +m[3] < 60 ? `${m[2]}:${m[3]}` : null;
+};
+export function motivoReal(texto, horario, horaParte = null) {
+  if (!texto) return null;
+  const t = String(texto).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (CAUSA.test(t)) return texto;
+  const h = horaDTG(t) || horaParte;
+  return h && horario && !entre(h, horario) ? null : texto;
+}
+const motivoCrudo = (lectura) => lectura.atencion.find((a) => /^motivo/i.test(a.emisor))?.texto || null;
 const MARGEN_APERTURA_MIN = 60;
 export function decidir(original, lectura, fuente, ahora = new Date()) {
   const paso = structuredClone(original);
@@ -161,14 +179,14 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
   // motivo. Un «Cerrado» publicado de noche que sigue a primera hora no es un cierre: Gendarmería aún no ha publicado la
   // apertura (así se colaron como cierres los del 17, 18 y 19/11). Si una hora después de abrir sigue igual, el paso
   // pasa a «Sin confirmar» (no a «Cerrado»): no lo sabemos.
-  const cierre = cerradoGendarmeria && (!horario || !!motivoDe(lectura) || (gen ? entre(gen.hora, horario) : entre(horaAR(ahora), horario)));
+  const motivo = motivoReal(motivoCrudo(lectura), horario, gen?.hora);
+  const cierre = cerradoGendarmeria && (!horario || !!motivo || (gen ? entre(gen.hora, horario) : entre(horaAR(ahora), horario)));
   const sinApertura = cerradoGendarmeria && !cierre && !!horario && aMin(horaAR(ahora)) >= aMin(horario.apertura) + MARGEN_APERTURA_MIN && aMin(horaAR(ahora)) <= aMin(horario.cierre);
   const restringida = ['RESTRINGIDA', 'CORTE TOTAL'].includes(lectura.vialidad);
   const quitar = (emisor) => {
     for (let k = partes.length - 1; k >= 0; k--) if (partes[k].lado === 'AR' && partes[k].emisor.startsWith(emisor)) partes.splice(k, 1);
   };
   // El recuadro «Atención» de la web oficial trae el motivo del cierre cuando Gendarmería lo publica (20/11/2026).
-  const motivo = motivoDe(lectura);
   const conMotivo = motivo ? `: «${motivo.replace(/\.$/, '')}»` : ', sin motivo publicado';
   const textoGen = () =>
     cierre
@@ -214,6 +232,12 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
     // Ya estaba cerrado y ahora se publica el motivo: se añade, sin abrir otra entrada en el historial.
     paso.estado = { ...e, texto: `Cerrado por Gendarmería (${cuando}, hora de Argentina)${conMotivo}.`, ...sello(fuente, ahora, `motivo del cierre: ${motivo}`) };
     cambios.push(`Motivo del cierre: ${motivo}`);
+  } else if (cerradoGendarmeria && !cierre && e.valor === 'cerrado' && delVigilante) {
+    // Un «Cerrado» que el vigilante dio por cierre y con la regla vigente es el cierre de la noche (p. ej. el parte
+    // rutinario de Chile, 22/11/2026): se corrige sin esperar a la apertura.
+    nuevoEstado(sinApertura ? 'pendiente' : 'operativo', sinApertura
+      ? `Sin confirmar: a las ${horaAR(ahora)} (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (${cuando}) y no ha publicado la apertura de hoy.`
+      : `Abierto${horTxt ? ` de ${horTxt}` : ''} (hora de Argentina). Fuera de ese horario está cerrado cada noche; el último «Cerrado» (${cuando}) es ese cierre, no una incidencia.`);
   } else if (sinApertura && e.valor === 'operativo') {
     nuevoEstado('pendiente', `Sin confirmar: a las ${horaAR(ahora)} (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (${cuando}) y no ha publicado la apertura de hoy.`);
   } else if (!cerradoGendarmeria && restringida && e.valor === 'operativo') {
@@ -318,6 +342,14 @@ function autoprueba() {
     const conDiario = { id: 'x', estado: null, historial: [{ fecha: '2026-11-16', valor: 'operativo', verificado: '2026-11-16' }], diario: { '2026-11-17': { clase: 'abierto', lecturas: 9, desde: '09:00', hasta: '19:00' }, '2026-11-19': { clase: 'carga', lecturas: 4, desde: '09:00', hasta: '12:00' } } };
     const dias = diasDelPaso(conDiario, '2026-11-19', 4, 1).map((x) => x.clase).join(',');
     ok(dias === 'abierto,abierto,sin-datos,carga', `fiabilidad: con registro diario, un día sin lectura buena es «sin datos» y no hereda el anterior (${dias}).`);
+    const cd = corregirDiario({ jama: { '2026-11-23': { clase: 'cerrado', lecturas: 2, desde: '09:00', hasta: '10:00' }, '2026-11-22': { clase: 'abierto', lecturas: 11, desde: '09:00', hasta: '19:00' } } }, []);
+    const cd2 = corregirDiario({ jama: { '2026-11-23': { clase: 'abierto', lecturas: 1, desde: '11:00', hasta: '11:00' } } }, cd.hechas);
+    ok(!cd.diario.jama['2026-11-23'] && cd.diario.jama['2026-11-22'] && cd.hechas.includes('2026-11-23-jama') && cd2.diario.jama['2026-11-23'], 'registro diario: una corrección borra ese día una sola vez y las lecturas siguientes lo rehacen.');
+    const H = { apertura: '09:00', cierre: '19:00' }, op = { valor: 'operativo', evidencia: 'oficial' };
+    ok(cuentaEnDiario(op, { dia: '2026-11-23', hora: '09:05' }, H, new Date('2026-11-23T09:30:00-03:00')) === 'abierto'
+      && cuentaEnDiario(op, { dia: '2026-11-22', hora: '19:05' }, H, new Date('2026-11-23T09:00:00-03:00')) === null
+      && cuentaEnDiario(op, { dia: '2026-11-23', hora: '09:05' }, H, new Date('2026-11-23T21:00:00-03:00')) === null,
+    'registro diario: solo apunta dentro del horario y si Gendarmería publicó ese día (el parte de ayer no dice nada de hoy).');
     ok(claseDia({ valor: 'pendiente', evidencia: 'oficial' }) === null && claseDia({ valor: 'cerrado', afecta: 'carga', evidencia: 'oficial' }) === 'carga' && claseDia({ valor: 'operativo', evidencia: 'tercero' }) === null, 'registro diario: «Sin confirmar» y los estados de prensa no se apuntan; un cierre solo para carga, como «sin paso para carga».');
   }
   const tras = decidir(d.paso, noche, 'f', new Date('2026-11-18T09:20:00-03:00'));
@@ -326,6 +358,15 @@ function autoprueba() {
   ok(sinAbrir.paso.estado.valor === 'pendiente' && /no ha publicado la apertura/.test(sinAbrir.paso.estado.texto), 'si una hora después de abrir sigue el cierre de anoche: «Sin confirmar», nunca «Cerrado».');
   const abre = decidir(sinAbrir.paso, conPag([['17/11/2026 - 16:13', '18/11/2026 - 10:40']]), 'f', new Date('2026-11-18T10:45:00-03:00'));
   ok(abre.paso.estado.valor === 'operativo', 'cuando Gendarmería publica la apertura, vuelve a «Abierto».');
+  // 22/11/2026: el parte rutinario de Chile a las 20:00 llega en «Motivo del cierre»: no es un cierre.
+  const CDT = 'CDT 4882/26. (CL - ACI "JAMA").- SIG MTO CDT 4880/26 (22NOV26), PARA CONOCIMIENTO INFORMO: 222000NOV26, CONFORME REPORTE PASO INTERNACIONAL PERMANECE CERRADO PARA TODO TIPO DE VEHÍCULOS EN AMBOS SENTIDOS.';
+  const nocheChile = conPag([['"ABIERTO"', '"CERRADO"'], ['17/11/2026 - 16:13', '17/11/2026 - 20:49'], ['<p><span class="fw-bold">Vialidad Nacional informa:', `<p><span class="fw-bold">Motivo del cierre:</span> ${CDT}</p><p><span class="fw-bold">Vialidad Nacional informa:`]]);
+  const rut = decidir(base, nocheChile, 'f', A('20:55'));
+  ok(horaDTG(CDT) === '20:00' && rut.paso.estado.valor === 'operativo' && /Cierre de la jornada/.test(rut.paso.partes.find((x) => x.emisor.startsWith('Gend')).texto), 'el parte rutinario de Chile de las 20:00 en «Motivo del cierre» es el cierre de la noche, no un cierre.');
+  const malCerrado = { ...base, estado: { ...base.estado, valor: 'cerrado', texto: 'Cerrado por Gendarmería…', verificacion: { verificadoPor: 'vigilante' } } };
+  const corrige = decidir(malCerrado, nocheChile, 'f', A('21:00'));
+  ok(corrige.paso.estado.valor === 'operativo' && /cierre de la noche|no una incidencia/.test(corrige.paso.estado.texto), 'un cierre que el vigilante dio por bueno y que es el de la noche se corrige sin esperar a la apertura.');
+  ok(motivoReal('CDT 4890/26 PASO CERRADO POR NEVADAS 222100NOV26', { apertura: '09:00', cierre: '19:15' }) && motivoReal(MOTIVO, { apertura: '09:00', cierre: '19:15' }, '17:30') && !motivoReal(MOTIVO, { apertura: '09:00', cierre: '19:15' }, '20:49'), 'un motivo con causa cuenta siempre; uno sin causa, solo si se emitió dentro del horario.');
   d = decidir(d.paso, noche, 'f', new Date('2026-11-18T09:20:00-03:00'));
   const vieja = conPag([['17/11/2026 - 16:13', '17/11/2026 - 15:00']]);
   d = decidir(base, vieja, 'f', A('17:00'));
@@ -554,8 +595,8 @@ async function revisar(ahora = new Date()) {
     // Registro diario: solo con lectura buena y dentro del horario del paso (de noche no se juzga).
     const final = d.cambios.length ? d.paso : paso;
     const hc = lectura.horario || (final.horarios || []).find((x) => x.apertura && x.cierre);
-    const cl = claseDia(final.estado);
-    if (!fallo && hc && cl && entre(horaAR(ahora), hc)) diario.push({ paso: id, dia: diaAR(ahora), hora: horaAR(ahora), clase: cl });
+    const cl = cuentaEnDiario(final.estado, act.find((a) => a.emisor === 'Gendarmería Nacional'), hc, ahora);
+    if (!fallo && cl) diario.push({ paso: id, dia: diaAR(ahora), hora: horaAR(ahora), clase: cl });
     if (d.cambios.length) lista[k] = d.paso;
     if (d.cambios.length || d.avisos.length) publicados.push({ paso: { id: paso.id, nombre: paso.nombre }, url, cambios: d.cambios, avisos: d.avisos });
   }
@@ -724,6 +765,16 @@ const ORDEN_DIA = { abierto: 1, restricciones: 2, carga: 3, cerrado: 4 };
 /** Clase del día según el estado del paso: «pendiente» (sin confirmar) no se apunta. */
 // Solo un estado de fuente oficial cuenta: uno de prensa (aunque esté verificado) no hace historial fehaciente.
 export const claseDia = (e) => (e?.evidencia !== 'oficial' ? null : e?.valor === 'operativo' ? 'abierto' : e?.valor === 'restricciones' ? 'restricciones' : e?.valor === 'cerrado' ? (e.afecta === 'carga' ? 'carga' : 'cerrado') : null);
+/**
+ * Qué apunta esta lectura en el registro del día (o null). Solo dentro del horario y solo si Gendarmería ha publicado HOY:
+ * si su último parte es de un día anterior, no sabemos nada de hoy (24/11/2026: el 23/11 Gendarmería no publicó en Sico
+ * ni en Jama y la lectura de las 09:00 apuntó «abierto» heredando el día anterior).
+ */
+export function cuentaEnDiario(estado, gen, horario, ahora = new Date()) {
+  const cl = claseDia(estado);
+  if (!cl || !horario || !entre(horaAR(ahora), horario)) return null;
+  return gen && gen.dia === diaAR(ahora) ? cl : null;
+}
 /** Suma las lecturas de esta pasada al registro: el peor estado del día, cuántas lecturas y entre qué horas. Puro. */
 export function actualizarDiario(previo = {}, lecturas = [], ahora = new Date(), dias = 120) {
   const d = structuredClone(previo || {});
@@ -741,6 +792,23 @@ export function actualizarDiario(previo = {}, lecturas = [], ahora = new Date(),
   const limite = diaAR(new Date(ahora.getTime() - dias * 864e5));
   for (const p of Object.values(d)) for (const k of Object.keys(p)) if (k < limite) delete p[k];
   return d;
+}
+// Correcciones del registro diario por un fallo ya arreglado: se borra ese día UNA vez (queda apuntada en el estado) y
+// las lecturas siguientes lo rehacen con la regla buena.
+export const CORRECCIONES_DIARIO = [
+  { id: '2026-11-23-jama', paso: 'jama', dia: '2026-11-23', por: 'el parte rutinario de Chile de las 20:00 del 22/11 se tomó como cierre y siguió a primera hora' },
+  { id: '2026-11-23-sico', paso: 'sico', dia: '2026-11-23', por: 'Gendarmería no publicó ese día y la lectura de las 09:00 heredó «abierto» del 22/11' },
+];
+export function corregirDiario(diario = {}, hechas = [], correcciones = CORRECCIONES_DIARIO) {
+  const d = structuredClone(diario || {});
+  const h = [...(hechas || [])];
+  for (const c of correcciones) {
+    if (h.includes(c.id)) continue;
+    if (d[c.paso]) delete d[c.paso][c.dia];
+    h.push(c.id);
+    console.log(`Registro diario corregido: ${c.paso} ${c.dia} (${c.por}).`);
+  }
+  return { diario: d, hechas: h };
 }
 const semillaDiario = () => {
   try {
@@ -867,7 +935,9 @@ async function principal() {
   let estado = null;
   if (archivoEstado) {
     estado = actualizarEstado(previo, resultados);
-    estado.diario = actualizarDiario(previo.diario || semillaDiario(), diario);
+    const corr = corregirDiario(previo.diario || semillaDiario(), previo.correccionesDiario);
+    estado.correccionesDiario = corr.hechas;
+    estado.diario = actualizarDiario(corr.diario, diario);
     fs.writeFileSync(archivoEstado, JSON.stringify(estado, null, 1) + '\n');
     for (const [id, f] of Object.entries(estado.fuentes)) console.log(`Estado ${id}: ${f.fallosSeguidos ? `${f.fallosSeguidos} fallos seguidos` : 'lectura buena'}`);
   }
