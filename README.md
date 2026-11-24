@@ -84,6 +84,7 @@ Lo más reciente, arriba.
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 24/11/2026 | #248 | Vigilante: el parte rutinario de Chile de las 20:00 («permanece cerrado», en «Motivo del cierre») ya no cuenta como cierre; el registro diario solo apunta si Gendarmería publicó ese día. Corregido el 23/11 de Jama (falso «cerrado») y de Sico (falso «abierto»): Gendarmería no publicó ese día, queda «sin datos». |
 | 22/11/2026 | #244 | Histórico fehaciente (decisión 32): el cierre nocturno leído por la mañana ya no cuenta como cierre; registro diario de lecturas oficiales (reconstruido desde el 17/11); un día sin lectura buena es «sin datos». Jama: 7 habilitado y 1 sin paso para carga; Sico: 7 y 1 sin datos. |
 | 22/11/2026 | #242 | Arreglo: el resumen del informe vuelve a caber en una página con la tipografía publicada (bloqueaba la publicación de #236–#241). |
 | 22/11/2026 | #239 | El lado que el vigilante lee en la web oficial cuenta como comprobado aunque el parte fechado sea antiguo («comprobado hoy 17:00 · último parte de Gendarmería: 17 nov»); el resumen de WhatsApp ya no pierde «Confirmar antes de salir». |
