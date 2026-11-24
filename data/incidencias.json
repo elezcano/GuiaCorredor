@@ -593,6 +593,35 @@
         "fecha": "2026-11-19",
         "alcance": "Leído automáticamente de la web oficial el 19/11 a las 11:00 (hora de Argentina): RN 66, El Cadillal - Emp. RN 34 (Jujuy): RN 66 (El Cadillal - Emp. RN 34): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.."
       }
+    },
+    {
+      "id": "dnit-dnit-alerta-para-interrupcao-total-no-km-624-3-da-br267-ms-1",
+      "paises": [
+        "BR"
+      ],
+      "ubicacion": "BR-267/MS",
+      "tramo": "BR-267/MS",
+      "tipo": "desvio",
+      "estado": "activa",
+      "gravedad": "ambar",
+      "resumen": "BR-267/MS: desvío · DNIT 23/11",
+      "descripcion": "BR-267/MS: Desvío, según el DNIT (alerta del 23/11/2026, 13:54, hora de Brasília). Texto oficial: «O DNIT alerta para interrupção total do tráfego no km 624,3, da BR-267/MS, próximo ao município de Porto Murtinho, por período indeterminado.»",
+      "tramos": [
+        "cg-pm"
+      ],
+      "fuente": "br-dnit-alertas",
+      "enlace": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos/dnit-alerta-para-interrupcao-total-no-km-624-3-da-br267-ms-1",
+      "publicado": "2026-11-23",
+      "horaFuente": "2026-11-23T16:54:00.000Z",
+      "actualizado": "2026-11-23",
+      "evidencia": "oficial",
+      "validacion": "verificado",
+      "verificacion": {
+        "verificadoPor": "vigilante",
+        "rol": "vigilante",
+        "fecha": "2026-11-23",
+        "alcance": "Leído automáticamente de la web oficial el 23/11 a las 21:01 (hora de Argentina): BR-267/MS: BR-267/MS: Desvío, según el DNIT (alerta del 23/11/2026, 13:54, hora de Brasília). Texto oficial: «O DNIT alerta para interrupção total do tráfego no km 624,3, da BR-267/MS, próximo ao município de Porto Murtinho, por período indeterminado.»."
+      }
     }
   ]
 }
