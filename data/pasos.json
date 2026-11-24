@@ -346,10 +346,10 @@
         }
       },
       "estado": {
-        "valor": "pendiente",
-        "texto": "Sin confirmar: a las 10:00 (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (parte del 22/11, 20:49) y no ha publicado la apertura de hoy.",
+        "valor": "operativo",
+        "texto": "Abierto de 09:00–19:15 (hora de Argentina), según Gendarmería (parte del 24/11, 16:27).",
         "fuente": "ar-seguridad-paso-jama",
-        "publicado": "2026-11-22",
+        "publicado": "2026-11-24",
         "actualizado": "2026-11-24",
         "evidencia": "oficial",
         "validacion": "verificado",
@@ -357,7 +357,7 @@
           "verificadoPor": "vigilante",
           "rol": "vigilante",
           "fecha": "2026-11-24",
-          "alcance": "Leído automáticamente de la web oficial el 24/11 a las 10:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          "alcance": "Leído automáticamente de la web oficial el 24/11 a las 18:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
         }
       },
       "horarios": [
@@ -909,6 +909,22 @@
             "fecha": "2026-11-24",
             "alcance": "Leído automáticamente de la web oficial el 24/11 a las 08:29 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
           }
+        },
+        {
+          "fecha": "2026-11-22",
+          "valor": "pendiente",
+          "texto": "Sin confirmar: a las 10:00 (hora de Argentina) Gendarmería sigue marcando el cierre de la noche (parte del 22/11, 20:49) y no ha publicado la apertura de hoy.",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-22",
+          "actualizado": "2026-11-24",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-24",
+            "alcance": "Leído automáticamente de la web oficial el 24/11 a las 10:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          }
         }
       ],
       "controles": [
@@ -1028,25 +1044,6 @@
         },
         {
           "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería: «CDT 4882/26. (CL - ACI \"JAMA\").- SIG MTO CDT 4880/26 (22NOV26), PARA CONOCIMIENTO INFORMO: 222000NOV26, CONFORME REPORTE PASO INTERNACIONAL PERMANECE CERRADO PARA TODO TIPO DE VEHÍCULOS EN AMBOS SENTIDOS».",
-          "hora": "20:49",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-22",
-          "actualizado": "2026-11-22",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-22",
-            "alcance": "Leído automáticamente de la web oficial el 22/11 a las 23:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:15."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Vialidad Nacional",
           "valor": null,
           "texto": "RN 52 tramo Susques - Lte. con Chile.",
@@ -1061,6 +1058,25 @@
             "rol": "vigilante",
             "fecha": "2026-11-23",
             "alcance": "Leído automáticamente de la web oficial el 23/11 a las 19:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 52 tramo Susques - Lte. con Chile."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "16:27",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-24",
+          "actualizado": "2026-11-24",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-24",
+            "alcance": "Leído automáticamente de la web oficial el 24/11 a las 18:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
