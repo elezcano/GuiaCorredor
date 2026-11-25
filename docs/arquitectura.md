@@ -1,5 +1,7 @@
 # Arquitectura
 
+> Estado de los pasos fronterizos (regla de negocio, fuentes por país, vigilante, histórico): ver [`regla-estado-pasos.md`](regla-estado-pasos.md).
+
 ## Principio: lo más simple que genere ingresos
 
 El objetivo es un negocio con poco mantenimiento. Cada pieza técnica tiene que justificarse por ingresos o por ahorro de tiempo. Por eso la fase 1 no tiene servidor, base de datos ni cuentas de usuario.
