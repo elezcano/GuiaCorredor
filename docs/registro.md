@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 25/11/2026 | **Pedir cotización en 3 pasos** ([decisión 37](decisiones.md)): servicio y ruta, detalle según el servicio (transporte, aduana, almacén, otro, camión vacío) y datos con resumen; número de solicitud, errores sin perder datos y sin doble envío; formulario de Google con 22 claves; el enlace del planificador ya rellena origen y destino | #286 (`77c72f6`) |
 | 25/11/2026 | **Partes de Chile del 25/11** (UPF): Jama habilitado; Sico solo pasajeros, particulares y camiones sin carga → «Con restricciones para carga». **[Decisión 36](decisiones.md):** Ernesto firma las verificaciones con «confirmo» y Claude pone la etiqueta dejando constancia en el PR (primer uso: «Confirmo todo y publica», 14:03) | #281 (`f0c2af4`) |
 | 25/11/2026 | [Datos y fuentes](datos-y-fuentes.md) más sencillo y al día: qué lleva cada dato, quién verifica, caducidad, fuentes que se leen solas en una tabla y cómo añadir una; corregidos el MOPC y el DNIT (ya automáticos) y la regla de automatizaciones frente al vigilante | #279 (`3cca882`) |
 | 25/11/2026 | [Arquitectura](arquitectura.md) más sencilla y completa: tres reglas, piezas, dónde vive cada dato y qué es público, comprobaciones que bloquean, coste, cuándo cambiar de arquitectura y límites conocidos | #274 (`f8bec54`) |
