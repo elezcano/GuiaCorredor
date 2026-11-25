@@ -82,3 +82,5 @@ Mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv)
 ## Motivo del cierre (20/11/2026)
 
 La página oficial de cada paso (Ministerio de Seguridad) trae a veces, en el recuadro «Atención», la línea **«Motivo del cierre:»** con el parte de Gendarmería. El vigilante lee todas las etiquetas en negrita del recuadro (no solo «… informa:»). Si el paso se cierra con motivo, el estado lo cita; si el motivo llega después, se añade al cierre sin abrir otra entrada en el historial. Sin motivo publicado, el texto lo dice.
+
+**Ojo (23/11/2026):** la web oficial también pone en «Motivo del cierre» el parte rutinario de Chile al cerrar la jornada. Solo cuenta como motivo un texto que nombra una causa, o uno sin causa emitido dentro del horario. Regla completa en [`regla-estado-pasos.md`](regla-estado-pasos.md).
