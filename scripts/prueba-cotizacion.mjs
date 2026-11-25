@@ -42,7 +42,9 @@ const r = await fetch(envio.accion, {
   signal: AbortSignal.timeout(30000),
 });
 const texto = await r.text();
-const registrada = r.ok && /freebirdFormviewerViewResponseConfirmationMessage|Se ha registrado tu respuesta|Se registró tu respuesta|Your response has been recorded/i.test(texto);
+// Si Google rechaza algún campo, devuelve el formulario otra vez (con sus preguntas «entry.…»); si lo acepta, la página
+// de confirmación ya no las lleva. El texto de la confirmación cambia con el idioma, por eso no se busca.
+const registrada = r.ok && !/name="entry\.\d+"/.test(texto);
 console.log(`POST ${envio.accion} → HTTP ${r.status}`);
 console.log(`Valores enviados: ${JSON.stringify(valores)}`);
 if (!registrada) {
