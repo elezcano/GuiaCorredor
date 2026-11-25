@@ -153,6 +153,7 @@ export function motivoReal(texto, horario, horaParte = null) {
 }
 const motivoCrudo = (lectura) => lectura.atencion.find((a) => /^motivo/i.test(a.emisor))?.texto || null;
 const MARGEN_APERTURA_MIN = 60;
+export const ESTADOS_GENDARMERIA = ['ABIERTO', 'CERRADO'];
 const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 export function aperturaExigible(horario, ahora = new Date()) {
   const lim = aMin(horario.apertura) + MARGEN_APERTURA_MIN;
@@ -179,6 +180,23 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
   if (!lectura.estado) {
     avisos.push('la página no trae el estado de Gendarmería (¿ha cambiado de formato?): no se publica nada');
     return { paso: original, cambios, avisos };
+  }
+  // 25/11/2026 (auditoría C1): solo «ABIERTO» y «CERRADO» deciden. Un valor nuevo de la web oficial («CONDICIONADO»,
+  // «SIN INFORMACIÓN»…) no puede leerse como abierto: el paso pasa a «Sin confirmar» y se avisa para revisar la regla.
+  if (!ESTADOS_GENDARMERIA.includes(lectura.estado)) {
+    const ev = paso.estado;
+    avisos.push(`Gendarmería publica un estado que no reconocemos («${lectura.estado}»): revisar la regla del vigilante`);
+    if (ev?.valor !== 'pendiente' && (ev?.verificacion?.verificadoPor === 'vigilante' || ev?.valor === 'operativo')) {
+      (paso.historial ||= []).push(aHistorial(ev));
+      paso.estado = {
+        valor: 'pendiente',
+        texto: `Sin confirmar: la web oficial marca «${lectura.estado}»${gen ? ` (parte del ${fechaCortaAR(gen.dia)}, ${gen.hora})` : ''}, un estado que no sabemos interpretar. Confírmalo con Gendarmería antes de salir.`,
+        ...sello(fuente, ahora, `estado de Gendarmería «${lectura.estado}» (no reconocido)`),
+        publicado: gen?.dia || diaAR(ahora),
+      };
+      cambios.push(`Estado del paso: ${paso.estado.texto}`);
+    }
+    return { paso: cambios.length ? paso : original, cambios, avisos };
   }
   const cerradoGendarmeria = lectura.estado === 'CERRADO';
   // Regla 2 (corregida el 22/11/2026): es un cierre si Gendarmería publica «Cerrado» DENTRO del horario, o si publica el
@@ -385,6 +403,11 @@ function autoprueba() {
   const corrige = decidir(malCerrado, nocheChile, 'f', A('21:00'));
   ok(corrige.paso.estado.valor === 'operativo' && /cierre de la noche|no una incidencia/.test(corrige.paso.estado.texto), 'un cierre que el vigilante dio por bueno y que es el de la noche se corrige sin esperar a la apertura.');
   ok(motivoReal('CDT 4890/26 PASO CERRADO POR NEVADAS 222100NOV26', { apertura: '09:00', cierre: '19:15' }) && motivoReal(MOTIVO, { apertura: '09:00', cierre: '19:15' }, '17:30') && !motivoReal(MOTIVO, { apertura: '09:00', cierre: '19:15' }, '20:49'), 'un motivo con causa cuenta siempre; uno sin causa, solo si se emitió dentro del horario.');
+  // 25/11/2026 (C1): un valor desconocido nunca se lee como abierto.
+  const desconocido = conPag([['"ABIERTO"', '"CONDICIONADO"']]);
+  const rr = decidir(base, desconocido, 'f', A('12:00'));
+  ok(rr.paso.estado.valor === 'pendiente' && /CONDICIONADO/.test(rr.paso.estado.texto) && rr.avisos.some((x) => /no reconocemos/.test(x)), 'un estado de Gendarmería no reconocido («CONDICIONADO») pasa a «Sin confirmar» y avisa; nunca a «Abierto».');
+  ok(decidir(rr.paso, desconocido, 'f', A('13:00')).cambios.length === 0, 'el estado no reconocido no repite el cambio en cada pasada.');
   const dosDias = decidir(d.paso, noche, 'f', new Date('2026-11-19T08:30:00-03:00'));
   ok(dosDias.paso.estado.valor === 'pendiente', 'si ayer Gendarmería no publicó la apertura, antes de abrir hoy sigue «Sin confirmar», no «Abierto».');
   ok(aperturaExigible({ apertura: '09:00', cierre: '19:15' }, new Date('2026-11-24T08:30:00-03:00')) === '2026-11-23 10:00' && aperturaExigible({ apertura: '09:00', cierre: '19:15' }, new Date('2026-11-24T10:30:00-03:00')) === '2026-11-24 10:00', 'apertura exigible: la de ayer antes de las 10:00; la de hoy desde las 10:00.');
@@ -604,8 +627,10 @@ async function revisar(ahora = new Date()) {
     const lectura = leerPagina(html);
     const act = lectura.actualizaciones;
     const fallo = !act.length ? 'no aparece «última actualización» de Gendarmería ni de Vialidad (¿ha cambiado la página?)' : !lectura.estado ? 'no aparece el estado de Gendarmería (estadoPrioridad): ¿ha cambiado la página?' : null;
-    if (fallo) errores.push({ paso, url, error: fallo });
-    resultados.push({ fuente, nombre: `${paso.nombre} (Ministerio de Seguridad)`, url, ok: !fallo, error: fallo });
+    // Un estado no reconocido cuenta como lectura fallida (avisa a los 3 seguidos), pero sí se decide: el paso pasa a «Sin confirmar».
+    const raro = !fallo && !ESTADOS_GENDARMERIA.includes(lectura.estado) ? `Gendarmería publica un estado no reconocido («${lectura.estado}»): ¿ha cambiado la regla de la web?` : null;
+    if (fallo || raro) errores.push({ paso, url, error: fallo || raro });
+    resultados.push({ fuente, nombre: `${paso.nombre} (Ministerio de Seguridad)`, url, ok: !(fallo || raro), error: fallo || raro });
     for (const a of act) {
       const ult = ultimoParte(paso, a.emisor);
       lecturas.push({ paso, url, ...a, cargado: ult ? fmt(ult.publicado, ult.hora || '--:--') : null });

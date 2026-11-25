@@ -5,8 +5,8 @@
 | **Documento** | Especificación de referencia del estado de los pasos (qué decimos, con qué fuente y cómo lo calculamos) |
 | **Ámbito** | Jama, Sico, Misión La Paz–Pozo Hondo y Puente Bioceánico |
 | **Estado** | Vigente |
-| **Versión** | 1.0, 25/11/2026 |
-| **Decisiones que recoge** | 31, 32 y 33 del README (sustituyen a la 29 y la 30) |
+| **Versión** | 1.1, 25/11/2026 (lote 1 de la auditoría de integridad: valores no reconocidos, aviso de cierre de Chile, carretera de acceso y fuente caída) |
+| **Decisiones que recoge** | 31, 32, 33 y 34 del README (sustituyen a la 29 y la 30) |
 | **Código** | `scripts/vigilante.mjs` (`decidir`, `motivoReal`, `aperturaExigible`, `cuentaEnDiario`), `scripts/build.mjs` (`estadoPaso`, `ladosSinParte`, `ladosHTML`), `scripts/validacion.mjs` (`estadoMostrable`, `CADUCIDAD`) |
 | **Configuración** | `data/site.json` → `canalesParte`; `data/fuentes-vigilancia.csv` |
 | **Pruebas** | `node scripts/vigilante.mjs --autoprueba`; `pruebas/lados.cjs`, `pruebas/partes.cjs`, `pruebas/fiabilidad.cjs` |
@@ -43,6 +43,8 @@ Toda versión del código debe cumplirlos. Cada uno tiene al menos una prueba.
 | **INV-7** | **El histórico solo registra lo que un organismo oficial publicó ese día.** Un día sin publicación es «sin datos» y nunca hereda el anterior. |
 | **INV-8** | **Todo estado dice de dónde sale y cuándo**: organismo, fecha y hora del parte, y cuándo lo leímos. |
 | **INV-9** | **Lo que cargó una persona no lo pisa la máquina en silencio.** El vigilante solo reabre lo que él mismo cerró; si contradice un dato manual, avisa. |
+| **INV-10** | **Un valor oficial que no reconocemos nunca se lee como abierto.** Solo «ABIERTO» y «CERRADO» de Gendarmería deciden; cualquier otro pasa a «Sin confirmar» y avisa. |
+| **INV-11** | **Cualquier lado puede empeorar el cruce:** un aviso oficial de cierre de un país que informa por aviso, o un aviso oficial en la carretera de acceso, cuentan aunque el otro lado confirme. |
 
 ## 3. Modelo de dominio
 
@@ -171,6 +173,13 @@ stateDiagram-v2
 
 Tablas de decisión (en orden):
 
+**D0 · ¿Reconocemos el valor de Gendarmería?** (`ESTADOS_GENDARMERIA`)
+
+| Valor | Resultado |
+|---|---|
+| «ABIERTO» o «CERRADO» | Sigue a D1–D4 |
+| Cualquier otro («CONDICIONADO», «SIN INFORMACIÓN»…) | **Sin confirmar** («la web oficial marca X, un estado que no sabemos interpretar»), lectura contada como fallida (aviso a los 3 seguidos) |
+
 **D1 · ¿El texto de «Motivo del cierre» es un motivo real?** (`motivoReal`)
 
 | Nombra una causa (`CAUSA`: nieve, viento, temporal, accidente, paro, piquete, avería, sistema, obra…) | Hora de emisión (grupo fecha-hora `DDHHMM MES AA`; si no lo trae, hora del parte) | Resultado |
@@ -202,7 +211,7 @@ Ejemplo con horario 09:00–19:15: el 24/11 a las 08:30 la apertura exigible es 
 
 | Vialidad | Resultado |
 |---|---|
-| RESTRINGIDA o CORTE TOTAL | **Habilitado con restricciones** |
+| RESTRINGIDA o CORTE TOTAL | **Habilitado con restricciones** (el corte total, por decisión del fundador del 25/11/2026: el texto dice «corte total según Vialidad Nacional») |
 | Otro | **Habilitado** |
 
 Solo reabre un estado que cerró el propio vigilante (INV-9). Un falso cierre del vigilante que con la regla vigente es el de la noche se corrige solo en la siguiente pasada, junto con su parte.
@@ -225,7 +234,13 @@ Solo reabre un estado que cerró el propio vigilante (INV-9). Un falso cierre de
 | 2 | Estado `cerrado`, `restricciones`, `pendiente`, `en-obras` | Tal cual |
 | 3 | Estado `operativo` con evidencia no oficial | Sin confirmar |
 | 4 | Estado `operativo` y algún lado que cuenta no vale (D5) | Sin confirmar · falta confirmación de … |
-| 5 | Estado `operativo` y todos los lados que cuentan valen | **Habilitado** (con «Chile: sin avisos desde…» si aplica) |
+| 5 | Estado `operativo`, lados que valen y **aviso oficial leído automáticamente en la carretera de acceso** (ámbar o rojo, de Vialidad Nacional o de Chile) | **Con restricciones** · «aviso en el acceso» |
+| 6 | Estado `operativo`, todos los lados que cuentan valen y acceso sin avisos | **Habilitado** (con «Chile: sin avisos desde…» si aplica) |
+
+Dos reglas se aplican antes de la tabla:
+
+- **Aviso de cierre de un país por aviso** (`avisoDeLado`): si el último parte de Chile es un cierre o una restricción y está dentro de su plazo (15 días), el cruce toma ese valor (**No habilitado** o **Con restricciones**) aunque Argentina confirme, con «Chile: aviso oficial del …». No se aplica si el paso ya está cerrado o en obras.
+- **Fuente caída** (`fuenteCaidaDe`, decisión del fundador del 25/11/2026): si un estado No habilitado o Con restricciones lo puso el vigilante y su web oficial lleva más de 6 h sin leerse (o 3 fallos seguidos), **se mantiene el último estado leído** y se dice: «La web oficial no responde desde …: es el último estado leído». Un «Habilitado» con la fuente caída pasa a Sin confirmar por D5.
 
 ### 6.4 Pseudocódigo completo
 
@@ -289,10 +304,11 @@ si no: mostrar Habilitado                                          # D6.5
 | Situación | Detección | Qué ve el usuario | Qué hacemos |
 |---|---|---|---|
 | Gendarmería no publica la apertura | D3 | Sin confirmar | Nada; se resuelve cuando publique. Día «sin datos» |
+| Gendarmería publica un valor nuevo | D0 | Sin confirmar | Incidencia a los 3 fallos; revisar la regla y añadir el valor con su prueba |
 | Parte rutinario de cierre en «Motivo del cierre» | D1 | Habilitado en su horario | Nada (caso del 22/11) |
-| La web oficial no responde | Fallo de lectura | Lo último leído; a las 6 h, ese lado pasa a Sin confirmar | Incidencia y correo a los 3 fallos seguidos |
+| La web oficial no responde | Fallo de lectura | Habilitado: a las 6 h, Sin confirmar. No habilitado o Con restricciones: el último estado, con «la web oficial no responde desde …» | Incidencia y correo a los 3 fallos seguidos |
 | La web oficial cambia el formato | Lectura sin estado | Ídem | Incidencia; adaptar el lector y su autoprueba |
-| Aviso de cierre de la UPF | Revisión del editor | No habilitado | Cargar el parte y el estado (PR) |
+| Aviso de cierre de la UPF | Revisión del editor | No habilitado, con «Chile: aviso oficial del …» | Cargar el parte de Chile (PR); el cruce se cierra solo con el parte |
 | Nadie revisa el canal de Chile en 15 días | D5 | Sin confirmar, con enlace al canal | Revisar y actualizar `revisado` |
 | El vigilante no corre (Actions caído) | Sin commits ni datos nuevos | A las 6 h, Sin confirmar | Lanzarlo a mano; revisar Actions |
 | Falla la publicación | Vigía no se lanza / falla | La versión anterior | Incidencia del Vigía |
@@ -329,6 +345,8 @@ Para añadir un país o un canal basta con una entrada en `canalesParte` con su 
 | El vigilante no lee entre las 21:17 y las 06:17 (hora de Argentina) | Un cierre nocturno se ve con la primera pasada | Los pasos están cerrados de noche; la primera pasada es antes de la apertura |
 | Brasil y el Puente Bioceánico | Sin fuente cuando abra (~feb. 2027) | Definir canal y modo antes de la inauguración |
 | Lista `CAUSA` incompleta | Un cierre real sin palabra conocida, fuera de horario, se tomaría por rutinario | Revisar los «Motivo del cierre» del mes y ampliar la lista |
+| Fuente caída con el paso cerrado (decisión D3) | Si el paso reabre mientras la web oficial no responde, seguimos mostrando «No habilitado» | Se dice en la ficha y en el tablero («Fuente no responde»); incidencia a los 3 fallos |
+| Corte total como «Con restricciones» (decisión D2) | El ámbar puede leerse como «se puede pasar» | El texto dice «corte total según Vialidad Nacional»; revisar con usuarios |
 
 ## 13. Bitácora de casos que fijaron la regla
 
@@ -342,3 +360,5 @@ Para añadir un país o un canal basta con una entrada en `canalesParte` con su 
 | 24/11/2026 | A las 08:30, Jama «Abierto» con el último parte del 22/11 | Apertura exigible: la de ayer si aún no llegó la de hoy | #257 |
 | 24/11/2026 | Regla difícil de explicar (48 h, «Abierto solo en…») | Regla por país en tres líneas (decisión 33) | #257 |
 | 25/11/2026 | Paraguay no tiene canal oficial | Modo `sin-canal`: su lado no cuenta y se dice | #257 |
+| 25/11/2026 | Auditoría de integridad: un valor de Gendarmería desconocido se leía como abierto (C1); el aviso de cierre de Chile daba «Sin confirmar» (A3) | Lista blanca de valores; el aviso de cierre de un lado decide el cruce (decisión 34) | lote 1 |
+| 25/11/2026 | El fundador decide: el temporal o la carretera de cualquier lado afectan al cruce (D1); el corte total sigue en «Con restricciones» (D2); con la fuente caída se mantiene el último estado avisando (D3) | Aviso oficial en el acceso → Con restricciones; aviso de fuente caída (decisión 34) | lote 1 |

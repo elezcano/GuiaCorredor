@@ -121,7 +121,7 @@ const ahoraLados = process.env.FECHA_HOY ? Date.parse(`${HOY}T15:00:00Z`) : Date
 // sean recientes, aunque el organismo no haya fechado un parte nuevo: si el estado cambiara, el vigilante lo habría
 // publicado. El parte fechado sigue a la vista («último parte de Gendarmería: 17 nov»).
 const LECTURA_LADO_H = 6;
-const lecturaAutoDeLado = (() => {
+const vigilanciaDeLado = (() => {
   let estado = null;
   try {
     estado = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'vigilancia-estado.json'), 'utf8'));
@@ -131,12 +131,16 @@ const lecturaAutoDeLado = (() => {
     (porPaso[f.destino.slice(5)] ||= {})[f.pais] = { fuente: f.fuente_id, organismo: f.organismo.replace(/\s*\(.*\)$/, '') };
   return (pasoId, lado) => {
     const m = porPaso[pasoId]?.[lado];
-    const f = m && estado?.fuentes?.[m.fuente];
-    if (!f?.ultimaLecturaBuena || (f.fallosSeguidos || 0) >= 3) return null;
-    const horas = (ahoraLados - Date.parse(f.ultimaLecturaBuena)) / 36e5;
-    return horas <= LECTURA_LADO_H ? { lado, comprobado: f.ultimaLecturaBuena, organismo: m.organismo } : null;
+    return m ? { ...m, f: estado?.fuentes?.[m.fuente] || null } : null;
   };
 })();
+const lecturaAutoDeLado = (pasoId, lado) => {
+  const v = vigilanciaDeLado(pasoId, lado);
+  const f = v?.f;
+  if (!f?.ultimaLecturaBuena || (f.fallosSeguidos || 0) >= 3) return null;
+  const horas = (ahoraLados - Date.parse(f.ultimaLecturaBuena)) / 36e5;
+  return horas <= LECTURA_LADO_H ? { lado, comprobado: f.ultimaLecturaBuena, organismo: v.organismo } : null;
+};
 // 24/11/2026 (decisión 33, regla por país): cada lado lo decide su país según cómo informa.
 // · «diario» (Argentina: Gendarmería publica cada mañana que abre): el lado vale si el vigilante leyó su web oficial
 //   hace menos de LECTURA_LADO_H o si hay un parte oficial de ese lado fechado hoy; lo que dice (abierto, cierre, sin
@@ -173,15 +177,52 @@ const ladoPorAviso = (p, lado) => {
   const dias = (ahoraLados - Date.parse(`${desde}T12:00:00-03:00`)) / 864e5;
   return dias <= (c.plazoDias ?? 15) ? { lado, desde, explicacion: c.explicacion || '' } : null;
 };
+// 25/11/2026 (auditoría A3): un aviso oficial de cierre o restricción de un país que informa por aviso (Chile) decide el
+// cruce mientras esté dentro del plazo de su canal; antes salía «Sin confirmar».
+const ultimoParteLado = (p, lado) => (p?.partes || []).filter((x) => x.lado === lado).sort((a, b) => `${b.publicado}${b.hora || ''}`.localeCompare(`${a.publicado}${a.hora || ''}`))[0] || null;
+const avisoDeLado = (p) =>
+  Object.keys(p?.lados || {})
+    .filter((l) => modoLado(l) === 'por-aviso')
+    .map((l) => ({ lado: l, parte: ultimoParteLado(p, l) }))
+    .find((x) => x.parte && ['cerrado', 'restricciones'].includes(x.parte.valor) && diasDesde(x.parte.publicado) <= (site.canalesParte[x.lado].plazoDias ?? 15)) || null;
+// 25/11/2026 (decisión D1 del fundador): el temporal o la carretera de cualquier lado afectan al cruce. Un aviso oficial
+// leído automáticamente (Vialidad Nacional, Vialidad de Chile…) en el acceso del paso, ámbar o rojo, lo deja «Con
+// restricciones» (también el corte total: decisión D2). Los avisos cargados a mano son de contexto y no cuentan aquí.
+const accesoConAvisos = (id) => D.incidencias.filter((i) => i.estado === 'activa' && i.paso === id && i.horaFuente && ['ambar', 'rojo'].includes(i.gravedad || 'ambar'));
+// 25/11/2026 (decisión D3 del fundador): si la web oficial que lee el vigilante no responde, se mantiene el último estado
+// que leyó, avisando de que la fuente no responde.
+const fuenteCaidaDe = (p) => {
+  if (p?.estado?.verificacion?.verificadoPor !== 'vigilante') return null;
+  const lado = Object.keys(p.lados || {}).find((l) => vigilanciaDeLado(p.id, l)?.f);
+  const f = lado && vigilanciaDeLado(p.id, lado).f;
+  if (!f) return null;
+  const horas = f.ultimaLecturaBuena ? (ahoraLados - Date.parse(f.ultimaLecturaBuena)) / 36e5 : Infinity;
+  return (f.fallosSeguidos || 0) >= 3 || horas > LECTURA_LADO_H ? { desde: f.ultimaLecturaBuena || null } : null;
+};
+/** 25/11/2026: por qué el cruce no muestra el estado cargado del paso (aviso de un lado, carretera de acceso, fuente caída). */
+const notaIntegridad = (e) =>
+  e.avisoLado
+    ? `${PAISES[e.avisoLado.lado]}: aviso oficial del ${fechaCorta(e.avisoLado.publicado)}${e.avisoLado.hora ? `, ${e.avisoLado.hora}` : ''}${e.avisoLado.emisor ? ` (${e.avisoLado.emisor.replace(/\s*\(.*\)$/, '')})` : ''}.`
+    : e.accesoAvisos
+    ? `${e.accesoAvisos === 1 ? 'Hay un aviso oficial' : `Hay ${e.accesoAvisos} avisos oficiales`} en la carretera de acceso. Revísalo antes de salir.`
+    : e.fuenteCaida
+    ? `La web oficial no responde${e.fuenteCaida.desde ? ` desde el ${fechaCorta(e.fuenteCaida.desde.slice(0, 10))}, ${new Date(e.fuenteCaida.desde).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' })} (hora de Argentina)` : ''}: es el último estado leído.`
+    : '';
 const estadoPaso = (id) => {
   const p = fichaPaso[id];
-  const e = estadoMostrable(p?.estado, HOY);
+  const base = estadoMostrable(p?.estado, HOY);
+  const caida = base.valor !== 'operativo' && base.confirmado ? fuenteCaidaDe(p) : null;
+  const e = caida ? { ...base, fuenteCaida: caida } : base;
+  const av = e.valor !== 'cerrado' && e.valor !== 'en-obras' ? avisoDeLado(p) : null;
+  if (av) return { ...e, valor: av.parte.valor, confirmado: true, nivel: 'verificado', avisoLado: { lado: av.lado, publicado: av.parte.publicado, hora: av.parte.hora || null, emisor: av.parte.emisor || '' } };
   if (!e.confirmado || e.valor !== 'operativo') return e;
   if (e.evidencia && e.evidencia !== 'oficial') return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar' };
   const porAviso = Object.keys(p?.lados || {}).map((l) => ladoPorAviso(p, l)).filter(Boolean);
   const sin = ladosSinParte(p);
   // El cruce es el peor de sus lados: si a uno le falta confirmación, el paso queda «Sin confirmar».
   if (sin.length) return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar', sinLados: sin, porAviso };
+  const acceso = accesoConAvisos(id);
+  if (acceso.length) return { ...e, valor: 'restricciones', accesoAvisos: acceso.length, porAviso: porAviso.length ? porAviso : undefined };
   return porAviso.length ? { ...e, porAviso } : e;
 };
 /** 22/11/2026: una línea por lado del paso. Cómo informa ese país y qué sabemos hoy, en palabras llanas. */
@@ -468,6 +509,9 @@ function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
     const lineas = [`falta confirmación de ${listaY(v.sinLados.map((k) => PAISES[k]))}`, v.porAviso?.length ? textoPorAviso(v.porAviso) : ''].filter(Boolean);
     return `${estado('pendiente', tipo)}<span class="estado-fecha sello-linea">${lineas.join(' · ')}</span>`;
   }
+  if (v.avisoLado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${esc(PAISES[v.avisoLado.lado])}: aviso oficial del ${fechaCorta(v.avisoLado.publicado)}${v.avisoLado.hora ? `, ${esc(v.avisoLado.hora)}` : ''}${v.avisoLado.emisor ? ` (${txtEs(v.avisoLado.emisor.replace(/\s*\(.*\)$/, ''))})` : ''}</span>`;
+  if (v.accesoAvisos) return `${estado('restricciones', tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)} · ${v.accesoAvisos === 1 ? 'aviso oficial' : `${v.accesoAvisos} avisos oficiales`} en la carretera de acceso</span>`;
+  if (v.fuenteCaida) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea fuente-caida">${selloCorto('verificado', v.verificado, v.fuente)} · <strong>la web oficial no responde</strong>${v.fuenteCaida.desde ? ` desde el ${fechaCorta(v.fuenteCaida.desde.slice(0, 10))}, ${new Date(v.fuenteCaida.desde).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' })} (hora de Argentina)` : ''}: último estado leído</span>`;
   if (v.porAviso) return `${estado('operativo', tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)} · <span class="por-aviso">${textoPorAviso(v.porAviso)}</span></span>`;
   if (v.etiqueta && !v.confirmado) return `${estado('pendiente', tipo, v.etiqueta)}<span class="estado-fecha">${v.vigilancia ? `${txtEs(v.vigilancia.organismos)} · ${v.etiqueta === 'Fuente atrasada' ? `no publica desde hace más de lo habitual (publica: ${esc(v.vigilancia.frecuencia || '—')})` : `su web no responde: sin lectura buena en las últimas ${HORAS_SIN_ACTUALIZAR} h`}` : 'Ninguna fuente oficial lo publica cada día'}</span>`;
   if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
@@ -1198,7 +1242,9 @@ function fichaOperativa(p, guiaPag) {
       ${ahoraHTML(p, op)}
       ${
         e.confirmado
-          ? resto
+          ? notaIntegridad(e)
+            ? `<p class="respuesta-nota respuesta-integridad">${esc(notaIntegridad(e))}</p>`
+            : resto
             ? `<p class="respuesta-nota">${txtOf(resto)}</p>`
             : ''
           : `<p class="respuesta-nota">${
@@ -1391,7 +1437,7 @@ rutas.tramos.forEach((t) => {
 const estadoCorto = (id) => {
   const e = estadoPaso(id);
   const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
-  const nota = e.sinLados ? `Falta ${listaY(e.sinLados.map((k) => PAISES[k]))}` : e.porAviso ? textoPorAviso(e.porAviso) : '';
+  const nota = e.sinLados ? `Falta ${listaY(e.sinLados.map((k) => PAISES[k]))}` : e.avisoLado ? `Aviso de ${PAISES[e.avisoLado.lado]}` : e.accesoAvisos ? 'Aviso en el acceso' : e.fuenteCaida ? 'Fuente no responde' : e.porAviso ? textoPorAviso(e.porAviso) : '';
   return `<span class="estado op-${op}${e.porAviso ? ' estado-por-aviso' : ''}">${OPERATIVA[op].icono}<span class="estado-texto">${OPERATIVA[op].texto}</span></span>${nota ? `<small class="estado-parcial">${esc(nota)}</small>` : ''}`;
 };
 /** Horario habitual de un paso en hora local («09:00–19:15»), o «—». */
