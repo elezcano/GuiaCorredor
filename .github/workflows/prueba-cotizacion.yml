@@ -1,0 +1,34 @@
+# Prueba de extremo a extremo del formulario de cotización (scripts/prueba-cotizacion.mjs): envía a Google Forms una
+# solicitud marcada «PRUEBA AUTOMÁTICA» y comprueba que Google la registra en la hoja privada de respuestas.
+# Corre antes de publicar un cambio del formulario (en la PR), cada lunes y a mano. No corre en cada publicación para no
+# llenar la hoja de pruebas: el Vigía ya comprueba tras cada publicación que el formulario existe y acepta respuestas.
+name: Prueba de cotización
+
+on:
+  pull_request:
+    paths: ['data/site.json', 'src/assets/formulario.js', 'scripts/cruces.mjs', 'scripts/prueba-cotizacion.mjs', '.github/workflows/prueba-cotizacion.yml']
+  schedule:
+    - cron: '41 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  probar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: prueba
+        run: node scripts/prueba-cotizacion.mjs
+      - name: Avisar si falla fuera de una PR
+        if: failure() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --title "Prueba de cotización: Google no registró la solicitud" \
+            --body "La prueba semanal del formulario de cotización falló. Revisa el registro: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
