@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 25/11/2026 | Especificación de referencia del estado de los pasos ([`regla-estado-pasos.md`](regla-estado-pasos.md)): invariantes, fuentes por país, arquitectura, tablas de decisión, histórico, modos de fallo y bitácora. El registro de avances sale del README a este archivo. | #263 |
 | 25/11/2026 | #257 | Regla por país (decisión 33): Argentina confirma a diario (lectura de la web oficial < 6 h o parte de hoy; «Sin confirmar» hasta que Gendarmería publique la apertura, también antes de abrir); Chile por aviso (15 días); Paraguay sin canal oficial: su lado no cuenta y la ficha lo dice. El cruce es el peor lado. Fuera el umbral de 48 h y el «Abierto solo en». El parte de Jama del 22/11 cargado como cierre se rehace como «Cierre de la jornada». |
 | 24/11/2026 | #248 | Vigilante: el parte rutinario de Chile de las 20:00 («permanece cerrado», en «Motivo del cierre») ya no cuenta como cierre; el registro diario solo apunta si Gendarmería publicó ese día. Corregido el 23/11 de Jama (falso «cerrado») y de Sico (falso «abierto»): Gendarmería no publicó ese día, queda «sin datos». |
 | 22/11/2026 | #244 | Histórico fehaciente (decisión 32): el cierre nocturno leído por la mañana ya no cuenta como cierre; registro diario de lecturas oficiales (reconstruido desde el 17/11); un día sin lectura buena es «sin datos». Jama: 7 habilitado y 1 sin paso para carga; Sico: 7 y 1 sin datos. |
