@@ -187,7 +187,7 @@ El lote 1 quita casos en los que la web podía mostrar un estado distinto del qu
 
 ## Trazabilidad del lote 2
 
-PR del lote 2 (rama `lote2-confianza`) · decisión 38 · capturas antes y después en el lienzo, versión 7.
+PR #289 · decisión 38 · capturas antes y después en el lienzo, versión 7.
 
 | Hallazgo | Decisión | Regla (`regla-estado-pasos.md`) | Código | Prueba | Qué ve el usuario |
 |---|---|---|---|---|---|
