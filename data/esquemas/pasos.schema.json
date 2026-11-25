@@ -93,7 +93,7 @@
                   },
                   "consultado": {
                     "type": "string",
-                    "format": "date-time",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
                     "description": "Lote 2 (auditoría, cambio 6): fecha y hora ISO de la consulta a la web oficial que produjo este estado. La escribe el vigilante; no es la fecha de publicación del organismo («publicado»)."
                   }
                 }
