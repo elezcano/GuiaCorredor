@@ -1,5 +1,5 @@
 // Prueba de extremo a extremo del formulario de cotización: envía a Google Forms una solicitud de PRUEBA con los
-// mismos campos y valores que manda /cotizar/ (src/assets/formulario.js) y comprueba que Google la registra.
+// mismas claves que manda /cotizar/ (src/assets/cotizar.js, decisión 37) y comprueba que Google la registra.
 // La fila llega a la hoja privada de respuestas con «PRUEBA AUTOMÁTICA» en Empresa; el cuadro de mando no la cuenta
 // como cotización real porque no tiene «Respondida el».
 // Uso: node scripts/prueba-cotizacion.mjs  (sale con código 1 si Google no acepta la respuesta).
@@ -22,7 +22,7 @@ if (envio.error) {
 
 const hoy = new Date().toISOString().slice(0, 10);
 const valores = {
-  tipo: 'Pido transporte',
+  tipo: 'Pido cotización',
   desde: rutas.nodos[0].nombre,
   hasta: rutas.nodos[rutas.nodos.length - 1].nombre,
   carga: rutas.tiposCarga[0].nombre,
@@ -31,6 +31,16 @@ const valores = {
   empresa: `PRUEBA AUTOMÁTICA RadarCorredor ${hoy}`,
   telefono: '+34 000 000 000',
   email: '',
+  id: `RC-PRUEBA-${hoy}`,
+  servicio: 'Transporte de carga',
+  origen_pais: 'Brasil',
+  destino_pais: 'Chile',
+  paso: 'No lo sé',
+  cuando: 'Fecha concreta',
+  mercancia: 'Prueba automática',
+  viajes: 'Un viaje',
+  nombre: 'Prueba automática',
+  compartir: 'No',
 };
 const cuerpo = new URLSearchParams();
 for (const [clave, entry] of Object.entries(envio.campos)) cuerpo.append(entry, valores[clave] || '');

@@ -1970,45 +1970,157 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
   );
 }
 
-// Pedir cotización / camión vacío (V2): un formulario, dos modos. Va a la hoja privada (Google Forms)
-// si está configurada en site.json → cotizaciones.enlacePrellenado; si no, prepara un email.
+// Pedir cotización en 3 pasos (V6, decisión 37): qué y por dónde, el detalle según el servicio y tus datos.
+// Va a la hoja privada (Google Forms, site.json → cotizaciones.enlacePrellenado); si no, prepara un email.
+// «Tengo el camión vacío» es el mismo formulario en modo vuelta (?tipo=retorno). Lógica: src/assets/cotizar.js.
 {
   const envio = configEnvio(site.cotizaciones?.enlacePrellenado, CAMPOS_COTIZACION);
   const conGoogle = envio && !envio.error;
-  // Puntos agrupados por país, en el orden del corredor (el valor es el nombre: es lo que llega a la hoja).
-  const nodos = [...new Set(rutas.nodos.map((n) => n.pais))]
-    .map((pais) => `<optgroup label="${esc(PAISES[pais])}">${rutas.nodos.filter((n) => n.pais === pais).map((n) => `<option value="${esc(n.nombre)}">${esc(n.nombre)}</option>`).join('')}</optgroup>`)
-    .join('');
-  const campo = (k, txt, input) => `<label class="campo" data-etiqueta="${esc(txt)}"><span>${esc(txt)}</span>${input}</label>`;
+  const radio = (name, valor, txt = valor, extra = '') => `<label class="chip chip-radio"><input type="radio" name="${name}" value="${esc(valor)}"${extra}><span>${esc(txt)}</span></label>`;
+  const casilla = (name, valor) => `<label class="chip chip-radio"><input type="checkbox" name="${name}" value="${esc(valor)}"><span>${esc(valor)}</span></label>`;
+  const chips = (name, valores, marcado) => `<div class="chips">${valores.map((v) => radio(name, v, v, v === marcado ? ' checked' : '')).join('')}</div>`;
+  const grupo = (leyenda, cuerpo, { opcional = false, ayuda = '', clave = '' } = {}) =>
+    `<fieldset class="cot-grupo"${clave ? ` data-clave="${clave}"` : ''}><legend>${esc(leyenda)}${opcional ? ' <span class="cot-opc">(opcional)</span>' : ''}</legend>${cuerpo}${ayuda ? `<p class="cot-ayuda">${esc(ayuda)}</p>` : ''}</fieldset>`;
+  const texto = (id, etiqueta, attrs = '', { opcional = false, ayuda = '' } = {}) =>
+    `<div class="cot-grupo"><label class="cot-lbl" for="${id}">${esc(etiqueta)}${opcional ? ' <span class="cot-opc">(opcional)</span>' : ''}</label><input class="cot-inp" id="${id}" ${attrs}>${ayuda ? `<p class="cot-ayuda">${esc(ayuda)}</p>` : ''}</div>`;
+  const notas = (id, ph) => `<div class="cot-grupo"><label class="cot-lbl" for="${id}">Algo especial <span class="cot-opc">(opcional)</span></label><textarea class="cot-inp" id="${id}" name="especial" placeholder="${esc(ph)}"></textarea></div>`;
+  const PAISES_COT = [...Object.values(PAISES), 'Otro'];
+  const lugares = [...new Set([...rutas.nodos.map((n) => n.nombre), 'Asunción', 'Ciudad del Este', 'Encarnación', 'Concepción', 'São Paulo', 'Curitiba', 'Paranaguá', 'Santos', 'Buenos Aires', 'Rosario', 'Córdoba', 'Salta', 'San Salvador de Jujuy', 'Santiago', 'Valparaíso', 'San Antonio', 'Arica'])];
+  const lugar = (lado, titulo) => `<div class="cot-lugar" data-clave="${lado}"><h3>${titulo}</h3>
+        <fieldset class="cot-grupo" data-clave="${lado}_pais"><legend class="sr-only">País de ${titulo.toLowerCase()}</legend>${chips(`${lado}_pais`, PAISES_COT)}</fieldset>
+        <div class="cot-grupo"><label class="cot-lbl" for="cot-${lado}">Ciudad o localidad</label><input class="cot-inp" id="cot-${lado}" name="${lado === 'origen' ? 'desde' : 'hasta'}" list="cot-lugares" autocomplete="off" required></div></div>`;
+  const pasosFrontera = ['No lo sé', ...pasosArr().map((p) => p.nombre.replace(/^Paso de /, "")), 'Otro'];
+  const servicios = [
+    ['Transporte de carga', 'camion', ''],
+    ['Despacho de aduana', 'papeles', ''],
+    ['Almacenamiento', 'deposito', ''],
+    ['Logística completa', 'ruta', 'Transporte, aduana y almacén'],
+  ];
+  const prefijos = [['+595', 'PY'], ['+54', 'AR'], ['+56', 'CL'], ['+55', 'BR'], ['+34', 'ES']];
   add(
     '/cotizar/',
     layout({
       titulo: 'Pedir cotización',
-      descripcion: 'Pide precio de transporte por el Corredor Bioceánico o publica tu vuelta con el camión vacío.',
+      descripcion: 'Pide precio de transporte, aduana o almacén en el Corredor Bioceánico, o publica tu vuelta con el camión vacío.',
       ruta: '/cotizar/',
-      scripts: ['/assets/formulario.js'],
+      scripts: ['/assets/cotizar.js'],
       cuerpo: `
 <div class="contenedor pagina-app">
   <div class="dos-col">
     <section class="tarjeta" aria-labelledby="t-cotizar">
-      <h1 id="t-cotizar">Pedir cotización</h1>
-      <form class="form-app" id="form-cotizar" data-asunto="Cotización" data-email="${esc(buzon('contacto'))}"${conGoogle ? ` data-accion="${esc(envio.accion)}" data-campos="${esc(JSON.stringify(envio.campos))}"` : ''} novalidate>
-        <div class="segmentos" role="radiogroup" aria-label="Qué necesitas">
-          <label><input type="radio" name="tipo" value="Pido transporte" checked><span>Pido transporte</span></label>
-          <label><input type="radio" name="tipo" value="Tengo el camión vacío"><span>Tengo el camión vacío</span></label>
+      <form class="cot" id="form-cotizar" data-nodos="${esc(JSON.stringify(rutas.nodos.map((n) => [n.nombre, PAISES[n.pais]])))}" data-asunto="Cotización" data-email="${esc(buzon('contacto'))}"${conGoogle ? ` data-accion="${esc(envio.accion)}" data-campos="${esc(JSON.stringify(envio.campos))}"` : ''} novalidate>
+        <h1 id="t-cotizar"><span data-modo="pedir">Pedir cotización</span><span data-modo="retorno" hidden>Publica tu vuelta</span></h1>
+        <div class="cot-progreso">
+          <p id="cot-paso-txt" aria-live="polite">Paso 1 de 3 · Qué y por dónde</p>
+          <ol class="cot-barra"><li aria-current="step">Qué y por dónde</li><li>El detalle</li><li>Tus datos</li></ol>
         </div>
-        <div class="campos-2">${campo('desde', 'Desde', `<select name="desde" required><option value="">Elige</option>${nodos}</select>`)}${campo('hasta', 'Hasta', `<select name="hasta" required><option value="">Elige</option>${nodos}</select>`)}</div>
-        <fieldset class="chips-campo"><legend>Carga o camión</legend><div class="chips">${rutas.tiposCarga.map((c, i) => `<label class="chip"><input type="radio" name="carga" value="${esc(c.nombre)}"${i ? '' : ' checked'}><span>${esc(c.nombre)}</span></label>`).join('')}</div></fieldset>
-        <div class="campos-2">${campo('peso', 'Peso o volumen', '<input name="peso" placeholder="p. ej. 28 t">')}${campo('fecha', 'Fecha', `<input name="fecha" type="date" min="${HOY}">`)}</div>
-        <div class="campos-2">${campo('empresa', 'Empresa', '<input name="empresa" required autocomplete="organization">')}${campo('telefono', 'Teléfono o WhatsApp', '<input name="telefono" required type="tel" placeholder="+595 …" autocomplete="tel">')}</div>
-        ${campo('email', 'Email (opcional)', '<input name="email" type="email" autocomplete="email">')}
-        <p class="form-error" role="alert" hidden></p>
-        <p class="form-ok" role="status" hidden></p>
-        <div class="acc"><button class="btn btn-negocio" type="submit">Enviar solicitud</button></div>
-        <p class="nota-pie">Sin coste. Te contestamos por WhatsApp o email. No publicamos tus datos.</p>
+
+        <fieldset class="cot-paso" data-paso="1" aria-label="Paso 1: qué y por dónde">
+          <fieldset class="cot-grupo" data-clave="servicio" data-modo="pedir"><legend>¿Qué necesitas?</legend>
+            <div class="cot-tiles">${servicios.map(([v, ic, sub]) => `<label class="cot-tile"><input type="radio" name="servicio" value="${esc(v)}">${icono(ic)}<span>${esc(v)}</span>${sub ? `<small>${esc(sub)}</small>` : ''}</label>`).join('')}</div>
+            <div class="chips">${radio('servicio', 'Otro servicio')}</div>
+            <p class="cot-ayuda">¿Tienes el camión vacío? <a href="${u('/cotizar/?tipo=retorno')}">Publica tu vuelta</a></p>
+          </fieldset>
+          <p class="cot-ayuda" data-modo="retorno" hidden>Avisa de tu viaje de vuelta y te buscamos carga. ¿Necesitas transporte? <a href="${u('/cotizar/')}">Pide cotización</a></p>
+          <fieldset class="cot-grupo"><legend>¿Por dónde?</legend>
+            <div class="cot-dos">${lugar('origen', 'Origen')}${lugar('destino', 'Destino')}</div>
+            <datalist id="cot-lugares">${lugares.map((l) => `<option value="${esc(l)}"></option>`).join('')}</datalist>
+          </fieldset>
+          ${grupo('Paso de frontera', chips('paso', pasosFrontera, 'No lo sé'), { opcional: true, ayuda: 'Si no lo sabes, te proponemos uno según el estado de los pasos.' })}
+          ${grupo('¿Para cuándo?', `${chips('cuando', ['Esta semana', 'Este mes', 'Más adelante', 'Fecha concreta'])}<div class="cot-grupo" id="cot-fecha-campo" hidden><label class="cot-lbl" for="cot-fecha">Fecha</label><input class="cot-inp" id="cot-fecha" name="fecha" type="date" min="${HOY}"></div>`, { clave: 'cuando' })}
+        </fieldset>
+
+        <fieldset class="cot-paso" data-paso="2" aria-label="Paso 2: el detalle" hidden>
+          <p class="cot-ayuda" id="cot-contexto"></p>
+          <div class="cot-paso" data-variante="carga">
+            ${texto('cot-merc', 'Mercancía', 'name="mercancia" required placeholder="p. ej. soja en bolsas"')}
+            ${grupo('Tipo de carga', chips('carga', [...rutas.tiposCarga.map((c) => c.nombre), 'Peligrosa']), { ayuda: 'Ninguna viene marcada: eliges tú.', clave: 'carga' })}
+            <div class="cot-grupo" data-clave="peso"><label class="cot-lbl" for="cot-peso">Peso aproximado</label><input class="cot-inp" id="cot-peso" name="peso" placeholder="p. ej. 28 t" required><label class="cot-check"><input type="checkbox" name="peso_nose" value="1"> Aún no lo sé</label></div>
+            ${texto('cot-vol', 'Volumen o medidas', 'name="volumen" placeholder="p. ej. 26 pallets o 60 m³"', { opcional: true })}
+            ${grupo('¿Cuántos viajes?', chips('viajes', ['Un viaje', 'Varios', 'Todos los meses']), { clave: 'viajes' })}
+            ${grupo('Camión o equipo', chips('equipo', ['Semirremolque', 'Furgón', 'Refrigerado', 'Portacontenedor', 'No lo sé']), { opcional: true })}
+            ${notas('cot-esp-c', 'Temperatura, plazos, carga y descarga…')}
+          </div>
+          <div class="cot-paso" data-variante="aduana" hidden>
+            ${grupo('Operación', chips('operacion', ['Exportación', 'Importación', 'Tránsito', 'No lo sé']), { clave: 'operacion' })}
+            ${texto('cot-merc-a', 'Mercancía', 'name="mercancia" required placeholder="p. ej. carne vacuna congelada"', { ayuda: 'Si sabes el código arancelario, añádelo.' })}
+            ${grupo('Documentos que ya tienes', `<div class="chips">${['Factura comercial', 'Certificado de origen', 'MIC/DTA', 'Ninguno todavía'].map((d) => casilla('documentos', d)).join('')}</div>`, { opcional: true, ayuda: 'Puedes marcar varios.' })}
+            ${grupo('¿Necesitas también transporte?', chips('con_transporte', ['Sí', 'No, ya lo tengo']), { clave: 'con_transporte' })}
+            ${notas('cot-esp-a', 'Plazos, aduana de salida o de llegada…')}
+          </div>
+          <div class="cot-paso" data-variante="almacen" hidden>
+            ${texto('cot-merc-b', 'Mercancía', 'name="mercancia" required placeholder="p. ej. maquinaria en cajas"')}
+            <div class="cot-grupo" data-clave="cantidad"><label class="cot-lbl" for="cot-cant">Cantidad</label><div class="cot-fila"><input class="cot-inp" id="cot-cant" name="cantidad" inputmode="decimal" required placeholder="p. ej. 24"><select class="cot-inp cot-pref" name="unidad" aria-label="Unidad"><option>pallets</option><option>m²</option><option>t</option></select></div></div>
+            ${grupo('¿Cuánto tiempo?', chips('tiempo', ['Días', 'Semanas', 'Meses', 'No lo sé']), { clave: 'tiempo' })}
+            ${grupo('Condiciones', `<div class="chips">${['Seco', 'Refrigerado', 'Depósito fiscal'].map((d) => casilla('condiciones', d)).join('')}</div>`, { opcional: true, ayuda: 'Depósito fiscal: la mercancía espera sin pagar aranceles todavía.' })}
+            ${notas('cot-esp-b', 'Carga y descarga, accesos…')}
+          </div>
+          <div class="cot-paso" data-variante="otro" hidden>
+            <div class="cot-grupo"><label class="cot-lbl" for="cot-esp-o">¿Qué necesitas?</label><textarea class="cot-inp" id="cot-esp-o" name="especial" required placeholder="Cuéntanos el servicio en pocas líneas"></textarea></div>
+          </div>
+          <div class="cot-paso" data-variante="retorno" hidden>
+            ${grupo('Tu camión', chips('equipo', ['Semirremolque', 'Furgón', 'Refrigerado', 'Portacontenedor', 'Otro']), { clave: 'equipo' })}
+            ${grupo('Qué puedes llevar', chips('carga', [...rutas.tiposCarga.map((c) => c.nombre), 'Lo que sea']), { opcional: true })}
+            ${notas('cot-esp-r', 'Capacidad, fechas flexibles…')}
+          </div>
+        </fieldset>
+
+        <fieldset class="cot-paso" data-paso="3" aria-label="Paso 3: tus datos y envío" hidden>
+          <dl class="cot-resumen" id="cot-resumen" aria-label="Resumen de la solicitud"></dl>
+          ${texto('cot-nombre', 'Tu nombre', 'name="nombre" required autocomplete="name"')}
+          ${texto('cot-empresa', 'Empresa', 'name="empresa" required autocomplete="organization"')}
+          <div class="cot-grupo" data-clave="telefono"><label class="cot-lbl" for="cot-tel">WhatsApp o teléfono</label>
+            <div class="cot-fila"><select class="cot-inp cot-pref" name="prefijo" aria-label="Prefijo del país">${prefijos.map(([p, n]) => `<option value="${p}">${p} ${n}</option>`).join('')}<option value="">Otro</option></select><input class="cot-inp" id="cot-tel" name="numero" type="tel" inputmode="tel" autocomplete="tel-national" required placeholder="981 123 456"></div>
+            <p class="cot-ayuda">Te respondemos por aquí.</p></div>
+          ${texto('cot-email', 'Email', 'name="email" type="email" autocomplete="email"', { opcional: true })}
+          ${grupo('Eres…', chips('perfil', ['Exportador o importador', 'Transportista', 'Despachante', 'Operador logístico', 'Otro']), { opcional: true })}
+          <label class="cot-check"><input type="checkbox" name="compartir" value="Sí"> <span>Acepto que RadarCorredor pase mi solicitud y mi contacto a empresas del corredor que puedan hacerla. <span class="cot-opc">(opcional)</span></span></label>
+          <p class="cot-priv">RadarCorredor usa estos datos solo para ayudarte a encontrar cotización. No los publicamos. Para consultarlos o borrarlos, escribe a <a href="mailto:${esc(site.contacto.email)}">${esc(site.contacto.email)}</a>.</p>
+        </fieldset>
+
+        <p class="form-error" id="cot-error" role="alert" hidden></p>
+        <div class="cot-banda" id="cot-fallo" role="alert" hidden>
+          <p><strong>No se pudo enviar.</strong> Tus datos siguen aquí. Vuelve a intentarlo o mándanos la solicitud por email: ya va escrita.</p>
+          <div class="acc"><button type="submit" class="btn btn-negocio">Reintentar</button><a class="btn btn-borde" id="cot-por-email" href="#">${icono('correo')}Enviar por email</a></div>
+        </div>
+        <div class="cot-pie">
+          <button type="button" class="btn btn-borde" id="cot-atras" hidden>Atrás</button>
+          <button type="button" class="btn btn-negocio" id="cot-seguir">Seguir</button>
+          <button type="submit" class="btn btn-negocio" id="cot-enviar" hidden>Enviar solicitud</button>
+        </div>
+        <p class="nota-pie">Sin coste y sin registro.</p>
       </form>
+
+      <div class="cot-ok" id="cot-ok" tabindex="-1" hidden>
+        <h1>Solicitud recibida</h1>
+        <div class="cot-id"><span class="cot-ayuda">Número de solicitud</span><strong id="cot-id"></strong><span class="cot-ayuda">Lo usamos para encontrarla si nos escribes.</span></div>
+        <h2>Qué pasa ahora</h2>
+        <ol class="cot-pasos-ok">
+          <li>La revisamos en 2 días laborables como máximo.</li>
+          <li data-modo="pedir">Buscamos empresas del corredor que puedan hacerla.</li>
+          <li data-modo="retorno" hidden>Buscamos carga para tu vuelta.</li>
+          <li>Te escribimos con lo que encontremos, también si no hay nada disponible.</li>
+        </ol>
+        <p class="cot-ayuda">Sin tu permiso, no damos tu contacto a ninguna empresa.</p>
+        <button type="button" class="btn btn-borde" id="cot-copiar">Copiar el resumen</button>
+        <a href="${u('/pasos/')}">Ver el estado de los pasos</a>
+      </div>
+      <div id="cot-textos" hidden>
+        <span data-t="paso1">Qué y por dónde</span><span data-t="paso2">El detalle</span><span data-t="paso3">Tus datos</span>
+        <span data-t="paso">Paso</span><span data-t="de">de</span><span data-t="falta">Falta</span>
+        <span data-t="tel">Escribe el número con al menos 6 cifras.</span><span data-t="mail">Revisa el email: no parece válido.</span>
+        <span data-t="servicioRuta">Servicio y ruta</span><span data-t="detalle">El detalle</span><span data-t="cambiar">Cambiar</span>
+        <span data-t="enviando">Enviando…</span><span data-t="copiado">Copiado</span><span data-t="paso_no">paso: no lo sé</span>
+        <span data-t="retorno">Camión vacío</span><span data-t="nose">peso por confirmar</span>
+      </div>
     </section>
-    ${mapaTarjeta({ clase: 'solo-ancho' })}
+    <aside class="tarjeta cot-lado solo-ancho" aria-label="Tu solicitud">
+      <h2>Tu solicitud</h2>
+      <dl id="cot-lado"><div><dt>Servicio</dt><dd>—</dd></div><div><dt>Ruta</dt><dd>—</dd></div><div><dt>Cuándo</dt><dd>—</dd></div></dl>
+      <h2>Después de enviarla</h2>
+      <ul><li>La revisamos en 2 días laborables como máximo.</li><li>Buscamos empresas del corredor que puedan hacerla.</li><li>Te escribimos, también si no hay ninguna.</li></ul>
+      <p class="cot-ayuda">Sin coste y sin registro.</p>
+    </aside>
   </div>
 </div>`,
     })
