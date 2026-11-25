@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 25/11/2026 | Qué mejora el lote 1 en la integridad del dato (antes/ahora de cada caso y lo que no arregla), en la [trazabilidad del lote 1](auditoria-2026-11-25.md#trazabilidad-del-lote-1) | #268 (`a9b7175`) |
 | 25/11/2026 | **Integridad, lote 1** (auditoría y decisiones D1–D3 del fundador): un valor desconocido de Gendarmería ya no se lee como abierto; el aviso de cierre de Chile cierra el cruce; un aviso oficial en la carretera de acceso lo deja «Con restricciones»; con la web oficial caída se mantiene el último estado avisándolo. Trazabilidad completa en [`auditoria-2026-11-25.md`](auditoria-2026-11-25.md#trazabilidad-del-lote-1) | #265 (`849c1ee`) |
 | 25/11/2026 | Especificación de referencia del estado de los pasos ([`regla-estado-pasos.md`](regla-estado-pasos.md)): invariantes, fuentes por país, arquitectura, tablas de decisión, histórico, modos de fallo y bitácora. El registro de avances sale del README a este archivo. | #263 |
 | 25/11/2026 | #257 | Regla por país (decisión 33): Argentina confirma a diario (lectura de la web oficial < 6 h o parte de hoy; «Sin confirmar» hasta que Gendarmería publique la apertura, también antes de abrir); Chile por aviso (15 días); Paraguay sin canal oficial: su lado no cuenta y la ficha lo dice. El cruce es el peor lado. Fuera el umbral de 48 h y el «Abierto solo en». El parte de Jama del 22/11 cargado como cierre se rehace como «Cierre de la jornada». |
