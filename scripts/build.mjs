@@ -1996,7 +1996,9 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
     ['Almacenamiento', 'deposito', ''],
     ['Logística completa', 'ruta', 'Transporte, aduana y almacén'],
   ];
-  const prefijos = [['+595', 'PY'], ['+54', 'AR'], ['+56', 'CL'], ['+55', 'BR'], ['+34', 'ES']];
+  // Prefijos del teléfono con su bandera (SVG: el emoji de bandera sale como «PY» en Windows) y el país escrito.
+  const prefijos = [['+595', 'PY', 'Paraguay'], ['+54', 'AR', 'Argentina'], ['+56', 'CL', 'Chile'], ['+55', 'BR', 'Brasil'], ['+34', 'ES', 'España']];
+  const BANDERA_TEL = { ...BANDERAS, ES: '<rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/>' };
   add(
     '/cotizar/',
     layout({
@@ -2069,9 +2071,17 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
           <dl class="cot-resumen" id="cot-resumen" aria-label="Resumen de la solicitud"></dl>
           ${texto('cot-nombre', 'Tu nombre', 'name="nombre" required autocomplete="name"')}
           ${texto('cot-empresa', 'Empresa', 'name="empresa" required autocomplete="organization"')}
-          <div class="cot-grupo" data-clave="telefono"><label class="cot-lbl" for="cot-tel">WhatsApp o teléfono</label>
-            <div class="cot-fila"><select class="cot-inp cot-pref" name="prefijo" aria-label="Prefijo del país">${prefijos.map(([p, n]) => `<option value="${p}">${p} ${n}</option>`).join('')}<option value="">Otro</option></select><input class="cot-inp" id="cot-tel" name="numero" type="tel" inputmode="tel" autocomplete="tel-national" required placeholder="981 123 456"></div>
-            <p class="cot-ayuda">Te respondemos por aquí.</p></div>
+          <fieldset class="cot-grupo" data-clave="telefono"><legend>WhatsApp o teléfono</legend>
+            <div class="cot-fila">
+              <div class="cot-prefijo">
+                <span class="cot-prefijo-ver" aria-hidden="true">${prefijos.map(([, iso]) => `<span class="cot-band" data-iso="${iso}"${iso === 'PY' ? '' : ' hidden'}><svg viewBox="0 0 30 20" width="24" height="16" focusable="false">${BANDERA_TEL[iso]}</svg><b>${iso}</b></span>`).join('')}<span class="cot-band" data-iso="" hidden>${icono('globo')}</span><span class="cot-prefijo-cod">+595</span><svg class="cot-flecha" viewBox="0 0 24 24" width="16" height="16" focusable="false"><path d="M6 9l6 6l6 -6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <label class="sr-only" for="cot-prefijo">País del teléfono</label>
+                <select id="cot-prefijo" name="prefijo" aria-describedby="cot-tel-ayuda">${prefijos.map(([p, iso, nombre]) => `<option value="${p}" data-iso="${iso}">${esc(nombre)} (${p})</option>`).join('')}<option value="" data-iso="">Otro país (escríbelo con el número)</option></select>
+              </div>
+              <label class="sr-only" for="cot-tel">Número</label>
+              <input class="cot-inp" id="cot-tel" name="numero" type="tel" inputmode="tel" autocomplete="tel-national" required placeholder="981 123 456" aria-describedby="cot-tel-ayuda">
+            </div>
+            <p class="cot-ayuda" id="cot-tel-ayuda">Elige el país y escribe el número sin el prefijo. Te respondemos por aquí.</p></fieldset>
           ${texto('cot-email', 'Email', 'name="email" type="email" autocomplete="email"', { opcional: true })}
           ${grupo('Eres…', chips('perfil', ['Exportador o importador', 'Transportista', 'Despachante', 'Operador logístico', 'Otro']), { opcional: true })}
           <label class="cot-check"><input type="checkbox" name="compartir" value="Sí"> <span>Acepto que RadarCorredor pase mi solicitud y mi contacto a empresas del corredor que puedan hacerla. <span class="cot-opc">(opcional)</span></span></label>

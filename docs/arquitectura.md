@@ -48,6 +48,20 @@ flowchart LR
 | Cotizaciones, solicitudes de empresas, tiempos de cruce, prospección | Google Forms y Sheets de radarcorredor@gmail.com | **No: datos personales, nunca en el repositorio** |
 | Visitas | GoatCounter, sin cookies | Agregado |
 
+### Solicitudes de cotización
+
+Formulario en 3 pasos de `/cotizar/` ([decisión 37](decisiones.md)), sin servidor:
+
+```
+navegador (src/assets/cotizar.js) ─► Google Forms (22 claves) ─► hoja «Cotizaciones (respuestas)» ─► cuadro de mando
+```
+
+- **Qué se envía:** las claves de `CAMPOS_COTIZACION` (`scripts/cruces.mjs`), con su pregunta en el formulario de Google según el enlace prellenado de `site.json` → `cotizaciones`. Aduana y almacén guardan su detalle en «Algo especial» y «Peso o volumen».
+- **Número de solicitud** (`RC-261125-T7J`): lo genera el navegador al enviar. «RC-», la fecha del dispositivo en `AAMMDD` y 3 caracteres al azar de un alfabeto de 32 sin I, O, 0 ni 1, para que no se confundan al dictarlos. Se envía en «Número de solicitud» y es el que ve el cliente; si reintenta tras un error, se mantiene. **No es correlativo** (no sirve para contar: eso lo hace el cuadro de mando) **ni se garantiza único**: dos solicitudes del mismo día coinciden con probabilidad 1/32.768. Un número correlativo necesitaría un servidor que lo asigne y enseñaría al cliente cuántos pedidos hay.
+- **Teléfono:** prefijo elegido por país (bandera, código ISO y prefijo; se rellena con el país de origen) más el número; se guarda junto, p. ej. `+595 981 123 456`. «Otro país»: el cliente escribe el prefijo con el número.
+- **Gestión, en la hoja (columnas X–AA):** «Estado», «Respondida el», «Responsable» y «Notas». Las de prueba llevan «Prueba» en Estado o empiezan por «PRUEBA» en Empresa (la prueba automática de los lunes, `prueba-cotizacion.yml`) y no cuentan en el cuadro de mando.
+- **Aviso de solicitud nueva:** no hay. Se ve en la hoja o en el cuadro de mando (opción sin código: notificaciones por correo de Google Forms).
+
 ## Cómo llega un cambio a la web
 
 ```
