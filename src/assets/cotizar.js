@@ -59,9 +59,17 @@
     $('#cot-fecha').required = !campo.hidden;
   };
   const PREFIJO = { Paraguay: '+595', Argentina: '+54', Chile: '+56', Brasil: '+55' };
+  const pintarPrefijo = () => {
+    const sel = f.elements.prefijo;
+    const iso = sel.selectedOptions[0]?.dataset.iso || '';
+    for (const b of $$('.cot-band')) b.hidden = b.dataset.iso !== iso;
+    $('.cot-prefijo-cod').textContent = sel.value || '+';
+    f.elements.numero.placeholder = sel.value ? '981 123 456' : '+49 151 1234567';
+  };
   const aplicarPrefijo = () => {
     const p = PREFIJO[uno('origen_pais')];
     if (p && !prefijoTocado) f.elements.prefijo.value = p;
+    pintarPrefijo();
   };
 
   // Validación de un paso: campos obligatorios visibles y grupos de opciones sin elegir.
@@ -253,7 +261,7 @@
     if (e.target.name === 'peso_nose') aplicarPeso();
     if (e.target.name === 'cuando') aplicarFecha();
     if (e.target.name === 'origen_pais') aplicarPrefijo();
-    if (e.target.name === 'prefijo') prefijoTocado = true;
+    if (e.target.name === 'prefijo') { prefijoTocado = true; pintarPrefijo(); }
     e.target.removeAttribute('aria-invalid');
     e.target.closest('.cot-mal')?.classList.remove('cot-mal');
     pintarLado();

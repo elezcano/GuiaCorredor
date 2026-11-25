@@ -155,6 +155,19 @@ const ok = (c, m) => c || f.push(m);
   await p.keyboard.press('Space');
   ok(await p.$('input[name="servicio"][value="Transporte de carga"]:checked'), 'Cotizar: el servicio se elige con el teclado');
 
+  // 7b. Prefijo del teléfono: país con nombre para el lector de pantalla; bandera e ISO a la vista; sigue al origen.
+  await abrir();
+  await paso1();
+  await p.fill('#cot-merc', 'Soja');
+  await chip('carga', 'Granel');
+  await p.fill('#cot-peso', '28 t');
+  await chip('viajes', 'Varios');
+  await seguir();
+  ok((await p.$eval('#cot-prefijo', (s) => s.labels[0]?.textContent)) === 'País del teléfono', 'Cotizar: el prefijo tiene etiqueta accesible');
+  ok(/Paraguay \(\+595\)/.test(await p.$eval('#cot-prefijo', (s) => s.selectedOptions[0].textContent)), 'Cotizar: el prefijo lee el país y el código');
+  await p.selectOption('#cot-prefijo', '+56');
+  ok((await p.$eval('.cot-band:not([hidden])', (x) => x.dataset.iso)) === 'CL' && (await p.textContent('.cot-prefijo-cod')) === '+56', 'Cotizar: al elegir Chile se ve la bandera CL y +56');
+
   // 8. Privacidad: el aviso dice para qué y a quién escribir.
   ok(/solo para ayudarte a encontrar cotización/.test(await p.textContent('.cot-priv')), 'Cotizar: aviso de para qué se usan los datos');
 
