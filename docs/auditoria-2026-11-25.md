@@ -149,7 +149,9 @@ Cada lote pasa la autoprueba, las pruebas de navegador, la publicación y el Vig
 
 Pagos, suscripciones, backend, bases de datos externas, lectura automática de la cuenta en X de la UPF (no hay API gratuita estable) y rediseño general de la web.
 
-## Trazabilidad del lote 1 (PR #265, commit [`849c1ee`](https://github.com/elezcano/GuiaCorredor/commit/849c1ee25dda28465f40a869d2b787dadd716f8a), publicado el 25/11/2026)
+## Trazabilidad del lote 1
+
+PR #265 · commit [`849c1ee`](https://github.com/elezcano/GuiaCorredor/commit/849c1ee25dda28465f40a869d2b787dadd716f8a) · publicado el 25/11/2026.
 
 Cadena completa de cada cambio: hallazgo de la auditoría → decisión → regla → código → prueba → documentación. Los enlaces apuntan al commit publicado, así que no cambian aunque el código evolucione.
 
