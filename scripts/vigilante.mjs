@@ -193,6 +193,7 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
         texto: `Sin confirmar: la web oficial marca «${lectura.estado}»${gen ? ` (parte del ${fechaCortaAR(gen.dia)}, ${gen.hora})` : ''}, un estado que no sabemos interpretar. Confírmalo con Gendarmería antes de salir.`,
         ...sello(fuente, ahora, `estado de Gendarmería «${lectura.estado}» (no reconocido)`),
         publicado: gen?.dia || diaAR(ahora),
+        consultado: ahora.toISOString(),
       };
       cambios.push(`Estado del paso: ${paso.estado.texto}`);
     }
@@ -255,14 +256,15 @@ export function decidir(original, lectura, fuente, ahora = new Date()) {
   const cuando = gen ? `parte del ${fechaCortaAR(gen.dia)}, ${gen.hora}` : 'sin hora de parte';
   const nuevoEstado = (valor, texto) => {
     (paso.historial ||= []).push(aHistorial(e));
-    paso.estado = { valor, texto, ...sello(fuente, ahora, `estado de Gendarmería «${lectura.estado}», Vialidad «${lectura.vialidad || '—'}»`), publicado: gen?.dia || diaAR(ahora) };
+    // Lote 2 (auditoría, cambio 6): la hora exacta de la consulta que produjo el estado, en ISO.
+    paso.estado = { valor, texto, ...sello(fuente, ahora, `estado de Gendarmería «${lectura.estado}», Vialidad «${lectura.vialidad || '—'}»`), publicado: gen?.dia || diaAR(ahora), consultado: ahora.toISOString() };
     cambios.push(`Estado del paso: ${texto}`);
   };
   if (cierre && e.valor !== 'cerrado') {
     nuevoEstado('cerrado', `Cerrado por Gendarmería (${cuando}, hora de Argentina)${motivo ? conMotivo : `: la web oficial lo marca cerrado dentro de su horario${horTxt ? ` (${horTxt})` : ''}, sin motivo publicado`}.`);
   } else if (cierre && motivo && !e.texto.includes(motivo.replace(/\.$/, ''))) {
     // Ya estaba cerrado y ahora se publica el motivo: se añade, sin abrir otra entrada en el historial.
-    paso.estado = { ...e, texto: `Cerrado por Gendarmería (${cuando}, hora de Argentina)${conMotivo}.`, ...sello(fuente, ahora, `motivo del cierre: ${motivo}`) };
+    paso.estado = { ...e, texto: `Cerrado por Gendarmería (${cuando}, hora de Argentina)${conMotivo}.`, ...sello(fuente, ahora, `motivo del cierre: ${motivo}`), consultado: ahora.toISOString() };
     cambios.push(`Motivo del cierre: ${motivo}`);
   } else if (cerradoGendarmeria && !cierre && e.valor === 'cerrado' && delVigilante) {
     // Un «Cerrado» que el vigilante dio por cierre y con la regla vigente es el cierre de la noche (p. ej. el parte
@@ -357,6 +359,7 @@ function autoprueba() {
   d = decidir(base, cerrado, 'f', A('17:40'));
   const pg = d.paso.partes.find((x) => x.emisor.startsWith('Gend'));
   ok(d.paso.estado.valor === 'cerrado' && pg.valor === 'cerrado' && pg.hora === '17:30' && d.paso.estado.verificacion.verificadoPor === 'vigilante' && d.paso.historial.length === 1 && d.paso.partes.some((x) => x.lado === 'CL'), '«Cerrado» de Gendarmería dentro del horario: se publica el cierre.');
+  ok(!Number.isNaN(Date.parse(d.paso.estado.consultado)) && d.paso.estado.consultado.endsWith('Z'), 'Lote 2: el estado que escribe el vigilante lleva la hora de consulta (ISO).');
   ok(base.estado.valor === 'operativo' && base.partes[0].hora === '16:13', 'decidir no toca el paso original.');
   const cerradoDespues = d.paso;
   const noche = conPag([['"ABIERTO"', '"CERRADO"'], ['17/11/2026 - 16:13', '17/11/2026 - 19:40']]);

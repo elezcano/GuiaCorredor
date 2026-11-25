@@ -22,6 +22,7 @@ Todos los datos están en `data/` y se validan con sus esquemas (`data/esquemas/
 | `evidencia` | Qué tipo de fuente es | `oficial` · `declaracion-empresa` · `tercero` · `calculo` · `estimacion` · `historico` |
 | `validacion` | En qué punto está | `borrador` · `por-verificar` · `verificado` |
 | `verificacion` | Quién lo comprobó, cuándo y cómo | `verificadoPor`, `fecha`, `alcance` |
+| `consultado` | Solo en el estado de un paso: cuándo consultó el vigilante la web oficial que produjo ese estado. No confundir con `publicado` (la fecha del organismo). La web y `api/v1` muestran además la **confianza** del dato, calculada aparte ([regla](regla-estado-pasos.md#confianza)) | fecha y hora ISO |
 
 **Quién puede verificar** (`verificadoPor`, lista en `scripts/validacion.mjs`):
 

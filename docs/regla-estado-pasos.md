@@ -1,6 +1,6 @@
 # Regla del estado de los pasos
 
-> Cómo decide RadarCorredor si un paso fronterizo está habilitado. Vigente desde el 25/11/2026 (versión 1.2) · decisiones [31 a 34](decisiones.md) · si el código y este documento no coinciden, es un fallo y se corrigen los dos en el mismo PR.
+> Cómo decide RadarCorredor si un paso fronterizo está habilitado y cuánto podemos fiarnos de ese dato. Vigente desde el 25/11/2026 (versión 1.3) · decisiones [31 a 34 y 38](decisiones.md) · si el código y este documento no coinciden, es un fallo y se corrigen los dos en el mismo PR.
 
 **Por qué importa.** Un falso «Habilitado» manda un camión a 4.200 m a encontrarse la barrera bajada. Un falso «Sin confirmar» le cuesta una llamada. Los dos errores no cuestan lo mismo, y la regla está hecha para no cometer el primero.
 
@@ -20,6 +20,26 @@
 | ⚪ **Sin confirmar** | Hoy no lo sabemos | Falta la confirmación de un lado, o la fuente publica algo que no sabemos interpretar |
 
 El horario va aparte: «Fuera de horario · abre a las 09:00» informa, no cierra.
+
+## Confianza
+
+El estado dice qué pasa en el paso; la **confianza** dice cuánto podemos fiarnos de ese dato y por qué ([decisión 38](decisiones.md), auditoría del 25/11, lote 2). Va aparte del estado, en la ficha, en el tablero si está degradada y en `api/v1` (`estado.mostrar.confianza`).
+
+| Confianza | Cuándo | Cómo se ve |
+|---|---|---|
+| **Oficial · lectura automática** | El estado lo leyó el vigilante en la web oficial y la lectura está vigente | Chip con escudo |
+| **Oficial · verificado a mano** | Lo cargó una persona desde un parte oficial (p. ej. el aviso de Chile) | Chip con escudo |
+| **Pendiente de verificar** | No hay dato oficial vigente que lo confirme (prensa, sin dato, canal de Chile sin revisar) | Chip gris con reloj |
+| **Dato caducado** | Hubo lectura oficial, pero ya no está vigente (más de 6 h sin leer, o el estado pasó su caducidad) | Chip y estado con **borde discontinuo** ámbar; en el tablero, «Dato caducado» |
+| **Fuente no disponible** | La web oficial falla 3 veces seguidas o lleva más de 6 h sin responder. Decisión D3: se mantiene el último estado conocido | Chip y estado con borde discontinuo ámbar; «La web oficial no responde desde…: es el último estado conocido» |
+| **Fuentes contradictorias** | Dos partes oficiales del **mismo** lado y del mismo día dicen cosas opuestas. Que un país abra y el otro cierre no lo es: el cruce es el peor lado. Un «Habilitado» baja a «Sin confirmar» (INV-4); un cierre o una restricción se mantienen | Chip y estado con borde discontinuo rojo |
+
+Junto al chip van **dos fechas distintas**, cada una con su nombre: «Consultado a las 17:05 (hora de Argentina) · publicado el 24 nov».
+
+- **Consultado:** nuestra última consulta buena a la web oficial del paso. Es la más reciente de `estado.consultado`, que escribe el vigilante cuando cambia el estado, y de la última lectura buena de la fuente del lado (`vigilancia.json`, rama `datos-vigilancia`). Así no hace falta un commit por hora.
+- **Publicado:** la fecha en que el organismo publicó el dato que decide (parte de Gendarmería, aviso de Chile).
+
+Código: `scripts/build.mjs` → `confianzaDe`, `consultadoPaso`, `confianzaHTML`. Pruebas: `pruebas/integridad.cjs` (un caso por variante) y `node scripts/vigilante.mjs --autoprueba` (`consultado` en ISO).
 
 ## Cómo informa cada país
 
@@ -89,7 +109,7 @@ El vigilante solo reabre lo que cerró él; si contradice un dato cargado a mano
 |---|---|---|
 | Gendarmería no publica la apertura | ⚪ Sin confirmar | Nada: se resuelve cuando publique. El día queda «sin datos» |
 | Gendarmería publica un valor nuevo | ⚪ Sin confirmar | Incidencia a los 3 fallos; añadir el valor a la regla con su prueba |
-| La web oficial no responde | Habilitado: a las 6 h, Sin confirmar. Cerrado o con restricciones: se mantiene, avisando | Incidencia y correo a los 3 fallos seguidos |
+| La web oficial no responde | Habilitado: a las 6 h, Sin confirmar · «Dato caducado» o «Fuente no disponible». Cerrado o con restricciones: se mantiene como último estado conocido · «Fuente no disponible» | Incidencia y correo a los 3 fallos seguidos |
 | Chile avisa de un cierre | 🔴 No habilitado · «Chile: aviso oficial del …» | Cargar el parte de Chile (PR) |
 | Nadie revisa el canal de Chile en 15 días | ⚪ Sin confirmar, con enlace al canal | Revisarlo y actualizar `revisado` |
 | El vigilante no corre | A las 6 h, Sin confirmar | Lanzarlo a mano y revisar Actions |
@@ -105,10 +125,11 @@ Cada uno tiene al menos una prueba.
 5. **INV-5** El cruce es el peor de los lados que cuentan.
 6. **INV-6** El horario no es un estado.
 7. **INV-7** El histórico solo registra lo que un organismo oficial publicó ese día.
-8. **INV-8** Todo estado dice de dónde sale y cuándo.
+8. **INV-8** Todo estado dice de dónde sale y cuándo: cuándo lo consultamos y cuándo lo publicó el organismo, por separado.
 9. **INV-9** Lo que cargó una persona no lo pisa la máquina en silencio.
 10. **INV-10** Un valor oficial que no reconocemos nunca se lee como abierto.
 11. **INV-11** Cualquier lado puede empeorar el cruce.
+12. **INV-12** La confianza nunca sube por encima del dato: una fuente caída, una lectura caducada o dos partes opuestos se ven en la ficha, en el tablero y en la API.
 
 ## Parámetros
 
@@ -158,6 +179,7 @@ En un solo PR:
 | 23/11/2026 | Gendarmería no publicó en todo el día en Jama ni en Sico | El histórico exige parte del día; el 23/11 queda «sin datos» | #248 |
 | 24/11/2026 | A las 08:30, Jama salía «Abierto» con el último parte del 22/11 | Se exige la apertura de ayer si aún no llegó la de hoy | #257 |
 | 24/11/2026 | La regla era difícil de explicar (48 h, «Abierto solo en…») | Regla por país en tres líneas (decisión 33) | #257 |
+| 25/11/2026 | Auditoría M1 y M2: el estado mezclaba la confianza y no decía cuándo se consultó | Confianza aparte, con «consultado» y «publicado» por separado (decisión 38, versión 1.3) | lote 2 |
 | 25/11/2026 | Paraguay no tiene canal oficial | Su lado no cuenta y se dice | #257 |
 | 25/11/2026 | Auditoría: un valor desconocido se leía como abierto; un cierre de Chile salía «Sin confirmar» | Lista de valores válidos; el aviso de cierre de un lado decide el cruce (decisión 34) | #265 |
 | 25/11/2026 | El fundador decide: el temporal o la carretera de cualquier lado afectan al cruce; el corte total sigue en ámbar; con la fuente caída se mantiene el último estado | Aviso en el acceso → Con restricciones; aviso de fuente caída (decisión 34) | #265 |

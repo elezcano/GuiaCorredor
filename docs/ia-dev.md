@@ -39,8 +39,11 @@ Cada archivo: `{ api: "v1", version, generado, recurso, registros: [...] }`.
 Cada registro conserva: identificador, `fuente` **resuelta** (`{ id, nombre, url, tipo }`), `evidencia`, `publicado`, `actualizado`, `validacion`, `verificacion` (responsable y fecha, si existe), `vigencia` cuando corresponde, y además el `nivel` calculado (`verificado`, `por-verificar`, `caducado`, `borrador`) y `caducaEl`. Los estados llevan `mostrar`:
 
 ```json
-"mostrar": { "valor": "pendiente", "ultimoReportado": "operativo", "confirmado": false, "nivelMostrado": "por-verificar", "texto": "Habilitado para todo tipo de vehículos…" }
+"mostrar": { "valor": "pendiente", "ultimoReportado": "operativo", "confirmado": false, "nivelMostrado": "por-verificar", "texto": "Habilitado para todo tipo de vehículos…",
+  "confianza": "caducada", "consultado": "2026-11-25T20:01:12.000Z", "publicado": "2026-11-24" }
 ```
+
+Desde la 1.8.0, los pasos añaden `confianza`, `consultado` y `publicado` (opcionales). Significado de cada valor de confianza: [Regla del estado de los pasos](regla-estado-pasos.md#confianza).
 
 ### Versionado
 
@@ -57,10 +60,11 @@ Cada registro conserva: identificador, `fuente` **resuelta** (`{ id, nombre, url
 3. Distinguir siempre la evidencia: `oficial` (organismo o norma), `tercero` (prensa, referencia), `declaracion-empresa`, `calculo`, `estimacion`, `historico`. Una estimación o un cálculo no es un dato oficial; un dato histórico no es la situación actual.
 4. `distancia.km: null` = no hay distancia con fuente. Si el tramo trae `estimacion`, es **provisional, en línea recta y sin verificar**: darla siempre como «≈ X km, estimación provisional», decir qué tramos son estimados (`estimacion.puntos`) y que por carretera es más. No inventar estimaciones propias.
 5. Coordenadas con `precision: "referencia"` son puntos de referencia de nodos que agrupan varias localidades. No sirven para medir distancias operativas.
-6. Un festivo no implica que la aduana cierre. Solo cuentan horarios u horarios especiales del organismo.
-7. Directorio vacío = no hay empresas publicadas. No sugerir empresas de fuera de la API como si fueran del directorio.
-8. Citar siempre la fuente (nombre y URL) y la fecha de publicación.
-9. Claude **nunca** marca un dato como verificado ni escribe `verificacion`. Puede proponer cambios por Pull Request con los datos en `por-verificar`.
+6. **La confianza va aparte del estado.** Si `confianza` es `caducada`, `fuente-no-disponible` o `contradictoria`, decirlo siempre junto al estado («No habilitado, último estado conocido: la web oficial no responde»). `consultado` es cuándo lo consultamos; `publicado`, cuándo lo publicó el organismo: no mezclarlos.
+7. Un festivo no implica que la aduana cierre. Solo cuentan horarios u horarios especiales del organismo.
+8. Directorio vacío = no hay empresas publicadas. No sugerir empresas de fuera de la API como si fueran del directorio.
+9. Citar siempre la fuente (nombre y URL) y la fecha de publicación.
+10. Claude **nunca** marca un dato como verificado ni escribe `verificacion`. Puede proponer cambios por Pull Request con los datos en `por-verificar`.
 
 ## Preguntas de prueba y respuestas esperadas (datos del 15/11/2026)
 

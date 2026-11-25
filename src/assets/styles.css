@@ -1738,3 +1738,16 @@ textarea.cot-inp { height: 88px; padding: 12px 14px; resize: vertical; }
 .cot-lado dt { font-size: 12px; font-weight: 600; color: var(--muted-foreground); }
 .cot-lado dd { margin: 2px 0 0; }
 .cot-lado ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 22px; }
+
+/* Lote 2 (auditoría, cambio 9; decisión 38): la confianza va aparte del estado. Chip con icono + texto (nunca solo
+   color) y la línea «Consultado a las… · publicado el…». Las variantes degradadas llevan borde discontinuo. */
+.respuesta-confianza { margin: 6px 0 0; }
+.confianza-linea { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 4px; }
+.confianza { display: inline-flex; align-items: center; gap: 5px; min-height: 24px; padding: 0 9px; border: 1px solid var(--border-strong); border-radius: 999px; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--foreground); background: var(--background); }
+.confianza .icono { width: 15px; height: 15px; flex: none; }
+.confianza-oficial-automatica .icono, .confianza-verificacion-manual .icono { color: var(--ok); }
+.confianza-pendiente-de-verificar { color: var(--sin-dato); }
+.confianza-caducada, .confianza-fuente-no-disponible { border-style: dashed; border-color: var(--obras); color: var(--obras); }
+.confianza-contradictoria { border-style: dashed; border-color: var(--corte); color: var(--corte); }
+.consulta { font-size: 13px; line-height: 18px; color: var(--muted-foreground); }
+.estado.estado-incierto { outline: 1.5px dashed currentColor; outline-offset: 2px; }
