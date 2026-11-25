@@ -146,7 +146,7 @@ La política completa está en [`datos-y-fuentes.md`](datos-y-fuentes.md#qué-ll
 | Horario | 180 días |
 | Ficha, empresa, enlace de organismo | 365 días |
 
-**Para marcar algo como verificado (solo el responsable editorial):** comprueba el dato y su evidencia, pon `"validacion": "verificado"` y `"verificacion": { "verificadoPor": "responsable-editorial", "rol": "responsable-editorial", "fecha": "AAAA-MM-DD", "alcance": "qué comprobaste" }`. Hazlo en un Pull Request y ponle la etiqueta `revision-editorial`: sin ella, la comprobación del PR falla. El asistente de IA nunca escribe `verificado` ni `verificacion`.
+**Para marcar algo como verificado (solo el responsable editorial):** comprueba el dato y su evidencia, pon `"validacion": "verificado"` y `"verificacion": { "verificadoPor": "responsable-editorial", "rol": "responsable-editorial", "fecha": "AAAA-MM-DD", "alcance": "qué comprobaste" }`. Hazlo en un Pull Request y ponle la etiqueta `revision-editorial`: sin ella, la comprobación del PR falla. El asistente de IA puede preparar el registro con lo que le pasas (por ejemplo, un parte de WhatsApp), pero solo vale con tu firma: la etiqueta, o tu «confirmo» sobre ese PR, que el asistente deja escrito en el PR al ponerla (decisión 36).
 
 ## Dónde está cada dato (sin duplicados)
 
