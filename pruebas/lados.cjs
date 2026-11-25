@@ -50,25 +50,12 @@ const ok = (c, m) => c || f.push(m);
   const horas = await p.$$eval('.tablero-hora .hora-estado', (l) => l.map((x) => x.textContent));
   ok(horas.length >= 2 && horas.every((t) => /cierra en|Fuera de horario · abre/.test(t)), 'Tablero: estado del horario en cada paso con horario: ' + horas);
 
-  // 4. Cotizar: el formulario envía a su hoja (formResponse) y cuenta el envío sin datos personales.
+  // 4. Cotizar (decisión 37): envía a su hoja (formResponse) las 22 claves y cuenta el envío sin datos personales.
+  //    El recorrido completo de los 3 pasos y sus casos están en pruebas/cotizar.cjs.
   await p.goto(B + '/cotizar/');
   const form = await p.$eval('#form-cotizar', (x) => ({ accion: x.dataset.accion || '', campos: JSON.parse(x.dataset.campos || '{}') }));
   ok(/\/formResponse$/.test(form.accion), 'Cotizar: envía al formulario de Google (formResponse): ' + form.accion);
-  ok(['tipo', 'desde', 'hasta', 'carga', 'peso', 'fecha', 'empresa', 'telefono', 'email'].every((k) => /^entry\.\d+$/.test(form.campos[k] || '')), 'Cotizar: los 9 campos tienen su entry: ' + JSON.stringify(form.campos));
-  let enviado = null;
-  await p.route('**/formResponse', async (r) => { enviado = r.request().postData(); await r.fulfill({ status: 200, body: '' }); });
-  await p.evaluate(() => { window.__gc = []; window.goatcounter = { count: (o) => window.__gc.push(o) }; });
-  await p.selectOption('select[name=desde]', { index: 1 });
-  await p.selectOption('select[name=hasta]', { index: 2 });
-  await p.fill('input[name=empresa]', 'Empresa de prueba');
-  await p.fill('input[name=telefono]', '+595 21 123 456');
-  await p.click('#form-cotizar [type=submit]');
-  await p.waitForSelector('#form-cotizar .form-ok:not([hidden])', { timeout: 3000 }).catch(() => {});
-  ok(/Solicitud enviada/.test(await p.textContent('#form-cotizar .form-ok')), 'Cotizar: confirma «Solicitud enviada»');
-  ok(enviado && /entry\.7=Empresa\+de\+prueba/.test(enviado), 'Cotizar: los datos van en el envío al formulario: ' + enviado);
-  const gc = await p.evaluate(() => window.__gc);
-  ok(gc.length === 1 && gc[0].event === true && /^envio-/.test(gc[0].path), 'Estadísticas: un evento de envío: ' + JSON.stringify(gc));
-  ok(gc.length === 1 && !/prueba|595|@/.test(JSON.stringify(gc[0])), 'Estadísticas: el evento no lleva nada de lo escrito');
+  ok(['tipo', 'desde', 'hasta', 'carga', 'peso', 'fecha', 'empresa', 'telefono', 'email', 'id', 'servicio', 'nombre', 'compartir'].every((k) => /^entry\.\d+$/.test(form.campos[k] || '')), 'Cotizar: las claves tienen su entry: ' + JSON.stringify(form.campos));
 
   // 5. Anunciarme: las solicitudes de empresas también van a su formulario.
   await p.goto(B + '/anunciate/');

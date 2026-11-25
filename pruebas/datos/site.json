@@ -68,6 +68,6 @@
     }
   },
   "cotizaciones": {
-    "enlacePrellenado": "https://docs.google.com/forms/d/e/PRUEBA-COTIZACIONES/viewform?usp=pp_url&entry.1=tipo&entry.2=desde&entry.3=hasta&entry.4=carga&entry.5=peso&entry.6=fecha&entry.7=empresa&entry.8=telefono&entry.9=email"
+    "enlacePrellenado": "https://docs.google.com/forms/d/e/PRUEBA-COTIZACIONES/viewform?usp=pp_url&entry.1=tipo&entry.2=desde&entry.3=hasta&entry.4=carga&entry.5=peso&entry.6=fecha&entry.7=empresa&entry.8=telefono&entry.9=email&entry.10=id&entry.11=servicio&entry.12=origen_pais&entry.13=destino_pais&entry.14=paso&entry.15=cuando&entry.16=mercancia&entry.17=viajes&entry.18=equipo&entry.19=especial&entry.20=nombre&entry.21=perfil&entry.22=compartir"
   }
 }

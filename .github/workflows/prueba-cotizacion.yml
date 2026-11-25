@@ -6,7 +6,7 @@ name: Prueba de cotización
 
 on:
   pull_request:
-    paths: ['data/site.json', 'src/assets/formulario.js', 'scripts/cruces.mjs', 'scripts/prueba-cotizacion.mjs', '.github/workflows/prueba-cotizacion.yml']
+    paths: ['data/site.json', 'src/assets/cotizar.js', 'scripts/cruces.mjs', 'scripts/prueba-cotizacion.mjs', '.github/workflows/prueba-cotizacion.yml']
   schedule:
     - cron: '41 7 * * 1'
   workflow_dispatch:

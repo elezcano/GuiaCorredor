@@ -1663,3 +1663,65 @@ fieldset { min-width: 0; }
 .hora-estado.hora-fuera { color: var(--accent, #1d6a8c); font-weight: 600; }
 [data-tema="oscuro"] .hora-estado.hora-fuera { color: #7fb8d6; }
 @media (max-width: 480px) { .lados-paso .lado { grid-template-columns: auto 1fr; } .lados-paso .lado-texto { grid-column: 1 / -1; } }
+
+/* Pedir cotización en 3 pasos (V6, bocetos 2.1–4.1): móvil primero, sin nada premarcado salvo «No lo sé». */
+.cot { display: flex; flex-direction: column; gap: 24px; }
+.cot h1 { margin: 0; }
+.cot-progreso { display: flex; flex-direction: column; gap: 8px; }
+.cot-progreso p { margin: 0; font-size: 14px; color: var(--muted-foreground); }
+.cot-barra { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.cot-barra li { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
+.cot-barra li::before { content: ""; height: 4px; border-radius: 2px; background: var(--border); }
+.cot-barra li.hecho::before, .cot-barra li[aria-current="step"]::before { background: var(--accent); }
+.cot-barra li[aria-current="step"] { color: var(--foreground); font-weight: 600; }
+@media (max-width: 560px) { .cot-barra li { font-size: 0; } }
+.cot-paso { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.cot-grupo { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.cot-grupo > legend, .cot-lbl { padding: 0; font-size: 15px; font-weight: 600; color: var(--foreground); }
+.cot-opc { font-weight: 400; color: var(--muted-foreground); }
+.cot-ayuda { margin: 0; font-size: 13px; line-height: 18px; color: var(--muted-foreground); }
+.cot .chips { flex-wrap: wrap; overflow: visible; }
+.cot .chip { height: 44px; font-size: 15px; }
+.cot-inp { height: 52px; width: 100%; min-width: 0; padding: 0 14px; border: 1px solid var(--input); border-radius: var(--radius); background: var(--background); color: var(--foreground); font: inherit; font-size: 16px; }
+textarea.cot-inp { height: 88px; padding: 12px 14px; resize: vertical; }
+.cot-inp:focus { outline: none; border-color: var(--ring); box-shadow: 0 0 0 4px var(--ring-halo); }
+.cot-fila { display: flex; gap: 8px; }
+.cot-fila .cot-pref { width: 112px; flex: none; padding: 0 10px; }
+.cot-check { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; font-size: 15px; line-height: 21px; cursor: pointer; }
+.cot-check input { width: 22px; height: 22px; margin: 0; flex: none; accent-color: var(--accent); }
+.cot-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.cot-tile { position: relative; display: flex; flex-direction: column; gap: 8px; min-height: 88px; padding: 14px; border: 1px solid var(--input); border-radius: var(--radius-lg); background: var(--background); font-weight: 600; cursor: pointer; }
+.cot-tile input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.cot-tile small { font-weight: 400; font-size: 13px; color: var(--muted-foreground); }
+.cot-tile .icono { width: 24px; height: 24px; color: var(--accent); }
+.cot-tile:has(input:checked) { border: 2px solid var(--accent); padding: 13px; background: color-mix(in srgb, var(--accent) 8%, var(--background)); }
+.cot-tile:has(input:focus-visible) { outline: 2px solid var(--ring); outline-offset: 2px; }
+.cot-lugar { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); min-width: 0; }
+.cot-lugar h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted-foreground); }
+.cot-dos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.cot [aria-invalid="true"], .cot .cot-mal { border-color: var(--corte) !important; }
+.cot-mal > legend, .cot-mal > .cot-lbl { color: var(--corte); }
+.cot-resumen { margin: 0; padding: 4px 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--muted); }
+.cot-resumen div { padding: 10px 0; border-top: 1px solid var(--border); }
+.cot-resumen div:first-child { border-top: 0; }
+.cot-resumen dt { font-size: 12px; font-weight: 600; color: var(--muted-foreground); }
+.cot-resumen dd { margin: 2px 0 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; font-size: 14px; line-height: 20px; }
+.cot-resumen dd .btn-texto { flex: none; }
+.cot-priv { margin: 0; padding: 12px 14px; border-radius: var(--radius); background: color-mix(in srgb, var(--accent) 8%, var(--background)); font-size: 13px; line-height: 19px; }
+.cot-pie { display: flex; gap: 8px; }
+.cot-pie .btn { min-height: 52px; height: auto; }
+.cot-pie .btn-negocio { flex: 1; }
+.cot-banda { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px solid var(--corte); border-radius: var(--radius-lg); }
+.cot-banda p { margin: 0; }
+.cot-banda .acc { display: flex; flex-wrap: wrap; gap: 8px; }
+.cot-ok { display: flex; flex-direction: column; gap: 20px; }
+.cot-ok:focus { outline: none; }
+.cot-id { display: flex; flex-direction: column; gap: 4px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.cot-id strong { font-family: var(--fuente-datos); font-size: 24px; letter-spacing: 0.02em; }
+.cot-pasos-ok { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; }
+.cot-lado { display: flex; flex-direction: column; gap: 16px; align-self: start; }
+@media (max-width: 1080px) { .cot-lado.solo-ancho { display: none; } }
+.cot-lado dl { margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+.cot-lado dt { font-size: 12px; font-weight: 600; color: var(--muted-foreground); }
+.cot-lado dd { margin: 2px 0 0; }
+.cot-lado ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 22px; }

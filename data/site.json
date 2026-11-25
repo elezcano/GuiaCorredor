@@ -90,6 +90,6 @@
     "goatcounter": "https://radarcorredor.goatcounter.com/count"
   },
   "cotizaciones": {
-    "enlacePrellenado": "https://docs.google.com/forms/d/e/1FAIpQLSdVK4SOSEdcenslh95Yi4kSJ0gaz4pCp80tqWTva2xWr7wJVg/viewform?usp=pp_url&entry.2131512641=tipo&entry.1112425483=desde&entry.843332973=hasta&entry.373403768=carga&entry.12545181=peso&entry.410979864=fecha&entry.900194835=empresa&entry.1694481821=telefono&entry.403110214=email"
+    "enlacePrellenado": "https://docs.google.com/forms/d/e/1FAIpQLSdVK4SOSEdcenslh95Yi4kSJ0gaz4pCp80tqWTva2xWr7wJVg/viewform?usp=pp_url&entry.2131512641=tipo&entry.1112425483=desde&entry.843332973=hasta&entry.373403768=carga&entry.12545181=peso&entry.410979864=fecha&entry.900194835=empresa&entry.1694481821=telefono&entry.403110214=email&entry.784049799=id&entry.602239599=servicio&entry.1258616662=origen_pais&entry.777651272=destino_pais&entry.1665265680=paso&entry.942354272=cuando&entry.1909111234=mercancia&entry.23075357=viajes&entry.702757299=equipo&entry.1266535781=especial&entry.87318923=nombre&entry.1402154304=perfil&entry.1467778565=compartir"
   }
 }
