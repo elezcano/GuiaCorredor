@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 25/11/2026 | [Arquitectura](arquitectura.md) más sencilla y completa: tres reglas, piezas, dónde vive cada dato y qué es público, comprobaciones que bloquean, coste, cuándo cambiar de arquitectura y límites conocidos | #274 (`f8bec54`) |
 | 25/11/2026 | [Regla del estado de los pasos](regla-estado-pasos.md) más sencilla (versión 1.2): misma regla en la mitad de espacio, con tres reglas, los cuatro estados, cómo informa cada país, diagrama y tablas de decisión con ejemplos reales | #272 (`7ee7245`) |
 | 25/11/2026 | **Documentación: una pregunta, un documento** ([decisión 35](decisiones.md)): README de portada con el mapa de la documentación; decisiones, plan, datos y fuentes y arquitectura en su propio documento; informes cerrados a `archivo/`; prueba que comprueba enlaces, anclas y numeración de decisiones | #270 (`7582bce`) |
 | 25/11/2026 | Qué mejora el lote 1 en la integridad del dato (antes/ahora de cada caso y lo que no arregla), en la [trazabilidad del lote 1](auditoria-2026-11-25.md#trazabilidad-del-lote-1) | #268 (`a9b7175`) |
