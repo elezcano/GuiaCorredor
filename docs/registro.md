@@ -1,0 +1,79 @@
+# Registro de avances
+
+Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las decisiones de producto están en el [README](../README.md) («Decisiones aprobadas») y la regla del estado de los pasos, en [`regla-estado-pasos.md`](regla-estado-pasos.md).
+
+| Fecha | Avance | Dónde |
+|---|---|---|
+| 25/11/2026 | #257 | Regla por país (decisión 33): Argentina confirma a diario (lectura de la web oficial < 6 h o parte de hoy; «Sin confirmar» hasta que Gendarmería publique la apertura, también antes de abrir); Chile por aviso (15 días); Paraguay sin canal oficial: su lado no cuenta y la ficha lo dice. El cruce es el peor lado. Fuera el umbral de 48 h y el «Abierto solo en». El parte de Jama del 22/11 cargado como cierre se rehace como «Cierre de la jornada». |
+| 24/11/2026 | #248 | Vigilante: el parte rutinario de Chile de las 20:00 («permanece cerrado», en «Motivo del cierre») ya no cuenta como cierre; el registro diario solo apunta si Gendarmería publicó ese día. Corregido el 23/11 de Jama (falso «cerrado») y de Sico (falso «abierto»): Gendarmería no publicó ese día, queda «sin datos». |
+| 22/11/2026 | #244 | Histórico fehaciente (decisión 32): el cierre nocturno leído por la mañana ya no cuenta como cierre; registro diario de lecturas oficiales (reconstruido desde el 17/11); un día sin lectura buena es «sin datos». Jama: 7 habilitado y 1 sin paso para carga; Sico: 7 y 1 sin datos. |
+| 22/11/2026 | #242 | Arreglo: el resumen del informe vuelve a caber en una página con la tipografía publicada (bloqueaba la publicación de #236–#241). |
+| 22/11/2026 | #239 | El lado que el vigilante lee en la web oficial cuenta como comprobado aunque el parte fechado sea antiguo («comprobado hoy 17:00 · último parte de Gendarmería: 17 nov»); el resumen de WhatsApp ya no pierde «Confirmar antes de salir». |
+| 22/11/2026 | #238 | PY15 Mariscal Estigarribia – Pozo Hondo: fuente oficial del MOPC (7/9/2026, Lote 3 al 40,5 %) en lugar de Última Hora. |
+| 22/11/2026 | #237 | Vigilante: reintentos ante cortes de red; el DNIT avisa a las 6 h sin lectura (los pasos, a las 3 h). |
+| 22/11/2026 | #236 | Vigía: solo tras una publicación que terminó bien. |
+| 22/11/2026 | #233 | Pruebas de la decisión 31 (estado por lado, horario, formularios) y Vigía: comprueba la web publicada tras cada publicación y cada 6 h, y abre un issue si algo falla. |
+| 22/11/2026 | #232 | Formularios de la cuenta del producto: cotizaciones (con aviso por correo), solicitudes de empresas y tiempos de cruce envían a sus hojas privadas. |
+| 22/11/2026 | #231 | Contacto de la web: la cuenta del producto en lugar del correo personal. |
+| 22/11/2026 | #230 | Estadísticas sin cookies con GoatCounter: visitas por página y envíos de formulario, solo en la web publicada. |
+| 22/11/2026 | #228 | Estado por lado: cada país con su línea en la ficha; Chile informa por aviso («Sin avisos desde…», contorno) y deja de salir «Sin confirmar» cuando calla; el horario («Fuera de horario · abre en…») va aparte del estado. |
+| 22/11/2026 | #226 | Parte chileno de Jama del 22/11 (UPF); Sico sin partes ya no dice «Abierto solo en» vacío. |
+| 21/11/2026 | #221 | Jama y Sico: si falta el parte chileno, la ficha enlaza la cuenta oficial en X de la Unidad de Pasos Fronterizos (Chile no publica el estado en una web legible). |
+| 21/11/2026 | #220 | P0: «comprobado cada hora» se separa de cuándo publica el organismo; nuevas etiquetas «Fuente atrasada» y «Fuente no disponible». |
+| 20/11/2026 | #216 | P0: un paso solo sale «Abierto» con parte oficial de menos de 48 h de todos sus lados (si no, «Sin confirmar · Abierto solo en …»); el ✓ queda solo para organismos oficiales y la prensa dice «Prensa · sin parte oficial». |
+| 20/11/2026 | #214 | Banderas junto al país en los festivos del planificador, la ficha del paso («¿Cuándo cruzas?») y el informe de viaje. |
+| 20/11/2026 | #212 | Calendario aduanero V3: el mes en cuadrícula con las banderas de cada festivo, «¿Cuándo cruzas?» al tocar un día, próximo feriado por país y horarios de cada paso plegados (de 10.957 a 1.096 px en escritorio). |
+| 20/11/2026 | #210 | Planificador: cada aviso una sola vez, en su tramo (de 7.773 a 3.828 caracteres en Campo Grande → Iquique). Menos descarga: la caché sin conexión ya no se vuelve a bajar en cada publicación y el diccionario portugués va en un archivo aparte (portada PT de 146 a 69 KB). |
+| 20/11/2026 | #207 | Portada: la línea de propuesta va junto al título para que la vista quepa en una pantalla con DM Sans. |
+| 20/11/2026 | #204 | Ficha destacada a 5 US$ al mes; buzones de correo por uso (info, contacto, soporte, legal) preparados para cuando haya dominio. |
+| 20/11/2026 | #203 | Portada con una línea que dice qué es el producto: cada paso y carretera, según su fuente oficial. |
+| 20/11/2026 | #202 | Identidad RadarCorredor by Vialta: color en tres capas (corporativo, acento turquesa, estados), fuera el amarillo, DM Sans y DM Mono, Vialta en el pie y en el informe con interruptor ([MARCA.md](MARCA.md)). |
+| 20/11/2026 | #205 | Marca RadarCorredor: logotipo en la cabecera, favicon y nombre. |
+| 20/11/2026 | #200 | V2 en las páginas que faltaban: informe, guía de tramo y documentos, ficha más corta, cómo trabajamos y novedades. |
+| 20/11/2026 | #198 | Plan de 90 días según el veredicto del comité (continuar, 8/10): tres fases hasta el 18/02/2027 y ciclo 2 tras abrir los accesos al puente. Tablero de Trello reorganizado. |
+| 20/11/2026 | #196 | Mapas de OpenStreetMap interactivos en la ficha de paso, la guía de tramo y el planificador, centrados en lo que miras; Mapa interactivo en V2. |
+| 20/11/2026 | #194 | Avisos y Fuentes que vigilamos en V2: una línea por aviso o fuente, detalle al abrir y dos columnas. |
+| 20/11/2026 | #191 | Mapas con el mismo encuadre (corredor entero o centrado en el paso o la ruta) y tablero con bandera y nombre del país. |
+| 20/11/2026 | #192 | Vigilante: lee el «Motivo del cierre» de Gendarmería en la web oficial del paso y lo cita en el estado. |
+| 20/11/2026 | #189 | Pie con 5 enlaces: mapa, anunciarse, cómo trabajamos, fuentes y contacto. |
+| 20/11/2026 | #187 | Rediseño V2: menú lateral/inferior, «Estado» con tablero de pasos, iconos Tabler y señales de carril, Rutas y Fronteras en dos columnas, página /cotizar/ (sin email personal) y prueba del sistema de diseño en 3 tamaños. |
+| 20/11/2026 | #183 | Avisos cortos (una línea + «Más información»), MOPC como mucho en ámbar (rojo solo si nombra la PY15: regla apagada) e historial de 90 días. |
+| 19/11/2026 | **Solo las fuentes oficiales deciden:** la prensa sin verificar queda como contexto y no cambia el estado; sin sello amarillo «Sin verificar» (cada dato dice de qué tipo es su fuente); «Tareas del día» solo con los partes de Chile por WhatsApp y las alertas sin clasificar | #175 |
+| 19/11/2026 | **Sin incidencias / Con incidencias / Sin vigilancia:** los tramos vigilados dejan de salir «Sin confirmar»; «Carreteras para llegar» en cada paso; portada con lo que impide primero y el resto en una línea; la página consulta en vivo cuándo se leyó cada fuente (decisión 22) | #173 |
+| 18/11/2026 | **Vigilante del DNIT (Brasil):** el vigilante lee las «Alertas DNIT» y publica las de la BR-060 y la BR-267 en MS (Campo Grande → Porto Murtinho) con el sello «✓ Web oficial»; lo que no sabe clasificar queda para revisar a mano | #170 |
+| 18/11/2026 | **Vigilante del MOPC (Paraguay):** el vigilante lee el informe diario «Estado de las rutas nacionales» (PDF en Drive, de lunes a viernes a las 07:00 y 13:00) y publica los cierres de la PY15 y de Boquerón con el sello «✓ Web oficial»; «Clausurada P/V/P» → no habilitado para carga | #167 |
+| 18/11/2026 | **PY15, recorrido real:** el tramo 2 (Cruce Centinela – Mariscal) no está construido; se va por Loma Plata, Filadelfia y la Transchaco. Superficie de cada tramo con el inventario vial del MOPC | #166 |
+| 18/11/2026 | **Publicación fiable:** fusionar un PR ya no cancela la publicación de la web; cada cambio en main se publica solo, sin lanzarlo a mano | #162 |
+| 18/11/2026 | **Fuentes oficiales de Brasil:** el tramo Campo Grande → Porto Murtinho deja de estar «sin fuente»: BR-060 y BR-267 con las «Alertas DNIT» (pendientes de su lector, HU-138), la PRF como fuente manual, el acceso brasileño al puente (en obras, previsto 2027) y la aduana de Porto Murtinho (prevista 2028) | #160 |
+| 18/11/2026 | **Fuentes en CSV y web completa en portugués:** el vigilante se configura con `data/fuentes-vigilancia.csv` (pausar una fuente o mover una carretera de tramo sin tocar código; `npm run check` lo valida) y la lista se publica en «Fuentes que vigilamos». Todas las páginas en portugués (/pt/), con la guía traducida. Mapa interactivo rediseñado (formas de estado y lista de tramos); Avisos, Calendario y Papeles con el diseño V2 | #156 |
+| 18/11/2026 | **La Guía en portugués de Brasil:** Hoje, Rotas, Fronteiras, fichas de paso y Serviços en /pt/, con selector ES \| PT en la cabecera que se recuerda; hora de referencia de Campo Grande; avisos oficiales y datos sin traducir («texto oficial em espanhol»); hreflang para buscadores. Se generan solas desde las páginas españolas con un diccionario de frases. Paso 2 de 3 | #150 |
+| 18/11/2026 | **Rediseño Versión 2 (la web como app):** menú de 4 (Hoy, Rutas, Fronteras, Servicios); portada «Hoy» con tu ruta guardada y su veredicto en una frase («Puedes ir hoy por Sico»); estado con color, forma y palabra; sello único «Organismo · cuándo · ✓ Web oficial»; horarios con la hora del país y la de España; ficha del paso con pestañas Hoy, Papeles (marcables) y Calendario (¿cuándo cruzas?); Servicios con las 11 categorías; se ve sin conexión con la hora de los datos. Paso 1 de 3 (luego portugués, HU-135, y «Avísame», HU-132) | #143 |
+| 17/11/2026 | **Chile, por posición en el mapa:** las emergencias de Vialidad de Chile (Tarapacá y Antofagasta) se asignan al tramo cuyo trazado pasa a menos de 3 km, así entran la Ruta 5, la Ruta 1 y el acceso a Iquique. Hoy: 2 registros antiguos en el ramal de Iquique (Ruta 1 y Ruta 16), en ámbar y «confírmalo». HU-130 terminada | #130 |
+| 17/11/2026 | **El vigilante vigila las carreteras:** Vialidad Nacional (RN 9, 34, 51, 52 y 66 del corredor, cada hora) y Vialidad de Chile (emergencias de la región de Antofagasta, semanal). Lo publica como aviso del tramo con el sello «Web oficial»; un corte o un «no habilitado para carga» bloquea la ruta en el planificador | #130 |
+| 17/11/2026 | **El vigilante publica al momento (pasos argentinos):** lee el estado de Gendarmería, el de Vialidad, el horario y el recuadro «Atención» de la web oficial de Jama, Sico y Misión La Paz; lo comprueba, lo sube y publica la web con el sello «Web oficial»; después avisa por correo. Pruebas con las páginas oficiales guardadas | #130 |
+| 17/11/2026 | **Vigilante fiable:** pasadas cada hora desde cron-job.org, estado de cada fuente guardado en la rama `datos-vigilancia`, aviso si una fuente falla 3 veces seguidas y estado de la vigilancia en las tareas del día | #129 |
+| 17/11/2026 | **Planificador rediseñado:** primero el veredicto («Hoy no se puede hacer entera», «Se puede hoy, con dudas», «Sin problemas conocidos»), qué lo impide y qué parte funciona hoy; opciones en tarjetas; tramo a tramo, avisos, papeles y festivos plegados; km por tipo (con fuente, calculados, estimados). Cualquier origen y destino de la red, en los dos sentidos. El tipo de carga sale de la búsqueda y pasa a «Papeles», que es lo único que cambia | #116 |
+| 17/11/2026 | **Contraste con Google Maps:** coordenadas y km de la red confirmados; Carmelo Peralta → Mariscal pasa a 379,4 km calculados (los 307 km eran una resta sin fuente); el puente queda sin distancia hasta el dato oficial; los dos puentes fronterizos ya tienen coordenadas | #115 |
+| 17/11/2026 | **Puertos de Chile por separado:** San Pedro de Atacama, Calama, Antofagasta, Mejillones e Iquique son puntos propios; Mejillones e Iquique, como ramales desde Calama. El planificador ya calcula rutas a cada puerto | #115 |
+| 17/11/2026 | **Mapa interactivo** con MapLibre y teselas de OpenFreeMap (OpenStreetMap), con el estado de cada tramo y paso, y cálculo de trazados por carretera con OSRM (en revisión) | #115 |
+| 17/11/2026 | **Ficha de paso más corta:** la decisión en la primera pantalla (estado, hora de cierre, qué dice cada país, últimos 30 días y Llamar · Compartir · Planificar) y lo demás plegado. Jama pasa de 15 a 4 pantallas de móvil | #113 |
+| 17/11/2026 | **La web no nombra a nadie:** las insignias dicen «Verificado en fuente oficial» o «Verificado en la fuente», y los textos públicos ya no mencionan a ninguna persona | #107 |
+| 17/11/2026 | **Ficha de paso por sentido de cruce** con botón «⇄»; el planificador abre cada ficha en el sentido del viaje | #105 |
+| 17/11/2026 | **Tareas del día por correo** para el responsable editorial | #99 |
+| 17/11/2026 | **Fiabilidad de cada paso:** días no habilitado, sin paso para carga, con restricciones, habilitado y sin datos en 30 y 90 días, solo con partes verificados. El relleno de agosto a noviembre espera la confirmación de Ernesto | #97 |
+| 17/11/2026 | **Feriados verificados:** Paraguay 2027 (con los trasladables marcados), Argentina, Chile y Brasil, comprobados contra sus leyes | PR #103, #104 |
+| 17/11/2026 | **Jama sin paso para carga por viento** (UPF Chile, 16/11): primer parte del lado chileno y texto claro de «no habilitado para carga» | PR #93, #94 |
+| 17/11/2026 | **Vigilante con horario:** solo avisa dentro del horario de cada paso (hora de Argentina), y cada correo lleva la hora de Argentina y de España | — |
+| 16/11/2026 | **Primeros avisos del vigilante atendidos:** partes de Gendarmería y Vialidad en Jama, Sico y Pozo Hondo; horario de Sico corregido (09:00–19:00) y de Jama aclarado (09:00–19:15). El vigilante pasa a revisar cada hora | #86 |
+| 15/11/2026 | **Informe resumido en una página:** estado y último parte de cada paso, lo importante, avisos, distancia y papeles en una hoja A4 | #80 |
+| 15/11/2026 | **Vigilante de webs oficiales:** cada hora revisa Gendarmería y Vialidad y avisa por correo si hay un parte más nuevo que el cargado | #77 |
+| 15/11/2026 | **Pruebas automáticas en GitHub:** las pruebas de navegador se ejecutan en cada cambio y bloquean la publicación si algo falla | #50 |
+| 15/11/2026 | **Partes por organismo** con fecha, hora y aviso de antigüedad a partir de 48 h (se bajará a 24 h en mayo/junio de 2027) | #73 |
+| 15/11/2026 | **Los cuatro pasos con estado verificado.** Sico, habilitado con horario (corregido el 16/11 a 09:00–19:00). Aviso en la RN 51 | PR #72 |
+| 15/11/2026 | **Teléfonos verificados** de Jama, Sico y Pozo Hondo, con la etiqueta exacta de la web oficial | PR #71 |
+| 15/11/2026 | **Fichas de paso:** hora local y «abierto ahora», controles para carga, botón Llamar y novedades del paso | #65–#68 |
+| 15/11/2026 | **Informe de viaje** por ruta y fecha, para WhatsApp, enlace o PDF | #45 |
+| 15/11/2026 | **Semáforo operativo**, banderas, respuesta en una línea y mapa por tramos | — |
+| 15/11/2026 | **Puente de la Bioceánica, Pozo Hondo y Jama** verificados por Ernesto | — |
+| 15/11/2026 | **Formulario de Google** para solicitudes de empresas (hoja privada) | — |
+| 14/11/2026 | **P0 Fiabilidad:** verificación humana, fuentes, esquemas, calidad automática y `api/v1` | [informe](informe-p0.md) |

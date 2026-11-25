@@ -315,7 +315,7 @@ Cualquier cambio de esta regla sigue este orden, en un solo PR:
 3. **Este documento**: invariante, tabla de decisión o parámetro afectado, y fila en la bitácora (§13).
 4. **Código** y su **prueba** (autoprueba o navegador).
 5. **Corrección de datos** si el error dejó huella (estado, parte o `CORRECCIONES_DIARIO`).
-6. Tras publicar: registro en el README y comprobación de «Publicar web» y «Vigía».
+6. Tras publicar: fila en [`registro.md`](registro.md) y comprobación de «Publicar web» y «Vigía».
 
 Para añadir un país o un canal basta con una entrada en `canalesParte` con su `modo` y, si es `por-aviso`, `plazoDias` y `revisado`. Si el canal tiene lectura automática, una fila en `data/fuentes-vigilancia.csv` y su lector en el vigilante.
 
