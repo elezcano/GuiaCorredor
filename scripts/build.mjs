@@ -143,12 +143,14 @@ const lecturaAutoDeLado = (() => {
 //   confirmar) ya está en el estado del paso.
 // · «por-aviso» (Chile, Paraguay: solo publican cuando cierran): su silencio vale como habilitado mientras el canal se
 //   haya revisado en plazo (ladoPorAviso). Pasado el plazo, es fallo nuestro: «Sin confirmar».
+// · «sin-canal» (Paraguay, 25/11/2026: no hay fuente oficial del estado de sus pasos): ese lado no puede confirmar ni
+//   negar nada, así que no cuenta; lo decide el otro lado y la ficha lo dice.
 // Desaparecen el umbral de 48 h por parte y el «Abierto solo en…».
 const modoLado = (lado) => site.canalesParte?.[lado]?.modo || 'diario';
 const parteDeHoy = (p, lado) => (p.partes || []).filter((x) => x.lado === lado && x.publicado === HOY).sort((a, b) => (b.hora || '').localeCompare(a.hora || ''))[0] || null;
 const ladoDiarioOk = (p, lado) => !!(lecturaAutoDeLado(p.id, lado) || parteDeHoy(p, lado));
 const ladosSinParte = (p) =>
-  Object.keys(p?.lados || {}).filter((lado) => (modoLado(lado) === 'por-aviso' ? !ladoPorAviso(p, lado) : !ladoDiarioOk(p, lado)));
+  Object.keys(p?.lados || {}).filter((lado) => modoLado(lado) !== 'sin-canal' && (modoLado(lado) === 'por-aviso' ? !ladoPorAviso(p, lado) : !ladoDiarioOk(p, lado)));
 // 21/11/2026: Chile publica el parte diario de sus pasos solo por WhatsApp y X (Unidad de Pasos Fronterizos), sin web
 // que el vigilante pueda leer. Cuando falta ese lado, se enlaza el canal oficial para que el transportista lo compruebe.
 const canalParte = (lados) =>
@@ -193,7 +195,10 @@ const ladosHTML = (p, e) => {
     const ult = delLado.find((x) => !/^Vialidad/.test(x.emisor || '')) || delLado[0];
     const quien = ult?.emisor ? txtEs(ult.emisor.replace(/\s*\(.*\)$/, '')) : '';
     let cls, txt;
-    if (modoLado(lado) === 'por-aviso') {
+    if (modoLado(lado) === 'sin-canal') {
+      cls = 'sin-canal';
+      txt = `<strong>Sin canal oficial</strong> · ${esc(site.canalesParte[lado].explicacion || 'no publica el estado del paso')}`;
+    } else if (modoLado(lado) === 'por-aviso') {
       const av = ladoPorAviso(p, lado);
       if (av) {
         cls = 'aviso';
@@ -220,7 +225,7 @@ const ladosHTML = (p, e) => {
         txt = `<strong>Sin confirmar</strong> · sin parte de hoy ni lectura de su web oficial en las últimas ${LECTURA_LADO_H} h`;
       }
     }
-    return `<li class="lado lado-${cls}">${bandera(lado)}<span class="lado-pais">${esc(PAISES[lado])}</span><span class="lado-texto">${txt}${cls !== 'parte' ? canalParte([lado]).replace(/\.$/, '') : ''}</span></li>`;
+    return `<li class="lado lado-${cls}">${bandera(lado)}<span class="lado-pais">${esc(PAISES[lado])}</span><span class="lado-texto">${txt}${cls !== 'parte' && cls !== 'sin-canal' ? canalParte([lado]).replace(/\.$/, '') : ''}</span></li>`;
   };
   return `<ul class="lados-paso">${lados.map(fila).join('')}</ul>`;
 };

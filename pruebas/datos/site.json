@@ -62,13 +62,9 @@
       "revisado": "2026-11-12"
     },
     "PY": {
-      "organismo": "Dirección Nacional de Migraciones (Paraguay)",
-      "canal": "web oficial",
-      "url": "https://www.migraciones.gov.py/index.php/servicios/puesto",
-      "modo": "por-aviso",
-      "explicacion": "Paraguay solo avisa cuando cierra",
-      "plazoDias": 15,
-      "revisado": null
+      "organismo": "Paraguay",
+      "modo": "sin-canal",
+      "explicacion": "Paraguay no publica el estado de sus pasos: manda el otro lado"
     }
   },
   "cotizaciones": {

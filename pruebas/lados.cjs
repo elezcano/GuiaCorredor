@@ -41,9 +41,8 @@ const ok = (c, m) => c || f.push(m);
   const lp = await p.$$eval('.lados-paso .lado', (l) => l.map((x) => ({ cls: x.className, t: x.innerText })));
   const arp = lp.find((x) => /Argentina/.test(x.t));
   ok(arp && /lado-parte/.test(arp.cls) && /comprobado en la web oficial el 15 nov/.test(arp.t) && /último parte de Gendarmería Nacional: 12 nov/.test(arp.t), 'Pozo Hondo: Argentina comprobada hoy en la web oficial, con la fecha del último parte: ' + arp?.t);
-  // Decisión 33: Paraguay informa por aviso (Migraciones); su canal aún no se ha revisado → «Sin confirmar», con enlace.
-  ok(lp.some((x) => /Paraguay/.test(x.t) && /lado-sin-dato/.test(x.cls) && /Sin confirmar/.test(x.t) && /no se ha revisado/.test(x.t)), 'Pozo Hondo: Paraguay «Sin confirmar · su canal oficial no se ha revisado»: ' + JSON.stringify(lp));
-  ok(await p.$('.lados-paso a[href*="migraciones.gov.py"]'), 'Pozo Hondo: el lado paraguayo enlaza la web de Migraciones');
+  // Decisión 33: Paraguay no tiene canal oficial del estado del paso → su lado no cuenta y la ficha lo dice.
+  ok(lp.some((x) => /Paraguay/.test(x.t) && /lado-sin-canal/.test(x.cls) && /Sin canal oficial/.test(x.t)), 'Pozo Hondo: Paraguay «Sin canal oficial»: ' + JSON.stringify(lp));
   await p.goto(B + '/');
   ok(!/Abierto solo en/.test(await p.textContent('body')), 'Decisión 33: ya no existe «Abierto solo en…»');
 

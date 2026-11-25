@@ -79,14 +79,10 @@
       "revisado": "2026-11-22"
     },
     "PY": {
-      "organismo": "Dirección Nacional de Migraciones (Paraguay)",
-      "canal": "web oficial",
-      "url": "https://www.migraciones.gov.py/index.php/servicios/puesto",
-      "nota": "Migraciones publica en su web y redes el cierre y la reapertura de sus puestos de control (p. ej. por crecidas). Es el único canal oficial paraguayo sobre el estado de Pozo Hondo; el MOPC informa de la ruta (PY15), no del paso.",
-      "modo": "por-aviso",
-      "explicacion": "Paraguay solo avisa cuando cierra",
-      "plazoDias": 15,
-      "revisado": null
+      "organismo": "Paraguay",
+      "modo": "sin-canal",
+      "explicacion": "Paraguay no publica el estado de sus pasos: manda el otro lado",
+      "nota": "Revisado el 25/11/2026: ni Migraciones (su página de puestos no tiene ficha por paso), ni la DNIT, ni el MOPC (informa de la ruta, no del paso) publican el estado de Pozo Hondo. Si aparece un canal oficial, pasa a «por-aviso»."
     }
   },
   "estadisticas": {
