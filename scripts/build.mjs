@@ -1975,7 +1975,10 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
 {
   const envio = configEnvio(site.cotizaciones?.enlacePrellenado, CAMPOS_COTIZACION);
   const conGoogle = envio && !envio.error;
-  const nodos = rutas.nodos.map((n) => `<option value="${esc(n.nombre)}">${esc(n.nombre)}</option>`).join('');
+  // Puntos agrupados por país, en el orden del corredor (el valor es el nombre: es lo que llega a la hoja).
+  const nodos = [...new Set(rutas.nodos.map((n) => n.pais))]
+    .map((pais) => `<optgroup label="${esc(PAISES[pais])}">${rutas.nodos.filter((n) => n.pais === pais).map((n) => `<option value="${esc(n.nombre)}">${esc(n.nombre)}</option>`).join('')}</optgroup>`)
+    .join('');
   const campo = (k, txt, input) => `<label class="campo" data-etiqueta="${esc(txt)}"><span>${esc(txt)}</span>${input}</label>`;
   add(
     '/cotizar/',
