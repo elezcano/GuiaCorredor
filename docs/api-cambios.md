@@ -11,6 +11,7 @@ Registro para quien consume los datos (Claude incluido). La misma lista sale en 
 
 | Fecha | Versión | Tipo | Cambio |
 |---|---|---|---|
+| 25/11/2026 | 1.8.0 | Compatible | Lote 2 de la auditoría: `pasos[].estado.mostrar` añade `confianza` (`oficial-automatica`, `verificacion-manual`, `pendiente-de-verificar`, `caducada`, `fuente-no-disponible`, `contradictoria`), `consultado` (ISO: nuestra última consulta buena a la web oficial) y `publicado` (fecha del organismo). `pasos[].estado.consultado` (ISO) cuando lo escribe el vigilante. Reglas en [Regla del estado de los pasos](regla-estado-pasos.md#confianza) |
 | 17/11/2026 | 1.7.0 | Compatible | Red: «norte-chile» y «puertos-chile» se separan en `san-pedro-atacama`, `calama`, `antofagasta`, `mejillones` e `iquique` (cambio de datos). Nuevo `tramos[].ramal` y rutas `ramal-mejillones`, `ramal-iquique` |
 | 17/11/2026 | 1.6.0 | Compatible | `pasos[]`: `fiabilidad` con `d30` y `d90` (días `cerrado`, `soloCarga`, `restricciones`, `abierto`, `sinDatos` y `pendientesDeVerificar`) |
 | 15/11/2026 | 1.5.0 | Compatible | `pasos[]`: `partes` (lado, emisor, organismo, valor, texto, `publicado` y `hora` local del país) |

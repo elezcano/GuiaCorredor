@@ -12,7 +12,10 @@
 | A3 · aviso de cierre de Chile daba «Sin confirmar» | **Corregido** (lote 1) | `build.mjs` `avisoDeLado` |
 | A4 · silencio de Chile | **Decisión D1:** se mantiene la 33, contrastando Argentina y las carreteras de ambos lados (lote 1) | `build.mjs` `accesoConAvisos` |
 | M5 · fuente caída sin marcar en los pasos | **Corregido** (lote 1) | `build.mjs` |
-| A2, M1, M2, M3, M4, M6, B1–B3 | Pendientes (lotes 2–5) | §B.4 |
+| M1 · estado y confianza mezclados | **Corregido** (lote 2, decisión 38) | `build.mjs` `confianzaDe`; [regla](regla-estado-pasos.md#confianza) |
+| M2 · la hora de consulta no estaba en el estado ni en la API | **Corregido** (lote 2) | `vigilante.mjs` `estado.consultado`; `build.mjs` `consultadoPaso`; `api/v1` 1.8.0 |
+| A1 / M5 · caducidad y fuente caída a la vista | **Ampliado** (lote 2): variantes «Dato caducado» y «Fuente no disponible» y «último estado conocido», respetando D3 | `build.mjs`, `styles.css` |
+| A2, M3, M4, M6, B1–B3 | Pendientes (lotes 3–5) | §B.4 |
 | D4 · verosimilitud | Siguiente ciclo | — |
 | D5 · empresa «verificada» | **Decidido:** exige confirmación de la empresa (lote 5) | — |
 
@@ -176,9 +179,23 @@ El lote 1 quita casos en los que la web podía mostrar un estado distinto del qu
 
 **Lo que el lote 1 no arregla:**
 - No hay un registro de cada lectura que permita demostrar qué leyó el vigilante en una pasada concreta (A2, lote 3).
-- Estado y confianza siguen en un solo valor (M1, lote 2).
 - Las decisiones D2 y D3 mantienen dos riesgos documentados en `regla-estado-pasos.md`, «Riesgos conocidos»: el corte total en ámbar, y un «Cerrado» que puede seguir mostrándose con la fuente caída aunque el paso haya reabierto.
 
 **Verificación del lote:** autoprueba del vigilante, 99 casos sin fallos; 16 pruebas de la web en verde (local y en CI: `construir`, `pruebas`, `vigilar`); publicación y Vigía en verde tras fusionar. Con los datos reales del 25/11 no cambió lo que se ve, porque no se daba ninguno de los casos.
 
 **Cómo reconstruirlo:** `git show 849c1ee` (todo el cambio); `git log --follow docs/regla-estado-pasos.md` (historia de la regla); PR #265 en GitHub (descripción, comprobaciones de CI y fusión).
+
+## Trazabilidad del lote 2
+
+PR #289 · decisión 38 · capturas antes y después en el lienzo, versión 7.
+
+| Hallazgo | Decisión | Regla (`regla-estado-pasos.md`) | Código | Prueba | Qué ve el usuario |
+|---|---|---|---|---|---|
+| **M1** · estado y confianza mezclados | Decisión 38 (cambio 5) | [Confianza](regla-estado-pasos.md#confianza); INV-12 | `build.mjs` · `confianzaDe`, `CONFIANZAS` | `integridad.cjs`: una variante por caso | Chip de confianza junto al estado, con icono y texto |
+| **M2** · sin hora de consulta en el estado ni en la API | Decisión 38 (cambio 6) | INV-8 | `vigilante.mjs` · `estado.consultado`; `build.mjs` · `consultadoPaso`, `lineaConsulta`; `api.mjs` 1.8.0 | autoprueba del vigilante (ISO); `integridad.cjs` (API) | «Consultado a las 17:05 (hora de Argentina) · publicado el 24 nov» |
+| **A1 / M5** · caducidad y fuente caída (cambio 3, adaptado a D3) | D3 del fundador: se mantiene el último estado | «Si algo falla» | `build.mjs` · `confianzaDe` (caducada, fuente no disponible) | `integridad.cjs` (Pozo Hondo, Jama) | «Fuente no disponible» o «Dato caducado», con borde discontinuo; «último estado conocido» |
+| **Cambio 9** · lenguaje visual de la incertidumbre | Decisión 38 | Tabla «Confianza» | `build.mjs` · `confianzaHTML`, `estadoCorto`; `styles.css` | `integridad.cjs`; `diseno.cjs` (móvil, tablet, escritorio) | En la ficha, chip y fechas; en el tablero, solo si está degradada |
+
+**Qué cambia frente a la propuesta original de la auditoría:** el cambio 3 proponía pasar a «Sin confirmar» cualquier estado con la fuente caída. La D3 del fundador lo descartó (lote 1), así que el estado se mantiene y lo que baja es la confianza, que ahora se ve con su propia variante.
+
+**Lo que el lote 2 no arregla:** el registro de cada lectura (A2) y la alerta de pasada perdida (B2) son del lote 3; la prueba de contraste (M4), del lote 4.

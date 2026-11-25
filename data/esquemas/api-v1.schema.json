@@ -149,6 +149,18 @@
                             "properties": {
                               "confirmado": {
                                 "type": "boolean"
+                              },
+                              "confianza": {
+                                "description": "1.8.0: cuánto podemos fiarnos del estado, aparte del estado (auditoría 25/11, lote 2).",
+                                "enum": ["oficial-automatica", "verificacion-manual", "pendiente-de-verificar", "caducada", "fuente-no-disponible", "contradictoria"]
+                              },
+                              "consultado": {
+                                "description": "1.8.0: fecha y hora ISO de nuestra última consulta buena a la web oficial del paso, o null.",
+                                "type": ["string", "null"]
+                              },
+                              "publicado": {
+                                "description": "1.8.0: fecha (AAAA-MM-DD) en que el organismo publicó el dato que decide el estado, o null.",
+                                "type": ["string", "null"]
                               }
                             }
                           }

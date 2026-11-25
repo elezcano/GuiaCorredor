@@ -206,9 +206,9 @@ const notaIntegridad = (e) =>
     : e.accesoAvisos
     ? `${e.accesoAvisos === 1 ? 'Hay un aviso oficial' : `Hay ${e.accesoAvisos} avisos oficiales`} en la carretera de acceso. Revísalo antes de salir.`
     : e.fuenteCaida
-    ? `La web oficial no responde${e.fuenteCaida.desde ? ` desde el ${fechaCorta(e.fuenteCaida.desde.slice(0, 10))}, ${new Date(e.fuenteCaida.desde).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' })} (hora de Argentina)` : ''}: es el último estado leído.`
+    ? `La web oficial no responde${e.fuenteCaida.desde ? ` desde el ${fechaCorta(e.fuenteCaida.desde.slice(0, 10))}, ${new Date(e.fuenteCaida.desde).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' })} (hora de Argentina)` : ''}: es el último estado conocido.`
     : '';
-const estadoPaso = (id) => {
+const estadoPasoBase = (id) => {
   const p = fichaPaso[id];
   const base = estadoMostrable(p?.estado, HOY);
   const caida = base.valor !== 'operativo' && base.confirmado ? fuenteCaidaDe(p) : null;
@@ -224,6 +224,69 @@ const estadoPaso = (id) => {
   const acceso = accesoConAvisos(id);
   if (acceso.length) return { ...e, valor: 'restricciones', accesoAvisos: acceso.length, porAviso: porAviso.length ? porAviso : undefined };
   return porAviso.length ? { ...e, porAviso } : e;
+};
+// Lote 2 (auditoría 25/11/2026, cambios 3, 5, 6 y 9; decisión 38): la confianza es una dimensión aparte del estado.
+// El estado dice qué pasa en el paso; la confianza, cuánto podemos fiarnos de ese dato y por qué. Decisión D3: con la
+// fuente caída se mantiene el último estado conocido, pero la confianza baja a «fuente no disponible».
+const CONFIANZAS = {
+  'oficial-automatica': { texto: 'Oficial · lectura automática', icono: 'escudo' },
+  'verificacion-manual': { texto: 'Oficial · verificado a mano', icono: 'escudo' },
+  'pendiente-de-verificar': { texto: 'Pendiente de verificar', icono: 'pendiente' },
+  caducada: { texto: 'Dato caducado', icono: 'pendiente' },
+  'fuente-no-disponible': { texto: 'Fuente no disponible', icono: 'sin-conexion' },
+  contradictoria: { texto: 'Fuentes contradictorias', icono: 'aviso' },
+};
+const DEGRADADAS = new Set(['caducada', 'fuente-no-disponible', 'contradictoria']);
+const lecturasPaso = (p) => Object.keys(p?.lados || {}).map((l) => vigilanciaDeLado(p.id, l)?.f).filter(Boolean);
+/** Hora de la última consulta buena a la web oficial del paso: la del estado (vigilante) o la última lectura del lado. */
+const consultadoPaso = (p) => [p?.estado?.consultado, ...lecturasPaso(p).map((f) => f.ultimaLecturaBuena)].filter(Boolean).sort().pop() || null;
+const confianzaDe = (p, base, e) => {
+  // Contradictoria: dos partes oficiales del MISMO lado y del mismo día dicen cosas opuestas (uno habilitado, otro
+  // cerrado o con restricciones). Que un país abra y el otro cierre no es contradicción: el cruce es el peor lado.
+  const contradice = Object.keys(p?.lados || {}).some((l) => {
+    const v = new Set((p.partes || []).filter((x) => x.lado === l && x.publicado === HOY && x.evidencia === 'oficial').map((x) => x.valor));
+    return v.has('operativo') && (v.has('cerrado') || v.has('restricciones'));
+  });
+  if (contradice) return 'contradictoria';
+  if (e.fuenteCaida) return 'fuente-no-disponible';
+  if (e.sinLados?.length) {
+    const fuentes = e.sinLados.map((l) => vigilanciaDeLado(p.id, l)?.f).filter(Boolean);
+    if (fuentes.some((f) => (f.fallosSeguidos || 0) >= 3)) return 'fuente-no-disponible';
+    return fuentes.some((f) => f.ultimaLecturaBuena) ? 'caducada' : 'pendiente-de-verificar';
+  }
+  if (base.nivel === 'caducado') return 'caducada';
+  if (!e.confirmado) return 'pendiente-de-verificar';
+  if (e.avisoLado) return 'verificacion-manual';
+  return p?.estado?.verificacion?.verificadoPor === 'vigilante' ? 'oficial-automatica' : 'verificacion-manual';
+};
+const estadoPaso = (id) => {
+  const p = fichaPaso[id];
+  const e = estadoPasoBase(id);
+  if (!p) return e;
+  const base = estadoMostrable(p.estado, HOY);
+  const nivel = confianzaDe(p, base, e);
+  const confianza = { nivel, consultado: consultadoPaso(p), publicado: e.avisoLado?.publicado || p.estado?.publicado || null };
+  // INV-4 e INV-12: con dos partes oficiales opuestos, un «Habilitado» no se sostiene: baja a «Sin confirmar».
+  // Un «No habilitado» o «Con restricciones» se mantiene (es la dirección prudente).
+  if (nivel === 'contradictoria' && e.valor === 'operativo') return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar', contradictoria: true, confianza };
+  return { ...e, confianza };
+};
+const horaAR = (iso) => new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' });
+const diaAR = (iso) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'America/Argentina/Salta' });
+/** «Consultado a las 17:05 · publicado el 24 nov»: dos fechas distintas, cada una con su nombre (auditoría M2). */
+const lineaConsulta = (c) => {
+  const partes = [];
+  if (c.consultado) partes.push(`${diaAR(c.consultado) === HOY ? `Consultado a las ${horaAR(c.consultado)}` : `Consultado el ${fechaCorta(diaAR(c.consultado))}, ${horaAR(c.consultado)}`} (hora de Argentina)`);
+  if (c.publicado) partes.push(`${c.consultado ? 'publicado' : 'Publicado'} el ${fechaCorta(c.publicado)}`);
+  return partes.join(' · ');
+};
+/** Chip de confianza; con «completo», además la línea de consulta y publicación. */
+const confianzaHTML = (c, { completo = true } = {}) => {
+  if (!c) return '';
+  const k = CONFIANZAS[c.nivel];
+  if (!completo && !DEGRADADAS.has(c.nivel)) return '';
+  const linea = completo ? lineaConsulta(c) : '';
+  return `<span class="confianza-linea"><span class="confianza confianza-${c.nivel}">${icono(k.icono)}<span>${esc(k.texto)}</span></span>${linea ? `<span class="consulta">${esc(linea)}</span>` : ''}</span>`;
 };
 /** 22/11/2026: una línea por lado del paso. Cómo informa ese país y qué sabemos hoy, en palabras llanas. */
 const etiquetaLado = (v) => (!v || v === 'operativo' ? 'Habilitado' : v === 'pendiente' ? 'Sin confirmar' : ESTADOS[v] || v);
@@ -511,7 +574,7 @@ function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
   }
   if (v.avisoLado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${esc(PAISES[v.avisoLado.lado])}: aviso oficial del ${fechaCorta(v.avisoLado.publicado)}${v.avisoLado.hora ? `, ${esc(v.avisoLado.hora)}` : ''}${v.avisoLado.emisor ? ` (${txtEs(v.avisoLado.emisor.replace(/\s*\(.*\)$/, ''))})` : ''}</span>`;
   if (v.accesoAvisos) return `${estado('restricciones', tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)} · ${v.accesoAvisos === 1 ? 'aviso oficial' : `${v.accesoAvisos} avisos oficiales`} en la carretera de acceso</span>`;
-  if (v.fuenteCaida) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea fuente-caida">${selloCorto('verificado', v.verificado, v.fuente)} · <strong>la web oficial no responde</strong>${v.fuenteCaida.desde ? ` desde el ${fechaCorta(v.fuenteCaida.desde.slice(0, 10))}, ${new Date(v.fuenteCaida.desde).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' })} (hora de Argentina)` : ''}: último estado leído</span>`;
+  if (v.fuenteCaida) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea fuente-caida">${selloCorto('verificado', v.verificado, v.fuente)} · <strong>la web oficial no responde</strong>${v.fuenteCaida.desde ? ` desde el ${fechaCorta(v.fuenteCaida.desde.slice(0, 10))}, ${new Date(v.fuenteCaida.desde).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' })} (hora de Argentina)` : ''}: <strong>último estado conocido</strong></span>`;
   if (v.porAviso) return `${estado('operativo', tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)} · <span class="por-aviso">${textoPorAviso(v.porAviso)}</span></span>`;
   if (v.etiqueta && !v.confirmado) return `${estado('pendiente', tipo, v.etiqueta)}<span class="estado-fecha">${v.vigilancia ? `${txtEs(v.vigilancia.organismos)} · ${v.etiqueta === 'Fuente atrasada' ? `no publica desde hace más de lo habitual (publica: ${esc(v.vigilancia.frecuencia || '—')})` : `su web no responde: sin lectura buena en las últimas ${HORAS_SIN_ACTUALIZAR} h`}` : 'Ninguna fuente oficial lo publica cada día'}</span>`;
   if (v.confirmado) return `${estado(v.valor, tipo)}<span class="estado-fecha sello-linea">${selloCorto('verificado', v.verificado, v.fuente)}</span>`;
@@ -523,7 +586,10 @@ function vistaHTML(v, { corto = false, tipo = 'paso' } = {}) {
   const dato = v.ultimo === 'pendiente' ? 'sin estado confirmado' : `último dato: ${esc((ESTADOS[v.ultimo] || v.ultimo).toLowerCase())}`;
   return `${estado('pendiente')}<span class="estado-fecha">${dato[0].toUpperCase() + dato.slice(1)}, ${cuando}${origen}</span>`;
 }
-const estadoPasoHTML = (id, o) => vistaHTML(estadoPaso(id), o);
+const estadoPasoHTML = (id, o = {}) => {
+  const v = estadoPaso(id);
+  return vistaHTML(v, o) + confianzaHTML(v.confianza, { completo: !o.corto });
+};
 const HISTORICO_DIAS = 90;
 const esHistorico = (iso) => diasDesde(iso) > HISTORICO_DIAS;
 const recientes = novedades.filter((n) => !esHistorico(n.publicado));
@@ -1239,6 +1305,7 @@ function fichaOperativa(p, guiaPag) {
     ${OPERATIVA[op].icono}
     <div>
       <p class="respuesta-titulo">${esc(OPERATIVA[op].texto + detalleEstado)}</p>
+      <p class="respuesta-confianza">${confianzaHTML(e.confianza)}</p>
       ${ahoraHTML(p, op)}
       ${
         e.confirmado
@@ -1248,10 +1315,12 @@ function fichaOperativa(p, guiaPag) {
             ? `<p class="respuesta-nota">${txtOf(resto)}</p>`
             : ''
           : `<p class="respuesta-nota">${
-              e.sinLados
+              e.contradictoria
+                ? 'Dos partes oficiales de hoy dicen cosas opuestas. Compruébalo antes de salir.'
+                : e.sinLados
                 ? 'No todos los lados confirman hoy. Compruébalo antes de salir.'
                 : e.ultimo && e.ultimo !== 'pendiente'
-                ? `Último dato publicado: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${esc(haceTiempo(p.estado.publicado))}. Confírmalo antes de salir.`
+                ? `Último estado conocido: ${esc((ESTADOS[e.ultimo] || e.ultimo).toLowerCase())}, ${esc(haceTiempo(p.estado.publicado))}. Confírmalo antes de salir.`
                 : 'No hay un estado confirmado. Consulta el parte oficial antes de salir.'
             }</p>`
       }
@@ -1437,8 +1506,12 @@ rutas.tramos.forEach((t) => {
 const estadoCorto = (id) => {
   const e = estadoPaso(id);
   const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
+  // Lote 2: si la confianza está degradada (caducada, fuente no disponible, contradictoria), el tablero lo dice y el
+  // estado se dibuja con borde discontinuo: nunca transmite más seguridad que el dato.
+  const deg = e.confianza && DEGRADADAS.has(e.confianza.nivel) ? e.confianza.nivel : '';
   const nota = e.sinLados ? `Falta ${listaY(e.sinLados.map((k) => PAISES[k]))}` : e.avisoLado ? `Aviso de ${PAISES[e.avisoLado.lado]}` : e.accesoAvisos ? 'Aviso en el acceso' : e.fuenteCaida ? 'Fuente no responde' : e.porAviso ? textoPorAviso(e.porAviso) : '';
-  return `<span class="estado op-${op}${e.porAviso ? ' estado-por-aviso' : ''}">${OPERATIVA[op].icono}<span class="estado-texto">${OPERATIVA[op].texto}</span></span>${nota ? `<small class="estado-parcial">${esc(nota)}</small>` : ''}`;
+  const notaConf = deg && !e.fuenteCaida ? CONFIANZAS[deg].texto : '';
+  return `<span class="estado op-${op}${e.porAviso ? ' estado-por-aviso' : ''}${deg ? ` estado-incierto estado-${deg}` : ''}">${OPERATIVA[op].icono}<span class="estado-texto">${OPERATIVA[op].texto}</span></span>${nota || notaConf ? `<small class="estado-parcial">${esc([nota, notaConf].filter(Boolean).join(' · '))}</small>` : ''}`;
 };
 /** Horario habitual de un paso en hora local («09:00–19:15»), o «—». */
 const horarioCorto = (id) => {
@@ -1457,7 +1530,7 @@ const tableroPasos = ({ sel = null } = {}) => `<div class="tablero-pasos" role="
     .map(
       (h) => `<a role="row" data-paso="${esc(h.id)}" class="tablero-fila${h.id === sel ? ' sel' : ''}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}"${h.id === sel ? ' aria-current="true"' : ''}>
     <span role="cell" class="tablero-paso"><strong>${esc(h.nombre)}</strong><small>${h.cara.map((c) => `<span class="tablero-pais">${bandera(c)}<span>${PAISES[c]}</span></span>`).join(' → ')}</small></span>
-    <span role="cell">${estadoCorto(h.id)}</span><span role="cell" class="tablero-hora"${horarioDatos(h.id)}>${horarioCorto(h.id)}</span></a>`
+    <span role="cell">${estadoCorto(h.id)}</span><span role="cell" class="tablero-hora${horarioCorto(h.id) === '—' ? ' sin-horario' : ''}"${horarioDatos(h.id)}>${horarioCorto(h.id)}</span></a>`
     )
     .join('')}
 </div>`;

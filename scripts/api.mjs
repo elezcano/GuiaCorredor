@@ -6,7 +6,7 @@
 import { CADUCIDAD, EVIDENCIAS, NIVELES, VERIFICADORES, tipoEstado } from './validacion.mjs';
 import { fiabilidad } from './fiabilidad.mjs';
 
-export const API_VERSION = '1.7.0';
+export const API_VERSION = '1.8.0';
 
 /**
  * Registro de versiones publicadas. Gestión interna del formato:
@@ -20,6 +20,7 @@ export const API_VERSIONES = {
 };
 /** Avisos para consumidores (los más recientes primero). */
 export const AVISOS_API = [
+  { fecha: '2026-11-25', version: '1.8.0', tipo: 'compatible', texto: 'pasos[].estado.mostrar: nuevos confianza (oficial-automatica, verificacion-manual, pendiente-de-verificar, caducada, fuente-no-disponible, contradictoria), consultado (ISO, última consulta a la web oficial) y publicado (fecha del organismo). pasos[].estado: nuevo consultado (ISO) cuando lo escribe el vigilante. Auditoría 25/11, lote 2.' },
   { fecha: '2026-11-17', version: '1.7.0', tipo: 'compatible', texto: 'Red: los nodos agrupados «norte-chile» y «puertos-chile» se separan en san-pedro-atacama, calama, antofagasta, mejillones e iquique (cambio de datos). Nuevo campo tramos[].ramal y rutas por ramal (Calama → Mejillones, Calama → Iquique).' },
   { fecha: '2026-11-17', version: '1.6.0', tipo: 'compatible', texto: 'pasos[]: nuevo fiabilidad (días no habilitado, sin paso para carga, con restricciones, habilitado y sin datos en 30 y 90 días).' },
   { fecha: '2026-11-15', version: '1.5.0', tipo: 'compatible', texto: 'pasos[]: nuevo partes (parte de cada organismo por país, con publicado y hora local).' },
@@ -54,7 +55,11 @@ export function generarApi(ctx) {
       caducaEl: verificado ? sumar(verificado, CADUCIDAD[tipo]) : null,
     };
   };
-  const mostrar = (v) => ({ valor: v.valor, ultimoReportado: v.ultimo, confirmado: v.confirmado, nivelMostrado: v.nivel, texto: v.texto });
+  // 1.8.0 (lote 2): la confianza va aparte del estado; consultado (nuestra consulta) ≠ publicado (fecha del organismo).
+  const mostrar = (v) => ({
+    valor: v.valor, ultimoReportado: v.ultimo, confirmado: v.confirmado, nivelMostrado: v.nivel, texto: v.texto,
+    ...(v.confianza ? { confianza: v.confianza.nivel, consultado: v.confianza.consultado, publicado: v.confianza.publicado } : {}),
+  });
   const coord = (c) => (c ? { ...c, fuente: typeof c.fuente === 'string' ? D.fuentes.get(c.fuente) || null : c.fuente } : null);
   const envolver = (recurso, registros, extra = {}) => ({ api: 'v1', version: API_VERSION, generado, recurso, ...extra, registros });
 
