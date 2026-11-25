@@ -1,201 +1,117 @@
 # Datos y fuentes
 
-> Qué datos tiene RadarCorredor, de dónde salen, cómo se validan y cómo los lee el vigilante. Principio rector (aprobado el 14/11/2026): **la fiabilidad tiene prioridad sobre la cantidad**. El estado de los pasos tiene su propia especificación: [`regla-estado-pasos.md`](regla-estado-pasos.md).
+> Qué datos tiene RadarCorredor, de dónde salen y cómo se validan. Vigente desde el 25/11/2026 · decisiones [7, 11, 20, 22, 25, 26](decisiones.md) · el estado de los pasos tiene su propia [regla](regla-estado-pasos.md).
 
-| Parte | Qué responde |
-|---|---|
-| [1 · Validación](#1--validación) | Quién verifica, estados, evidencia, semáforo y reglas de publicación |
-| [2 · Modelo de datos](#2--modelo-de-datos) | Empresas, páginas de la guía y rutas |
-| [3 · Vigilante y fuentes](#3--vigilante-y-fuentes) | Qué fuentes se leen solas, cada cuánto y con qué reglas |
+**En una frase:** cada dato lleva su fuente, su fecha y quién lo comprobó; si no se puede justificar, no se publica.
 
-## 1 · Validación
+## Tres reglas
 
-### Responsable
+1. **Sin fuente no hay dato.** No se inventan cifras: una distancia sin fuente sale «por verificar».
+2. **Verificar es de una persona o de una web oficial.** Lo firma Ernesto o lo lee el vigilante de un organismo; nunca la IA.
+3. **Lo oficial decide, lo demás informa.** La prensa da contexto, en gris y con el nombre del medio, y nunca cambia un estado.
 
-El responsable de verificación es **Ernesto**, responsable editorial del proyecto. En los datos figura con el identificador estable `responsable-editorial`, que siempre representa a quien ostente ese rol. `verificacion.verificadoPor` solo admite dos valores (`scripts/validacion.mjs` → `VERIFICADORES`):
+## Qué lleva cada dato
+
+Todos los datos están en `data/` y se validan con sus esquemas (`data/esquemas/`) en cada cambio. Cada registro lleva estos campos:
+
+| Campo | Qué dice | Valores |
+|---|---|---|
+| `fuente` | De dónde sale (ficha en `data/fuentes.json`, con su URL) | id de fuente |
+| `publicado` | Cuándo lo publicó la fuente | fecha |
+| `actualizado` | Cuándo lo revisamos por última vez | fecha |
+| `evidencia` | Qué tipo de fuente es | `oficial` · `declaracion-empresa` · `tercero` · `calculo` · `estimacion` · `historico` |
+| `validacion` | En qué punto está | `borrador` · `por-verificar` · `verificado` |
+| `verificacion` | Quién lo comprobó, cuándo y cómo | `verificadoPor`, `fecha`, `alcance` |
+
+**Quién puede verificar** (`verificadoPor`, lista en `scripts/validacion.mjs`):
 
 | Valor | Qué significa |
 |---|---|
-| `responsable-editorial` | Comprobación manual en la fuente |
-| `vigilante` | Leído automáticamente de una web oficial y publicado al momento (decisión 22). Solo en estados, partes e incidencias con fuente oficial; el responsable revisa después |
+| `responsable-editorial` | Ernesto lo comprobó a mano en la fuente |
+| `vigilante` | Leído de una web oficial y publicado al momento, con el sello «Web oficial» (decisión 22). Solo estados, partes e incidencias de fuente oficial; Ernesto revisa después |
 
-No se asigna la verificación al asistente de IA ni a terceros. Un despachante u otra persona puede **aportar** revisión; la firma la pone el responsable editorial.
+Un `verificado` sin `verificacion` válida cuenta como `por-verificar`, y `npm run check` falla.
 
-### Estados
+**Tipos de evidencia:** `oficial` (organismo o norma) es la única que decide un estado. `declaracion-empresa` nunca vale como verificada por sí sola. `tercero` es prensa o referencia. `calculo` se explica en una nota. `estimacion` nunca se presenta como dato actual. `historico` nunca describe el presente.
 
-| `validacion` | Significa | Se muestra como |
+## Cuánto dura una verificación
+
+| Dato | Caduca a los | Después se muestra |
 |---|---|---|
-| `borrador` | Información en preparación | Borrador |
-| `por-verificar` | Hay dato y fuente, pero no lo ha revisado el responsable | «Por verificar», con el último dato, su fuente y su fecha |
-| `verificado` | El responsable revisó el dato y su evidencia | El valor, con «Verificado el …» |
+| Estado operativo (abierto, con restricciones) | 30 días | «Verificación caducada» / Sin confirmar |
+| Obra, cierre | 120 días | Ídem |
+| Incidencia | 60 días | Ídem |
+| Horario | 180 días | Ídem |
+| Ficha, empresa, organismo | 365 días | Ídem |
 
-Un registro `verificado` necesita `verificacion`:
+Cada dato operativo (estado, horario, incidencia) tiene su **propia** verificación: que el texto de la guía esté en revisión se avisa aparte y no oculta un estado verificado.
 
-```json
-"validacion": "verificado",
-"verificacion": { "verificadoPor": "responsable-editorial", "rol": "responsable-editorial", "fecha": "2026-11-20", "alcance": "Horario comprobado en la web de Aduanas de Chile" }
-```
+## Reglas de publicación
 
-Sin `verificacion` válida, el sistema trata el registro como `por-verificar` aunque diga `verificado`, y `npm run check` falla. La verificación caduca según el tipo de dato (30 días un estado operativo, 120 una obra, 60 una incidencia, 180 un horario, 365 una ficha, empresa u organismo); después se muestra «Verificación caducada».
+1. Nada sale como verificado sin la firma del responsable editorial o la lectura del vigilante en una web oficial.
+2. La IA investiga, compara y propone, pero **nunca** escribe `verificado` ni `verificacion`.
+3. Un PR que añade verificaciones necesita la etiqueta `revision-editorial`, y solo la pone Ernesto. Sin ella, la comprobación falla.
+4. Lo que entra por otra automatización o por un formulario queda en `por-verificar`, y las empresas entran por PR tras revisarlas.
+5. Un festivo no implica cierre de aduana: la afectación tiene que venir del organismo.
+6. **Excepción provisional (15/11/2026):** donde no hay distancia oficial, se muestra una estimación en línea recta, marcada «Estimación provisional» y con el tramo exacto. Nunca se suma como dato oficial. Se apaga en `data/site.json` → `estimaciones.provisionales`.
 
-**Foco en la operatividad (decisión del 15/11/2026).** Quien consulta la web quiere saber si puede transportar por ese paso o tramo, para cotizar, planificar o informar. Por eso cada dato operativo (estado, horarios, incidencias) se confirma con **su propia** verificación, y la situación operativa va lo primero en cada ficha. Que el texto explicativo de la guía siga en revisión se avisa aparte y no oculta un estado verificado.
+## Los datos
 
-### Semáforo operativo
-
-Lo que ve el usuario en cada paso o tramo, siempre con icono y texto además del color:
-
-| Semáforo | Cuándo |
+| Archivo | Qué guarda |
 |---|---|
-| Abierto (verde) | Estado verificado `operativo` |
-| Con restricciones (ámbar) | Verificado `restricciones`, `intermitente` o `cierre-programado`; en un tramo de carretera, también `en-obras` (se circula con obras) |
-| No habilitado (rojo) | Verificado `cerrado`; en un paso, también `en-obras` (no se puede cruzar) |
-| Sin confirmar (gris, trazo discontinuo) | Todo lo no verificado. Se muestra el último dato publicado con su fecha y cuánto hace; si tiene más de 30 días, se resalta |
+| `pasos.json` | Pasos fronterizos: lados, estado, partes por organismo, horarios, contactos, controles |
+| `rutas.json` | El corredor como una línea de nodos con un tramo entre cada par; un tramo puede tener `paso` y `alternativa`. Distancias sin fuente: `null` |
+| `incidencias.json` | Obras, cortes y restricciones, con su gravedad (rojo, ámbar, informativa) |
+| `directorio.json` | Empresas: sede (`pais`, `ciudad`) y dónde operan (`puntos`, `cobertura`), servicios, contacto, `destacada`. Solo empresas reales y revisadas |
+| `festivos.json` | Calendario aduanero de los cuatro países |
+| `organismos.json`, `fuentes.json` | Quién publica y dónde |
+| `novedades.json`, `avisos.json` | Línea de tiempo de cada paso y avisos meteorológicos |
+| `fuentes-vigilancia.csv` | Qué lee el vigilante (ver abajo) |
+| `site.json` | Configuración: formularios, canales de cada país, estadísticas, marca |
+| `content/guia/` | Fichas de la guía en Markdown, con `titulo`, `tipo`, `resumen`, `paises`, `estado` y `revisado`; terminan en «Fuentes». Aviso si llevan más de 90 días sin revisar |
 
-La regla está en `scripts/lib.mjs` (`operativaDe`) y el planificador usa la misma.
+## Fuentes que se leen solas
 
-### Tipos de evidencia (`evidencia`)
+El vigilante lee cada hora, de 06 a 21 h de Argentina, las filas `activa` de [`fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv). Lo que lee se ve también en la web, en «Fuentes».
 
-| Valor | Uso |
+| Fuente | País | Qué lee | Cómo lo publica |
+|---|---|---|---|
+| **Gendarmería y Vialidad** (web del Ministerio de Seguridad) | 🇦🇷 | Estado, horario, «Atención» y hora de cada parte de Jama, Sico y Misión La Paz | Según la [regla de los pasos](regla-estado-pasos.md) |
+| **Vialidad Nacional** (estado de rutas) | 🇦🇷 | La tabla oficial, por provincia, ruta y tramo | Corte total: rojo · restringida o corte parcial: ámbar · observaciones de una ruta habilitada: informativo |
+| **Vialidad de Chile** (SIEMOP) | 🇨🇱 | Emergencias de Tarapacá y Antofagasta, con coordenadas; cuentan las rutas nacionales a menos de 3 km del tramo | Tránsito no operativo: rojo · solo livianos, peso o doble tracción: «No habilitado para carga» · resto: ámbar · sin novedades en 14 días: ámbar «confírmalo» |
+| **MOPC** (informe diario en PDF) | 🇵🇾 | Puentes inhabilitados, rutas clausuradas y lista por localidad, de lunes a viernes | «Clausurada» para vehículos pesados: «No habilitado para carga» · «Clausurada» o «precaución»: ámbar (en pruebas, como mucho ámbar) |
+| **DNIT** (alertas de servicios) | 🇧🇷 | Alertas de la BR-267 en Mato Grosso do Sul, hasta 30 días atrás | Interdicción total: rojo · peso o camiones: «No habilitado para carga» · parcial o desvío: ámbar · «liberação»: cierra lo anterior · lo que no encaja: aviso para revisar a mano |
+
+**Lo que no se lee solo:** la Unidad de Pasos Fronterizos de Chile (se revisa su canal y se carga a mano), el Puente Bioceánico (noticias oficiales) y lo que no tiene fuente (BR-267 hasta Porto Murtinho, ruta provincial de Misión La Paz), que sale en gris, «sin vigilancia».
+
+**Lo que protege la lectura:**
+- Una copia más antigua de la fuente se descarta: nunca se va hacia atrás.
+- Lo cargado a mano no se toca.
+- Un aviso se retira solo si falta en dos lecturas seguidas (en el MOPC, en dos informes).
+- Si una fuente falla 3 veces seguidas, llega un correo: el vigilante está ciego con ella. Si publica menos de lo habitual, sale «Fuente atrasada».
+- Antes de subir nada se pasa `npm run check`; si falla, no se publica.
+
+## Cambiar o añadir una fuente
+
+| Quiero… | En `fuentes-vigilancia.csv` |
 |---|---|
-| `oficial` | Organismo público o norma |
-| `declaracion-empresa` | Lo dice la propia empresa. Nunca se considera verificado por sí solo |
-| `tercero` | Prensa, obras de referencia, cartografía de terceros |
-| `calculo` | Cuenta hecha a partir de otros datos con fuente (se explica en una nota) |
-| `estimacion` | Aproximación. No se puede marcar como verificada como dato actual |
-| `historico` | Dato pasado (incidencia resuelta). Nunca describe la situación actual |
+| Pausar una fuente | `estado` = `pausada` |
+| Que una carretera cuente en otro tramo | Cambiar su `destino` (`paso:jama`, `tramo:pozo-hondo`…) |
+| Añadir una ruta de Vialidad o un paso de Gendarmería | Una fila nueva con su `filtro` (p. ej. `provincia=Jujuy;ruta=9;tramos=A\|B`) |
+| Cambiar los umbrales de Chile | `km`, `dias_sin_novedad` y `max_horas` en el `filtro` |
 
-### Reglas de publicación
+**Una fuente de un tipo nuevo:**
+1. Filas con `estado` = `pendiente` y su `lector`.
+2. Una copia real de la fuente en `pruebas/vigilante/` y el lector con su autoprueba.
+3. El lector en `LECTORES_AUTOMATICOS` (`scripts/fuentes-vigilancia.mjs`) y la fuente en `data/fuentes.json`.
+4. Las filas, a `activa`.
 
-1. Nada se publica como verificado sin revisión del responsable editorial.
-2. La IA puede investigar, comparar fuentes, proponer cambios y actualizar `actualizado`, pero **nunca** escribe `validacion: verificado` ni `verificacion`.
-3. Un Pull Request que añade verificaciones necesita la etiqueta `revision-editorial`; la comprobación de CI (`scripts/verificaciones.mjs`) falla sin ella. La etiqueta la pone solo el responsable editorial.
-4. Toda automatización que incorpore datos los deja en `por-verificar`.
-5. Las solicitudes de empresas no se publican solas: se revisan y entran por Pull Request.
-6. Un festivo no implica cierre de aduana; las afectaciones deben venir del organismo.
-7. Sin fuente no hay dato. **Excepción provisional (15/11/2026):** mientras el corredor no esté terminado y no haya distancias oficiales (P1.7), los tramos sin distancia con fuente muestran una estimación en línea recta con `evidencia: "estimacion"`, la etiqueta «Estimación provisional», qué tramo exacto se estima y entre qué puntos. Nunca se suma como dato oficial. Se desactiva en `data/site.json` → `estimaciones.provisionales`.
+`npm run check` impide publicar una fila activa con un lector que no existe, una fuente que no es oficial, un destino que no existe o un filtro incompleto.
 
-### Estado del proyecto
+## Límites conocidos
 
-La web está en **versión borrador (MVP)**. Por decisión del responsable, la rama `main` no se protege todavía; se protegerá más adelante (P1.11, #49).
-
-### Límite conocido
-
-El asistente trabaja con el acceso a GitHub de la cuenta del propietario, así que técnicamente podría poner la etiqueta. La regla 3 es un control de procedimiento: el asistente no pone esa etiqueta ni fusiona PR con verificaciones. Pasará a ser un control técnico cuando se proteja `main` con revisión obligatoria del propietario (P1.11, #49), aplazado mientras la web sea un borrador.
-
-## 2 · Modelo de datos
-
-Todos los datos están en `data/*.json`, validados con JSON Schema (`data/esquemas/`) en cada cambio (`npm run check`). Los campos comunes de un registro (`fuente`, `publicado`, `actualizado`, `evidencia`, `validacion`, `verificacion`) son los de la parte 1.
-
-### Empresa (`data/directorio.json`, esquema `data/esquemas/empresas.schema.json`)
-
-| Campo | Tipo | Notas |
-|---|---|---|
-| `id` | texto | Único, en minúsculas con guiones |
-| `nombre` | texto | |
-| `categoria` | texto | Uno de `data/categorias.json` |
-| `pais` | `BR` · `PY` · `AR` · `CL` | |
-| `ciudad` | texto | |
-| `servicios` | lista de textos | Se muestran como etiquetas |
-| `descripcion` | texto | Opcional |
-| `destacada` | sí/no | Ficha de pago |
-| `contacto` | `{ email, whatsapp, web }` | WhatsApp con prefijo de país, solo números |
-| `ejemplo` | sí/no | Fichas de muestra; no se publican si `mostrarEjemplos` es `false` |
-| `puntos`, `cobertura` | listas | Dónde opera (distinto de la sede: `pais`, `ciudad`) |
-| campos de registro | — | `fuente`, `validacion` y `verificacion`, como cualquier dato: solo se publica una empresa revisada |
-
-### Página de guía (`content/guia/<sección>/<slug>.md`)
-
-Cabecera obligatoria: `titulo`, `tipo`, `resumen`, `paises` (separados por comas), `estado` (`operativo`, `en-obras`, `intermitente`, `pendiente`), `revisado` (AAAA-MM-DD). Opcional: `borrador: true`.
-
-Cuerpo en Markdown. Toda página de pasos o tramos termina con `### Fuentes`. El `check` avisa cuando una página lleva más de 90 días sin revisar.
-
-### Rutas (`data/rutas.json`)
-
-El corredor se modela como una línea de **nodos** con un **tramo** entre cada par consecutivo. Un tramo puede tener `paso` (frontera) y `alternativa`. Las distancias sin fuente van como `null` y se muestran como "por verificar": **no se inventan cifras**.
-
-## 3 · Vigilante y fuentes
-
-El mapa de fuentes: [`data/fuentes-vigilancia.csv`](../data/fuentes-vigilancia.csv) (HU-136). Un CSV plano, una fila por carretera o paso y fuente. **Es la configuración del vigilante**: lee solo las filas con `estado` = `activa`. Se consulta también en la web, en la página «Fuentes» (`/fuentes/`).
-
-| Columna | Para qué | Valores |
-|---|---|---|
-| `estado` | Si el vigilante la lee | `activa`, `pausada`, `pendiente`, `manual`, `sin-fuente` |
-| `lector` | Cómo se lee | `gendarmeria-paso`, `vialidad-ar`, `siemop-cl`, `mopc-pdf`, `dnit-alertas` (los cinco que existen hoy); `siemop-pasos` (pendiente); `whatsapp`, `manual`, `ninguno` |
-| `fuente_id` | Fuente de `data/fuentes.json` (de ahí sale la dirección; tiene que ser oficial) | p. ej. `ar-vialidad-estado-rutas` |
-| `destino` | Dónde cuenta en la Guía | `paso:jama`, `tramo:pozo-hondo`… |
-| `filtro` | Qué parte de la fuente | Vialidad: `provincia=Jujuy;ruta=9;tramos=A|B` (`tramos=*`, todos). Chile: `regiones=01|02;km=3;dias_sin_novedad=14;max_horas=192`. Brasil (DNIT, pendiente): `rodovias=BR-267;uf=MS` |
-| resto | Para leer (fuente, organismo, frecuencia, cómo se lee, regla, notas) | texto |
-
-`npm run check` valida el CSV: una fila activa con un lector que no existe, una fuente que no es oficial, un paso o tramo que no existe o un filtro incompleto impiden publicar.
-
-### Cada hora
-
-1. **Arranque.** cron-job.org lanza el flujo «Vigilante» en GitHub, cada hora de 06:00 a 21:00, hora de Argentina; la programación de GitHub queda de respaldo.
-2. **Lectura de las filas activas del CSV:**
-   - **Pasos argentinos** (Gendarmería, web del Ministerio de Seguridad): estado que pone Gendarmería, horario, recuadro «Atención» y hora de cada parte.
-   - **Vialidad Nacional:** la tabla oficial de estado de rutas, por provincia, ruta y tramo.
-   - **Vialidad de Chile:** las emergencias de Tarapacá y Antofagasta, con coordenadas.
-   - **MOPC** (pendiente, HU-134): el PDF del informe diario.
-3. **Asignación a los tramos de la Guía:**
-   - Argentina, por ruta y tramo oficial, según el `destino` y el `filtro` de cada fila.
-   - Chile, por posición: rutas nacionales a menos de `km` (3) del trazado del tramo.
-4. **Aplicación de la regla de publicación de su fila** (rojo, ámbar, «No habilitado para carga» o informativo).
-5. **Comprobación de seguridad:**
-   - nunca marcha atrás (una copia más antigua se descarta);
-   - lo cargado a mano no se toca;
-   - un aviso solo se retira si falta en dos pasadas seguidas;
-   - un registro chileno sin novedades en más de 14 días sale en ámbar «confírmalo».
-6. **Publicación:** escribe `data/pasos.json` y `data/incidencias.json` con el sello «Web oficial», pasa `npm run check`, sube a `main` y publica la web. Si la comprobación falla, no publica nada.
-7. **Aviso:** abre o completa una incidencia «Vigilante · …» en GitHub (llega por correo) con lo publicado.
-8. **Registro:** guarda en la rama `datos-vigilancia` cuándo leyó bien cada fuente. Si una falla 3 pasadas seguidas, avisa: el vigilante está ciego con ella.
-
-### Lo que no hace solo
-
-- **`whatsapp`** (Unidad de Pasos Fronterizos de Chile): se revisa el canal y se carga a mano.
-- **`manual`** (puente de la Bioceánica): se carga a partir de noticias oficiales.
-- **`sin-fuente`** (BR-267, ruta provincial de Misión La Paz): el mapa lo muestra en gris, «sin vigilancia».
-
-### Cambios que se hacen solo en el CSV
-
-- **Pausar una fuente:** `estado` = `pausada`.
-- **Mover una carretera a otro tramo:** cambiar su `destino`.
-- **Añadir una ruta de Vialidad Nacional o un paso de Gendarmería:** una fila nueva con su `filtro` (y la fuente en `data/fuentes.json` si es nueva).
-- **Cambiar los umbrales de Chile:** `km`, `dias_sin_novedad`, `max_horas` en el `filtro` (iguales en todas sus filas).
-
-### Para añadir una fuente de un tipo nuevo (p. ej. el PDF del MOPC)
-
-1. Añadir las filas con `estado` = `pendiente` y su `lector` nuevo.
-2. Guardar una copia real de la fuente en `pruebas/vigilante/` y escribir el lector con su autoprueba.
-3. Añadir el lector a `LECTORES_AUTOMATICOS` en `scripts/fuentes-vigilancia.mjs` y la fuente en `data/fuentes.json`.
-4. Cambiar las filas a `activa`.
-
-### Informe diario del MOPC (Paraguay) · HU-134
-
-- **Fuente:** https://mopc.gov.py/servicios/estado-de-las-rutas/ incrusta una carpeta pública de Google Drive con una subcarpeta por mes («NOVIEMBRE 2026»). El vigilante la lista sin credenciales (`embeddedfolderview`), baja los PDF del último día (`uc?export=download`) y los pasa a texto con `pdftotext -layout` (poppler-utils, se instala en el flujo).
-- **Cuándo publica:** de lunes a viernes, a las 07:00 y hacia las 13:00 (hora de Paraguay). Nada los fines de semana. La numeración del archivo («(1)», «(2)») no dice el orden: manda la hora escrita dentro del PDF y, a igual hora, el número más alto (una corrección).
-- **Qué se lee:** las tres partes (puentes inhabilitados, rutas y tramos clausurados con sus notas «.:», y la lista por localidad). Si falta una, la lectura falla y no se publica nada (aviso de vigilancia ciega a los 3 fallos).
-- **Qué cuenta para cada tramo:** `filtro` `localidades=…|…` de la fila (`mopc-pdf`). Se compara sin tildes y por palabras enteras; «Ruta 15», «PY 15» y «PY15» son lo mismo.
-- **Reglas:** «Clausurada» + «P/V/P» (Para Vehículos Pesados) o «vehículos pesados» → no habilitado para carga; «Clausurada» → corte; «precaución» → ámbar; «Habilitada» o sin mención → nada.
-- **Un informe solo se aplica una vez** (`ultimoInforme` en el estado de la vigilancia): un aviso se retira cuando falta en dos informes seguidos, no en dos pasadas del vigilante.
-- **Antigüedad:** «parada» si a partir de las 10:00 de un día laborable no hay informe de ese día. No cuentan los fines de semana ni los feriados nacionales de Paraguay de `data/festivos.json` (Ley 7544/2025): cuando se cargue el año siguiente, el vigilante los tiene en cuenta solo.
-
-### Alertas DNIT (Brasil) · HU-138
-
-- **Fuente:** https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos. Lista de alertas de todo Brasil, de la más nueva a la más vieja, 30 por página (`?b_start:int=30`, `60`…). Cada una: título con la rodovía y el estado («… na BR-471/RS …»), etiqueta del estado y «publicado DD/MM/AAAA HHhMM».
-- **Qué se lee:** las páginas de la lista hasta 30 días atrás (como mucho 8) y, de ellas, solo se abren las alertas de las rodovías y el estado del filtro (`rodovias=BR-267;uf=MS`). La misma rodovía en otro estado (la BR-267 también pasa por MG y SP) no cuenta.
-- **Reglas:** «liberação» → cierra lo anterior de esa rodovía; «interdição/bloqueio total» → rojo; restricción por peso o a camiones → no habilitado para carga; parcial, «pare e siga», desvío, bloqueo, «alterações no trânsito» → ámbar. Lo que no encaja en ninguna no se publica: llega un aviso «Revisa» para mirarlo a mano (semiautomático).
-- **Vigencia:** las alertas anuncian casi siempre algo programado (una madrugada, un lunes). Cuentan 3 días desde su publicación; si dicen «a partir de», «por tempo indeterminado», «até nova ordem» o «sem previsão», hasta 30 días o hasta una «liberação» posterior.
-- **En la web:** «Obra» (o «Desvío» / «Límite de peso») con la gravedad que toque, una frase en castellano y la primera frase del texto oficial en portugués, marcada como portugués (no se traduce).
-- **Antigüedad:** el DNIT publica alertas de todo Brasil casi a diario; si la más nueva de la lista tiene más de 7 días, la fuente se da por parada.
-
-### Fase experimental (20/11/2026)
-
-- **MOPC: como mucho ámbar.** Un «Clausurado» del informe sale en ámbar. Regla guardada, apagada: rojo solo si el informe nombra la PY15 (`MOPC_ROJO_SI_PY15` en `scripts/mopc.mjs`).
-- **Historial:** los avisos resueltos se guardan 90 días (antes 15). La web solo enseña los de los últimos 15.
-- **Avisos cortos:** cada aviso enseña una línea (`resumen` o la primera frase). El texto completo va en «Más información».
-
-### Motivo del cierre (20/11/2026)
-
-La página oficial de cada paso (Ministerio de Seguridad) trae a veces, en el recuadro «Atención», la línea **«Motivo del cierre:»** con el parte de Gendarmería. El vigilante lee todas las etiquetas en negrita del recuadro (no solo «… informa:»). Si el paso se cierra con motivo, el estado lo cita; si el motivo llega después, se añade al cierre sin abrir otra entrada en el historial. Sin motivo publicado, el texto lo dice.
-
-**Ojo (23/11/2026):** la web oficial también pone en «Motivo del cierre» el parte rutinario de Chile al cerrar la jornada. Solo cuenta como motivo un texto que nombra una causa, o uno sin causa emitido dentro del horario. Regla completa en [`regla-estado-pasos.md`](regla-estado-pasos.md).
+| Límite | Qué lo mitiga |
+|---|---|
+| La IA trabaja con la cuenta de GitHub del propietario y podría poner la etiqueta `revision-editorial` | Es un control de procedimiento: la IA no la pone ni fusiona verificaciones. Pasará a ser técnico al proteger `main` (#49) |
+| Chile y el Puente Bioceánico dependen de una revisión a mano | Plazo de 15 días para Chile, con enlace al canal |
+| El MOPC y el DNIT cambian de formato sin avisar | Autopruebas con copias reales y aviso a los 3 fallos |
