@@ -202,7 +202,7 @@ const fuenteCaidaDe = (p) => {
 /** 25/11/2026: por qué el cruce no muestra el estado cargado del paso (aviso de un lado, carretera de acceso, fuente caída). */
 const notaIntegridad = (e) =>
   e.avisoLado
-    ? `${PAISES[e.avisoLado.lado]}: aviso oficial del ${fechaCorta(e.avisoLado.publicado)}${e.avisoLado.hora ? `, ${e.avisoLado.hora}` : ''}${e.avisoLado.emisor ? ` (${e.avisoLado.emisor.replace(/\s*\(.*\)$/, '')})` : ''}.`
+    ? `${PAISES[e.avisoLado.lado]}: ${e.avisoLado.afecta === 'carga' ? 'sin paso para camiones con carga · ' : ''}aviso oficial del ${fechaCorta(e.avisoLado.publicado)}${e.avisoLado.hora ? `, ${e.avisoLado.hora}` : ''}${e.avisoLado.emisor ? ` (${e.avisoLado.emisor.replace(/\s*\(.*\)$/, '')})` : ''}.`
     : e.accesoAvisos
     ? `${e.accesoAvisos === 1 ? 'Hay un aviso oficial' : `Hay ${e.accesoAvisos} avisos oficiales`} en la carretera de acceso. Revísalo antes de salir.`
     : e.fuenteCaida
@@ -214,7 +214,7 @@ const estadoPaso = (id) => {
   const caida = base.valor !== 'operativo' && base.confirmado ? fuenteCaidaDe(p) : null;
   const e = caida ? { ...base, fuenteCaida: caida } : base;
   const av = e.valor !== 'cerrado' && e.valor !== 'en-obras' ? avisoDeLado(p) : null;
-  if (av) return { ...e, valor: av.parte.valor, confirmado: true, nivel: 'verificado', avisoLado: { lado: av.lado, publicado: av.parte.publicado, hora: av.parte.hora || null, emisor: av.parte.emisor || '' } };
+  if (av) return { ...e, valor: av.parte.valor, confirmado: true, nivel: 'verificado', avisoLado: { lado: av.lado, publicado: av.parte.publicado, hora: av.parte.hora || null, emisor: av.parte.emisor || '', afecta: av.parte.afecta || null } };
   if (!e.confirmado || e.valor !== 'operativo') return e;
   if (e.evidencia && e.evidencia !== 'oficial') return { ...e, valor: 'pendiente', confirmado: false, nivel: 'por-verificar' };
   const porAviso = Object.keys(p?.lados || {}).map((l) => ladoPorAviso(p, l)).filter(Boolean);
@@ -1230,7 +1230,7 @@ function fichaOperativa(p, guiaPag) {
   const inc = incidenciasDe({ paso: p.id, tramos: rutas.tramos.filter((t) => t.paso?.id === p.id || t.alternativa?.id === p.id).map((t) => t.id) });
   // Primera pantalla: la respuesta a «¿puedo cruzar hoy con mi carga?».
   const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
-  const soloCarga = e.confirmado && p.estado.afecta === 'carga' && op !== 'abierto';
+  const soloCarga = e.confirmado && (p.estado.afecta === 'carga' || e.avisoLado?.afecta === 'carga') && op !== 'abierto';
   const detalleEstado = soloCarga ? ' para carga · turismo con atención normal' : e.confirmado && ESTADOS[e.valor] && ESTADOS[e.valor] !== OPERATIVA[op].texto && e.valor !== 'operativo' ? ` · ${ESTADOS[e.valor]}` : '';
   const frases = (p.estado.texto || '').match(/[^.]+(\.|$)/g)?.map((x) => x.trim()).filter(Boolean) || [];
   const resto = frases.slice(1).join(' ');
