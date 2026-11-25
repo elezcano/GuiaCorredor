@@ -50,6 +50,9 @@ const ok = (c, m) => c || f.push(m);
   ok(!/fundador|Ernesto/i.test(html), 'Página: no habla de personas');
   const portada = await (await fetch(B + '/')).text();
   ok(/href="[^"]*\/fiabilidad\/"/.test(portada), 'Pie: enlace a «Cómo de fiables somos»');
+  const pie = (portada.match(/<nav class="pie-nav"[\s\S]*?<\/nav>/) || [''])[0];
+  ok((pie.match(/<a /g) || []).length <= 3 && !/\/mapa\/|\/anunciate\/|\/fuentes\//.test(pie), 'Pie mínimo: confianza y contacto, nada más (decisión 40)');
+  ok(/href="[^"]*\/fuentes\/"/.test(html), 'Cómo de fiables somos enlaza a las fuentes');
   const ficha = await (await fetch(B + '/guia/pasos/jama/')).text();
   ok(/Disponibilidad del paso/.test(ficha) && /class="consulta" href="[^"]*\/fiabilidad\/"/.test(ficha), 'Ficha: «Disponibilidad del paso» y enlace desde la confianza');
 

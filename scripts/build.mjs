@@ -716,10 +716,8 @@ ${cuerpo}
 <footer class="pie">
   <div class="contenedor pie-inner">
     <nav class="pie-nav" aria-label="Pie">
-      <a href="${u('/mapa/')}">Mapa interactivo</a>
-      <a href="${u('/anunciate/')}">Anunciar mi empresa</a>
+      <!-- 26/11/2026: el pie solo lleva confianza y contacto. Mapa, Anunciar y Fuentes ya tienen su sitio en el menú, la portada y las fichas. -->
       <a href="${u('/sobre/')}">Cómo trabajamos la información</a>
-      <a href="${u('/fuentes/')}">Fuentes que vigilamos</a>
       <a href="${u('/fiabilidad/')}">Cómo de fiables somos</a>
       ${buzon('contacto') ? `<a href="mailto:${esc(buzon('contacto'))}">Escríbenos</a>` : ''}
     </nav>
@@ -2406,7 +2404,7 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
       ruta: '/fiabilidad/',
       cuerpo: `
 <div class="contenedor pagina-app">
-  <header class="pagina-cabeza"><h1>Cómo de fiables somos</h1><p>Lo que medimos de nuestro propio servicio, con datos. La disponibilidad de cada paso está en su ficha.</p></header>
+  <header class="pagina-cabeza"><h1>Cómo de fiables somos</h1><p>Lo que medimos de nuestro propio servicio, con datos. La disponibilidad de cada paso está en su ficha.</p><p><a href="${u('/fuentes/')}">Fuentes que vigilamos</a></p></header>
   <div class="dos-col sobre-col">
     <section class="tarjeta serv" aria-labelledby="s-objetivo">
       <h2 id="s-objetivo">Nuestro objetivo</h2>
