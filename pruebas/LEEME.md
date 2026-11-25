@@ -42,6 +42,10 @@ El resultado es una línea por prueba (✓ o ✗ con los fallos). Las capturas q
 
 En móvil (390), tablet (820) y escritorio (1440): sin scroll lateral, filas de botones en una línea, menú lateral (escritorio y tablet) o inferior (móvil), iconos de Tabler (24, trazo 2, `currentColor`), botones de al menos 44 px, señal de carril en cada paso del tablero, modo noche y vistas de consulta en una pantalla. Deja capturas `diseno-*.png` en la carpeta de capturas.
 
+## documentacion.cjs (25/11/2026)
+
+Sin navegador. Comprueba que la documentación es confiable: cada enlace relativo de los `.md` lleva a un archivo que existe, cada ancla (`#…`) es un título real del documento y las decisiones de `docs/decisiones.md` van numeradas sin huecos. Si se mueve o se renombra un documento, esta prueba dice qué enlaces hay que cambiar.
+
 ## integridad.cjs (auditoría del 25/11/2026, decisión 34)
 
 Prueba de construcción, sin navegador: copia los datos de prueba, los modifica y construye la web aparte. Comprueba que un aviso oficial de cierre de Chile cierra el cruce (Jama), que un aviso oficial leído automáticamente en la carretera de acceso lo deja «Con restricciones» (Sico) y que, con la web oficial caída, un paso cerrado por el vigilante mantiene su estado y dice que la fuente no responde (Pozo Hondo). Con `GUARDAR=1` deja la copia construida para revisarla.

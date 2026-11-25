@@ -6,12 +6,12 @@
 | **Ámbito** | Jama, Sico, Misión La Paz–Pozo Hondo y Puente Bioceánico |
 | **Estado** | Vigente |
 | **Versión** | 1.1, 25/11/2026 (lote 1 de la auditoría de integridad: valores no reconocidos, aviso de cierre de Chile, carretera de acceso y fuente caída) |
-| **Decisiones que recoge** | 31, 32, 33 y 34 del README (sustituyen a la 29 y la 30) |
+| **Decisiones que recoge** | 31, 32, 33 y 34 de [`decisiones.md`](decisiones.md) (sustituyen a la 29 y la 30) |
 | **Código** | `scripts/vigilante.mjs` (`decidir`, `motivoReal`, `aperturaExigible`, `cuentaEnDiario`), `scripts/build.mjs` (`estadoPaso`, `ladosSinParte`, `ladosHTML`), `scripts/validacion.mjs` (`estadoMostrable`, `CADUCIDAD`) |
 | **Configuración** | `data/site.json` → `canalesParte`; `data/fuentes-vigilancia.csv` |
 | **Pruebas** | `node scripts/vigilante.mjs --autoprueba`; `pruebas/lados.cjs`, `pruebas/partes.cjs`, `pruebas/fiabilidad.cjs` |
 
-> **Regla de mantenimiento.** Si el código y este documento no coinciden, es un fallo. Se corrigen los dos en el mismo PR, junto con su prueba y su fila en las decisiones del README.
+> **Regla de mantenimiento.** Si el código y este documento no coinciden, es un fallo. Se corrigen los dos en el mismo PR, junto con su prueba y su fila en [`decisiones.md`](decisiones.md).
 
 ---
 
@@ -327,7 +327,7 @@ si no: mostrar Habilitado                                          # D6.5
 Cualquier cambio de esta regla sigue este orden, en un solo PR:
 
 1. **Caso real** que lo motiva (fecha, paso, captura o texto oficial).
-2. **Decisión** nueva o modificada en el README, con fecha.
+2. **Decisión** nueva o modificada en [`decisiones.md`](decisiones.md), con fecha.
 3. **Este documento**: invariante, tabla de decisión o parámetro afectado, y fila en la bitácora (§13).
 4. **Código** y su **prueba** (autoprueba o navegador).
 5. **Corrección de datos** si el error dejó huella (estado, parte o `CORRECCIONES_DIARIO`).

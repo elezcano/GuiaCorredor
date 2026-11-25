@@ -1,0 +1,43 @@
+# Decisiones
+
+> Cada decisión de producto o técnica aprobada, con su número. El número no cambia nunca; una decisión que se sustituye se tacha y dice cuál la reemplaza. La regla del estado de los pasos (decisiones 31–34) está desarrollada en [`regla-estado-pasos.md`](regla-estado-pasos.md).
+
+**Para añadir una:** número siguiente, fecha, qué se decide y por qué en una frase, y el PR o la issue. Va en el mismo PR que el cambio.
+
+| # | Decisión |
+|---|---|
+| 1 | Plan de la [auditoría](archivo/auditoria-2026-11-14.md) aprobado, por fases P0 → P1 → P2 → P3 |
+| 2 | Arquitectura **estática** en GitHub Pages. Sin backend ni base de datos externa en esta fase |
+| 3 | Primero, modelo de datos normalizado y exportación JSON estable (`api/v1`) |
+| 4 | Claude, con conectores, es el entorno de trabajo asistido del equipo ([`docs/ia-dev.md`](ia-dev.md)) |
+| 5 | GitHub es la fuente de verdad del código y de los datos publicados |
+| 6 | Issues de GitHub y Trello (tablero *Guía del Corredor Bioceánico*) para tareas |
+| 7 | La verificación humana corresponde a Ernesto (`responsable-editorial`). Nunca a la IA |
+| 8 | Contacto del proyecto: radarcorredor@gmail.com (cuenta del producto desde el 22/11/2026; antes, el correo personal) |
+| 9 | Prioridad: datos fronterizos, información aduanera y primeras empresas verificadas |
+| 10 | Distancias: estimación provisional en línea recta donde no hay dato con fuente, indicando el tramo exacto |
+| 11 | Lo que no se pueda justificar con fuente se retira provisionalmente |
+| 12 | Solicitudes de empresas a un formulario de Google con hoja privada |
+| 13 | Cambios de formato de la API avisados ([`docs/api-cambios.md`](api-cambios.md)); la versión anterior se mantiene 6 meses |
+| 14 | `main` sin proteger mientras la web sea un borrador (#49) |
+| 15 | **Foco en la operatividad:** la situación operativa va primero en cada ficha |
+| 16 | **Semáforo operativo** con icono, texto y color; legible en móvil al sol y de noche |
+| 17 | Aviso de antigüedad de los partes a partir de 48 h; 24 h desde mayo/junio de 2027 |
+| 18 | Las pruebas de navegador se ejecutan en GitHub en cada cambio y bloquean la publicación si fallan |
+| 19 | Avisos del vigilante por correo (incidencia de GitHub asignada a Ernesto); WhatsApp, más adelante y solo por vía oficial |
+| 20 | Los datos oficiales leídos automáticamente se publican con su propia etiqueta («dato oficial leído automáticamente»); el semáforo y las fuentes de prensa siguen necesitando verificación humana (#100) |
+| 21 | Cada día, a las 14:07 de España, Ernesto recibe por correo la lista «Tareas del día» (#99) |
+| 22 | **Avisar de incidencias:** lo que el vigilante lee de una web oficial se publica al momento con la etiqueta «leído de la web oficial», sin esperar confirmación; Ernesto lo revisa después. La web dice «Sin incidencias», «Incidencia» o «Sin vigilancia» en lugar de «Sin confirmar». Amplía la 20 (#129, #130, #131) |
+| 23 | El vigilante se lanza cada hora desde cron-job.org (token de GitHub con permisos mínimos, guardado solo allí); la pasada programada de GitHub queda de respaldo. Si una fuente falla 3 pasadas seguidas, aviso por correo (#129) |
+| 24 | Para los pasos argentinos, el vigilante lee las variables que escribe el servidor oficial (`estadoPrioridad` de Gendarmería, `estadoVialidad`, horario y recuadro «Atención»), nunca la etiqueta «Abierto/Cerrado» de pantalla, que calcula el navegador con la hora del dispositivo. «Cerrado» dentro del horario se publica en rojo; fuera del horario es el cierre de cada noche. Corte total o circulación restringida de Vialidad con el paso abierto: ámbar. Nunca marcha atrás; solo reabre lo que él cerró (#130) |
+| 25 | Carreteras: el vigilante lee la tabla oficial de Vialidad Nacional (la misma que carga su página «Estado de rutas») y las emergencias de Vialidad de Chile (SIEMOP, región de Antofagasta) y las publica como incidencias del tramo. Corte total o tránsito no operativo: rojo. «Peso restringido», «Sólo vehículos livianos» o «Sólo doble tracción»: «No habilitado para carga». Restringida o parcialmente operativa: ámbar. Observaciones de una ruta habilitada: informativas, sin cambiar el veredicto del planificador. En Chile cada emergencia se asigna por posición: rutas nacionales a menos de 3 km del trazado del tramo (los caminos secundarios que salen de la ruta no cuentan). Un registro chileno sin novedades de Vialidad en más de 14 días se publica en ámbar («puede estar ya resuelto, confírmalo») y no bloquea (#130) |
+| 26 | **Solo las fuentes oficiales deciden el estado** (19/11/2026). Un aviso de prensa sin verificar queda como contexto (gris, con el nombre del medio) y no cambia el estado ni el veredicto. Sin sello amarillo «Sin verificar»: cada dato dice de qué tipo es su fuente. «Tareas del día» solo con lo que necesita una persona (#175) |
+| 27 | **Plan de 90 días del comité** (20/11/2026): continuar sin crecer en amplitud; decisión el 18/02/2027; el ciclo 2 empieza con la apertura de los accesos al puente |
+| 28 | **Marca RadarCorredor by Vialta** (20/11/2026): el producto manda (cabecera) y Vialta respalda (pie, informe, documentos) detrás del interruptor `marcaMadre.mostrar`. Color en tres capas: corporativo, acento turquesa (nunca un estado) y estados; fuera el amarillo. DM Sans y DM Mono en lugar de Overpass ([MARCA.md](../MARCA.md)) |
+| 29 | ~~**Estado por país** (20/11/2026)~~ Sustituida por la 33. |
+| 30 | ~~**Parte chileno** (21/11/2026)~~ Sustituida por la 31 (Chile informa por aviso). |
+| 31 | **Cada país informa a su manera** (22/11/2026): Argentina confirma a diario; Chile (UPF) solo avisa cuando hay un problema. Un lado «por aviso» sin mensajes cuenta como «Sin avisos desde…» desde la última revisión de su canal, durante 15 días (`site.canalesParte`); después, «Sin dato». Cada lado tiene su línea en la ficha, y el horario («Fuera de horario · abre en…») va aparte del estado operativo |
+| 32 | **Histórico fehaciente** (22/11/2026): un «Cerrado» de Gendarmería es un cierre solo si se publica dentro del horario o con motivo (un motivo es un texto que nombra una causa, o uno sin causa emitido dentro del horario: el parte rutinario de Chile al cerrar, «222000NOV26 … permanece cerrado», no lo es; 23/11/2026); el de la noche que sigue a primera hora no lo es, y si una hora después de abrir sigue igual, el paso pasa a «Sin confirmar», nunca a «Cerrado». El vigilante apunta un registro por día y paso (el peor estado con lectura buena de la web oficial dentro del horario y con parte de Gendarmería de ese mismo día, con cuántas lecturas y entre qué horas). Desde que hay registro diario, un día sin lectura buena es «sin datos» y no hereda el anterior. Solo cuentan estados de fuente oficial |
+| 33 | **Regla por país** (24/11/2026): cada lado de un paso lo decide su país según cómo informa. Argentina (Gendarmería) avisa cada día que abre: su lado vale si el vigilante leyó su web oficial hace menos de 6 h o hay parte oficial de hoy, y si a la apertura + 1 h sigue el «Cerrado» de la noche, «Sin confirmar». Chile (UPF) solo avisa cuando cierra: su silencio vale como habilitado mientras su canal se haya revisado en los últimos 15 días. Paraguay no tiene canal oficial del estado de sus pasos (revisado el 25/11/2026: ni Migraciones, ni DNIT, ni MOPC): su lado no cuenta, lo decide el otro y la ficha dice «Sin canal oficial». El cruce es el peor de sus lados. Desaparecen el umbral de 48 h por lado y el «Abierto solo en…». Regla completa en [`docs/regla-estado-pasos.md`](regla-estado-pasos.md). |
+| 34 | **Integridad, lote 1** (25/11/2026, auditoría y decisiones D1–D3 del fundador): solo «ABIERTO» y «CERRADO» de Gendarmería deciden (otro valor → «Sin confirmar»); un aviso oficial de cierre de Chile cierra el cruce; un aviso oficial leído automáticamente en la carretera de acceso, de cualquier lado, lo deja «Con restricciones» (también el corte total); si la web oficial no responde, un «No habilitado» o «Con restricciones» del vigilante se mantiene avisando de que la fuente no responde. Detalle en [`docs/regla-estado-pasos.md`](regla-estado-pasos.md) y [`docs/auditoria-2026-11-25.md`](auditoria-2026-11-25.md). |
+| 35 | **Documentación: una pregunta, un documento** (25/11/2026): el README es la portada (qué es, tres reglas, mapa de la documentación y cómo trabajamos); cada tema vive en un solo documento de `docs/` (regla de los pasos, datos y fuentes, arquitectura, decisiones, registro, plan, cómo editar, API); lo que ya no está vigente va a `docs/archivo/`. Nada se copia en dos sitios: se enlaza. `pruebas/documentacion.cjs` comprueba en cada cambio que todos los enlaces y anclas existen y que las decisiones van en orden |

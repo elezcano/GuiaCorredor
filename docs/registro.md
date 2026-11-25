@@ -1,6 +1,6 @@
 # Registro de avances
 
-Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las decisiones de producto están en el [README](../README.md) («Decisiones aprobadas») y la regla del estado de los pasos, en [`regla-estado-pasos.md`](regla-estado-pasos.md).
+Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las decisiones están en [`decisiones.md`](decisiones.md) y la regla del estado de los pasos, en [`regla-estado-pasos.md`](regla-estado-pasos.md).
 
 | Fecha | Avance | Dónde |
 |---|---|---|
@@ -30,7 +30,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 | 20/11/2026 | #207 | Portada: la línea de propuesta va junto al título para que la vista quepa en una pantalla con DM Sans. |
 | 20/11/2026 | #204 | Ficha destacada a 5 US$ al mes; buzones de correo por uso (info, contacto, soporte, legal) preparados para cuando haya dominio. |
 | 20/11/2026 | #203 | Portada con una línea que dice qué es el producto: cada paso y carretera, según su fuente oficial. |
-| 20/11/2026 | #202 | Identidad RadarCorredor by Vialta: color en tres capas (corporativo, acento turquesa, estados), fuera el amarillo, DM Sans y DM Mono, Vialta en el pie y en el informe con interruptor ([MARCA.md](MARCA.md)). |
+| 20/11/2026 | #202 | Identidad RadarCorredor by Vialta: color en tres capas (corporativo, acento turquesa, estados), fuera el amarillo, DM Sans y DM Mono, Vialta en el pie y en el informe con interruptor ([MARCA.md](../MARCA.md)). |
 | 20/11/2026 | #205 | Marca RadarCorredor: logotipo en la cabecera, favicon y nombre. |
 | 20/11/2026 | #200 | V2 en las páginas que faltaban: informe, guía de tramo y documentos, ficha más corta, cómo trabajamos y novedades. |
 | 20/11/2026 | #198 | Plan de 90 días según el veredicto del comité (continuar, 8/10): tres fases hasta el 18/02/2027 y ciclo 2 tras abrir los accesos al puente. Tablero de Trello reorganizado. |
@@ -79,4 +79,4 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 | 15/11/2026 | **Semáforo operativo**, banderas, respuesta en una línea y mapa por tramos | — |
 | 15/11/2026 | **Puente de la Bioceánica, Pozo Hondo y Jama** verificados por Ernesto | — |
 | 15/11/2026 | **Formulario de Google** para solicitudes de empresas (hoja privada) | — |
-| 14/11/2026 | **P0 Fiabilidad:** verificación humana, fuentes, esquemas, calidad automática y `api/v1` | [informe](informe-p0.md) |
+| 14/11/2026 | **P0 Fiabilidad:** verificación humana, fuentes, esquemas, calidad automática y `api/v1` | [informe](archivo/informe-p0-2026-11-15.md) |

@@ -1,5 +1,5 @@
 // Sistema único de validación del portal. Lo usan la web, la API (api/v1) y las comprobaciones.
-// Campos comunes de un registro (ver docs/politica-validacion.md):
+// Campos comunes de un registro (ver docs/datos-y-fuentes.md, parte 1 · Validación):
 //   fuente:       id de data/fuentes.json (en memoria se resuelve a { id, nombre, url, tipo })
 //   evidencia:    oficial | declaracion-empresa | tercero | calculo | estimacion | historico
 //   publicado:    fecha (AAAA-MM-DD) en que la fuente publicó el dato (null si es una norma o no consta)

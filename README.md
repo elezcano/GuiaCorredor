@@ -8,194 +8,41 @@
 - 📦 Datos abiertos: [`/api/v1/indice.json`](https://elezcano.github.io/GuiaCorredor/api/v1/indice.json)
 - ✉️ Contacto: radarcorredor@gmail.com · Responsable editorial y de verificación: **Ernesto**
 
-> **Estado: borrador (MVP).** Regla de oro: **la fiabilidad va antes que la cantidad.** El estado de pasos y carreteras lo deciden solo las fuentes oficiales, y todo dato lleva su fuente y su fecha.
+> **Estado: borrador (MVP)**, en el [plan de 90 días](docs/plan.md) hasta la decisión del 18/02/2027.
 
----
+## Tres reglas
+
+1. **Solo las fuentes oficiales deciden un estado.** La prensa da contexto, nunca decide.
+2. **Todo dato lleva su fuente y su fecha.** Si no se puede justificar, no se publica.
+3. **La duda se dice.** Lo que no está confirmado sale «Sin confirmar», nunca como abierto ni como cerrado.
 
 ## Qué puedes hacer hoy en la web
 
 | Necesito… | Dónde |
+|
+
+## Documentación
+
+| Quiero saber… | Documento |
 |---|---|
-| Saber si un paso está abierto, ahora | Ficha del paso: **semáforo** (Abierto · Con restricciones · No habilitado · Sin confirmar), hora local de cada país y «abierto ahora / cierra en…» |
-| Saber si una carretera está cortada | **Rutas** y ficha del paso («Carreteras para llegar»): *Sin incidencias*, *Con incidencias* o *Cortado*, según la fuente oficial de cada país, leída cada hora |
-| Saber de quién es el dato y de cuándo | Ficha del paso: **«Qué informa cada país»**, con organismo, fecha y hora, y aviso si el parte tiene más de 48 h |
-| Ver el paso en mi sentido de viaje | Ficha del paso: botón **«⇄ Cambiar sentido»**, que ordena controles y partes según el país del que sales y en el que entras (también en el enlace: `?sentido=CL-AR`) |
-| Llamar a la frontera | Ficha del paso: **botón Llamar** con teléfonos de fuente oficial |
-| Saber qué controles pasa un camión | Ficha del paso: **controles para carga en orden** (integrado, migraciones, aduana, sanitario) |
-| Ver qué ha pasado en un paso | Ficha del paso: **novedades** en línea de tiempo |
-| Saber cuánto se cierra un paso | Ficha del paso: **fiabilidad**, días no habilitado (en total y solo para carga) en los últimos 30 y 90 días |
-| Planificar una ruta y una fecha | **Planificador** y **informe de viaje** para enviar por WhatsApp, enlace o PDF, o como **resumen en una página** para quien cotiza |
-| Ver obras, cortes y festivos | Avisos y calendario aduanero |
-| Usar los datos en otro sistema | `api/v1` (JSON abierto, versionado) |
+| Cómo se decide si un paso está habilitado | [Regla del estado de los pasos](docs/regla-estado-pasos.md) |
+| Qué datos hay, cómo se validan y qué fuentes se leen solas | [Datos y fuentes](docs/datos-y-fuentes.md) |
+| Cómo está montado y cómo se trabaja con el código | [Arquitectura](docs/arquitectura.md) |
+| Qué se ha decidido y por qué | [Decisiones](docs/decisiones.md) |
+| Qué se ha publicado, cuándo y en qué PR | [Registro de avances](docs/registro.md) |
+| Qué toca ahora | [Plan de 90 días](docs/plan.md) |
+| Cómo editar datos sin programar | [Cómo editar](docs/como-editar.md) |
+| Qué se auditó y qué falta | [Auditoría de integridad (25/11/2026)](docs/auditoria-2026-11-25.md) |
+| Cómo usar los datos abiertos | [Contrato de la API](docs/ia-dev.md) · [cambios](docs/api-cambios.md) |
+| Cómo se prueba | [Pruebas](pruebas/LEEME.md) |
+| Marca | [MARCA.md](MARCA.md) |
 
-**Lo que no es:** un marketplace de cargas, un intermediario de pagos, un sitio de reseñas ni un seguimiento de camiones. Los avisos de cadenas y clima en tiempo real llegarán en otra fase (#69).
-
----
-
-## Plan de 90 días
-
-**Veredicto del comité (20/11/2026): CONTINUAR · 8/10.** Un ciclo de validación de 90 días sin crecer en amplitud. El núcleo: **fronteras y aduanas fiables, empresas verificadas y cotizaciones que reciban respuesta.** Ninguna funcionalidad nueva sin evidencia de uso.
-
-Las tarjetas de Trello llevan el número de su fase (por ejemplo, **2.1**) y la issue entre paréntesis.
-
-```mermaid
-flowchart LR
-  F1["1 · Días 1–30<br/>Validar y ordenar<br/>20/11 – 20/12"]
-  F2["2 · Días 31–60<br/>Base de confianza<br/>21/12 – 19/01"]
-  F3["3 · Días 61–90<br/>Convertir y medir<br/>20/01 – 18/02"]
-  D{"🚦 18/02/2027<br/>¿seguir?"}
-  P["🌉 Ciclo 2<br/>90 días tras abrir<br/>los accesos del puente"]
-  F1 --> F2 --> F3 --> D -->|sí| P
-```
-
-| Fase | Tarjetas |
-|---|---|
-| **1 · Validar y ordenar** (20/11 – 20/12) | 1.1 Entrevista con la responsable de flota · 1.2 12 entrevistas (hasta el 24/01) · 1.3 Auditar las fuentes · 1.4 Estándar común de estados del dato · 1.5 Probar la web en teléfonos reales · 1.6 Estadísticas sin cookies (#19) · 1.7 Ficha de empresa verificada y procedimiento (#46) |
-| **2 · Base de confianza** (21/12 – 19/01) | 🚦 2.1 30 empresas verificadas · 2.2 Circuito de cotización cerrado (#95) · 2.3 Fuente, hora y caducidad en todo dato crítico (#44, #23) · 2.4 Limpieza y proteger `main` (#49) · 2.5 Oferta de ficha destacada a 5 US$/mes y textos legales (#48, #17) · 2.6 Despachante revisor (#22) |
-| **3 · Convertir y medir** (20/01 – 18/02) | 🚦 3.1 Primeros anunciantes: objetivo 10 (450 €/mes brutos potenciales; solo cuenta lo cobrado) · 3.2 Medir y concentrar el mantenimiento donde hay uso |
-| **🚦 Decisión** (18/02/2027) | Seguir si hay datos fiables, uso recurrente y primeras empresas que pagan. Se contrasta con los criterios propios: 8 de 12 entrevistados la usarían · 5 empresas pagarían, por escrito · los papeles de frontera son un problema real · 3 piden el generador de documentos sin ofrecérselo |
-| **🌉 Ciclo 2** (90 días tras abrir los accesos) | P.1 El puente habilitado en la web el día 1 (#43) · P.2 Ruta por el puente en el planificador · P.3 Avísame si cambia (#132) · P.4 Carga de retorno desde Brasil · P.5 Marca y dominio propios (#16) · P.6 Boletín y prensa · P.7 Comercial en Paraguay (si se valida el precio) · P.8 Partes a 24 h en invierno (#73) · P.9 Metas del ciclo con datos |
-| **🅿️ Aparcado** | Las 15 páginas de la guía (#21) · Fichas de puerto (#117) · Ficha de ciudad (#118) · Generador CRT y MIC/DTA (#24) · Estado por aspecto (#42) y tiempos de cruce (#47) |
-
-**Cuándo empieza el ciclo 2.** Lo marca una fuente oficial, no la prensa. A 20/11/2026, según la prensa, el acceso paraguayo (PY15) está previsto para febrero de 2027 y el brasileño (BR-267 y contorno de Porto Murtinho, DNIT) para 2027 sin fecha cerrada; la aduana integrada no tiene fecha ([Última Hora](https://www.ultimahora.com/cuanto-tiempo-falta-para-terminar-el-corredor-bioceanico), [A Crítica](https://acritica.net/economia/rota-bioceanica-aduana-integrada-porto-murtinho-operacao-2028/)).
-
-**Cuadro de mando, cada lunes:** fiabilidad (datos críticos con fuente y fecha) · vigencia (caducados o sin confirmar) · empresas verificadas · uso · cotizaciones con respuesta · ingresos cobrados · horas y coste.
-
----
+Informes antiguos, sin vigencia: [`docs/archivo/`](docs/archivo/).
 
 ## Cómo trabajamos
 
-1. **Cada mejora es una historia de usuario** (issue en GitHub y tarjeta en Trello): «en curso» → «hecho».
-2. **Se desarrolla en una rama** y se abre una PR. Nada llega a la web sin que Ernesto lo pruebe y diga «publica».
-3. **Solo las fuentes oficiales deciden el estado.** Lo que el vigilante lee cada hora de una web oficial (Gendarmería, Vialidad Nacional, Vialidad de Chile, MOPC, DNIT) se publica al momento con «✓ Web oficial». Lo de prensa queda como contexto, en gris, con el nombre del medio. La IA nunca marca como verificado un dato cargado a mano: eso lo dice Ernesto («confirmo …»).
-4. **«Tareas del día» solo llega si hace falta una persona:** los partes de Chile por WhatsApp (se reenvían como captura) y las alertas que el vigilante no sabe clasificar.
-5. **Los avisos del vigilante solo informan** de lo que ha publicado; se cierran solos al día siguiente.
-6. **Antes de publicar, GitHub lo revisa todo solo:** datos y esquemas, coherencia web/API, enlaces, verificaciones nuevas (exigen la etiqueta `revision-editorial`) y **pruebas de navegador**. Si algo falla, no se publica.
+1. **Cada mejora es una historia** (issue en GitHub y tarjeta en Trello) y se desarrolla en una rama con su PR.
+2. **Nada llega a la web sin pasar las comprobaciones** (datos, esquemas, enlaces, pruebas de navegador) **y sin el «publica» de Ernesto.**
+3. **Cada cambio deja rastro:** su decisión en [Decisiones](docs/decisiones.md) si la hay, su fila en el [Registro](docs/registro.md) y, si toca la regla de los pasos, su prueba y su línea en la [bitácora](docs/regla-estado-pasos.md#13-bitácora-de-casos-que-fijaron-la-regla).
+4. **La IA investiga y propone; verificar es de Ernesto.** El vigilante publica lo que lee de las webs oficiales con su propio sello, y Ernesto lo revisa después.
 
-### Pruebas automáticas
-
-GitHub abre la web en un navegador real, a tamaño móvil y en tema claro y oscuro, y comprueba que funciona lo que ya funcionaba: portada, planificador, mapa, fichas de paso, informe de viaje y partes por organismo. Usa datos y reloj fijos, así que el resultado no cambia con los días ni al editar datos reales. Si una prueba falla, la PR sale en rojo y no se publica. Detalle en [`pruebas/LEEME.md`](pruebas/LEEME.md).
-
----
-
-## Registro de avances
-
-Cada cambio publicado, con fecha y PR: [`docs/registro.md`](docs/registro.md), lo más reciente arriba.
-
-## Próximos pasos
-
-Ver el [Plan de 90 días](#plan-de-90-días). Ahora: **0.1** terminar la red de Santos a Iquique, **1.6** estadísticas, **1.7** ficha de empresa verificada y, por parte de Ernesto, **1.1** reservar la entrevista con la responsable de flota.
-
-Plan completo por fases: [P0](../../issues?q=label%3AP0) · [P1](../../issues?q=label%3AP1) · [P2](../../issues?q=label%3AP2) · [P3](../../issues?q=label%3AP3).
-
----
-
-<details>
-<summary><strong>Decisiones aprobadas</strong></summary>
-
-| # | Decisión |
-|---|---|
-| 1 | Plan de la [auditoría](docs/auditoria-2026-11.md) aprobado, por fases P0 → P1 → P2 → P3 |
-| 2 | Arquitectura **estática** en GitHub Pages. Sin backend ni base de datos externa en esta fase |
-| 3 | Primero, modelo de datos normalizado y exportación JSON estable (`api/v1`) |
-| 4 | Claude, con conectores, es el entorno de trabajo asistido del equipo ([`docs/ia-dev.md`](docs/ia-dev.md)) |
-| 5 | GitHub es la fuente de verdad del código y de los datos publicados |
-| 6 | Issues de GitHub y Trello (tablero *Guía del Corredor Bioceánico*) para tareas |
-| 7 | La verificación humana corresponde a Ernesto (`responsable-editorial`). Nunca a la IA |
-| 8 | Contacto del proyecto: radarcorredor@gmail.com (cuenta del producto desde el 22/11/2026; antes, el correo personal) |
-| 9 | Prioridad: datos fronterizos, información aduanera y primeras empresas verificadas |
-| 10 | Distancias: estimación provisional en línea recta donde no hay dato con fuente, indicando el tramo exacto |
-| 11 | Lo que no se pueda justificar con fuente se retira provisionalmente |
-| 12 | Solicitudes de empresas a un formulario de Google con hoja privada |
-| 13 | Cambios de formato de la API avisados ([`docs/api-cambios.md`](docs/api-cambios.md)); la versión anterior se mantiene 6 meses |
-| 14 | `main` sin proteger mientras la web sea un borrador (#49) |
-| 15 | **Foco en la operatividad:** la situación operativa va primero en cada ficha |
-| 16 | **Semáforo operativo** con icono, texto y color; legible en móvil al sol y de noche |
-| 17 | Aviso de antigüedad de los partes a partir de 48 h; 24 h desde mayo/junio de 2027 |
-| 18 | Las pruebas de navegador se ejecutan en GitHub en cada cambio y bloquean la publicación si fallan |
-| 19 | Avisos del vigilante por correo (incidencia de GitHub asignada a Ernesto); WhatsApp, más adelante y solo por vía oficial |
-| 20 | Los datos oficiales leídos automáticamente se publican con su propia etiqueta («dato oficial leído automáticamente»); el semáforo y las fuentes de prensa siguen necesitando verificación humana (#100) |
-| 21 | Cada día, a las 14:07 de España, Ernesto recibe por correo la lista «Tareas del día» (#99) |
-| 22 | **Avisar de incidencias:** lo que el vigilante lee de una web oficial se publica al momento con la etiqueta «leído de la web oficial», sin esperar confirmación; Ernesto lo revisa después. La web dice «Sin incidencias», «Incidencia» o «Sin vigilancia» en lugar de «Sin confirmar». Amplía la 20 (#129, #130, #131) |
-| 23 | El vigilante se lanza cada hora desde cron-job.org (token de GitHub con permisos mínimos, guardado solo allí); la pasada programada de GitHub queda de respaldo. Si una fuente falla 3 pasadas seguidas, aviso por correo (#129) |
-| 24 | Para los pasos argentinos, el vigilante lee las variables que escribe el servidor oficial (`estadoPrioridad` de Gendarmería, `estadoVialidad`, horario y recuadro «Atención»), nunca la etiqueta «Abierto/Cerrado» de pantalla, que calcula el navegador con la hora del dispositivo. «Cerrado» dentro del horario se publica en rojo; fuera del horario es el cierre de cada noche. Corte total o circulación restringida de Vialidad con el paso abierto: ámbar. Nunca marcha atrás; solo reabre lo que él cerró (#130) |
-| 25 | Carreteras: el vigilante lee la tabla oficial de Vialidad Nacional (la misma que carga su página «Estado de rutas») y las emergencias de Vialidad de Chile (SIEMOP, región de Antofagasta) y las publica como incidencias del tramo. Corte total o tránsito no operativo: rojo. «Peso restringido», «Sólo vehículos livianos» o «Sólo doble tracción»: «No habilitado para carga». Restringida o parcialmente operativa: ámbar. Observaciones de una ruta habilitada: informativas, sin cambiar el veredicto del planificador. En Chile cada emergencia se asigna por posición: rutas nacionales a menos de 3 km del trazado del tramo (los caminos secundarios que salen de la ruta no cuentan). Un registro chileno sin novedades de Vialidad en más de 14 días se publica en ámbar («puede estar ya resuelto, confírmalo») y no bloquea (#130) |
-| 26 | **Solo las fuentes oficiales deciden el estado** (19/11/2026). Un aviso de prensa sin verificar queda como contexto (gris, con el nombre del medio) y no cambia el estado ni el veredicto. Sin sello amarillo «Sin verificar»: cada dato dice de qué tipo es su fuente. «Tareas del día» solo con lo que necesita una persona (#175) |
-| 27 | **Plan de 90 días del comité** (20/11/2026): continuar sin crecer en amplitud; decisión el 18/02/2027; el ciclo 2 empieza con la apertura de los accesos al puente |
-| 28 | **Marca RadarCorredor by Vialta** (20/11/2026): el producto manda (cabecera) y Vialta respalda (pie, informe, documentos) detrás del interruptor `marcaMadre.mostrar`. Color en tres capas: corporativo, acento turquesa (nunca un estado) y estados; fuera el amarillo. DM Sans y DM Mono en lugar de Overpass ([MARCA.md](MARCA.md)) |
-| 29 | ~~**Estado por país** (20/11/2026)~~ Sustituida por la 33. |
-| 30 | ~~**Parte chileno** (21/11/2026)~~ Sustituida por la 31 (Chile informa por aviso). |
-| 31 | **Cada país informa a su manera** (22/11/2026): Argentina confirma a diario; Chile (UPF) solo avisa cuando hay un problema. Un lado «por aviso» sin mensajes cuenta como «Sin avisos desde…» desde la última revisión de su canal, durante 15 días (`site.canalesParte`); después, «Sin dato». Cada lado tiene su línea en la ficha, y el horario («Fuera de horario · abre en…») va aparte del estado operativo |
-| 32 | **Histórico fehaciente** (22/11/2026): un «Cerrado» de Gendarmería es un cierre solo si se publica dentro del horario o con motivo (un motivo es un texto que nombra una causa, o uno sin causa emitido dentro del horario: el parte rutinario de Chile al cerrar, «222000NOV26 … permanece cerrado», no lo es; 23/11/2026); el de la noche que sigue a primera hora no lo es, y si una hora después de abrir sigue igual, el paso pasa a «Sin confirmar», nunca a «Cerrado». El vigilante apunta un registro por día y paso (el peor estado con lectura buena de la web oficial dentro del horario y con parte de Gendarmería de ese mismo día, con cuántas lecturas y entre qué horas). Desde que hay registro diario, un día sin lectura buena es «sin datos» y no hereda el anterior. Solo cuentan estados de fuente oficial |
-| 33 | **Regla por país** (24/11/2026): cada lado de un paso lo decide su país según cómo informa. Argentina (Gendarmería) avisa cada día que abre: su lado vale si el vigilante leyó su web oficial hace menos de 6 h o hay parte oficial de hoy, y si a la apertura + 1 h sigue el «Cerrado» de la noche, «Sin confirmar». Chile (UPF) solo avisa cuando cierra: su silencio vale como habilitado mientras su canal se haya revisado en los últimos 15 días. Paraguay no tiene canal oficial del estado de sus pasos (revisado el 25/11/2026: ni Migraciones, ni DNIT, ni MOPC): su lado no cuenta, lo decide el otro y la ficha dice «Sin canal oficial». El cruce es el peor de sus lados. Desaparecen el umbral de 48 h por lado y el «Abierto solo en…». Regla completa en [`docs/regla-estado-pasos.md`](docs/regla-estado-pasos.md). |
-| 34 | **Integridad, lote 1** (25/11/2026, auditoría y decisiones D1–D3 del fundador): solo «ABIERTO» y «CERRADO» de Gendarmería deciden (otro valor → «Sin confirmar»); un aviso oficial de cierre de Chile cierra el cruce; un aviso oficial leído automáticamente en la carretera de acceso, de cualquier lado, lo deja «Con restricciones» (también el corte total); si la web oficial no responde, un «No habilitado» o «Con restricciones» del vigilante se mantiene avisando de que la fuente no responde. Detalle en [`docs/regla-estado-pasos.md`](docs/regla-estado-pasos.md) y [`docs/auditoria-2026-11-25.md`](docs/auditoria-2026-11-25.md). |
-
-</details>
-
-<details>
-<summary><strong>Para desarrolladores: uso, estructura y publicación</strong></summary>
-
-### Uso
-
-Requisito: Node 20 o superior.
-
-```bash
-npm install              # una vez
-npm run check            # esquemas JSON + reglas de contenido y calidad
-npm run prueba           # genera la web y la API y comprueba coherencia y enlaces internos
-npm run pruebas          # pruebas de navegador (necesita Playwright, ver pruebas/LEEME.md)
-npm run dev              # genera y abre http://localhost:4321
-npm run verificaciones   # verificaciones nuevas respecto a main
-npm run enlaces-externos # comprueba las URL externas (informe, no bloquea)
-```
-
-Cómo editar datos, añadir fuentes, verificar y tramitar solicitudes: [`docs/como-editar.md`](docs/como-editar.md).
-
-### Estructura
-
-```
-data/                Datos (fuente de verdad): pasos, rutas, incidencias, festivos, organismos,
-                     directorio, novedades, fuentes… y esquemas/ (JSON Schema 2020-12)
-content/guia/        Fichas de la guía en Markdown
-scripts/             build (web + api/v1), check, validación, API, estimaciones, enlaces…
-src/assets/          CSS y JavaScript del navegador
-pruebas/             Pruebas de navegador, con datos fijos en pruebas/datos/
-docs/                Auditoría, política de validación, regla del estado de los pasos, registro de avances, Claude, cómo editar, cambios de la API
-```
-
-### Flujo de datos
-
-```
-Fuente oficial ──► propuesta en una rama («por verificar») ──► Ernesto verifica (PR + revision-editorial)
-      ──► data/*.json ──► GitHub Actions: check · build · API · enlaces · pruebas de navegador
-                              ├──► web ──► GitHub Pages
-                              └──► api/v1 ──► Claude y otros sistemas
-```
-
-### Política de validación
-
-Detalle en [`docs/politica-validacion.md`](docs/politica-validacion.md). Estados: `borrador`, `por-verificar`, `verificado`. Evidencia: `oficial`, `declaracion-empresa`, `tercero`, `calculo`, `estimacion`, `historico`. Un festivo no implica cierre de aduana.
-
-### API abierta
-
-`indice.json`, `pasos.json`, `tramos.json`, `rutas.json`, `incidencias.json`, `calendario.json`, `empresas.json`, `fuentes.json`, `organismos.json`. Contrato en [`docs/ia-dev.md`](docs/ia-dev.md); cambios en [`docs/api-cambios.md`](docs/api-cambios.md).
-
-### Publicación
-
-`.github/workflows/publicar.yml`: en cada cambio en `main` (y cada 3 horas, para los tiempos de cruce) se ejecutan los trabajos `construir` y `pruebas`, y solo si los dos pasan se publica en GitHub Pages. Para pausar la publicación: variable de repositorio `PUBLICAR` = `false`. `vigilante.yml` revisa las webs oficiales cada hora, de 06 a 21 h de Argentina (prueba manual: Actions → *Vigilante de webs oficiales* → *Run workflow* con «prueba»). Los lunes, `enlaces-externos.yml` revisa las URL externas.
-
-Este repositorio sustituye al antiguo *Red de Cargas* (rama [`legacy-red-de-cargas`](../../tree/legacy-red-de-cargas)).
-
-</details>
-
-## Antes del lanzamiento
-
-- [x] Email de contacto del proyecto
-- [x] Formulario de Google de solicitudes de empresas
-- [x] Ninguna empresa ficticia en el directorio
-- [x] Pruebas automáticas antes de cada publicación (#50)
-- [ ] Primeras empresas reales verificadas (#46)
-- [ ] Revisión de las fichas de la guía (#22)
-- [ ] Enlace de suscripción de PayPal de la ficha destacada (#17)
-- [ ] Aviso legal y privacidad (#48)
-- [ ] Dominio (#16) e `"indexable": true` en `data/site.json`

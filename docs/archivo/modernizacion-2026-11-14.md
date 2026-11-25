@@ -1,5 +1,7 @@
 # Modernización del portal: auditoría y propuesta
 
+> **Archivo histórico, no vigente.** Se conserva para la trazabilidad. Lo vigente está en el [mapa de la documentación](../../README.md#documentación).
+
 Fecha: 14 de noviembre de 2026. Responde al encargo «Modernización del Portal del Corredor Bioceánico».
 
 ## Fase 1. Auditoría del portal tal como estaba

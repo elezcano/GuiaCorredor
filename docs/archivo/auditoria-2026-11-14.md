@@ -1,5 +1,7 @@
 # Auditoría funcional y técnica de Guía Corredor
 
+> **Archivo histórico, no vigente.** Se conserva para la trazabilidad. Lo vigente está en el [mapa de la documentación](../../README.md#documentación).
+
 Fecha: 14 de noviembre de 2026 · Versión auditada: commit `1f12325` (PR #34) · Estado: **diagnóstico, pendiente de aprobación antes de programar**.
 
 ## Cómo se ha comprobado

@@ -124,7 +124,7 @@ Se hace una vez y lleva unos 5 minutos:
 
 ## Validación: un solo sistema para todo el portal
 
-La política completa está en [`politica-validacion.md`](politica-validacion.md). Todo dato operativo lleva:
+La política completa está en [`datos-y-fuentes.md`](datos-y-fuentes.md#1--validación). Todo dato operativo lleva:
 
 | Campo | Qué es |
 |---|---|
