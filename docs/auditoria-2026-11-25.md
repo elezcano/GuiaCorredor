@@ -7,7 +7,7 @@
 | Hallazgo | Estado | Dónde |
 |---|---|---|
 | C1 · valor desconocido leído como abierto | **Corregido** (lote 1) | `vigilante.mjs` `ESTADOS_GENDARMERIA`; autoprueba |
-| C2 · corte total como «Con restricciones» | **Se mantiene por decisión del fundador (D2)**; riesgo documentado | `regla-estado-pasos.md` §12 |
+| C2 · corte total como «Con restricciones» | **Se mantiene por decisión del fundador (D2)**; riesgo documentado | `regla-estado-pasos.md`, «Riesgos conocidos» |
 | A1 · estados no habilitados sin caducidad por fuente | **Decisión D3:** se mantiene el último estado y se avisa de la fuente caída (lote 1) | `build.mjs` `fuenteCaidaDe` |
 | A3 · aviso de cierre de Chile daba «Sin confirmar» | **Corregido** (lote 1) | `build.mjs` `avisoDeLado` |
 | A4 · silencio de Chile | **Decisión D1:** se mantiene la 33, contrastando Argentina y las carreteras de ambos lados (lote 1) | `build.mjs` `accesoConAvisos` |
@@ -160,8 +160,8 @@ Cadena completa de cada cambio: hallazgo de la auditoría → decisión → regl
 | **C1** · valor de Gendarmería desconocido leído como abierto | Decisión 34 (corrección técnica, sin opción del fundador) | INV-10; tabla D0 | [`vigilante.mjs` · `ESTADOS_GENDARMERIA`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/vigilante.mjs#L156), [rama en `decidir`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/vigilante.mjs#L186), [fallo de lectura en `revisar`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/vigilante.mjs#L631) | Autoprueba del vigilante: [«estado no reconocido (CONDICIONADO)» y «no repite el cambio»](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/vigilante.mjs#L406) | «Sin confirmar: la web oficial marca X, un estado que no sabemos interpretar» + incidencia a los 3 fallos |
 | **A3** · aviso de cierre de Chile daba «Sin confirmar» | Decisión 34 (la regla documentada ya lo decía) | INV-11; D6, «aviso de cierre de un país por aviso» | [`build.mjs` · `avisoDeLado`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L183) y [`estadoPaso`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L211) | [`pruebas/integridad.cjs`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/pruebas/integridad.cjs), caso A3 (Jama) | «No habilitado · Chile: aviso oficial del …»; tablero «Aviso de Chile» |
 | **A4** · silencio de Chile | **D1 del fundador:** se mantiene la decisión 33, contrastando Argentina y las carreteras de ambos lados | INV-11; D6, fila 5 | [`build.mjs` · `accesoConAvisos`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L191) | `integridad.cjs`, caso D1 (Sico) | «Con restricciones · Hay un aviso oficial en la carretera de acceso»; tablero «Aviso en el acceso» |
-| **C2** · corte total como «Con restricciones» | **D2 del fundador:** se mantiene | D4 (nota); riesgo en §12 | Sin cambio | Autoprueba existente del corte total | Ámbar, con «corte total según Vialidad Nacional» |
-| **A1 / M5** · estado sin caducidad con la fuente caída | **D3 del fundador:** se mantiene el último estado avisando | D6, «fuente caída»; modos de fallo §9; riesgo §12 | [`build.mjs` · `fuenteCaidaDe`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L194) y [`notaIntegridad`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L203) | `integridad.cjs`, caso D3 (Pozo Hondo) | «La web oficial no responde desde …: es el último estado leído»; tablero «Fuente no responde» |
+| **C2** · corte total como «Con restricciones» | **D2 del fundador:** se mantiene | D4; «Riesgos conocidos» | Sin cambio | Autoprueba existente del corte total | Ámbar, con «corte total según Vialidad Nacional» |
+| **A1 / M5** · estado sin caducidad con la fuente caída | **D3 del fundador:** se mantiene el último estado avisando | D6, «fuente caída»; «Si algo falla»; «Riesgos conocidos» | [`build.mjs` · `fuenteCaidaDe`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L194) y [`notaIntegridad`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L203) | `integridad.cjs`, caso D3 (Pozo Hondo) | «La web oficial no responde desde …: es el último estado leído»; tablero «Fuente no responde» |
 
 ### Qué mejora en la integridad del dato
 
@@ -177,7 +177,7 @@ El lote 1 quita casos en los que la web podía mostrar un estado distinto del qu
 **Lo que el lote 1 no arregla:**
 - No hay un registro de cada lectura que permita demostrar qué leyó el vigilante en una pasada concreta (A2, lote 3).
 - Estado y confianza siguen en un solo valor (M1, lote 2).
-- Las decisiones D2 y D3 mantienen dos riesgos documentados en `regla-estado-pasos.md` §12: el corte total en ámbar, y un «Cerrado» que puede seguir mostrándose con la fuente caída aunque el paso haya reabierto.
+- Las decisiones D2 y D3 mantienen dos riesgos documentados en `regla-estado-pasos.md`, «Riesgos conocidos»: el corte total en ámbar, y un «Cerrado» que puede seguir mostrándose con la fuente caída aunque el paso haya reabierto.
 
 **Verificación del lote:** autoprueba del vigilante, 99 casos sin fallos; 16 pruebas de la web en verde (local y en CI: `construir`, `pruebas`, `vigilar`); publicación y Vigía en verde tras fusionar. Con los datos reales del 25/11 no cambió lo que se ve, porque no se daba ninguno de los casos.
 

@@ -1,364 +1,164 @@
-# Estado de los pasos fronterizos: regla de negocio y arquitectura
+# Regla del estado de los pasos
 
-| | |
-|---|---|
-| **Documento** | Especificación de referencia del estado de los pasos (qué decimos, con qué fuente y cómo lo calculamos) |
-| **Ámbito** | Jama, Sico, Misión La Paz–Pozo Hondo y Puente Bioceánico |
-| **Estado** | Vigente |
-| **Versión** | 1.1, 25/11/2026 (lote 1 de la auditoría de integridad: valores no reconocidos, aviso de cierre de Chile, carretera de acceso y fuente caída) |
-| **Decisiones que recoge** | 31, 32, 33 y 34 de [`decisiones.md`](decisiones.md) (sustituyen a la 29 y la 30) |
-| **Código** | `scripts/vigilante.mjs` (`decidir`, `motivoReal`, `aperturaExigible`, `cuentaEnDiario`), `scripts/build.mjs` (`estadoPaso`, `ladosSinParte`, `ladosHTML`), `scripts/validacion.mjs` (`estadoMostrable`, `CADUCIDAD`) |
-| **Configuración** | `data/site.json` → `canalesParte`; `data/fuentes-vigilancia.csv` |
-| **Pruebas** | `node scripts/vigilante.mjs --autoprueba`; `pruebas/lados.cjs`, `pruebas/partes.cjs`, `pruebas/fiabilidad.cjs` |
+> Cómo decide RadarCorredor si un paso fronterizo está habilitado. Vigente desde el 25/11/2026 (versión 1.2) · decisiones [31 a 34](decisiones.md) · si el código y este documento no coinciden, es un fallo y se corrigen los dos en el mismo PR.
 
-> **Regla de mantenimiento.** Si el código y este documento no coinciden, es un fallo. Se corrigen los dos en el mismo PR, junto con su prueba y su fila en [`decisiones.md`](decisiones.md).
+**Por qué importa.** Un falso «Habilitado» manda un camión a 4.200 m a encontrarse la barrera bajada. Un falso «Sin confirmar» le cuesta una llamada. Los dos errores no cuestan lo mismo, y la regla está hecha para no cometer el primero.
 
----
+## Tres reglas
 
-## 1. Para qué existe
+1. **Cada lado del paso lo decide su país**, con su fuente oficial.
+2. **El silencio se lee según cómo informa ese país.** Si avisa cada día de que abre, callar no vale. Si solo avisa cuando cierra, callar significa abierto. Si no tiene canal oficial, su lado no cuenta y se dice.
+3. **El cruce muestra el peor de sus lados.** Y la duda sale como «Sin confirmar», nunca como abierto ni como cerrado.
 
-El estado de un paso es el dato con el que un transportista decide si sale o no. Un falso «Habilitado» manda un camión a 4.200 m a encontrarse la barrera bajada: pierde el día y nosotros perdemos la confianza. Un falso «Sin confirmar» le cuesta una llamada. **Los dos errores no cuestan lo mismo, y toda la regla está construida sobre esa asimetría.**
+## Los cuatro estados
 
-Decisiones que soporta, por actor:
-
-| Actor | Pregunta | Qué necesita de nosotros |
+| Estado | Significa | Cuándo |
 |---|---|---|
-| Transportista / chofer | ¿Salgo hoy hacia el paso? | Estado de hoy, horario, y si hay duda, a quién llamar |
-| Empresa de transporte / despachante | ¿Planifico esta semana por este paso? | Estado de hoy y fiabilidad de 30/90 días |
-| Cargador / cliente | ¿Cumple el plazo de entrega? | Fiabilidad del paso y del tramo |
-| Editor de RadarCorredor | ¿Qué tengo que revisar hoy? | Qué lado no confirma y por qué |
+| 🟢 **Habilitado** | Se puede cruzar en su horario | Todos los lados que cuentan lo confirman y el acceso no tiene avisos |
+| 🟠 **Con restricciones** | Se cruza, con limitaciones | Vialidad restringe o corta la ruta, o hay un aviso oficial en la carretera de acceso |
+| 🔴 **No habilitado** | No se puede cruzar | Un organismo oficial lo cierra, o el puente está en obras |
+| ⚪ **Sin confirmar** | Hoy no lo sabemos | Falta la confirmación de un lado, o la fuente publica algo que no sabemos interpretar |
 
-## 2. Principios (invariantes)
+El horario va aparte: «Fuera de horario · abre a las 09:00» informa, no cierra.
 
-Toda versión del código debe cumplirlos. Cada uno tiene al menos una prueba.
+## Cómo informa cada país
 
-| ID | Principio |
-|---|---|
-| **INV-1** | **Solo una fuente oficial decide un estado.** La prensa y los terceros dan contexto: con ellos el estado sale «Sin confirmar», nunca «Habilitado» ni «No habilitado». |
-| **INV-2** | **Un cierre solo es un cierre si lo dice un organismo oficial, dentro del horario o nombrando una causa.** El cierre de cada noche no es un cierre. |
-| **INV-3** | **El silencio se interpreta según cómo informa cada país.** Si avisa cada día de que abre, su silencio no vale. Si solo avisa cuando cierra, su silencio vale como habilitado, dentro de un plazo de revisión. Si no tiene canal oficial, su lado no cuenta y se dice. |
-| **INV-4** | **La duda sale como «Sin confirmar».** Nunca como «Habilitado» ni como «No habilitado». No existe «probablemente». |
-| **INV-5** | **El cruce es el peor de los lados que cuentan.** «Habilitado» exige que todos lo confirmen. |
-| **INV-6** | **El horario no es un estado.** «Fuera de horario · abre en…» informa, no cierra. |
-| **INV-7** | **El histórico solo registra lo que un organismo oficial publicó ese día.** Un día sin publicación es «sin datos» y nunca hereda el anterior. |
-| **INV-8** | **Todo estado dice de dónde sale y cuándo**: organismo, fecha y hora del parte, y cuándo lo leímos. |
-| **INV-9** | **Lo que cargó una persona no lo pisa la máquina en silencio.** El vigilante solo reabre lo que él mismo cerró; si contradice un dato manual, avisa. |
-| **INV-10** | **Un valor oficial que no reconocemos nunca se lee como abierto.** Solo «ABIERTO» y «CERRADO» de Gendarmería deciden; cualquier otro pasa a «Sin confirmar» y avisa. |
-| **INV-11** | **Cualquier lado puede empeorar el cruce:** un aviso oficial de cierre de un país que informa por aviso, o un aviso oficial en la carretera de acceso, cuentan aunque el otro lado confirme. |
+| País | Fuente | Cómo informa | Su lado vale si… |
+|---|---|---|---|
+| 🇦🇷 Argentina | Gendarmería y Vialidad Nacional (web del Ministerio de Seguridad), leídas solas cada hora | Publica cada mañana que abre | La leímos hace menos de 6 h, o hay parte oficial de hoy |
+| 🇨🇱 Chile | Unidad de Pasos Fronterizos (cuenta en X), revisada a mano | Solo avisa cuando cierra | No hay aviso de cierre y el canal se revisó en los últimos 15 días |
+| 🇵🇾 Paraguay | Ninguna: ni Migraciones, ni DNIT, ni MOPC publican el estado de los pasos (revisado el 25/11/2026) | — | No cuenta: decide el otro lado y la ficha dice «Sin canal oficial» |
+| 🇧🇷 Brasil | — | — | Puente Bioceánico en obras: «No habilitado» hasta su apertura (~feb. 2027) |
 
-## 3. Modelo de dominio
+| Cruce | Lados | Quién decide hoy |
+|---|---|---|
+| Jama y Sico | Argentina + Chile | Gendarmería, salvo aviso de cierre de Chile o aviso en el acceso |
+| Misión La Paz – Pozo Hondo | Argentina + Paraguay | Gendarmería |
+| Puente Bioceánico | Paraguay + Brasil | Fijo: en obras |
+
+## Cómo se decide
+
+### Lado argentino: lo decide el vigilante cada hora
 
 ```mermaid
-classDiagram
-  class Paso { id; nombre; lados; horarios; estado; partes; historial }
-  class Lado { pais AR|CL|PY|BR; nombre }
-  class Estado { valor; texto; fuente; publicado; evidencia; validacion; verificacion }
-  class Parte { lado; emisor; publicado; hora; valor; texto; fuente }
-  class Canal { pais; organismo; modo diario|por-aviso|sin-canal; plazoDias; revisado }
-  class RegistroDiario { paso; dia; clase; lecturas; desde; hasta }
-  Paso "1" --> "2" Lado
-  Paso "1" --> "1" Estado
-  Paso "1" --> "*" Parte
-  Lado "*" --> "1" Canal : su país informa por
-  Paso "1" --> "*" RegistroDiario
+flowchart TD
+  L[Lectura de la web oficial] --> V{¿Gendarmería dice<br/>ABIERTO o CERRADO?}
+  V -->|otra cosa| SC1[⚪ Sin confirmar<br/>+ aviso para revisar]
+  V -->|ABIERTO| R{¿Vialidad restringe<br/>o corta la ruta?}
+  R -->|sí| CR[🟠 Con restricciones]
+  R -->|no| H[🟢 Habilitado]
+  V -->|CERRADO| C{¿Nombra una causa<br/>o es dentro del horario?}
+  C -->|sí| NH[🔴 No habilitado]
+  C -->|no: cierre de la noche| A{¿Publicó la apertura<br/>a la hora + 60 min?}
+  A -->|no| SC2[⚪ Sin confirmar]
+  A -->|sí| H2[🟢 Habilitado en su horario]
 ```
 
-| Término | Definición | Dónde vive |
+| ID | Regla | Ejemplo real |
 |---|---|---|
-| **Paso** | Cruce fronterizo con dos lados | `data/pasos.json` |
-| **Lado** | La mitad de un paso que controla un país | `pasos[].lados` |
-| **Estado** | Lo que decimos del paso ahora: `operativo`, `restricciones`, `cerrado`, `pendiente`, `en-obras` | `pasos[].estado` |
-| **Parte** | Publicación de un organismo sobre un lado, con fecha y hora | `pasos[].partes` |
-| **Evidencia** | Tipo de fuente: `oficial`, `tercero`, `declaracion-empresa`… Solo `oficial` decide (INV-1) | `estado.evidencia` |
-| **Verificación** | Quién lo comprobó (`vigilante` o persona), cuándo y cómo | `estado.verificacion` |
-| **Canal** | Cómo informa un país: `diario`, `por-aviso` o `sin-canal` | `site.canalesParte` |
-| **Motivo real** | Texto de «Motivo del cierre» que nombra una causa, o que sin causa se emitió dentro del horario | `motivoReal()` |
-| **Apertura exigible** | Último momento en que la apertura ya debía estar publicada: apertura + 60 min de hoy, o de ayer si aún no llegó esa hora | `aperturaExigible()` |
-| **Registro diario** | Peor estado oficial del día, para el histórico 30/90 | rama `datos-vigilancia` → `vigilancia.json` → `diario` |
+| **D0** | Solo «ABIERTO» y «CERRADO» deciden. Otro valor → Sin confirmar, y cuenta como lectura fallida | Un «CONDICIONADO» nunca se lee como abierto |
+| **D1** | Un «Motivo del cierre» cuenta si **nombra una causa** (nieve, viento, paro, avería…) o, sin causa, si se publicó **dentro del horario** | El parte de Chile «222000NOV26 … permanece cerrado» (22/11, 20:00) no es motivo: es el cierre de cada noche |
+| **D2** | «CERRADO» es un cierre si no hay horario publicado, si hay motivo (D1) o si el parte es de dentro del horario | Sico, 24/11, «Cerrado» a las 18:13 con horario hasta las 19:00 → No habilitado |
+| **D3** | Cierre de la noche: si a la apertura + 60 min Gendarmería no ha publicado nada nuevo → Sin confirmar. Antes de esa hora se mira la apertura de ayer | Jama, 24/11 a las 08:30, último parte del 22/11 → Sin confirmar |
+| **D4** | «ABIERTO» con Vialidad RESTRINGIDA o CORTE TOTAL → Con restricciones (el corte total, por decisión del fundador) | — |
 
-Correspondencia entre el valor interno y lo que ve el usuario:
+El vigilante solo reabre lo que cerró él; si contradice un dato cargado a mano, avisa y no lo toca. Si dio por cierre algo que con esta regla es el de la noche, lo corrige solo.
 
-| `estado.valor` | Web (es) | Color |
+### El cruce: lo combina la web al publicarse
+
+| ID | Si… | Se muestra |
 |---|---|---|
-| `operativo` | Habilitado / Abierto | Verde |
-| `restricciones` | Habilitado con restricciones | Ámbar |
-| `cerrado`, `en-obras` | No habilitado / Cerrado / En obras | Rojo |
-| `pendiente` | Sin confirmar | Gris |
+| **D5** | Un lado que cuenta no vale (ver la tabla de países) | ⚪ Sin confirmar · «falta confirmación de …» |
+| **D6** | Chile publicó un aviso de cierre o restricción en los últimos 15 días | Ese estado · «Chile: aviso oficial del …» |
+| **D6** | Hay un aviso oficial, leído solo, ámbar o rojo, en la carretera de acceso de cualquier lado | 🟠 Con restricciones · «aviso en el acceso» |
+| **D6** | La web oficial no responde y el último estado era No habilitado o Con restricciones | Ese estado · «la web oficial no responde desde …: es el último estado leído» |
+| **D6** | El estado no está verificado, tiene más de 30 días (120 si está cerrado) o viene de prensa | ⚪ Sin confirmar |
+| — | Todo lo demás confirma | 🟢 Habilitado (con «Chile: sin avisos desde…» si aplica) |
 
-## 4. Fuentes por país
+## Histórico de 30 y 90 días
 
-| País | Organismo y canal | Cómo informa | Modo | Lectura | Calidad |
-|---|---|---|---|---|---|
-| Argentina | Gendarmería Nacional (estado y horario) y Vialidad Nacional (ruta), web del Ministerio de Seguridad, una página por paso | Publica cada mañana la apertura, y los cierres y avisos («Atención», «Motivo del cierre») | `diario` (por defecto) | Automática, cada hora (vigilante) | Alta. Pegas: a veces no publica en todo el día (23/11) y mete en «Motivo del cierre» el parte rutinario de Chile (22/11) |
-| Chile | Unidad de Pasos Fronterizos (UPF), cuenta oficial en X | Solo cuando hay un problema | `por-aviso`, 15 días | Manual: se revisa el canal y se anota `revisado` | Media: sin web ni API; los avisos llegan también por WhatsApp |
-| Paraguay | **Ninguno** (revisado el 25/11/2026: ni Migraciones, sin ficha por paso; ni DNIT; ni MOPC, que informa de la ruta PY15, no del paso) | — | `sin-canal` | — | — |
-| Brasil | — (Puente Bioceánico en obras, apertura prevista ~feb. 2027) | — | — | — | — |
+- Un registro por paso y día con su **peor estado**: cerrado > sin paso para carga > restricciones > abierto.
+- Solo cuentan lecturas **dentro del horario**, de **fuente oficial** y con **parte de Gendarmería de ese mismo día**.
+- Un día sin lecturas válidas es **«sin datos»**: nunca hereda el anterior.
+- Se guarda 120 días. Un día mal registrado se corrige una sola vez, y queda anotado (`CORRECCIONES_DIARIO`).
+- El Puente Bioceánico no tiene histórico: se medirá desde que abra.
 
-Cruces y lados:
+## Si algo falla
 
-| Cruce | Lado A | Lado B | Quién decide hoy |
-|---|---|---|---|
-| Jama | AR (diario) | CL (por aviso) | Gendarmería, salvo aviso de cierre de la UPF |
-| Sico | AR (diario) | CL (por aviso) | Ídem |
-| Misión La Paz–Pozo Hondo | AR (diario) | PY (sin canal) | Gendarmería; la ficha dice que Paraguay no tiene canal |
-| Puente Bioceánico | PY | BR | Fijo: en obras |
+| Qué pasa | Qué ve el usuario | Qué hacemos |
+|---|---|---|
+| Gendarmería no publica la apertura | ⚪ Sin confirmar | Nada: se resuelve cuando publique. El día queda «sin datos» |
+| Gendarmería publica un valor nuevo | ⚪ Sin confirmar | Incidencia a los 3 fallos; añadir el valor a la regla con su prueba |
+| La web oficial no responde | Habilitado: a las 6 h, Sin confirmar. Cerrado o con restricciones: se mantiene, avisando | Incidencia y correo a los 3 fallos seguidos |
+| Chile avisa de un cierre | 🔴 No habilitado · «Chile: aviso oficial del …» | Cargar el parte de Chile (PR) |
+| Nadie revisa el canal de Chile en 15 días | ⚪ Sin confirmar, con enlace al canal | Revisarlo y actualizar `revisado` |
+| El vigilante no corre | A las 6 h, Sin confirmar | Lanzarlo a mano y revisar Actions |
 
-## 5. Arquitectura
+## Principios que el código debe cumplir siempre
 
-```mermaid
-flowchart LR
-  subgraph Fuentes oficiales
-    GN[Gendarmería y Vialidad<br/>web Ministerio de Seguridad]
-    UPF[UPF Chile<br/>cuenta en X]
-  end
-  subgraph GitHub Actions
-    V[Vigilante<br/>cada hora]
-    P[Publicar web<br/>build + Pages]
-    VG[Vigía<br/>pruebas de humo]
-  end
-  E[Editor]
-  GN -->|lee HTML| V
-  V -->|estado y partes| M[(main<br/>data/pasos.json)]
-  V -->|lecturas, fallos, diario| DV[(datos-vigilancia<br/>vigilancia.json)]
-  UPF -->|revisa| E
-  E -->|PR: partes, canalesParte.revisado| M
-  M --> P
-  DV -->|copia a data/vigilancia-estado.json| P
-  P --> W[Web pública<br/>GitHub Pages]
-  W --> VG
-  V -. fuente caída .-> I[Incidencia en GitHub<br/>y correo]
-  VG -. web rota .-> I
-```
+Cada uno tiene al menos una prueba.
 
-| Componente | Responsabilidad | Escribe en | Disparador (UTC) |
-|---|---|---|---|
-| **Vigilante** (`vigilante.yml`, `scripts/vigilante.mjs`) | Lee la web oficial, decide el estado del lado argentino y lleva el registro diario | `main` (`data/pasos.json`) y rama `datos-vigilancia` | `17 0,9-23 * * *`: de 06:17 a 21:17 (hora de Argentina), cada hora; también a mano |
-| **Publicar web** (`publicar.yml`, `scripts/build.mjs`) | Combina estado, lados, canales y caducidad, y genera la web | GitHub Pages | Cada push a `main`, y `17 */3 * * *` |
-| **Vigía** (`vigia.yml`, `scripts/humo.mjs`) | Comprueba la web publicada | Abre y cierra la incidencia «Vigía: la web publicada tiene fallos» | Tras cada publicación correcta, y `23 */6 * * *` |
-| **Editor** | Revisa los canales sin lectura automática (UPF), carga partes y corrige | PR a `main` | Diario |
+1. **INV-1** Solo una fuente oficial decide un estado.
+2. **INV-2** Un cierre solo es cierre si un organismo oficial lo dice dentro del horario o con una causa.
+3. **INV-3** El silencio se lee según cómo informa cada país.
+4. **INV-4** La duda sale como «Sin confirmar». No existe «probablemente».
+5. **INV-5** El cruce es el peor de los lados que cuentan.
+6. **INV-6** El horario no es un estado.
+7. **INV-7** El histórico solo registra lo que un organismo oficial publicó ese día.
+8. **INV-8** Todo estado dice de dónde sale y cuándo.
+9. **INV-9** Lo que cargó una persona no lo pisa la máquina en silencio.
+10. **INV-10** Un valor oficial que no reconocemos nunca se lee como abierto.
+11. **INV-11** Cualquier lado puede empeorar el cruce.
 
-Separación de responsabilidades:
+## Parámetros
 
-- **El vigilante decide el estado del lado argentino.** Es el único sitio con lógica de horarios y motivos.
-- **La web combina los lados.** Aplica el modo de cada país, la caducidad y el peor de los lados. No reinterpreta lo que leyó el vigilante.
-- **El histórico** sale solo del registro diario del vigilante (`scripts/fiabilidad.mjs`).
+| Qué | Valor | Dónde se cambia |
+|---|---|---|
+| Margen de apertura | 60 min | `scripts/vigilante.mjs` → `MARGEN_APERTURA_MIN` |
+| Valores de Gendarmería que deciden | ABIERTO, CERRADO | `scripts/vigilante.mjs` → `ESTADOS_GENDARMERIA` |
+| Palabras que cuentan como causa | lista | `scripts/vigilante.mjs` → `CAUSA` |
+| Vida de una lectura automática | 6 h | `scripts/build.mjs` → `LECTURA_LADO_H` |
+| Modo y plazo de cada país | Chile: por aviso, 15 días · Paraguay: sin canal | `data/site.json` → `canalesParte` |
+| Caducidad de un estado | 30 días (abierto) · 120 (cerrado) | `scripts/validacion.mjs` → `CADUCIDAD` |
+| Fallos seguidos para avisar | 3 | `scripts/vigilante.mjs` → `FALLOS_PARA_AVISAR` |
 
-## 6. Regla
+Pruebas: `node scripts/vigilante.mjs --autoprueba` (lado argentino) y `pruebas/lados.cjs`, `pruebas/integridad.cjs`, `pruebas/fiabilidad.cjs` (web).
 
-### 6.1 En tres líneas
+## Riesgos conocidos
 
-1. **Cada lado lo decide su país**, con su fuente oficial.
-2. **Según cómo informa su país:** si avisa cada día de que abre, su silencio no vale; si solo avisa cuando cierra, su silencio significa abierto; si no tiene canal oficial, ese lado no cuenta y se dice.
-3. **El cruce es el peor de los lados que cuentan.** Un cierre o una restricción oficial se muestra tal cual; «Habilitado» solo si todos los lados que cuentan lo confirman.
-
-### 6.2 Lado argentino (vigilante)
-
-```mermaid
-stateDiagram-v2
-  [*] --> Habilitado: «ABIERTO»
-  Habilitado --> ConRestricciones: Vialidad restringe
-  ConRestricciones --> Habilitado: Vialidad habilita
-  Habilitado --> NoHabilitado: «CERRADO» con causa o en horario
-  Habilitado --> CierreJornada: «CERRADO» fuera de horario sin causa
-  CierreJornada --> Habilitado: «ABIERTO» (apertura)
-  CierreJornada --> SinConfirmar: pasa la apertura + 60 min sin publicar
-  SinConfirmar --> Habilitado: «ABIERTO»
-  SinConfirmar --> NoHabilitado: «CERRADO» con causa o en horario
-  NoHabilitado --> Habilitado: «ABIERTO» (si lo cerró el vigilante)
-  note right of CierreJornada
-    Se muestra «Habilitado en su horario»
-    y el parte dice «Cierre de la jornada»
-  end note
-```
-
-Tablas de decisión (en orden):
-
-**D0 · ¿Reconocemos el valor de Gendarmería?** (`ESTADOS_GENDARMERIA`)
-
-| Valor | Resultado |
+| Riesgo | Qué lo mitiga |
 |---|---|
-| «ABIERTO» o «CERRADO» | Sigue a D1–D4 |
-| Cualquier otro («CONDICIONADO», «SIN INFORMACIÓN»…) | **Sin confirmar** («la web oficial marca X, un estado que no sabemos interpretar»), lectura contada como fallida (aviso a los 3 seguidos) |
+| Dependemos del formato de la web oficial argentina | Lista de valores válidos (D0), lectura fallida y aviso; autoprueba con páginas reales |
+| Chile se revisa a mano | A los 15 días sin revisar, Sin confirmar con enlace al canal |
+| Paraguay no tiene canal oficial | Se dice en la ficha; si aparece uno, pasa a «por aviso» |
+| El corte total sale en ámbar (decisión del fundador) | El texto dice «corte total según Vialidad Nacional» |
+| Con la fuente caída, un «Cerrado» puede seguir aunque el paso reabra (decisión del fundador) | Se dice en la ficha y en el tablero; incidencia a los 3 fallos |
+| Una causa nueva no prevista en `CAUSA`, fuera de horario, se tomaría por rutinaria | Revisar cada mes los «Motivo del cierre» y ampliar la lista |
+| El vigilante no lee de 21:17 a 06:17 (hora de Argentina) | Los pasos están cerrados de noche; la primera lectura es antes de abrir |
 
-**D1 · ¿El texto de «Motivo del cierre» es un motivo real?** (`motivoReal`)
+## Cambiar la regla
 
-| Nombra una causa (`CAUSA`: nieve, viento, temporal, accidente, paro, piquete, avería, sistema, obra…) | Hora de emisión (grupo fecha-hora `DDHHMM MES AA`; si no lo trae, hora del parte) | Resultado |
-|---|---|---|
-| Sí | cualquiera | Motivo real |
-| No | dentro del horario | Motivo real |
-| No | fuera del horario | **No es motivo** (parte rutinario de cierre) |
-| No | desconocida | Motivo real (no podemos descartarlo) |
+En un solo PR:
 
-**D2 · Gendarmería marca «CERRADO»: ¿es un cierre?**
+1. El **caso real** que lo motiva (fecha, paso y el texto o la captura oficial).
+2. La **decisión** en [`decisiones.md`](decisiones.md).
+3. Este documento, con su fila en la **bitácora**.
+4. El **código** y su **prueba**.
+5. La **corrección de datos**, si el error dejó huella.
+6. Tras publicar: su fila en el [registro](registro.md) y la comprobación de «Publicar web» y «Vigía».
 
-| Sin horario publicado | Motivo real (D1) | Parte publicado dentro del horario | Resultado |
-|---|---|---|---|
-| Sí | — | — | Cierre → **No habilitado** |
-| — | Sí | — | Cierre → **No habilitado** |
-| — | — | Sí | Cierre → **No habilitado** |
-| No | No | No | Cierre de la jornada → D3 |
-
-**D3 · Cierre de la jornada: ¿se publicó la apertura?** (`aperturaExigible`)
-
-| Último parte de Gendarmería | Resultado |
-|---|---|
-| Anterior a la apertura exigible | **Sin confirmar** («no ha publicado la apertura desde entonces») |
-| Igual o posterior | **Habilitado en su horario**; parte «Cierre de la jornada» |
-
-Ejemplo con horario 09:00–19:15: el 24/11 a las 08:30 la apertura exigible es el 23/11 a las 10:00; a las 10:30, el 24/11 a las 10:00.
-
-**D4 · Gendarmería marca «ABIERTO»**
-
-| Vialidad | Resultado |
-|---|---|
-| RESTRINGIDA o CORTE TOTAL | **Habilitado con restricciones** (el corte total, por decisión del fundador del 25/11/2026: el texto dice «corte total según Vialidad Nacional») |
-| Otro | **Habilitado** |
-
-Solo reabre un estado que cerró el propio vigilante (INV-9). Un falso cierre del vigilante que con la regla vigente es el de la noche se corrige solo en la siguiente pasada, junto con su parte.
-
-### 6.3 La web: lados y cruce (`estadoPaso`)
-
-**D5 · ¿Vale el lado?** (`ladosSinParte`)
-
-| Modo del país | El lado vale si… | Si no vale, la ficha dice |
-|---|---|---|
-| `diario` (AR) | lectura automática de su web oficial hace < 6 h (`LECTURA_LADO_H`) **o** parte oficial de ese lado fechado hoy | «Sin confirmar · sin parte de hoy ni lectura de su web oficial en las últimas 6 h» |
-| `por-aviso` (CL) | su último parte no es un cierre **y** el canal se revisó (o hubo parte) en los últimos `plazoDias` (15) | «Sin confirmar · su canal oficial no se ha revisado en los últimos 15 días», con enlace |
-| `sin-canal` (PY) | no cuenta | «Sin canal oficial · Paraguay no publica el estado de sus pasos: manda el otro lado» |
-
-**D6 · ¿Qué se muestra del cruce?** (en orden; la primera que se cumple)
-
-| # | Condición | Se muestra |
-|---|---|---|
-| 1 | Estado sin verificar o caducado (`CADUCIDAD`: 30 días si está abierto o con restricciones; 120 si está cerrado o en obras) | Sin confirmar |
-| 2 | Estado `cerrado`, `restricciones`, `pendiente`, `en-obras` | Tal cual |
-| 3 | Estado `operativo` con evidencia no oficial | Sin confirmar |
-| 4 | Estado `operativo` y algún lado que cuenta no vale (D5) | Sin confirmar · falta confirmación de … |
-| 5 | Estado `operativo`, lados que valen y **aviso oficial leído automáticamente en la carretera de acceso** (ámbar o rojo, de Vialidad Nacional o de Chile) | **Con restricciones** · «aviso en el acceso» |
-| 6 | Estado `operativo`, todos los lados que cuentan valen y acceso sin avisos | **Habilitado** (con «Chile: sin avisos desde…» si aplica) |
-
-Dos reglas se aplican antes de la tabla:
-
-- **Aviso de cierre de un país por aviso** (`avisoDeLado`): si el último parte de Chile es un cierre o una restricción y está dentro de su plazo (15 días), el cruce toma ese valor (**No habilitado** o **Con restricciones**) aunque Argentina confirme, con «Chile: aviso oficial del …». No se aplica si el paso ya está cerrado o en obras.
-- **Fuente caída** (`fuenteCaidaDe`, decisión del fundador del 25/11/2026): si un estado No habilitado o Con restricciones lo puso el vigilante y su web oficial lleva más de 6 h sin leerse (o 3 fallos seguidos), **se mantiene el último estado leído** y se dice: «La web oficial no responde desde …: es el último estado leído». Un «Habilitado» con la fuente caída pasa a Sin confirmar por D5.
-
-### 6.4 Pseudocódigo completo
-
-```text
-# ─ VIGILANTE: cada hora, por paso con lado argentino ─
-lectura ← leer(web Ministerio de Seguridad)
-si falla o no trae estado:            no tocar nada; contar fallo (aviso a los 3 seguidos)
-si lectura más antigua que lo cargado: no tocar nada
-
-si Gendarmería = CERRADO:
-    motivo ← motivoReal(«Motivo del cierre», horario, hora del parte)          # D1
-    si sinHorario o motivo o entre(hora del parte, horario):                     # D2
-        estado ← No habilitado (cita el motivo si lo hay)
-    si no:
-        si parteGendarmería < aperturaExigible(horario, ahora): estado ← Sin confirmar   # D3
-        si no: estado ← Habilitado en su horario; parte ← «Cierre de la jornada»
-si no:                                                                            # D4
-    estado ← Vialidad restringe ? Con restricciones : Habilitado
-    (solo reabre lo que cerró el vigilante)
-
-registro diario: si dentro del horario y evidencia oficial y parteGendarmería.dia = hoy:
-    diario[paso][hoy] ← peor(diario[paso][hoy], estado)
-
-# ─ WEB: al construir, por paso ─
-e ← estadoMostrable(estado)                       # caducidad
-si e no confirmado o e ≠ operativo: mostrar e     # D6.1–2
-si e.evidencia ≠ oficial: mostrar Sin confirmar    # D6.3
-faltan ← [lado | modo(lado) ≠ sin-canal y no vale(lado)]   # D5
-si faltan: mostrar Sin confirmar · falta confirmación de faltan    # D6.4
-si no: mostrar Habilitado                                          # D6.5
-```
-
-## 7. Histórico 30/90 días
-
-| Regla | Detalle |
-|---|---|
-| Qué se apunta | Una entrada por paso y día: peor clase, número de lecturas, primera y última hora |
-| Qué cuenta | Lecturas **dentro del horario**, con **evidencia oficial** y **parte de Gendarmería de ese mismo día** (`cuentaEnDiario`) |
-| Peor clase | cerrado > sin paso para carga > restricciones > abierto |
-| Día sin lecturas válidas | «Sin datos». Nunca hereda el día anterior |
-| Retención | 120 días |
-| Arranque | Semilla reconstruida del historial (`data/diario-pasos-semilla.json`) |
-| Correcciones | `CORRECCIONES_DIARIO` en el vigilante: borra un día una sola vez, queda anotada en `correccionesDiario` y las lecturas siguientes lo rehacen |
-| Pasos sin lado argentino | Sin registro (Puente Bioceánico: «Aún no habilitado: la fiabilidad se medirá desde que abra») |
-
-## 8. Parámetros
-
-| Parámetro | Valor | Dónde | Por qué |
-|---|---|---|---|
-| Margen de apertura | 60 min | `vigilante.mjs` → `MARGEN_APERTURA_MIN` | Gendarmería suele publicar entre la apertura y unos 30 min después |
-| Palabras de causa | lista `CAUSA` | `vigilante.mjs` | Distinguir un cierre real del parte rutinario |
-| Antigüedad de lectura automática | 6 h | `build.mjs` → `LECTURA_LADO_H` | Cubre una o dos pasadas perdidas del vigilante |
-| Plazo de un canal por aviso | 15 días | `site.json` → `canalesParte.<país>.plazoDias` | Revisión semanal con margen |
-| Caducidad del estado | 30 / 120 días | `validacion.mjs` → `CADUCIDAD` | Un estado sin revisar no se presenta como actual |
-| Fallos seguidos para avisar | 3 (DNIT: 6) | `vigilante.mjs` → `FALLOS_PARA_AVISAR`, `FALLOS_POR_FUENTE` | Evitar falsas alarmas por cortes breves |
-| Reintentos de lectura | 10 s y 30 s | `vigilante.mjs` → `ESPERAS_REINTENTO` | Errores de red y 5xx transitorios |
-| Retención del registro diario | 120 días | `actualizarDiario` | Cubre los 90 días del histórico |
-
-## 9. Modos de fallo y respuesta
-
-| Situación | Detección | Qué ve el usuario | Qué hacemos |
-|---|---|---|---|
-| Gendarmería no publica la apertura | D3 | Sin confirmar | Nada; se resuelve cuando publique. Día «sin datos» |
-| Gendarmería publica un valor nuevo | D0 | Sin confirmar | Incidencia a los 3 fallos; revisar la regla y añadir el valor con su prueba |
-| Parte rutinario de cierre en «Motivo del cierre» | D1 | Habilitado en su horario | Nada (caso del 22/11) |
-| La web oficial no responde | Fallo de lectura | Habilitado: a las 6 h, Sin confirmar. No habilitado o Con restricciones: el último estado, con «la web oficial no responde desde …» | Incidencia y correo a los 3 fallos seguidos |
-| La web oficial cambia el formato | Lectura sin estado | Ídem | Incidencia; adaptar el lector y su autoprueba |
-| Aviso de cierre de la UPF | Revisión del editor | No habilitado, con «Chile: aviso oficial del …» | Cargar el parte de Chile (PR); el cruce se cierra solo con el parte |
-| Nadie revisa el canal de Chile en 15 días | D5 | Sin confirmar, con enlace al canal | Revisar y actualizar `revisado` |
-| El vigilante no corre (Actions caído) | Sin commits ni datos nuevos | A las 6 h, Sin confirmar | Lanzarlo a mano; revisar Actions |
-| Falla la publicación | Vigía no se lanza / falla | La versión anterior | Incidencia del Vigía |
-| Un dato manual contradice la lectura | Vigilante | El dato manual | El vigilante avisa y no lo pisa (INV-9) |
-| Error ya registrado en el histórico | Revisión | Histórico erróneo | `CORRECCIONES_DIARIO` + PR |
-
-## 10. Calidad
-
-- **Autoprueba del vigilante** (CI): casos reales de cada decisión. Entre otros: el parte de Chile del 22/11, la apertura no publicada antes y después de las 10:00, el motivo con causa, la corrección del registro diario, el registro que exige parte del día.
-- **Pruebas de navegador** (15, fecha fija 15/11/2026): una línea por lado, Chile por aviso, Paraguay sin canal, que no aparezca «Abierto solo en», horario aparte del estado, histórico.
-- **Vigía** sobre la web publicada.
-- **Puertas de CI**: `construir`, `pruebas` y `vigilar` en verde antes de fusionar; se publica solo con «publica» del responsable.
-
-## 11. Gobierno del cambio
-
-Cualquier cambio de esta regla sigue este orden, en un solo PR:
-
-1. **Caso real** que lo motiva (fecha, paso, captura o texto oficial).
-2. **Decisión** nueva o modificada en [`decisiones.md`](decisiones.md), con fecha.
-3. **Este documento**: invariante, tabla de decisión o parámetro afectado, y fila en la bitácora (§13).
-4. **Código** y su **prueba** (autoprueba o navegador).
-5. **Corrección de datos** si el error dejó huella (estado, parte o `CORRECCIONES_DIARIO`).
-6. Tras publicar: fila en [`registro.md`](registro.md) y comprobación de «Publicar web» y «Vigía».
-
-Para añadir un país o un canal basta con una entrada en `canalesParte` con su `modo` y, si es `por-aviso`, `plazoDias` y `revisado`. Si el canal tiene lectura automática, una fila en `data/fuentes-vigilancia.csv` y su lector en el vigilante.
-
-## 12. Riesgos y deuda conocida
-
-| Riesgo | Impacto | Mitigación / plan |
-|---|---|---|
-| Dependemos del HTML de una web oficial argentina | Si cambia el formato, el lado argentino pasa a Sin confirmar en 6 h | Autoprueba con páginas reales; incidencia automática |
-| Chile se revisa a mano | Sin revisión, Jama y Sico pasan a Sin confirmar a los 15 días | Herramienta «pegar parte UPF» (backlog); recordatorio semanal |
-| Paraguay sin canal oficial | Un cierre paraguayo no lo vemos si Gendarmería no lo refleja | Se dice en la ficha; si aparece un canal, pasa a `por-aviso` |
-| El vigilante no lee entre las 21:17 y las 06:17 (hora de Argentina) | Un cierre nocturno se ve con la primera pasada | Los pasos están cerrados de noche; la primera pasada es antes de la apertura |
-| Brasil y el Puente Bioceánico | Sin fuente cuando abra (~feb. 2027) | Definir canal y modo antes de la inauguración |
-| Lista `CAUSA` incompleta | Un cierre real sin palabra conocida, fuera de horario, se tomaría por rutinario | Revisar los «Motivo del cierre» del mes y ampliar la lista |
-| Fuente caída con el paso cerrado (decisión D3) | Si el paso reabre mientras la web oficial no responde, seguimos mostrando «No habilitado» | Se dice en la ficha y en el tablero («Fuente no responde»); incidencia a los 3 fallos |
-| Corte total como «Con restricciones» (decisión D2) | El ámbar puede leerse como «se puede pasar» | El texto dice «corte total según Vialidad Nacional»; revisar con usuarios |
-
-## 13. Bitácora de casos que fijaron la regla
+## Bitácora
 
 | Fecha | Qué pasó | Qué se decidió | PR |
 |---|---|---|---|
-| 20/11/2026 | Pasos «Abiertos» con un solo lado confirmado | Estado por país: todos los lados deben confirmar (decisión 29, ya sustituida) | #216 |
-| 22/11/2026 | Chile no publica a diario, solo avisa | Lado por aviso con plazo de 15 días (decisión 31) | #228 |
-| 17–19/11/2026 | Cierres de cada noche registrados como cierres | Un «Cerrado» fuera de horario sin motivo es el cierre de la jornada (decisión 32) | #244 |
-| 22/11/2026 | La web oficial pone en «Motivo del cierre» el parte de Chile de las 20:00 («222000NOV26 … permanece cerrado») | Sin causa y fuera de horario no es motivo | #248 |
-| 23/11/2026 | Gendarmería no publica en todo el día en Jama ni en Sico | El registro diario exige parte del día; 23/11 «sin datos» en ambos | #248 |
-| 24/11/2026 | A las 08:30, Jama «Abierto» con el último parte del 22/11 | Apertura exigible: la de ayer si aún no llegó la de hoy | #257 |
-| 24/11/2026 | Regla difícil de explicar (48 h, «Abierto solo en…») | Regla por país en tres líneas (decisión 33) | #257 |
-| 25/11/2026 | Paraguay no tiene canal oficial | Modo `sin-canal`: su lado no cuenta y se dice | #257 |
-| 25/11/2026 | Auditoría de integridad: un valor de Gendarmería desconocido se leía como abierto (C1); el aviso de cierre de Chile daba «Sin confirmar» (A3) | Lista blanca de valores; el aviso de cierre de un lado decide el cruce (decisión 34) | lote 1 |
-| 25/11/2026 | El fundador decide: el temporal o la carretera de cualquier lado afectan al cruce (D1); el corte total sigue en «Con restricciones» (D2); con la fuente caída se mantiene el último estado avisando (D3) | Aviso oficial en el acceso → Con restricciones; aviso de fuente caída (decisión 34) | lote 1 |
+| 20/11/2026 | Pasos «abiertos» con un solo lado confirmado | Todos los lados deben confirmar (decisión 29, sustituida por la 33) | #216 |
+| 22/11/2026 | Chile no publica a diario: solo avisa | Lado «por aviso», con plazo de 15 días (decisión 31) | #228 |
+| 17–19/11/2026 | Los cierres de cada noche se registraban como cierres | Un «Cerrado» fuera de horario y sin motivo es el cierre de la jornada (decisión 32) | #244 |
+| 22/11/2026 | La web oficial mete en «Motivo del cierre» el parte de Chile de las 20:00 | Sin causa y fuera de horario no es motivo | #248 |
+| 23/11/2026 | Gendarmería no publicó en todo el día en Jama ni en Sico | El histórico exige parte del día; el 23/11 queda «sin datos» | #248 |
+| 24/11/2026 | A las 08:30, Jama salía «Abierto» con el último parte del 22/11 | Se exige la apertura de ayer si aún no llegó la de hoy | #257 |
+| 24/11/2026 | La regla era difícil de explicar (48 h, «Abierto solo en…») | Regla por país en tres líneas (decisión 33) | #257 |
+| 25/11/2026 | Paraguay no tiene canal oficial | Su lado no cuenta y se dice | #257 |
+| 25/11/2026 | Auditoría: un valor desconocido se leía como abierto; un cierre de Chile salía «Sin confirmar» | Lista de valores válidos; el aviso de cierre de un lado decide el cruce (decisión 34) | #265 |
+| 25/11/2026 | El fundador decide: el temporal o la carretera de cualquier lado afectan al cruce; el corte total sigue en ámbar; con la fuente caída se mantiene el último estado | Aviso en el acceso → Con restricciones; aviso de fuente caída (decisión 34) | #265 |
+| 25/11/2026 | El documento era largo y difícil de leer | Misma regla, presentada en la mitad de espacio (versión 1.2) | #272 |
