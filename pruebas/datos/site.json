@@ -60,6 +60,11 @@
       "explicacion": "Chile solo avisa cuando hay un problema",
       "plazoDias": 15,
       "revisado": "2026-11-12"
+    },
+    "PY": {
+      "organismo": "Paraguay",
+      "modo": "sin-canal",
+      "explicacion": "Paraguay no publica el estado de sus pasos: manda el otro lado"
     }
   },
   "cotizaciones": {

@@ -77,6 +77,12 @@
       "explicacion": "Chile solo avisa cuando hay un problema",
       "plazoDias": 15,
       "revisado": "2026-11-22"
+    },
+    "PY": {
+      "organismo": "Paraguay",
+      "modo": "sin-canal",
+      "explicacion": "Paraguay no publica el estado de sus pasos: manda el otro lado",
+      "nota": "Revisado el 25/11/2026: ni Migraciones (su página de puestos no tiene ficha por paso), ni la DNIT, ni el MOPC (informa de la ruta, no del paso) publican el estado de Pozo Hondo. Si aparece un canal oficial, pasa a «por-aviso»."
     }
   },
   "estadisticas": {

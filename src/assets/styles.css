@@ -1653,6 +1653,7 @@ fieldset { min-width: 0; }
 .lados-paso .lado-parte { background: color-mix(in srgb, var(--ok-dot) 12%, transparent); }
 .lados-paso .lado-aviso { border-color: var(--ok-dot); border-style: dashed; }
 .lados-paso .lado-sin-dato { border-color: var(--sin-dato); border-style: dashed; }
+.lados-paso .lado-sin-canal { color: var(--sin-dato); background: color-mix(in srgb, var(--sin-dato) 8%, transparent); }
 .lados-paso .lado-pais { font-weight: 600; }
 .lados-paso .lado-texto a { display: block; font-size: 13px; }
 .estado-por-aviso { text-decoration: underline dashed; text-underline-offset: 4px; }
