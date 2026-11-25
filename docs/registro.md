@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 25/11/2026 | [Datos y fuentes](datos-y-fuentes.md) más sencillo y al día: qué lleva cada dato, quién verifica, caducidad, fuentes que se leen solas en una tabla y cómo añadir una; corregidos el MOPC y el DNIT (ya automáticos) y la regla de automatizaciones frente al vigilante | #279 (`3cca882`) |
 | 25/11/2026 | [Arquitectura](arquitectura.md) más sencilla y completa: tres reglas, piezas, dónde vive cada dato y qué es público, comprobaciones que bloquean, coste, cuándo cambiar de arquitectura y límites conocidos | #274 (`f8bec54`) |
 | 25/11/2026 | [Regla del estado de los pasos](regla-estado-pasos.md) más sencilla (versión 1.2): misma regla en la mitad de espacio, con tres reglas, los cuatro estados, cómo informa cada país, diagrama y tablas de decisión con ejemplos reales | #272 (`7ee7245`) |
 | 25/11/2026 | **Documentación: una pregunta, un documento** ([decisión 35](decisiones.md)): README de portada con el mapa de la documentación; decisiones, plan, datos y fuentes y arquitectura en su propio documento; informes cerrados a `archivo/`; prueba que comprueba enlaces, anclas y numeración de decisiones | #270 (`7582bce`) |
