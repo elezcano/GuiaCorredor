@@ -50,7 +50,7 @@ Cada dato operativo (estado, horario, incidencia) tiene su **propia** verificaci
 
 1. Nada sale como verificado sin la firma del responsable editorial o la lectura del vigilante en una web oficial.
 2. La IA investiga, compara y propone, pero **nunca** escribe `verificado` ni `verificacion`.
-3. Un PR que añade verificaciones necesita la etiqueta `revision-editorial`, y solo la pone Ernesto. Sin ella, la comprobación falla.
+3. Un PR que añade verificaciones necesita la etiqueta `revision-editorial`. Sin ella, la comprobación falla. La pone Ernesto, o Claude por él cuando Ernesto escribe «confirmo» sobre ese PR; entonces Claude deja en el PR un comentario con la frase exacta, la fecha y la hora (decisión 36).
 4. Lo que entra por otra automatización o por un formulario queda en `por-verificar`, y las empresas entran por PR tras revisarlas.
 5. Un festivo no implica cierre de aduana: la afectación tiene que venir del organismo.
 6. **Excepción provisional (15/11/2026):** donde no hay distancia oficial, se muestra una estimación en línea recta, marcada «Estimación provisional» y con el tramo exacto. Nunca se suma como dato oficial. Se apaga en `data/site.json` → `estimaciones.provisionales`.
@@ -112,6 +112,6 @@ El vigilante lee cada hora, de 06 a 21 h de Argentina, las filas `activa` de [`f
 
 | Límite | Qué lo mitiga |
 |---|---|
-| La IA trabaja con la cuenta de GitHub del propietario y podría poner la etiqueta `revision-editorial` | Es un control de procedimiento: la IA no la pone ni fusiona verificaciones. Pasará a ser técnico al proteger `main` (#49) |
+| La IA trabaja con la cuenta de GitHub del propietario y puede poner la etiqueta `revision-editorial` | Solo con un «confirmo» explícito de Ernesto para ese PR, y con un comentario que lo deja escrito (decisión 36). Pasará a ser un control técnico al proteger `main` (#49) |
 | Chile y el Puente Bioceánico dependen de una revisión a mano | Plazo de 15 días para Chile, con enlace al canal |
 | El MOPC y el DNIT cambian de formato sin avisar | Autopruebas con copias reales y aviso a los 3 fallos |

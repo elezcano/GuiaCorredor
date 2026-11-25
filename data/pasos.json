@@ -1078,6 +1078,23 @@
             "fecha": "2026-11-25",
             "alcance": "Leído automáticamente de la web oficial el 25/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
+        },
+        {
+          "lado": "CL",
+          "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-25",
+          "actualizado": "2026-11-25",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "valor": "operativo",
+          "texto": "Habilitado para todo tipo de vehículos. Horario de atención del complejo (Unidad de Pasos Fronterizos): 08:00 a 20:00 h. Ruta CH-27 transitable, con un vehículo abandonado sin ruedas en el km 43,5 (berma derecha). Viento de 60 a 80 km/h.",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-25",
+            "alcance": "Comprobado el 25/11/2026 con el texto del parte del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 25/11/2026), reenviado por el responsable editorial a las 13:55 hora de España (09:55 hora de Chile); el parte no indica su hora de publicación. Complejo Fronterizo Integrado Jama «HABILITADO», horario 08:00 a 20:00 h, todo tipo de vehículos, ruta CH-27 transitable, vehículo Toyota abandonado en el km 43.500 (lado derecho de la berma, sin ruedas), clima despejado variando a nubosidad parcial, viento entre 60 y 80 km/h."
+          }
         }
       ]
     },
@@ -1525,6 +1542,24 @@
             "rol": "vigilante",
             "fecha": "2026-11-25",
             "alcance": "Leído automáticamente de la web oficial el 25/11 a las 09:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 51 tramo San Antonio De Los Cobres - Paso De Sico. Transitar con precaución maquinas trabjando en badenes con material."
+          }
+        },
+        {
+          "lado": "CL",
+          "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-25",
+          "actualizado": "2026-11-25",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "valor": "restricciones",
+          "afecta": "carga",
+          "texto": "Habilitado solo para vehículos de pasajeros, particulares y camiones sin carga: no habilitado para camiones con carga. Horario de atención del complejo (Unidad de Pasos Fronterizos): 09:00 a 18:00 h. Ruta CH-23 transitable.",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-25",
+            "alcance": "Comprobado el 25/11/2026 con el texto del parte del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 25/11/2026), reenviado por el responsable editorial a las 13:55 hora de España (09:55 hora de Chile); el parte no indica su hora de publicación. Complejo Fronterizo Integrado Sico «HABILITADO», horario 09:00 a 18:00 (Chile y Argentina), tipo de flujo: vehículos de transporte de pasajeros, particulares y camiones sin carga; ruta CH-23 transitable."
           }
         }
       ]

@@ -44,5 +44,5 @@ Informes antiguos, sin vigencia: [`docs/archivo/`](docs/archivo/).
 1. **Cada mejora es una historia** (issue en GitHub y tarjeta en Trello) y se desarrolla en una rama con su PR.
 2. **Nada llega a la web sin pasar las comprobaciones** (datos, esquemas, enlaces, pruebas de navegador) **y sin el «publica» de Ernesto.**
 3. **Cada cambio deja rastro:** su decisión en [Decisiones](docs/decisiones.md) si la hay, su fila en el [Registro](docs/registro.md) y, si toca la regla de los pasos, su prueba y su línea en la [bitácora](docs/regla-estado-pasos.md#bitácora).
-4. **La IA investiga y propone; verificar es de Ernesto.** El vigilante publica lo que lee de las webs oficiales con su propio sello, y Ernesto lo revisa después.
+4. **La IA investiga y propone; verificar es de Ernesto.** El vigilante publica lo que lee de las webs oficiales con su propio sello, y Ernesto lo revisa después. Lo que se carga a mano lo firma Ernesto con «confirmo» (decisión 36).
 
