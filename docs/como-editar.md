@@ -118,6 +118,7 @@ Se hace una vez y lleva unos 5 minutos:
 `npm run check` te avisa si falta algo. Hasta que pegues el primer enlace, el botón "Contar mi tiempo" no aparece.
 
 - La hoja publicada es pública: solo contiene el paso, el sentido, el tiempo, el día y un número al azar por navegador. Nada personal.
+- **Sentido:** en la hoja se guarda `chile` (hacia el oeste, el Pacífico) o `brasil` (hacia el este, el Atlántico). En la web cada paso muestra sus dos países: Jama y Sico, «Hacia Chile» y «Hacia Argentina»; Pozo Hondo, «Hacia Argentina» y «Hacia Paraguay»; el puente, «Hacia Paraguay» y «Hacia Brasil» (`sentidosPaso` en `scripts/cruces.mjs`). Nunca se nombra un país que no limita con el paso.
 - Para borrar un reporte falso, borra su fila en la hoja; desaparece en la siguiente publicación.
 - Cada navegador cuenta una vez por paso y día. No es a prueba de alguien empeñado en falsear, pero la mediana aguanta reportes sueltos extremos.
 - GitHub desactiva las tareas programadas si el repositorio pasa 60 días sin cambios. Si los tiempos dejan de actualizarse, haz cualquier cambio (una novedad) o pulsa **Actions → Publicar web → Enable workflow**.

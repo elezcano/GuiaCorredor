@@ -43,7 +43,7 @@ import { generarApi } from './api.mjs';
 import { cobertura, retrasos, leerRegistro, leerBitacora, OBJETIVO_COBERTURA, VENTANA_DIAS, MUESTRAS_MINIMAS } from './servicio.mjs';
 import { aplicarEstimaciones } from './estimaciones.mjs';
 import { fiabilidad, ETIQUETAS_DIA } from './fiabilidad.mjs';
-import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO, CAMPOS_SOLICITUD, CAMPOS_COTIZACION } from './cruces.mjs';
+import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, sentidosPaso, DIAS, MINIMO, CAMPOS_SOLICITUD, CAMPOS_COTIZACION } from './cruces.mjs';
 
 const require = createRequire(import.meta.url);
 let marked;
@@ -851,7 +851,7 @@ const datosRutas = (extra = {}) =>
     paises: PAISES,
     banderas: Object.fromEntries(Object.keys(PAISES).map((k) => [k, bandera(k)])),
     base: B,
-    cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, sentidos: SENTIDOS, dias: DIAS },
+    cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, dias: DIAS },
     // Festivos de los próximos 45 días e incidencias activas por paso, para avisar en el planificador.
     festivos: festivos
       .filter((f) => diasDesde(f.fecha) >= -45)
@@ -887,6 +887,7 @@ function cruceCorto(id) {
 /** Panel lateral de la página de un paso: tiempos reportados y formulario para contar el tuyo. */
 function panelCruce(paso) {
   const datos = cruces.porPaso[paso.id] || {};
+  const SENTIDOS = sentidosPaso(paso.lados || fichaPaso[paso.id]?.lados); // 26/11/2026: cada paso con sus dos países
   const hayDatos = Object.keys(datos).length > 0;
   if (!envioCruce && !hayDatos) return '';
   const fila = (sentido) => {

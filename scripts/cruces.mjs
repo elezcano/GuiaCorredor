@@ -11,7 +11,17 @@ export const TRAMOS_TIEMPO = [
   { id: '4-8', nombre: '4–8 h', corto: '4–8 h' },
   { id: '8+', nombre: 'Más de 8 h', corto: '>8 h' },
 ];
+// Claves fijas del formulario y de los datos: «chile» = hacia el Pacífico (oeste), «brasil» = hacia el Atlántico (este).
+// El texto que se ve depende de los dos países de cada paso (sentidosPaso): en Jama, «Hacia Argentina», nunca «Hacia Brasil».
 export const SENTIDOS = { chile: 'Hacia Chile', brasil: 'Hacia Brasil' };
+export const ORDEN_CORREDOR = ['CL', 'AR', 'PY', 'BR']; // de oeste a este
+const NOMBRE_PAIS = { CL: 'Chile', AR: 'Argentina', PY: 'Paraguay', BR: 'Brasil' };
+/** Textos de los dos sentidos de un paso, a partir de sus lados: { chile: 'Hacia <país oeste>', brasil: 'Hacia <país este>' }. */
+export function sentidosPaso(lados) {
+  const ps = Object.keys(lados || {}).filter((k) => ORDEN_CORREDOR.includes(k)).sort((a, b) => ORDEN_CORREDOR.indexOf(a) - ORDEN_CORREDOR.indexOf(b));
+  if (ps.length !== 2) return SENTIDOS;
+  return { chile: `Hacia ${NOMBRE_PAIS[ps[0]]}`, brasil: `Hacia ${NOMBRE_PAIS[ps[1]]}` };
+}
 export const DIAS = 7; // ventana de reportes
 export const MINIMO = 3; // reportes necesarios para dar un tiempo
 

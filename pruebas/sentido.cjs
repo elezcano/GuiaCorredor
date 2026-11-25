@@ -27,6 +27,13 @@ const f = []; const ok = (c, m) => c || f.push(m);
     ok(/Sales de Argentina/.test(await p.textContent('.sentido-nota')), 'un sentido no válido debe volver al de por defecto');
     await p.close();
   }
+  // 26/11/2026: «Tiempo de cruce» nombra los dos países de cada paso, nunca uno que no limita con él.
+  const esperado = { jama: ['Chile', 'Argentina'], sico: ['Chile', 'Argentina'], 'pozo-hondo': ['Argentina', 'Paraguay'], 'carmelo-peralta-porto-murtinho': ['Paraguay', 'Brasil'] };
+  for (const [id, [oeste, este]] of Object.entries(esperado)) {
+    const h = await (await fetch(`${B}/guia/pasos/${id}/`)).text();
+    const dt = [...h.matchAll(/<dt>Hacia ([^<]+)<\/dt>/g)].map((m) => m[1]);
+    ok(dt.length === 0 || (dt[0] === oeste && dt[1] === este), `Tiempo de cruce en ${id}: Hacia ${oeste} / Hacia ${este}, no ${dt.join(' / ')}`);
+  }
   // El planificador abre las fichas en el sentido del viaje
   const p = await b.newPage();
   await p.goto(B + '/planificador/?desde=8&hasta=0');
