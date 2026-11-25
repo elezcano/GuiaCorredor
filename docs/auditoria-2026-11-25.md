@@ -15,7 +15,9 @@
 | M1 · estado y confianza mezclados | **Corregido** (lote 2, decisión 38) | `build.mjs` `confianzaDe`; [regla](regla-estado-pasos.md#confianza) |
 | M2 · la hora de consulta no estaba en el estado ni en la API | **Corregido** (lote 2) | `vigilante.mjs` `estado.consultado`; `build.mjs` `consultadoPaso`; `api/v1` 1.8.0 |
 | A1 / M5 · caducidad y fuente caída a la vista | **Ampliado** (lote 2): variantes «Dato caducado» y «Fuente no disponible» y «último estado conocido», respetando D3 | `build.mjs`, `styles.css` |
-| A2, M3, M4, M6, B1–B3 | Pendientes (lotes 3–5) | §B.4 |
+| A2 · sin registro de cada lectura | **Corregido** (lote 3, decisión 39) | `vigilante.mjs` `guardarRegistro`; [regla, «Registro por ejecución»](regla-estado-pasos.md#registro-por-ejecución) |
+| B2 · pasada perdida sin alerta | **Corregido** (lote 3) | `humo.mjs`: más de 2 h sin pasada dentro del horario |
+| M3, M4, M6, B1, B3 | Pendientes (lotes 4–5 y siguiente ciclo) | §B.4 |
 | D4 · verosimilitud | Siguiente ciclo | — |
 | D5 · empresa «verificada» | **Decidido:** exige confirmación de la empresa (lote 5) | — |
 
@@ -199,3 +201,15 @@ PR #289 · decisión 38 · capturas antes y después en el lienzo, versión 7.
 **Qué cambia frente a la propuesta original de la auditoría:** el cambio 3 proponía pasar a «Sin confirmar» cualquier estado con la fuente caída. La D3 del fundador lo descartó (lote 1), así que el estado se mantiene y lo que baja es la confianza, que ahora se ve con su propia variante.
 
 **Lo que el lote 2 no arregla:** el registro de cada lectura (A2) y la alerta de pasada perdida (B2) son del lote 3; la prueba de contraste (M4), del lote 4.
+
+## Trazabilidad del lote 3
+
+PR del lote 3 (rama `fiabilidad-servicio`) · decisión 39.
+
+| Hallazgo | Decisión | Regla | Código | Prueba | Qué cambia |
+|---|---|---|---|---|---|
+| **A2** · no se podía reconstruir qué leyó el vigilante | Decisión 39 (cambio 7) | [Registro por ejecución](regla-estado-pasos.md#registro-por-ejecución) | `vigilante.mjs` · `lineaRegistro`, `guardarRegistro`; `vigilante.yml` (rama `datos-vigilancia`) | autoprueba: campos, 120 días, sin datos personales | Un JSONL por día con una línea por paso y pasada |
+| **B2** · pasada perdida sin alerta | Decisión 39 (cambio 8) | «Si algo falla» | `humo.mjs` · `enHorarioVigilante` | Vigía tras cada publicación | Aviso con más de 2 h sin pasada dentro del horario (12 h de noche) |
+| **Volumen de fiabilidad** (auditoría anterior: «¿cómo me fío de tu web?») | Decisión 39 | — | `servicio.mjs`; página `/fiabilidad/` | `pruebas/servicio.cjs` | Objetivo público del 95 % y cobertura, retraso y correcciones medidos |
+
+**Qué no mide todavía:** la exactitud frente a lo vivido en la frontera, que necesita cruces reales contados por transportistas.

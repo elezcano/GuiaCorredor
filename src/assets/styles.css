@@ -1769,3 +1769,19 @@ textarea.cot-inp { height: 88px; padding: 12px 14px; resize: vertical; }
 .consulta { font-size: 13px; line-height: 18px; color: var(--muted-foreground); }
 .estado.estado-incierto { outline: 1.5px dashed currentColor; outline-offset: 2px; border-radius: 4px; }
 .tablero-pasos .estado.estado-incierto { margin: 3px 0; }
+
+/* Decisión 39: «Cómo de fiables somos». */
+.serv-objetivo { font-size: 17px; line-height: 25px; margin: 0 0 12px; }
+.tabla-serv { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tabla-serv th, .tabla-serv td { text-align: left; vertical-align: top; padding: 10px 8px; border-top: 1px solid var(--border); }
+.tabla-serv thead th { border-top: 0; font-size: 12px; font-weight: 600; color: var(--muted-foreground); }
+.tabla-serv td small { display: block; font-size: 12px; line-height: 16px; color: var(--muted-foreground); }
+.tabla-serv td strong { font-size: 18px; }
+.serv-ok { color: var(--ok); } .serv-no { color: var(--obras); }
+.serv-barra { position: relative; display: block; height: 6px; margin: 6px 0 4px; max-width: 160px; border-radius: 3px; background: var(--muted); }
+.serv-barra span { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--accent); }
+.serv-barra i { position: absolute; top: -3px; width: 2px; height: 12px; background: var(--foreground); }
+.serv-bitacora { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; font-size: 14px; line-height: 20px; }
+.serv-bitacora li { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; }
+.serv-fecha { font-family: var(--fuente-datos); font-size: 13px; color: var(--muted-foreground); }
+@media (max-width: 440px) { .serv-bitacora li { grid-template-columns: 1fr; gap: 2px; } }

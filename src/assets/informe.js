@@ -275,7 +275,7 @@
       `${esc(textoOp(t))}${h ? ` · ${esc(h.texto.split(/[(,]/)[0].trim())}` : ''}`,
       `${p ? partesPaso(p) : ''}${p?.horarios?.length ? `<h4>Horarios</h4><ul>${p.horarios.map((x) => `<li><strong>${esc(x.lado || 'General')}:</strong> ${es(x.texto)} <span class="texto-suave">— ${fuente(x.fuente)}</span></li>`).join('')}</ul>` : ''}${
         esp.length ? `<p class="inf-especial"><strong>Horario especial el ${esc(fechaCorta(fecha))}:</strong> ${esp.map((x) => es(x.texto)).join('; ')}</p>` : ''
-      }${p?.fiabilidad ? `<p><strong>Fiabilidad:</strong> últimos 30 días: ${fiabTexto(p.fiabilidad.d30)}.</p>` : ''}`
+      }${p?.fiabilidad ? `<p><strong>Disponibilidad del paso:</strong> últimos 30 días: ${fiabTexto(p.fiabilidad.d30)}.</p>` : ''}`
     );
   };
   const lineaAviso = (i) => {

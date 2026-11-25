@@ -95,7 +95,7 @@ El vigilante solo reabre lo que cerró él; si contradice un dato cargado a mano
 | **D6** | El estado no está verificado, tiene más de 30 días (120 si está cerrado) o viene de prensa | ⚪ Sin confirmar |
 | — | Todo lo demás confirma | 🟢 Habilitado (con «Chile: sin avisos desde…» si aplica) |
 
-## Histórico de 30 y 90 días
+## Disponibilidad del paso: histórico de 30 y 90 días
 
 - Un registro por paso y día con su **peor estado**: cerrado > sin paso para carga > restricciones > abierto.
 - Solo cuentan lecturas **dentro del horario**, de **fuente oficial** y con **parte de Gendarmería de ese mismo día**.
@@ -112,7 +112,17 @@ El vigilante solo reabre lo que cerró él; si contradice un dato cargado a mano
 | La web oficial no responde | Habilitado: a las 6 h, Sin confirmar · «Dato caducado» o «Fuente no disponible». Cerrado o con restricciones: se mantiene como último estado conocido · «Fuente no disponible» | Incidencia y correo a los 3 fallos seguidos |
 | Chile avisa de un cierre | 🔴 No habilitado · «Chile: aviso oficial del …» | Cargar el parte de Chile (PR) |
 | Nadie revisa el canal de Chile en 15 días | ⚪ Sin confirmar, con enlace al canal | Revisarlo y actualizar `revisado` |
-| El vigilante no corre | A las 6 h, Sin confirmar | Lanzarlo a mano y revisar Actions |
+| El vigilante no corre | A las 6 h, Sin confirmar | El Vigía avisa con más de 2 h sin pasada dentro de su horario. Lanzarlo a mano y revisar Actions |
+
+## Registro por ejecución
+
+Desde el 26/11/2026 (lote 3 de la auditoría), cada pasada del vigilante deja una línea por paso en la rama `datos-vigilancia`, fichero `registro/AAAA-MM-DD.jsonl` (día de Argentina). Se guardan 120 días. Sin datos personales.
+
+```json
+{"ejecucion":"2026-11-26T12:00:03Z","paso":"jama","fuente":"ar-seguridad-paso-jama","consultado":"2026-11-26T12:00:05Z","http":"ok","lectura":{"gendarmeria":"ABIERTO","vialidad":null,"parte":"2026-11-26 08:16"},"calculado":"operativo","publicado":"operativo","cambio":false,"error":null}
+```
+
+Para reconstruir qué leyó el vigilante un día concreto: `git fetch origin datos-vigilancia && git show FETCH_HEAD:registro/2026-11-26.jsonl`. Con eso se responde «¿qué decía la web oficial a las 11:00 y qué publicamos?». Lo usa también «Cómo de fiables somos» para medir el retraso.
 
 ## Principios que el código debe cumplir siempre
 
@@ -179,7 +189,8 @@ En un solo PR:
 | 23/11/2026 | Gendarmería no publicó en todo el día en Jama ni en Sico | El histórico exige parte del día; el 23/11 queda «sin datos» | #248 |
 | 24/11/2026 | A las 08:30, Jama salía «Abierto» con el último parte del 22/11 | Se exige la apertura de ayer si aún no llegó la de hoy | #257 |
 | 24/11/2026 | La regla era difícil de explicar (48 h, «Abierto solo en…») | Regla por país en tres líneas (decisión 33) | #257 |
-| 25/11/2026 | Auditoría M1 y M2: el estado mezclaba la confianza y no decía cuándo se consultó | Confianza aparte, con «consultado» y «publicado» por separado (decisión 38, versión 1.3) | lote 2 |
+| 25/11/2026 | Auditoría M1 y M2: el estado mezclaba la confianza y no decía cuándo se consultó | Confianza aparte, con «consultado» y «publicado» por separado (decisión 38, versión 1.3) | #289 |
+| 26/11/2026 | Auditoría A2 y B2: no se podía demostrar qué se leyó en una pasada ni se detectaba una pasada perdida | Registro por ejecución de 120 días y aviso del Vigía a las 2 h (decisión 39) | lote 3 |
 | 25/11/2026 | Paraguay no tiene canal oficial | Su lado no cuenta y se dice | #257 |
 | 25/11/2026 | Auditoría: un valor desconocido se leía como abierto; un cierre de Chile salía «Sin confirmar» | Lista de valores válidos; el aviso de cierre de un lado decide el cruce (decisión 34) | #265 |
 | 25/11/2026 | El fundador decide: el temporal o la carretera de cualquier lado afectan al cruce; el corte total sigue en ámbar; con la fuente caída se mantiene el último estado | Aviso en el acceso → Con restricciones; aviso de fuente caída (decisión 34) | #265 |

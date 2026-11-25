@@ -53,12 +53,16 @@ jobs:
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.prueba)
         run: |
           git fetch --depth=1 origin datos-vigilancia 2>/dev/null && git show FETCH_HEAD:vigilancia.json > "$RUNNER_TEMP/vigilancia.json" || echo '{}' > "$RUNNER_TEMP/vigilancia.json"
+          # Lote 3: registro por ejecución (registro/AAAA-MM-DD.jsonl). El vigilante añade las líneas de esta pasada.
+          mkdir -p "$RUNNER_TEMP/registro"
+          git archive FETCH_HEAD registro 2>/dev/null | tar -x -C "$RUNNER_TEMP" 2>/dev/null || true
       - name: Vigilar
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && !inputs.prueba)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VIGILANCIA_ARCHIVO: ${{ runner.temp }}/vigilancia.json
           VIGILANCIA_CAMBIOS: ${{ runner.temp }}/cambios.json
+          VIGILANCIA_REGISTRO: ${{ runner.temp }}/registro
         run: node scripts/vigilante.mjs --github --escribir
       # HU-130: si hay algo nuevo, se comprueba, se sube a main y se publica la web.
       - name: Publicar lo leído
@@ -103,8 +107,10 @@ jobs:
             git worktree add --orphan -b datos-vigilancia "$dir"
           fi
           cp "$RUNNER_TEMP/vigilancia.json" "$dir/vigilancia.json"
+          # Lote 3: el registro de la rama se sustituye por el de esta pasada (ya podado a 120 días por el vigilante).
+          if [ -d "$RUNNER_TEMP/registro" ]; then rm -rf "$dir/registro"; cp -r "$RUNNER_TEMP/registro" "$dir/registro"; fi
           cd "$dir"
-          git add vigilancia.json
+          git add -A vigilancia.json registro 2>/dev/null || git add vigilancia.json
           git commit -q -m "Estado de la vigilancia $(date -u +%Y-%m-%dT%H:%MZ)" || exit 0
           git push -q origin datos-vigilancia
       - name: Leer sin avisar (PR)
