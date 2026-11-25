@@ -163,6 +163,22 @@ Cadena completa de cada cambio: hallazgo de la auditoría → decisión → regl
 | **C2** · corte total como «Con restricciones» | **D2 del fundador:** se mantiene | D4 (nota); riesgo en §12 | Sin cambio | Autoprueba existente del corte total | Ámbar, con «corte total según Vialidad Nacional» |
 | **A1 / M5** · estado sin caducidad con la fuente caída | **D3 del fundador:** se mantiene el último estado avisando | D6, «fuente caída»; modos de fallo §9; riesgo §12 | [`build.mjs` · `fuenteCaidaDe`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L194) y [`notaIntegridad`](https://github.com/elezcano/GuiaCorredor/blob/849c1ee25dda28465f40a869d2b787dadd716f8a/scripts/build.mjs#L203) | `integridad.cjs`, caso D3 (Pozo Hondo) | «La web oficial no responde desde …: es el último estado leído»; tablero «Fuente no responde» |
 
+### Qué mejora en la integridad del dato
+
+El lote 1 quita casos en los que la web podía mostrar un estado distinto del que publicaba la fuente oficial. En tres de ellos, el estado mostrado era más tranquilizador que el real.
+
+| Caso | Antes | Ahora |
+|---|---|---|
+| Gendarmería publica un valor nuevo o la web cambia de formato | Se mostraba «Habilitado» sin que nadie lo hubiera dicho | «Sin confirmar» con el valor publicado, e incidencia. Se cierra el único camino de un fallo técnico a un falso «Habilitado» |
+| La UPF de Chile publica un cierre y se carga | «Sin confirmar»: un dato oficial y cierto presentado como duda | «No habilitado · Chile: aviso oficial del …», con fuente y hora |
+| Aviso oficial en la carretera de acceso, de cualquier lado | El paso podía salir «Habilitado»: el dato existía pero no llegaba al estado | «Con restricciones · aviso en el acceso» (solo avisos leídos automáticamente de webs oficiales) |
+| La web oficial deja de responder con el paso cerrado | Se mostraba «No habilitado» igual, sin decir de cuándo era | Se mantiene (decisión D3) con «La web oficial no responde desde …: es el último estado leído» |
+
+**Lo que el lote 1 no arregla:**
+- No hay un registro de cada lectura que permita demostrar qué leyó el vigilante en una pasada concreta (A2, lote 3).
+- Estado y confianza siguen en un solo valor (M1, lote 2).
+- Las decisiones D2 y D3 mantienen dos riesgos documentados en `regla-estado-pasos.md` §12: el corte total en ámbar, y un «Cerrado» que puede seguir mostrándose con la fuente caída aunque el paso haya reabierto.
+
 **Verificación del lote:** autoprueba del vigilante, 99 casos sin fallos; 16 pruebas de la web en verde (local y en CI: `construir`, `pruebas`, `vigilar`); publicación y Vigía en verde tras fusionar. Con los datos reales del 25/11 no cambió lo que se ve, porque no se daba ninguno de los casos.
 
 **Cómo reconstruirlo:** `git show 849c1ee` (todo el cambio); `git log --follow docs/regla-estado-pasos.md` (historia de la regla); PR #265 en GitHub (descripción, comprobaciones de CI y fusión).
