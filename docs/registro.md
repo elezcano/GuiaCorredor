@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 25/11/2026 | **Documentación: una pregunta, un documento** ([decisión 35](decisiones.md)): README de portada con el mapa de la documentación; decisiones, plan, datos y fuentes y arquitectura en su propio documento; informes cerrados a `archivo/`; prueba que comprueba enlaces, anclas y numeración de decisiones | #270 (`7582bce`) |
 | 25/11/2026 | Qué mejora el lote 1 en la integridad del dato (antes/ahora de cada caso y lo que no arregla), en la [trazabilidad del lote 1](auditoria-2026-11-25.md#trazabilidad-del-lote-1) | #268 (`a9b7175`) |
 | 25/11/2026 | **Integridad, lote 1** (auditoría y decisiones D1–D3 del fundador): un valor desconocido de Gendarmería ya no se lee como abierto; el aviso de cierre de Chile cierra el cruce; un aviso oficial en la carretera de acceso lo deja «Con restricciones»; con la web oficial caída se mantiene el último estado avisándolo. Trazabilidad completa en [`auditoria-2026-11-25.md`](auditoria-2026-11-25.md#trazabilidad-del-lote-1) | #265 (`849c1ee`) |
 | 25/11/2026 | Especificación de referencia del estado de los pasos ([`regla-estado-pasos.md`](regla-estado-pasos.md)): invariantes, fuentes por país, arquitectura, tablas de decisión, histórico, modos de fallo y bitácora. El registro de avances sale del README a este archivo. | #263 |
