@@ -1530,7 +1530,7 @@ const tableroPasos = ({ sel = null } = {}) => `<div class="tablero-pasos" role="
     .map(
       (h) => `<a role="row" data-paso="${esc(h.id)}" class="tablero-fila${h.id === sel ? ' sel' : ''}" href="${u(h.guia ? `/guia/${h.guia}/` : '/pasos/')}"${h.id === sel ? ' aria-current="true"' : ''}>
     <span role="cell" class="tablero-paso"><strong>${esc(h.nombre)}</strong><small>${h.cara.map((c) => `<span class="tablero-pais">${bandera(c)}<span>${PAISES[c]}</span></span>`).join(' → ')}</small></span>
-    <span role="cell">${estadoCorto(h.id)}</span><span role="cell" class="tablero-hora"${horarioDatos(h.id)}>${horarioCorto(h.id)}</span></a>`
+    <span role="cell">${estadoCorto(h.id)}</span><span role="cell" class="tablero-hora${horarioCorto(h.id) === '—' ? ' sin-horario' : ''}"${horarioDatos(h.id)}>${horarioCorto(h.id)}</span></a>`
     )
     .join('')}
 </div>`;

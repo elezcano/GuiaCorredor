@@ -1233,7 +1233,7 @@ body { font-size: 17px; line-height: 1.5; }
 
 /* Tablero de pasos (como un panel de salidas) */
 .tablero-pasos { background: #10243a; color: #fff; border-radius: 14px; overflow: hidden; }
-.tablero-fila { display: grid; grid-template-columns: 1.4fr 1.3fr 1fr; gap: 8px; align-items: center; min-height: 52px; padding: 0 14px; border-bottom: 1px solid #22405c; color: #fff; text-decoration: none; }
+.tablero-fila { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 8px; align-items: center; min-height: 52px; padding: 0 14px; border-bottom: 1px solid #22405c; color: #fff; text-decoration: none; }
 .tablero-fila:last-child { border-bottom: 0; }
 a.tablero-fila:hover, .tablero-fila.sel, .tablero-fila.en-tu-ruta { background: #1b3550; box-shadow: inset 4px 0 0 var(--producto); }
 .tablero-cab { min-height: 34px; font-size: 12px; font-weight: 700; color: #b8c4d0; }
@@ -1414,7 +1414,9 @@ html[lang^="pt"] .contenido-pt::before { content: none; }
   .menu-app a[aria-current="page"] { background: #1b3550; box-shadow: inset 3px 0 0 var(--producto); }
   .menu-extra { margin-top: auto; }
 }
-@media (max-width: 1080px) { .leyenda-estados { display: none; } }
+@media (max-width: 1240px) { .leyenda-estados { display: none; } }
+/* 25/11/2026: entre 761 y 900 px la cabecera no cabía: el buscador queda como icono, como en el móvil. */
+@media (min-width: 761px) and (max-width: 900px) { .buscar-pill { min-width: 0; width: 44px; padding: 0; justify-content: center; } .buscar-pill span { display: none; } }
 @media (max-width: 760px) {
   .menu-app { left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 4px calc(8px + env(safe-area-inset-bottom)); background: var(--background); border-top: 1px solid var(--border); }
   .menu-app a { color: var(--muted-foreground); min-height: 56px; font-size: 12px; }
@@ -1436,7 +1438,22 @@ html[lang^="pt"] .contenido-pt::before { content: none; }
 .aviso-festivo { display: flex; gap: 8px; align-items: center; margin: 0; padding: 10px 14px; border-radius: 12px; background: #e6f1f6; color: #10243a; font-weight: 700; font-size: 15px; }
 .nota-pie { margin: 0; color: var(--muted-foreground); font-size: 14px; }
 .tablero-hora { white-space: nowrap; }
-@media (max-width: 760px) { .tablero-fila { grid-template-columns: 1.1fr 1.5fr auto; padding: 0 12px; } .tablero-hora { font-size: 14px; } .tablero-paso strong { font-size: 15px; } }
+/* Tablero en móvil (25/11/2026): columnas fijas, iguales en todas las filas (cada fila es su propia rejilla: con «auto»
+   una fila sin horario descolocaba el «Hoy»). Bajo 440 px el horario pasa debajo del estado. */
+@media (max-width: 760px) {
+  .tablero-fila { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) 104px; column-gap: 10px; padding: 8px 12px; }
+  .tablero-cab { padding-top: 0; padding-bottom: 0; }
+  .tablero-hora { font-size: 14px; text-align: right; }
+  .tablero-paso strong { font-size: 15px; }
+}
+@media (max-width: 440px) {
+  .tablero-fila { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.3fr); row-gap: 4px; padding: 10px 12px; }
+  .tablero-fila > .tablero-paso { grid-row: span 2; align-self: start; }
+  .tablero-fila > .tablero-hora { grid-column: 2; text-align: left; font-size: 13px; }
+  .tablero-fila > .tablero-hora.sin-horario, .tablero-cab > span:last-child { display: none; }
+  .tablero-fila > .tablero-paso:has(~ .sin-horario) { grid-row: auto; }
+  .tablero-paso strong { overflow-wrap: anywhere; }
+}
 /* Ficha de paso: tablero a la izquierda (escritorio), ficha a la derecha */
 .ficha-paso-col { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
 .ficha-lado { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
@@ -1750,4 +1767,5 @@ textarea.cot-inp { height: 88px; padding: 12px 14px; resize: vertical; }
 .confianza-caducada, .confianza-fuente-no-disponible { border-style: dashed; border-color: var(--obras); color: var(--obras); }
 .confianza-contradictoria { border-style: dashed; border-color: var(--corte); color: var(--corte); }
 .consulta { font-size: 13px; line-height: 18px; color: var(--muted-foreground); }
-.estado.estado-incierto { outline: 1.5px dashed currentColor; outline-offset: 2px; }
+.estado.estado-incierto { outline: 1.5px dashed currentColor; outline-offset: 2px; border-radius: 4px; }
+.tablero-pasos .estado.estado-incierto { margin: 3px 0; }
