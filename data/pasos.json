@@ -1061,25 +1061,6 @@
           }
         },
         {
-          "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
-          "hora": "08:10",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-25",
-          "actualizado": "2026-11-25",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-25",
-            "alcance": "Leído automáticamente de la web oficial el 25/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
-          }
-        },
-        {
           "lado": "CL",
           "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
           "fuente": "upf-chile-canal",
@@ -1094,6 +1075,25 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-25",
             "alcance": "Comprobado el 25/11/2026 con el texto del parte del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 25/11/2026), reenviado por el responsable editorial a las 13:55 hora de España (09:55 hora de Chile); el parte no indica su hora de publicación. Complejo Fronterizo Integrado Jama «HABILITADO», horario 08:00 a 20:00 h, todo tipo de vehículos, ruta CH-27 transitable, vehículo Toyota abandonado en el km 43.500 (lado derecho de la berma, sin ruedas), clima despejado variando a nubosidad parcial, viento entre 60 y 80 km/h."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "16:15",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-25",
+          "actualizado": "2026-11-25",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-25",
+            "alcance": "Leído automáticamente de la web oficial el 25/11 a las 17:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
