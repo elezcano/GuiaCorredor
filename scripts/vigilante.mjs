@@ -360,6 +360,19 @@ function autoprueba() {
   const pg = d.paso.partes.find((x) => x.emisor.startsWith('Gend'));
   ok(d.paso.estado.valor === 'cerrado' && pg.valor === 'cerrado' && pg.hora === '17:30' && d.paso.estado.verificacion.verificadoPor === 'vigilante' && d.paso.historial.length === 1 && d.paso.partes.some((x) => x.lado === 'CL'), '«Cerrado» de Gendarmería dentro del horario: se publica el cierre.');
   ok(!Number.isNaN(Date.parse(d.paso.estado.consultado)) && d.paso.estado.consultado.endsWith('Z'), 'Lote 2: el estado que escribe el vigilante lleva la hora de consulta (ISO).');
+  {
+    // Lote 3: registro por ejecución. Líneas con todos los campos, un fichero por día y 120 días de retención.
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'registro-'));
+    const l = lineaRegistro({ ejecucion: '2026-11-25T14:00:00.000Z', paso: 'jama', fuente: 'ar-seguridad-paso-jama', consultado: '2026-11-25T14:00:05.000Z', http: 'ok', lectura: { gendarmeria: 'ABIERTO', vialidad: null, parte: '2026-11-25 08:16' }, calculado: 'operativo', publicado: 'operativo' });
+    fs.writeFileSync(path.join(dir, '2026-07-01.jsonl'), '{}\n');
+    fs.writeFileSync(path.join(dir, '2026-08-20.jsonl'), '{}\n');
+    const borrados = guardarRegistro(dir, [l, l], new Date('2026-11-25T14:00:00Z'));
+    const hoyF = fs.readFileSync(path.join(dir, '2026-11-25.jsonl'), 'utf8').trim().split('\n').map((x) => JSON.parse(x));
+    ok(hoyF.length === 2 && Object.keys(hoyF[0]).join() === 'ejecucion,paso,fuente,consultado,http,lectura,calculado,publicado,cambio,error' && hoyF[0].cambio === false && hoyF[0].error === null, 'Lote 3: el registro guarda una línea por paso y pasada con todos sus campos.');
+    ok(borrados.join() === '2026-07-01.jsonl' && fs.existsSync(path.join(dir, '2026-08-20.jsonl')), 'Lote 3: el registro borra los días de más de 120 días y conserva el resto.');
+    ok(!/@|\+\d{6,}/.test(JSON.stringify(hoyF)), 'Lote 3: el registro no lleva datos personales.');
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
   ok(base.estado.valor === 'operativo' && base.partes[0].hora === '16:13', 'decidir no toca el paso original.');
   const cerradoDespues = d.paso;
   const noche = conPag([['"ABIERTO"', '"CERRADO"'], ['17/11/2026 - 16:13', '17/11/2026 - 19:40']]);
@@ -602,6 +615,22 @@ function ultimoParte(paso, emisor) {
 
 const fmt = (dia, hora) => `${dia.split('-').reverse().join('/')} ${hora} h`;
 
+// ---------- Lote 3 (auditoría 25/11/2026, cambio 7): registro por ejecución ----------
+// Un JSONL por día (hora de Argentina) en la rama datos-vigilancia, carpeta registro/. Una línea por paso y pasada.
+// Sin datos personales. Se guardan REGISTRO_DIAS días. Cómo consultarlo: docs/regla-estado-pasos.md, «Registro».
+export const REGISTRO_DIAS = 120;
+const CAMPOS_REGISTRO = ['ejecucion', 'paso', 'fuente', 'consultado', 'http', 'lectura', 'calculado', 'publicado', 'cambio', 'error'];
+export const lineaRegistro = (o) => Object.fromEntries(CAMPOS_REGISTRO.map((k) => [k, o[k] ?? (k === 'cambio' ? false : null)]));
+/** Añade las líneas al JSONL del día y borra los de más de REGISTRO_DIAS días. Devuelve los ficheros borrados. */
+export function guardarRegistro(dir, lineas, ahora = new Date()) {
+  fs.mkdirSync(dir, { recursive: true });
+  if (lineas.length) fs.appendFileSync(path.join(dir, `${diaAR(ahora)}.jsonl`), lineas.map((l) => JSON.stringify(l)).join('\n') + '\n');
+  const limite = diaAR(new Date(ahora.getTime() - REGISTRO_DIAS * 864e5));
+  const borrados = fs.readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}\.jsonl$/.test(f) && f.slice(0, 10) < limite);
+  for (const f of borrados) fs.unlinkSync(path.join(dir, f));
+  return borrados;
+}
+
 async function revisar(ahora = new Date()) {
   const pasos = json('data/pasos.json');
   const lista = pasos.pasos || pasos;
@@ -612,6 +641,8 @@ async function revisar(ahora = new Date()) {
   const resultados = [];
   const publicados = []; // HU-130: { paso, url, cambios, avisos }
   const diario = []; // 22/11/2026: { paso, dia, hora, clase } de cada lectura buena dentro del horario
+  const registro = []; // Lote 3 (auditoría, cambio 7): una línea por paso y pasada, para poder reconstruir qué se leyó
+  const ejecucion = ahora.toISOString();
   for (const { paso: id, fuente } of PAGINAS) {
     const k = lista.findIndex((p) => p.id === id);
     const paso = lista[k];
@@ -625,6 +656,7 @@ async function revisar(ahora = new Date()) {
     } catch (e) {
       errores.push({ paso, url, error: e.message });
       resultados.push({ fuente, nombre: `${paso.nombre} (Ministerio de Seguridad)`, url, ok: false, error: e.message });
+      registro.push(lineaRegistro({ ejecucion, paso: id, fuente, consultado: new Date().toISOString(), http: 'error', error: e.message, publicado: paso.estado?.valor || null }));
       continue;
     }
     const lectura = leerPagina(html);
@@ -639,17 +671,23 @@ async function revisar(ahora = new Date()) {
       lecturas.push({ paso, url, ...a, cargado: ult ? fmt(ult.publicado, ult.hora || '--:--') : null });
     }
     console.log(`${paso.nombre}: Gendarmería «${lectura.estado}», Vialidad «${lectura.vialidad || '—'}», horario ${lectura.horarioCrudo}${lectura.atencion.length ? `, Atención: ${lectura.atencion.map((x) => `${x.emisor}: ${x.texto}`).join(' / ')}` : ''}`);
-    if (fallo) continue;
+    const genReg = act.find((a) => a.emisor === 'Gendarmería Nacional');
+    const lineaBase = { ejecucion, paso: id, fuente, consultado: new Date().toISOString(), http: 'ok', lectura: { gendarmeria: lectura.estado || null, vialidad: lectura.vialidad || null, parte: genReg ? `${genReg.dia} ${genReg.hora}` : null } };
+    if (fallo) {
+      registro.push(lineaRegistro({ ...lineaBase, error: fallo, publicado: paso.estado?.valor || null }));
+      continue;
+    }
     const d = decidir(paso, lectura, fuente, ahora);
     // Registro diario: solo con lectura buena y dentro del horario del paso (de noche no se juzga).
     const final = d.cambios.length ? d.paso : paso;
     const hc = lectura.horario || (final.horarios || []).find((x) => x.apertura && x.cierre);
     const cl = cuentaEnDiario(final.estado, act.find((a) => a.emisor === 'Gendarmería Nacional'), hc, ahora);
     if (!fallo && cl) diario.push({ paso: id, dia: diaAR(ahora), hora: horaAR(ahora), clase: cl });
+    registro.push(lineaRegistro({ ...lineaBase, calculado: d.paso.estado?.valor || null, publicado: final.estado?.valor || null, cambio: d.cambios.length > 0, error: raro || null }));
     if (d.cambios.length) lista[k] = d.paso;
     if (d.cambios.length || d.avisos.length) publicados.push({ paso: { id: paso.id, nombre: paso.nombre }, url, cambios: d.cambios, avisos: d.avisos });
   }
-  return { lecturas, errores, resultados, publicados, pasos, diario };
+  return { lecturas, errores, resultados, publicados, pasos, diario, registro };
 }
 
 // ---------- HU-130 fase 2: carreteras ----------
@@ -970,7 +1008,12 @@ async function principal() {
     return;
   }
 
-  const { lecturas, errores, resultados, publicados, pasos, diario } = await revisar();
+  const { lecturas, errores, resultados, publicados, pasos, diario, registro } = await revisar();
+  // Lote 3: registro por ejecución (si el flujo indica la carpeta; en local y en las PR no se guarda).
+  if (process.env.VIGILANCIA_REGISTRO) {
+    const borrados = guardarRegistro(process.env.VIGILANCIA_REGISTRO, registro);
+    console.log(`Registro: ${registro.length} líneas${borrados.length ? `; borrados ${borrados.join(', ')} (más de ${REGISTRO_DIAS} días)` : ''}.`);
+  }
   // HU-130 fase 2: carreteras (Vialidad Nacional y Vialidad de Chile).
   // HU-129: estado de la vigilancia (si se indica dónde guardarlo). HU-134: se lee antes, para no reaplicar un informe.
   const archivoEstado = process.env.VIGILANCIA_ARCHIVO;

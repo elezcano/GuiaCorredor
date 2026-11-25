@@ -45,7 +45,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
   }
   const p = await b.newPage();
   await p.goto(B + '/informe/?desde=0&hasta=8&carga=granel&fecha=2026-12-08&op=alternativa');
-  ok(/Fiabilidad:.*últimos 30 días/.test(await p.textContent('.informe')), 'el informe no muestra la fiabilidad');
+  ok(/Disponibilidad del paso:.*últimos 30 días/.test(await p.textContent('.informe')), 'el informe no muestra la disponibilidad del paso');
   fin('Fiabilidad de cada paso (HU-97)', f);
   await b.close();
 })();

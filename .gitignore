@@ -4,3 +4,4 @@ dist/
 *.log
 enlaces-externos.md
 data/vigilancia-estado.json
+data/vigilancia-registro/

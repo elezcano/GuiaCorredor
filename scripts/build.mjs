@@ -40,6 +40,7 @@ const descLarga = (t) => {
 import { nivel, peor, estadoMostrable, NIVELES, diasEntre, registroGuia, EVIDENCIAS } from './validacion.mjs';
 import { cargar } from './datos.mjs';
 import { generarApi } from './api.mjs';
+import { cobertura, retrasos, leerRegistro, leerBitacora, OBJETIVO_COBERTURA, VENTANA_DIAS, MUESTRAS_MINIMAS } from './servicio.mjs';
 import { aplicarEstimaciones } from './estimaciones.mjs';
 import { fiabilidad, ETIQUETAS_DIA } from './fiabilidad.mjs';
 import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO, CAMPOS_SOLICITUD, CAMPOS_COTIZACION } from './cruces.mjs';
@@ -286,7 +287,7 @@ const confianzaHTML = (c, { completo = true } = {}) => {
   const k = CONFIANZAS[c.nivel];
   if (!completo && !DEGRADADAS.has(c.nivel)) return '';
   const linea = completo ? lineaConsulta(c) : '';
-  return `<span class="confianza-linea"><span class="confianza confianza-${c.nivel}">${icono(k.icono)}<span>${esc(k.texto)}</span></span>${linea ? `<span class="consulta">${esc(linea)}</span>` : ''}</span>`;
+  return `<span class="confianza-linea"><span class="confianza confianza-${c.nivel}">${icono(k.icono)}<span>${esc(k.texto)}</span></span>${linea ? `<span class="consulta">${esc(linea)}</span>` : ''}${completo ? `<a class="consulta" href="${u('/fiabilidad/')}">Cómo de fiables somos</a>` : ''}</span>`;
 };
 /** 22/11/2026: una línea por lado del paso. Cómo informa ese país y qué sabemos hoy, en palabras llanas. */
 const etiquetaLado = (v) => (!v || v === 'operativo' ? 'Habilitado' : v === 'pendiente' ? 'Sin confirmar' : ESTADOS[v] || v);
@@ -719,6 +720,7 @@ ${cuerpo}
       <a href="${u('/anunciate/')}">Anunciar mi empresa</a>
       <a href="${u('/sobre/')}">Cómo trabajamos la información</a>
       <a href="${u('/fuentes/')}">Fuentes que vigilamos</a>
+      <a href="${u('/fiabilidad/')}">Cómo de fiables somos</a>
       ${buzon('contacto') ? `<a href="mailto:${esc(buzon('contacto'))}">Escríbenos</a>` : ''}
     </nav>
     <p class="pie-aviso">${esc(site.aviso)}</p>
@@ -1177,7 +1179,7 @@ function sentidoHTML(p) {
     <p class="sentido-nota" aria-live="polite">Sales de ${esc(PAISES[a])} y entras en ${esc(PAISES[b])}. Los controles van en ese orden.</p>
   </div>`;
 }
-/** HU-97: fiabilidad del paso en los últimos 30 y 90 días. */
+/** HU-97: disponibilidad del paso en los últimos 30 y 90 días (decisión 39: «disponibilidad» es la frontera; «fiabilidad», nuestro servicio, en /fiabilidad/). El campo de la API sigue siendo «fiabilidad». */
 const VIGENCIA_FIAB = site.fiabilidad?.vigenciaDias ?? 1;
 const fiabPaso = (p, dias) => fiabilidad(p, HOY, dias, VIGENCIA_FIAB);
 function frasesFiab(f) {
@@ -1192,7 +1194,7 @@ function frasesFiab(f) {
 function fiabilidadHTML(p) {
   // Un paso que aún no se ha habilitado no tiene fiabilidad que medir: se dice, para que no parezca un dato que falta.
   if (p.estado?.valor === 'en-obras')
-    return `<section class="fiabilidad" aria-labelledby="t-fiab"><h3 id="t-fiab">Últimos 30 días</h3><p class="fiab-resumen">Aún no habilitado: la fiabilidad se medirá desde que abra. Los hitos de la obra están en el Historial.</p></section>`;
+    return `<section class="fiabilidad" aria-labelledby="t-fiab"><h3 id="t-fiab">Disponibilidad del paso · últimos 30 días</h3><p class="fiab-resumen">Aún no habilitado: la disponibilidad se medirá desde que abra. Los hitos de la obra están en el Historial.</p></section>`;
   const f30 = fiabPaso(p, 30);
   const f90 = fiabPaso(p, 90);
   if (f90.sinDatos === 90 && !f90.pendientesDeVerificar) return '';
@@ -1201,7 +1203,7 @@ function fiabilidadHTML(p) {
     .join('');
   const fila = (f) => `<tr><th scope="row">Últimos ${f.dias} días</th><td>${f.cerrado}</td><td>${f.soloCarga}</td><td>${f.restricciones}</td><td>${f.abierto}</td><td>${f.sinDatos}</td></tr>`;
   return `<section class="fiabilidad" aria-labelledby="t-fiab">
-    <h3 id="t-fiab">Últimos 30 días</h3>
+    <h3 id="t-fiab">Disponibilidad del paso · últimos 30 días</h3>
     <ol class="fiab-tira" aria-label="Estado de cada uno de los últimos 30 días">${cuadros}</ol>
     <p class="fiab-resumen">${frasesFiab(f30) || 'sin datos'}.</p>
     <details class="fiab-mas"><summary>Ver detalle</summary>
@@ -2362,6 +2364,68 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
         ${plegable('manuales', 'Manual', 'se revisa a mano', '<p>Fuentes sin web legible (WhatsApp, redes): se revisan a mano y se cargan con su fuente y su hora.</p>')}
         ${plegable('pendientes', 'Pendiente o sin fuente', 'todavía sin lectura', '<p>No hay fuente oficial que leer todavía. El tramo sale «Sin vigilancia».</p>')}
       </div>
+    </section>
+  </div>
+</div>`,
+    })
+  );
+}
+
+// Decisión 39: «Cómo de fiables somos». Métricas de nuestro servicio (no de la frontera), con objetivo público.
+{
+  let vig = null;
+  try {
+    vig = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'vigilancia-estado.json'), 'utf8'));
+  } catch {}
+  const registro = leerRegistro(path.join(ROOT, 'data', 'vigilancia-registro'));
+  const ret = retrasos(registro, HOY);
+  const bitacora = leerBitacora(path.join(ROOT, 'docs', 'regla-estado-pasos.md'));
+  // La web no habla de personas: «El fundador decide:» y similares se quitan; las decisiones se cuentan por lo que cambian.
+  const limpio = (t) => esc(t.replace(/\*\*|`/g, '').replace(/\s*\(decisi[oó]n[^)]*\)/gi, '').replace(/\b(El fundador|Ernesto) decide:?\s*/gi, '').replace(/\s*\((del|de) (fundador|Ernesto)\)/gi, '').replace(/^./, (c) => c.toUpperCase()));
+  const pct = (x) => `${Math.round(x * 100)} %`;
+  const vigilados = fichaPasos.filter((p) => Object.keys(p.lados || {}).some((l) => vigilanciaDeLado(p.id, l)));
+  const filas = vigilados.map((p) => {
+    const h = (p.horarios || []).find((x) => x.apertura && x.cierre && /Argentina/.test(x.zona || '')) || (p.horarios || []).find((x) => x.apertura && x.cierre);
+    const c = cobertura(vig?.diario?.[p.id], h, HOY);
+    const r = ret[p.id];
+    const cumple = c?.pct != null && c.pct >= OBJETIVO_COBERTURA;
+    const barra = c?.pct != null ? `<span class="serv-barra" aria-hidden="true"><span style="width:${Math.round(c.pct * 100)}%"></span><i style="left:${OBJETIVO_COBERTURA * 100}%"></i></span>` : '';
+    return `<tr>
+      <th scope="row">${esc(p.nombre.replace(/^Paso de /, ''))}</th>
+      <td>${c?.pct != null ? `<strong class="${cumple ? 'serv-ok' : 'serv-no'}">${pct(c.pct)}</strong>${barra}<small>${c.cubiertas} de ${c.horas} horas de apertura</small>` : '<small>Aún sin días completos medidos</small>'}</td>
+      <td>${c ? `${c.conParte} de ${c.dias}${c.sinParte ? `<small>${c.sinParte} sin parte oficial del día</small>` : ''}` : '—'}</td>
+      <td>${r?.mediana != null ? `${r.mediana} min<small>mediana de ${r.muestras} partes</small>` : `<small>Midiendo: ${r?.muestras || 0} de ${MUESTRAS_MINIMAS} partes necesarios</small>`}</td>
+    </tr>`;
+  });
+  const inicio = vig?.diario ? Object.values(vig.diario).flatMap((d) => Object.keys(d)).sort()[0] : null;
+  add(
+    '/fiabilidad/',
+    layout({
+      titulo: 'Cómo de fiables somos',
+      descripcion: 'Cuántas horas de apertura de cada paso tuvimos un dato oficial recién leído, cuánto tardamos en publicar un parte nuevo y qué hemos corregido.',
+      ruta: '/fiabilidad/',
+      cuerpo: `
+<div class="contenedor pagina-app">
+  <header class="pagina-cabeza"><h1>Cómo de fiables somos</h1><p>Lo que medimos de nuestro propio servicio, con datos. La disponibilidad de cada paso está en su ficha.</p></header>
+  <div class="dos-col sobre-col">
+    <section class="tarjeta serv" aria-labelledby="s-objetivo">
+      <h2 id="s-objetivo">Nuestro objetivo</h2>
+      <p class="serv-objetivo">El <strong>${Math.round(OBJETIVO_COBERTURA * 100)} %</strong> de las horas de apertura de cada paso vigilado, con un dato oficial leído en esa hora.</p>
+      <div class="tabla-scroll"><table class="tabla-serv">
+        <caption class="sr-only">Cobertura y retraso por paso en los últimos ${VENTANA_DIAS} días</caption>
+        <thead><tr><th scope="col">Paso</th><th scope="col">Horas cubiertas</th><th scope="col">Días con parte oficial</th><th scope="col">Retraso al publicar</th></tr></thead>
+        <tbody>${filas.join('')}</tbody>
+      </table></div>
+      <p class="nota-pie">Últimos ${VENTANA_DIAS} días completos${inicio ? `, medidos desde el ${fecha(inicio)}` : ''}. Un día «sin parte oficial» es un día en que no hubo parte de Gendarmería que leer o no lo pudimos leer. El retraso va desde la hora del parte hasta nuestra primera lectura que lo trae.</p>
+    </section>
+    <section class="tarjeta" aria-labelledby="s-corregido">
+      <h2 id="s-corregido">Lo que hemos corregido</h2>
+      <ol class="serv-bitacora">${bitacora.slice(0, 8).map((b) => `<li><span class="serv-fecha">${esc(b.fecha)}</span><span><strong>${limpio(b.paso)}.</strong> ${limpio(b.decision)}.</span></li>`).join('')}</ol>
+      <p class="nota-pie">Cada corrección cambia la regla, el código y sus pruebas a la vez.</p>
+    </section>
+    <section class="tarjeta" aria-labelledby="s-pendiente">
+      <h2 id="s-pendiente">Lo que aún no medimos</h2>
+      <p><strong>Si lo que publicamos coincidió con lo que encontraste en la frontera.</strong> Lo mediremos cuando haya suficientes cruces reales contados por transportistas. Hasta entonces no damos una cifra.</p>
     </section>
   </div>
 </div>`,

@@ -10,7 +10,13 @@ import fs from 'node:fs';
 const site = JSON.parse(fs.readFileSync(new URL('../data/site.json', import.meta.url)));
 const BASE = (process.env.HUMO_URL || site.url.replace(/\/$/, '') + (site.basePath || '')).replace(/\/$/, '');
 const SIN_EXTERNOS = process.argv.includes('--sin-externos');
-const ESPERA_VIGILANTE_H = 3; // el vigilante pasa cada hora: 3 h sin pasar ya es un fallo
+// Lote 3 (auditoría, cambio 8): el vigilante pasa cada hora de 06 a 21 h de Argentina. Dentro de ese horario, más de
+// 2 h sin pasar es una pasada perdida; de noche no pasa, así que el límite es el de la noche (12 h).
+const ESPERA_VIGILANTE_H = 2;
+const ESPERA_VIGILANTE_NOCHE_H = 12;
+const horaArgentina = () => Number(new Intl.DateTimeFormat('en-GB', { hour: '2-digit', hour12: false, timeZone: 'America/Argentina/Salta' }).format(new Date()));
+// Desde las 08:00 ya debe haber pasado al menos dos veces (la primera es hacia las 06:17); hasta las 22:59, la de las 21.
+const enHorarioVigilante = () => { const h = horaArgentina(); return h >= 8 && h <= 22; };
 const ESPERA_PUBLICACION_H = 8; // la web se republica cada 3 h por calendario
 
 const fallos = [];
@@ -97,7 +103,8 @@ if (!SIN_EXTERNOS) {
     const repo = process.env.GITHUB_REPOSITORY || 'elezcano/GuiaCorredor';
     const r = await traer(`https://raw.githubusercontent.com/${repo}/datos-vigilancia/vigilancia.json`);
     const v = JSON.parse(r.texto);
-    comprobar(horasDesde(v.ultimaPasada) < ESPERA_VIGILANTE_H, 'Vigilante: ha pasado en las últimas 3 h', `última pasada hace ${horasDesde(v.ultimaPasada).toFixed(1)} h`);
+    const limite = enHorarioVigilante() ? ESPERA_VIGILANTE_H : ESPERA_VIGILANTE_NOCHE_H;
+    comprobar(horasDesde(v.ultimaPasada) < limite, `Vigilante: sin pasadas perdidas (última hace menos de ${limite} h${enHorarioVigilante() ? ', dentro de su horario' : ', de noche'})`, `última pasada hace ${horasDesde(v.ultimaPasada).toFixed(1)} h`);
     // Igual que el vigilante: el DNIT (Brasil) corta a ratos y publica cuando hay alertas, así que tiene más margen.
     const margen = (id) => (id === 'br-dnit-alertas' ? 12 : 6);
     const caidas = Object.entries(v.fuentes || {}).filter(([id, f]) => f.ultimaLecturaBuena && horasDesde(f.ultimaLecturaBuena) > margen(id)).map(([id, f]) => `${id} (última buena hace ${horasDesde(f.ultimaLecturaBuena).toFixed(1)} h)`);
