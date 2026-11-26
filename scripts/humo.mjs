@@ -20,6 +20,7 @@ const enHorarioVigilante = () => { const h = horaArgentina(); return h >= 8 && h
 const ESPERA_PUBLICACION_H = 8; // la web se republica cada 3 h por calendario
 
 const fallos = [];
+const atrasadas = []; // fuentes oficiales que responden pero no publican (aviso, no fallo)
 const bien = [];
 const comprobar = (cond, texto, detalle = '') => (cond ? bien.push(texto) : fallos.push(detalle ? `${texto}: ${detalle}` : texto));
 
@@ -98,17 +99,24 @@ try {
 } catch (e) {
   comprobar(false, 'API: indice.json legible', e.message);
 }
-if (!SIN_EXTERNOS) {
+if (!SIN_EXTERNOS || process.env.HUMO_VIGILANCIA) {
   try {
     const repo = process.env.GITHUB_REPOSITORY || 'elezcano/GuiaCorredor';
-    const r = await traer(`https://raw.githubusercontent.com/${repo}/datos-vigilancia/vigilancia.json`);
-    const v = JSON.parse(r.texto);
+    // HUMO_VIGILANCIA: un vigilancia.json local, para probar el Vigía sin red (pruebas/vigia.cjs).
+    const v = process.env.HUMO_VIGILANCIA ? JSON.parse(fs.readFileSync(process.env.HUMO_VIGILANCIA, 'utf8')) : JSON.parse((await traer(`https://raw.githubusercontent.com/${repo}/datos-vigilancia/vigilancia.json`)).texto);
     const limite = enHorarioVigilante() ? ESPERA_VIGILANTE_H : ESPERA_VIGILANTE_NOCHE_H;
     comprobar(horasDesde(v.ultimaPasada) < limite, `Vigilante: sin pasadas perdidas (última hace menos de ${limite} h${enHorarioVigilante() ? ', dentro de su horario' : ', de noche'})`, `última pasada hace ${horasDesde(v.ultimaPasada).toFixed(1)} h`);
     // Igual que el vigilante: el DNIT (Brasil) corta a ratos y publica cuando hay alertas, así que tiene más margen.
     const margen = (id) => (id === 'br-dnit-alertas' ? 12 : 6);
-    const caidas = Object.entries(v.fuentes || {}).filter(([id, f]) => f.ultimaLecturaBuena && horasDesde(f.ultimaLecturaBuena) > margen(id)).map(([id, f]) => `${id} (última buena hace ${horasDesde(f.ultimaLecturaBuena).toFixed(1)} h)`);
-    comprobar(!caidas.length, 'Vigilante: todas las fuentes leídas a tiempo (6 h; DNIT, 12 h)', caidas.join(', '));
+    // 26/11/2026 (decisión 42): «atrasada» = la fuente responde pero el organismo no publica nada nuevo. No es un fallo
+    // nuestro: no pone el Vigía en rojo; abre su propio aviso («Fuente oficial atrasada: …») y se cierra solo.
+    const fuentes = Object.entries(v.fuentes || {});
+    const caidas = fuentes.filter(([id, f]) => !f.atrasada && f.ultimaLecturaBuena && horasDesde(f.ultimaLecturaBuena) > margen(id)).map(([id, f]) => `${id} (última buena hace ${horasDesde(f.ultimaLecturaBuena).toFixed(1)} h${f.ultimoError ? `: ${f.ultimoError}` : ''})`);
+    comprobar(!caidas.length, 'Vigilante: todas las fuentes responden (6 h; DNIT, 12 h)', caidas.join(', '));
+    for (const [id, f] of fuentes.filter(([, f]) => f.atrasada)) {
+      const desde = f.ultimaPublicacion ? new Date(f.ultimaPublicacion).toISOString().slice(0, 10).split('-').reverse().join('/') : 'fecha desconocida';
+      atrasadas.push({ id, nombre: f.nombre || id, url: f.url || '', desde, error: f.ultimoError || '' });
+    }
   } catch (e) {
     comprobar(false, 'Vigilante: estado legible', e.message);
   }
@@ -122,9 +130,13 @@ const informe = [
   '',
   fallos.length ? `## ✗ ${fallos.length} fallo(s)\n\n${fallos.map((f) => `- ${f}`).join('\n')}` : '## ✓ Todo operativo',
   '',
+  ...(atrasadas.length ? [`### Fuentes oficiales atrasadas (aviso, no es un fallo de la web)\n\n${atrasadas.map((a) => `- ${a.nombre}: sin publicar nada nuevo desde el ${a.desde}`).join('\n')}`, ''] : []),
   `<details><summary>${bien.length} comprobaciones correctas</summary>\n\n${bien.map((b) => `- ${b}`).join('\n')}\n</details>`,
   '',
 ].join('\n');
 fs.writeFileSync('vigia.md', informe);
+// Firma de los fallos: el issue solo recibe un comentario nuevo cuando cambia la lista, no en cada pasada.
+fs.writeFileSync('vigia-firma.txt', fallos.map((f) => f.replace(/[\d.]+ h\b/g, 'N h')).sort().join('\n'));
+fs.writeFileSync('vigia-atrasadas.json', JSON.stringify(atrasadas));
 console.log(informe);
 process.exit(fallos.length ? 1 : 0);
