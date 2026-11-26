@@ -109,7 +109,8 @@ Se hace una vez y lleva unos 5 minutos:
 6. **Moderación (decisión 41), ya montada en la hoja:**
    - Columna **Estado** (G): vacía = automático; «Rechazado» lo quita; «Aceptado» lo deja pasar aunque esté retenido.
    - Columna **Revisar** (H, fórmula): «Volumen alto» si un paso recibe más de 10 reportes en un día. Esos quedan retenidos hasta que pongas «Aceptado».
-   - Pestaña **Publicar** (fórmula): solo las filas que pasan, con el tiempo y la fecha en texto. **Es la única que se publica.**
+   - Pestaña **Publicar** (fórmula): solo las filas que pasan, con el tiempo y la fecha en texto. **Es la única que se publica** (desde el 26/11/2026, con «Volver a publicar automáticamente»).
+   - Las fórmulas usan columnas completas (`A:A`, no `A2:A`): el formulario inserta filas y desplazaría un rango que empiece en una fila concreta.
 7. En la hoja: **Archivo → Compartir → Publicar en la Web**, elige la pestaña **Publicar** (no «Respuestas») y **Valores separados por comas (.csv)**, publica y copia el enlace.
 8. Pega los dos enlaces en `data/site.json`:
 
