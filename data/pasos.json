@@ -1043,24 +1043,6 @@
           "hora": "08:57"
         },
         {
-          "lado": "AR",
-          "emisor": "Vialidad Nacional",
-          "valor": null,
-          "texto": "RN 52 tramo Susques - Lte. con Chile.",
-          "hora": "09:00",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-23",
-          "actualizado": "2026-11-23",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-23",
-            "alcance": "Leído automáticamente de la web oficial el 23/11 a las 19:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 52 tramo Susques - Lte. con Chile."
-          }
-        },
-        {
           "lado": "CL",
           "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
           "fuente": "upf-chile-canal",
@@ -1095,6 +1077,24 @@
             "fecha": "2026-11-26",
             "alcance": "Leído automáticamente de la web oficial el 26/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Vialidad Nacional",
+          "valor": null,
+          "texto": "RN 52 tramo Susques - Lte. con Chile.",
+          "hora": "09:00",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-26",
+          "actualizado": "2026-11-26",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-26",
+            "alcance": "Leído automáticamente de la web oficial el 26/11 a las 10:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 52 tramo Susques - Lte. con Chile."
+          }
         }
       ]
     },
@@ -1118,20 +1118,20 @@
         }
       },
       "estado": {
-        "valor": "cerrado",
-        "texto": "Cerrado por Gendarmería (parte del 25/11, 18:49, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:00), sin motivo publicado.",
+        "valor": "operativo",
+        "texto": "Abierto de 09:00–19:00 (hora de Argentina), según Gendarmería (parte del 26/11, 08:24).",
         "fuente": "ar-seguridad-paso-sico",
-        "publicado": "2026-11-25",
-        "actualizado": "2026-11-25",
+        "publicado": "2026-11-26",
+        "actualizado": "2026-11-26",
         "evidencia": "oficial",
         "validacion": "verificado",
         "verificacion": {
           "verificadoPor": "vigilante",
           "rol": "vigilante",
-          "fecha": "2026-11-25",
-          "alcance": "Leído automáticamente de la web oficial el 25/11 a las 21:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          "fecha": "2026-11-26",
+          "alcance": "Leído automáticamente de la web oficial el 26/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
         },
-        "consultado": "2026-11-26T00:00:27.686Z"
+        "consultado": "2026-11-26T13:00:28.576Z"
       },
       "horarios": [
         {
@@ -1469,6 +1469,22 @@
             "fecha": "2026-11-25",
             "alcance": "Leído automáticamente de la web oficial el 25/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
           }
+        },
+        {
+          "fecha": "2026-11-25",
+          "valor": "cerrado",
+          "texto": "Cerrado por Gendarmería (parte del 25/11, 18:49, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:00), sin motivo publicado.",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-25",
+          "actualizado": "2026-11-25",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-25",
+            "alcance": "Leído automáticamente de la web oficial el 25/11 a las 21:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
+          }
         }
       ],
       "controles": [
@@ -1564,19 +1580,19 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "cerrado",
-          "texto": "Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.",
-          "hora": "18:49",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:00 (hora de Argentina).",
+          "hora": "08:24",
           "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-25",
-          "actualizado": "2026-11-25",
+          "publicado": "2026-11-26",
+          "actualizado": "2026-11-26",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "vigilante",
             "rol": "vigilante",
-            "fecha": "2026-11-25",
-            "alcance": "Leído automáticamente de la web oficial el 25/11 a las 21:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
+            "fecha": "2026-11-26",
+            "alcance": "Leído automáticamente de la web oficial el 26/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:00."
           }
         }
       ]

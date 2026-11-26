@@ -548,21 +548,21 @@
       "tipo": "otro",
       "estado": "activa",
       "gravedad": "info",
-      "descripcion": "RN 66 (Emp. RN 9 - El Cadillal): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.Circular con etrema precaución por reducción a un solo carril en la circulación vehicular. por construcción de intercambiador en avenida Intersindical.",
+      "descripcion": "RN 66 (Emp. RN 9 - El Cadillal): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.Circular con extrema precaución por reducción a un solo carril en la circulación vehicular. por construcción de intercambiador en avenida Intersindical.",
       "tramos": [
         "pozo-hondo"
       ],
       "fuente": "ar-vialidad-estado-rutas",
-      "publicado": "2026-11-23",
-      "horaFuente": "2026-11-23T12:00:00.000Z",
-      "actualizado": "2026-11-23",
+      "publicado": "2026-11-26",
+      "horaFuente": "2026-11-26T12:00:00.000Z",
+      "actualizado": "2026-11-26",
       "evidencia": "oficial",
       "validacion": "verificado",
       "verificacion": {
         "verificadoPor": "vigilante",
         "rol": "vigilante",
-        "fecha": "2026-11-23",
-        "alcance": "Leído automáticamente de la web oficial el 23/11 a las 19:00 (hora de Argentina): RN 66, Emp. RN 9 - El Cadillal (Jujuy): RN 66 (Emp. RN 9 - El Cadillal): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.Circular con etrema precaución por reducción a un solo carril en la circulación vehicular. por construcción de intercambiador en avenida Intersindical.."
+        "fecha": "2026-11-26",
+        "alcance": "Leído automáticamente de la web oficial el 26/11 a las 10:00 (hora de Argentina): RN 66, Emp. RN 9 - El Cadillal (Jujuy): RN 66 (Emp. RN 9 - El Cadillal): Tramo concesionado por Autovia del NOA, emergencias: 0800122144.Circular con extrema precaución por reducción a un solo carril en la circulación vehicular. por construcción de intercambiador en avenida Intersindical.."
       }
     },
     {
