@@ -113,6 +113,7 @@ El vigilante solo reabre lo que cerró él; si contradice un dato cargado a mano
 | Chile avisa de un cierre | 🔴 No habilitado · «Chile: aviso oficial del …» | Cargar el parte de Chile (PR) |
 | Nadie revisa el canal de Chile en 15 días | ⚪ Sin confirmar, con enlace al canal | Revisarlo y actualizar `revisado` |
 | El vigilante no corre | A las 6 h, Sin confirmar | El Vigía avisa con más de 2 h sin pasada dentro de su horario. Lanzarlo a mano y revisar Actions |
+| Un organismo deja de publicar (la fuente responde, pero sin datos nuevos) | La fuente queda «atrasada» y sus datos, caducados | El Vigía abre «Fuente oficial atrasada: …» sin ponerse en rojo y lo cierra solo cuando vuelve (decisión 42) |
 
 ## Registro por ejecución
 
