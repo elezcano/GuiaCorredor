@@ -49,7 +49,7 @@
   "aviso": "Información en revisión. Antes de viajar confirma siempre con la aduana o tu despachante.",
   "cruces": {
     "enlacePrellenado": "https://docs.google.com/forms/d/e/1FAIpQLSfO51GJ3xFID_QuTt4LIrr5ZvGuQ2-U_Sezx5mptodvAigUdQ/viewform?usp=pp_url&entry.2082456333=paso&entry.1035156291=sentido&entry.1698049471=tiempo&entry.575624358=fecha&entry.941612996=dispositivo",
-    "csv": ""
+    "csv": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRTdLHvB-Swz41mHZZlpxxBTc5iZcA2fsIDnvWZ66EWoKY5zyAI2dCRpUgb6jDNDJ09uyAYsGhToHwF/pub?gid=1038003054&single=true&output=csv"
   },
   "estimaciones": {
     "provisionales": true,
