@@ -46,7 +46,8 @@ flowchart LR
 | Lecturas del vigilante, fallos e histórico diario | Rama `datos-vigilancia` (`vigilancia.json`) | Sí (en el repositorio) |
 | Registro por ejecución: una línea por paso y pasada, 120 días (lote 3) | Rama `datos-vigilancia` (`registro/AAAA-MM-DD.jsonl`) | Sí (en el repositorio) |
 | Decisiones, registro y regla | `docs/` | Sí |
-| Cotizaciones, solicitudes de empresas, tiempos de cruce, prospección | Google Forms y Sheets de radarcorredor@gmail.com | **No: datos personales, nunca en el repositorio** |
+| Cotizaciones, solicitudes de empresas, prospección | Google Forms y Sheets de radarcorredor@gmail.com | **No: datos personales, nunca en el repositorio** |
+| Tiempos de cruce (paso, sentido, tramo, día y un número al azar por navegador; nada personal) | Hoja «Tiempos de cruce (respuestas)»; se publica solo la pestaña **Publicar**, ya moderada (decisión 41) | Sí, esa pestaña, cuando se active |
 | Visitas | GoatCounter, sin cookies | Agregado |
 
 ### Cómo de fiables somos
