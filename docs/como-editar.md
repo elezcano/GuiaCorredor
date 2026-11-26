@@ -105,8 +105,13 @@ Se hace una vez y lleva unos 5 minutos:
 2. Añade 5 preguntas de tipo **Respuesta corta** con estos títulos exactos, en minúscula: `paso`, `sentido`, `tiempo`, `fecha`, `dispositivo`. Ninguna obligatoria.
 3. En **Configuración → Respuestas**: no recoger correos y **no** activar "Limitar a 1 respuesta" (obliga a iniciar sesión).
 4. Menú ⋮ → **Obtener enlace prellenado**. Escribe en cada pregunta, en mayúsculas: `PASO`, `SENTIDO`, `TIEMPO`, `FECHA`, `DISPOSITIVO`. Pulsa **Obtener enlace** y cópialo.
-5. Pestaña **Respuestas → Vincular con Hojas de cálculo** → crear hoja nueva. En la hoja: **Archivo → Compartir → Publicar en la Web**, elige la hoja de respuestas y **Valores separados por comas (.csv)**, publica y copia el enlace.
-6. Pega los dos enlaces en `data/site.json`:
+5. Pestaña **Respuestas → Vincular con Hojas de cálculo** → crear hoja nueva. (Ya hecho: «RadarCorredor · Tiempos de cruce (respuestas)».)
+6. **Moderación (decisión 41), ya montada en la hoja:**
+   - Columna **Estado** (G): vacía = automático; «Rechazado» lo quita; «Aceptado» lo deja pasar aunque esté retenido.
+   - Columna **Revisar** (H, fórmula): «Volumen alto» si un paso recibe más de 10 reportes en un día. Esos quedan retenidos hasta que pongas «Aceptado».
+   - Pestaña **Publicar** (fórmula): solo las filas que pasan, con el tiempo y la fecha en texto. **Es la única que se publica.**
+7. En la hoja: **Archivo → Compartir → Publicar en la Web**, elige la pestaña **Publicar** (no «Respuestas») y **Valores separados por comas (.csv)**, publica y copia el enlace.
+8. Pega los dos enlaces en `data/site.json`:
 
 ```json
 "cruces": {
@@ -115,11 +120,12 @@ Se hace una vez y lleva unos 5 minutos:
 }
 ```
 
-`npm run check` te avisa si falta algo. Hasta que pegues el primer enlace, el botón "Contar mi tiempo" no aparece.
+`npm run check` te avisa si falta algo. Sin el primer enlace, el botón «Contar mi tiempo» no aparece. Sin el segundo, la ficha recoge tiempos pero no muestra ninguno y lo dice: «Estamos reuniendo los primeros tiempos».
 
 - La hoja publicada es pública: solo contiene el paso, el sentido, el tiempo, el día y un número al azar por navegador. Nada personal.
-- Para borrar un reporte falso, borra su fila en la hoja; desaparece en la siguiente publicación.
-- Cada navegador cuenta una vez por paso y día. No es a prueba de alguien empeñado en falsear, pero la mediana aguanta reportes sueltos extremos.
+- **Sentido:** en la hoja se guarda `chile` (hacia el oeste, el Pacífico) o `brasil` (hacia el este, el Atlántico). En la web cada paso muestra sus dos países: Jama y Sico, «Hacia Chile» y «Hacia Argentina»; Pozo Hondo, «Hacia Argentina» y «Hacia Paraguay»; el puente, «Hacia Paraguay» y «Hacia Brasil» (`sentidosPaso` en `scripts/cruces.mjs`). Nunca se nombra un país que no limita con el paso.
+- Para quitar un reporte falso, pon «Rechazado» en su Estado; desaparece en la siguiente publicación.
+- Filtros antes de mostrar un tiempo (probados en `pruebas/cruces.cjs`): paso, sentido, tramo, fecha y número de navegador válidos; uno por navegador, paso y día; últimos 7 días; al menos 3 por sentido; mediana. La publicación avisa si un paso pasa de 10 reportes en un día. No es a prueba de alguien empeñado en falsear: para eso está la retención por volumen y tu «Rechazado».
 - GitHub desactiva las tareas programadas si el repositorio pasa 60 días sin cambios. Si los tiempos dejan de actualizarse, haz cualquier cambio (una novedad) o pulsa **Actions → Publicar web → Enable workflow**.
 
 ## Validación: un solo sistema para todo el portal

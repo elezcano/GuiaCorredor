@@ -43,7 +43,7 @@ import { generarApi } from './api.mjs';
 import { cobertura, retrasos, leerRegistro, leerBitacora, OBJETIVO_COBERTURA, VENTANA_DIAS, MUESTRAS_MINIMAS } from './servicio.mjs';
 import { aplicarEstimaciones } from './estimaciones.mjs';
 import { fiabilidad, ETIQUETAS_DIA } from './fiabilidad.mjs';
-import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, DIAS, MINIMO, CAMPOS_SOLICITUD, CAMPOS_COTIZACION } from './cruces.mjs';
+import { cargarCruces, configEnvio, TRAMOS_TIEMPO, SENTIDOS, sentidosPaso, DIAS, MINIMO, CAMPOS_SOLICITUD, CAMPOS_COTIZACION } from './cruces.mjs';
 
 const require = createRequire(import.meta.url);
 let marked;
@@ -851,7 +851,7 @@ const datosRutas = (extra = {}) =>
     paises: PAISES,
     banderas: Object.fromEntries(Object.keys(PAISES).map((k) => [k, bandera(k)])),
     base: B,
-    cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, sentidos: SENTIDOS, dias: DIAS },
+    cruces: { porPaso: cruces.porPaso, tramos: TRAMOS_TIEMPO, dias: DIAS },
     // Festivos de los próximos 45 días e incidencias activas por paso, para avisar en el planificador.
     festivos: festivos
       .filter((f) => diasDesde(f.fecha) >= -45)
@@ -886,7 +886,10 @@ function cruceCorto(id) {
 
 /** Panel lateral de la página de un paso: tiempos reportados y formulario para contar el tuyo. */
 function panelCruce(paso) {
+  // 26/11/2026: sin hoja revisada publicada («cruces.csv» vacío) la web recoge tiempos pero no los muestra, y lo dice.
+  const recogiendo = !site.cruces?.csv;
   const datos = cruces.porPaso[paso.id] || {};
+  const SENTIDOS = sentidosPaso(paso.lados || fichaPaso[paso.id]?.lados); // 26/11/2026: cada paso con sus dos países
   const hayDatos = Object.keys(datos).length > 0;
   if (!envioCruce && !hayDatos) return '';
   const fila = (sentido) => {
@@ -917,14 +920,16 @@ function panelCruce(paso) {
         <p class="cruce-error" data-error role="alert" hidden></p>
         <div class="cruce-acciones"><button class="btn btn-principal" type="submit">Enviar mi tiempo</button><button class="btn btn-texto" type="button" data-cancelar>Cancelar</button></div>
       </form>
-      <p class="cruce-gracias" data-gracias role="status" hidden></p>`
+      <p class="cruce-gracias" data-gracias role="status" hidden>${recogiendo ? 'Gracias. Lo guardamos para los primeros tiempos revisados.' : 'Gracias. Tu tiempo se suma tras revisarlo, en unas horas.'}</p>`
     : '';
   return `<section class="panel cruce" aria-labelledby="t-cruce" data-cruce="${esc(paso.id)}"${
     envioCruce ? ` data-accion="${esc(envioCruce.accion)}" data-campos="${esc(JSON.stringify(envioCruce.campos))}"` : ''
   }>
     <h2 id="t-cruce">Tiempo de cruce</h2>
-    <p>De la fila a la salida de la aduana. Lo que contaron otros en los últimos ${DIAS} días.</p>
-    <dl class="cruce-sentidos">${Object.keys(SENTIDOS).map(fila).join('')}</dl>
+    ${recogiendo
+      ? `<p>De la fila a la salida de la aduana. Estamos reuniendo los primeros tiempos: los publicaremos revisados, con al menos ${MINIMO} en la semana por sentido.</p>`
+      : `<p>De la fila a la salida de la aduana. Lo que contaron otros en los últimos ${DIAS} días, revisado.</p>
+    <dl class="cruce-sentidos">${Object.keys(SENTIDOS).map(fila).join('')}</dl>`}
     ${formulario}
   </section>`;
 }

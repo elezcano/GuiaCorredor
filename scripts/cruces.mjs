@@ -11,9 +11,20 @@ export const TRAMOS_TIEMPO = [
   { id: '4-8', nombre: '4–8 h', corto: '4–8 h' },
   { id: '8+', nombre: 'Más de 8 h', corto: '>8 h' },
 ];
+// Claves fijas del formulario y de los datos: «chile» = hacia el Pacífico (oeste), «brasil» = hacia el Atlántico (este).
+// El texto que se ve depende de los dos países de cada paso (sentidosPaso): en Jama, «Hacia Argentina», nunca «Hacia Brasil».
 export const SENTIDOS = { chile: 'Hacia Chile', brasil: 'Hacia Brasil' };
+export const ORDEN_CORREDOR = ['CL', 'AR', 'PY', 'BR']; // de oeste a este
+const NOMBRE_PAIS = { CL: 'Chile', AR: 'Argentina', PY: 'Paraguay', BR: 'Brasil' };
+/** Textos de los dos sentidos de un paso, a partir de sus lados: { chile: 'Hacia <país oeste>', brasil: 'Hacia <país este>' }. */
+export function sentidosPaso(lados) {
+  const ps = Object.keys(lados || {}).filter((k) => ORDEN_CORREDOR.includes(k)).sort((a, b) => ORDEN_CORREDOR.indexOf(a) - ORDEN_CORREDOR.indexOf(b));
+  if (ps.length !== 2) return SENTIDOS;
+  return { chile: `Hacia ${NOMBRE_PAIS[ps[0]]}`, brasil: `Hacia ${NOMBRE_PAIS[ps[1]]}` };
+}
 export const DIAS = 7; // ventana de reportes
 export const MINIMO = 3; // reportes necesarios para dar un tiempo
+export const VOLUMEN_ALTO = 10; // reportes de un paso en un día a partir de los que la hoja los retiene para revisar
 
 const CAMPOS_CRUCE = ['paso', 'sentido', 'tiempo', 'fecha', 'dispositivo'];
 /** Claves del formulario de solicitudes de empresas (docs/como-editar.md#formulario-de-google-de-solicitudes). */
@@ -90,8 +101,8 @@ export async function cargarCruces(cfg, idsPasos, hoy = new Date()) {
   if (!texto) return { porPaso, avisos, actualizado: hoy.toISOString() };
 
   const [cabecera, ...filas] = parseCSV(texto);
-  const col = Object.fromEntries(CAMPOS.map((c) => [c, cabecera.findIndex((h) => h.trim().toLowerCase() === c)]));
-  const faltan = CAMPOS.filter((c) => col[c] < 0);
+  const col = Object.fromEntries(CAMPOS_CRUCE.map((c) => [c, cabecera.findIndex((h) => h.trim().toLowerCase() === c)]));
+  const faltan = CAMPOS_CRUCE.filter((c) => col[c] < 0);
   if (faltan.length) {
     avisos.push(`La hoja de tiempos de cruce no tiene las columnas: ${faltan.join(', ')}.`);
     return { porPaso, avisos, actualizado: hoy.toISOString() };
@@ -103,7 +114,7 @@ export async function cargarCruces(cfg, idsPasos, hoy = new Date()) {
   const validos = new Map(); // un reporte por dispositivo, paso y día: cuenta el último
   let descartados = 0;
   for (const f of filas) {
-    const r = Object.fromEntries(CAMPOS.map((c) => [c, (f[col[c]] || '').trim()]));
+    const r = Object.fromEntries(CAMPOS_CRUCE.map((c) => [c, (f[col[c]] || '').trim()]));
     const ok =
       idsPasos.has(r.paso) &&
       SENTIDOS[r.sentido] &&
@@ -119,6 +130,10 @@ export async function cargarCruces(cfg, idsPasos, hoy = new Date()) {
     validos.set(`${r.dispositivo}|${r.paso}|${r.fecha}`, r);
   }
   if (descartados) avisos.push(`Tiempos de cruce: ${descartados} reporte(s) con datos no válidos descartados.`);
+  // Moderación (decisión 41): la hoja marca «Volumen alto» y la pestaña «Publicar» los retiene; aquí, segunda red.
+  const porDia = {};
+  for (const r of validos.values()) porDia[`${r.paso} ${r.fecha}`] = (porDia[`${r.paso} ${r.fecha}`] || 0) + 1;
+  for (const [k, n] of Object.entries(porDia)) if (n > VOLUMEN_ALTO) avisos.push(`Tiempos de cruce: ${n} reportes de ${k} (más de ${VOLUMEN_ALTO}). Revisa la hoja.`);
 
   for (const r of validos.values()) {
     const p = (porPaso[r.paso] ||= {});

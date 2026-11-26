@@ -8,6 +8,7 @@
   const form = panel.querySelector('[data-form]');
   const error = panel.querySelector('[data-error]');
   const gracias = panel.querySelector('[data-gracias]');
+  const textoGracias = gracias.textContent.trim() || 'Gracias.'; // viene de la página, ya traducido
   const leer = (k) => {
     try {
       return localStorage.getItem(k);
@@ -69,7 +70,7 @@
       // Google no permite leer la respuesta desde otra web (no-cors): si la petición sale, se da por enviada.
       await fetch(panel.dataset.accion, { method: 'POST', mode: 'no-cors', body: cuerpo });
       guardar(`guia-corredor:cruce:${paso}:${fecha}`, '1');
-      mostrarGracias('Gracias. Tu tiempo se suma en la próxima actualización, en unas horas.');
+      mostrarGracias(textoGracias);
       gracias.focus?.();
     } catch {
       error.textContent = 'No se pudo enviar. Revisa tu conexión y vuelve a intentarlo.';
