@@ -1,0 +1,70 @@
+# Limpieza (decisión 43, «mínimo vivo»): que el repositorio no acumule restos.
+# - Al fusionar un PR: borra su rama.
+# - Cada lunes (y al cambiar este fichero): borra las ramas cuyo PR ya se fusionó o se cerró sin cambios posteriores
+#   y los archivos de ejecuciones de más de 7 días. Nunca toca main, datos-vigilancia ni una rama con PR abierto
+#   o con commits que no estén en un PR (esas se listan para revisarlas a mano).
+name: Limpieza
+
+on:
+  pull_request:
+    types: [closed]
+  schedule:
+    - cron: '23 6 * * 1'
+  push:
+    branches: [main]
+    paths: ['.github/workflows/limpieza.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+  actions: write
+
+jobs:
+  rama-del-pr:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Borrar la rama fusionada
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RAMA: ${{ github.event.pull_request.head.ref }}
+        run: |
+          case "$RAMA" in main|datos-vigilancia) exit 0;; esac
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$RAMA" && echo "Borrada: $RAMA" || echo "Ya no existía: $RAMA"
+
+  semanal:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ramas ya publicadas
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/pulls?state=all&per_page=100" --paginate --jq '.[] | select(.head.repo.full_name == "'"$REPO"'") | [.head.ref, .state, (.merged_at != null), .head.sha] | @tsv' > prs.tsv
+          gh api "repos/$REPO/git/matching-refs/heads/" --paginate --jq '.[] | [(.ref | sub("refs/heads/"; "")), .object.sha] | @tsv' > ramas.tsv
+          borradas=0; revisar=""
+          while IFS=$'\t' read -r RAMA SHA; do
+            case "$RAMA" in main|datos-vigilancia) continue;; esac
+            if awk -F'\t' -v r="$RAMA" '$1==r && $2=="open"' prs.tsv | grep -q .; then continue; fi
+            # Se borra si su último commit es el de un PR fusionado o cerrado: ese trabajo ya está en main o se descartó.
+            if awk -F'\t' -v r="$RAMA" -v s="$SHA" '$1==r && $4==s' prs.tsv | grep -q .; then
+              gh api -X DELETE "repos/$REPO/git/refs/heads/$RAMA" >/dev/null && borradas=$((borradas+1))
+            else
+              revisar="$revisar $RAMA"
+            fi
+          done < ramas.tsv
+          echo "Ramas borradas: $borradas"
+          echo "Para revisar a mano (trabajo fuera de un PR):$revisar"
+          echo "### Limpieza: $borradas ramas borradas" >> "$GITHUB_STEP_SUMMARY"
+          [ -n "$revisar" ] && echo "Para revisar a mano:$revisar" >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Archivos de ejecuciones de más de 7 días
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          LIMITE=$(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%SZ)
+          gh api "repos/$REPO/actions/artifacts?per_page=100" --paginate --jq ".artifacts[] | select(.created_at < \"$LIMITE\") | .id" | while read -r ID; do
+            gh api -X DELETE "repos/$REPO/actions/artifacts/$ID" >/dev/null && echo "Borrado artefacto $ID"
+          done
