@@ -1785,3 +1785,32 @@ textarea.cot-inp { height: 88px; padding: 12px 14px; resize: vertical; }
 .serv-bitacora li { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; }
 .serv-fecha { font-family: var(--fuente-datos); font-size: 13px; color: var(--muted-foreground); }
 @media (max-width: 440px) { .serv-bitacora li { grid-template-columns: 1fr; gap: 2px; } }
+
+/* Avisos (decisión 44): menos texto, más decisión. */
+.avisos-v44 { max-width: 820px; }
+.avisos-v44 .tarjeta { margin-bottom: 16px; }
+.avisos-v44 h2 { display: flex; align-items: baseline; gap: 8px; font-size: 18px; margin: 4px 0 6px; }
+.avisos-v44 h2 small { font-size: 13px; font-weight: 400; color: var(--muted-foreground); }
+.av-ruta { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; }
+.av-ruta label { font-weight: 600; font-size: 14px; }
+.av-ruta select { font: inherit; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: inherit; flex: 1; max-width: 320px; }
+.av-lista { list-style: none; margin: 0; padding: 0; }
+.av-fila { border-bottom: 1px solid var(--border); }
+.av-fila:last-child { border-bottom: 0; }
+.av-fila[hidden] { display: none; }
+.av-fila > details > summary, .av-sum { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto auto; gap: 10px; align-items: start; padding: 12px 0; list-style: none; cursor: pointer; }
+.av-sum { grid-template-columns: 24px minmax(0, 1fr) auto; cursor: default; }
+.av-fila > details > summary::-webkit-details-marker { display: none; }
+.av-fila > details > summary > svg:last-child { margin-top: 4px; transition: transform .15s; }
+.av-fila > details[open] > summary > svg:last-child { transform: rotate(180deg); }
+.av-que { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.av-que > span { color: var(--muted-foreground); font-size: 14px; }
+.av-meta { color: var(--muted-foreground); font-size: 12.5px; white-space: nowrap; margin-top: 3px; }
+.av-detalles { list-style: none; margin: 0 0 12px 34px; padding: 0; display: grid; gap: 12px; }
+.av-detalle .inc-texto { margin: 4px 0; font-size: 14px; }
+.av-resueltos { margin: 10px 0 4px; font-size: 14px; color: var(--muted-foreground); }
+@media (max-width: 520px) {
+  .av-fila > details > summary, .av-sum { grid-template-columns: 24px minmax(0, 1fr) auto; }
+  .av-meta { grid-column: 2; grid-row: 2; }
+  .av-detalles { margin-left: 0; }
+}

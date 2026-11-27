@@ -598,6 +598,53 @@ const nivelReg = (r, tipo) => nivel(r, tipo, HOY);
 /** Incidencias activas de un paso o de cualquiera de sus tramos. */
 // Misma regla que el planificador: una incidencia con paso solo cuenta para ese paso; sin paso, para sus tramos.
 const incidenciasDe = ({ paso, tramos = [] }) => activas.filter((i) => (i.paso ? i.paso === paso : (i.tramos || []).some((t) => tramos.includes(t))));
+const CADUCA_AVISO = { obra: 120, corte: 120, pendiente: 120 }; // el resto, 60 días (incidencia)
+export const DIAS_RESUELTO = 7;
+export const DIAS_FUERA_SIN_CONFIRMAR = 30;
+// Avisos que salen en /avisos/ (decisión 44). Se calcula una vez: lo usan la página de avisos y los enlaces a avisos.
+const AVISOS = (() => {
+  const fid = (i) => (typeof i.fuente === 'string' ? i.fuente : i.fuente?.id) || '';
+  const automatico = (i) => !!estadoVigilancia?.fuentes?.[fid(i)];
+  const dias = (iso) => (iso ? Math.floor((Date.parse(HOY) - Date.parse(String(iso).slice(0, 10))) / 864e5) : Infinity);
+  // No es un aviso: solo una concesión y su teléfono («Tramo concesionado por …, emergencias: 0800…»).
+  const soloConcesion = (i) => /concesionad/i.test(i.descripcion) && !String(i.descripcion).replace(/^[^:]*\)\s*:/, '').replace(/tramo concesionado[^.]*?emergencias:\s*[\d\s-]+\.?/i, '').trim();
+  // «Sin confirmar»: leído solo, de una fuente atrasada o caída; o cargado a mano y pasado su plazo.
+  const vida = (i) => {
+    if (automatico(i)) {
+      if (!fuenteParada(fid(i))) return { sinConfirmar: false };
+      const desde = estadoVigilancia.fuentes[fid(i)]?.ultimaPublicacion || estadoVigilancia.fuentes[fid(i)]?.ultimaLecturaBuena;
+      return { sinConfirmar: true, fuera: dias(desde) > DIAS_FUERA_SIN_CONFIRMAR };
+    }
+    const ref = [i.actualizado, i.verificacion?.fecha, i.publicado].filter(Boolean).sort().pop();
+    const plazo = CADUCA_AVISO[i.tipo] ?? 60;
+    const edad = dias(ref);
+    return { sinConfirmar: edad > plazo, fuera: edad > plazo + DIAS_FUERA_SIN_CONFIRMAR };
+  };
+  // Mismo tramo, misma fuente, mismo día: uno solo (el MOPC publica la misma localidad dos veces).
+  const vistos = new Map();
+  const alias = new Map();
+  const unico = (i) => {
+    const k = `${(i.tramos || []).join(',')}|${fid(i)}|${i.publicado}|${i.estado}`;
+    if (i.tramos?.length && vistos.has(k)) { alias.set(i.id, vistos.get(k)); return false; }
+    vistos.set(k, i.id);
+    return true;
+  };
+  const resueltoReciente = (i) => i.estado !== 'activa' && dias(i.fin || i.actualizado || i.publicado) <= DIAS_RESUELTO;
+  const avisos = incidencias
+    .filter((i) => !i.fijo && !soloConcesion(i))
+    .map((i) => ({ ...i, ...(i.estado === 'activa' ? vida(i) : {}) }))
+    .filter((i) => (i.estado === 'activa' ? !i.fuera : resueltoReciente(i)))
+    .filter(unico);
+  return { avisos, fid, ids: new Set(avisos.map((i) => i.id)), alias };
+})();
+/** Enlace a un aviso: su fila en /avisos/; una característica fija (decisión 44) lleva a la ficha de su paso. */
+const enlaceAviso = (i) => {
+  if (AVISOS.ids.has(i.id)) return u(`/avisos/#inc-${i.id}`);
+  if (AVISOS.alias.has(i.id)) return u(`/avisos/#inc-${AVISOS.alias.get(i.id)}`);
+  if (!i.fijo) return u('/avisos/');
+  const g = i.paso && (fichaPaso[i.paso]?.guia || rutas.tramos.find((t) => t.paso?.id === i.paso)?.paso?.guia || rutas.tramos.find((t) => t.alternativa?.id === i.paso)?.alternativa?.guia);
+  return g ? u(`/guia/${g}/`) : u('/avisos/');
+};
 const tipoIncidencia = (t) => {
   const [txt, ic] = TIPOS_INCIDENCIA[t] || [t, 'restriccion'];
   return `<span class="tipo-inc tipo-${esc(ic)}">${icono(ic)}${esc(txt)}</span>`;
@@ -969,7 +1016,7 @@ function tablero() {
       .slice(0, 3)
       .map((i) => `<li>${tipoIncidencia(i.tipo)}<strong>${esc(i.ubicacion)}</strong><span>${descInc(i.descripcion, i.resumen)}</span></li>`)
       .join('')}</ul>
-    <a class="enlace-mas" href="${u('/avisos/#obras')}">Ver obras y restricciones</a>
+    <a class="enlace-mas" href="${u('/avisos/')}">Ver avisos por tramo</a>
   </section>
   <section class="panel tablero-panel" aria-labelledby="t-tab-meteo">
     <h3 id="t-tab-meteo">Meteorología y alertas</h3>
@@ -1385,7 +1432,7 @@ function fichaOperativa(p, guiaPag) {
     'avisos-paso',
     'Obras y avisos',
     nAvisos ? `${plural(inc.length, 'aviso activo', 'avisos activos')}${p.restricciones?.length ? ` · ${plural(p.restricciones.length, 'norma', 'normas')} para camiones` : ''}` : 'Ninguno registrado',
-    `${inc.length ? `<ul class="lista-datos">${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${descInc(i.descripcion, i.resumen)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a>${selloHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</li>`).join('')}</ul>` : '<p class="sin-dato">Ninguna incidencia registrada.</p>'}
+    `${inc.length ? `<ul class="lista-datos">${inc.map((i) => `<li>${tipoIncidencia(i.tipo)} ${descInc(i.descripcion, i.resumen)} <a href="${enlaceAviso(i)}">Ver aviso</a>${selloHTML(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}</li>`).join('')}</ul>` : '<p class="sin-dato">Ninguna incidencia registrada.</p>'}
      ${p.restricciones?.length ? `<h4>Transporte pesado</h4>${lista(p.restricciones)}` : ''}`
   );
   const nov = novedadesPaso(p);
@@ -1493,7 +1540,7 @@ function bloqueTramos(ruta) {
     return `<li class="inc-tarjeta"><details class="inc-linea"><summary>${OPERATIVA[op].icono}<span class="inc-que"><strong>${esc(nombreTramo(t))}</strong><small>${esc(t.vista.etiqueta || OPERATIVA[op].texto)} · ${kmTxt}${inc.length ? ` · ${plural(inc.length, 'aviso', 'avisos')}` : ''}</small></span>${icono('abajo')}</summary>
       <div class="inc-detalle"><div class="dato-estado">${vistaHTML(t.vista)}</div>${t.vista.fuente && !t.vista.vigilado ? `<p class="dato-fuente">${fuenteEnlace(t.vista.fuente)}</p>` : ''}
       <p><strong>Distancia:</strong> ${kmDet}</p>
-      ${inc.map((i) => `<p class="it-aviso">${tipoIncidencia(i.tipo)} ${descInc(i.descripcion, i.resumen)} <a href="${u('/avisos/#inc-' + i.id)}">Ver aviso</a></p>`).join('')}</div></details></li>`;
+      ${inc.map((i) => `<p class="it-aviso">${tipoIncidencia(i.tipo)} ${descInc(i.descripcion, i.resumen)} <a href="${enlaceAviso(i)}">Ver aviso</a></p>`).join('')}</div></details></li>`;
   };
   return `<section class="ficha-operativa tramos-v2" aria-labelledby="t-tramos"><h2 id="t-tramos">Tramos</h2><ul class="inc-lista">${ts.map(linea).join('')}</ul></section>`;
 }
@@ -1610,7 +1657,7 @@ const horaEn = (zona, d = GENERADO) => new Intl.DateTimeFormat('es-ES', { hour: 
 const graveOrden = { rojo: 0, ambar: 1 };
 const avisoHoy = (i) => {
   const forma = (i.gravedad || 'ambar') === 'rojo' ? 'cerrado' : 'restricciones';
-  return `<li><a class="linea-aviso" href="${u(`/avisos/#inc-${i.id}`)}">${OPERATIVA[forma].icono}<span><strong>${esc(i.ubicacion)}</strong><small>${txtOf(i.resumen || primeraFrase(i.descripcion))}</small></span></a></li>`;
+  return `<li><a class="linea-aviso" href="${enlaceAviso(i)}">${OPERATIVA[forma].icono}<span><strong>${esc(i.ubicacion)}</strong><small>${txtOf(i.resumen || primeraFrase(i.descripcion))}</small></span></a></li>`;
 };
 {
   const limitan = activas.filter((i) => (i.gravedad || 'ambar') !== 'info').sort((x, y) => graveOrden[x.gravedad || 'ambar'] - graveOrden[y.gravedad || 'ambar']);
@@ -2523,100 +2570,111 @@ add(
   );
 }
 
-// Avisos: obras, restricciones y meteorología
+// Avisos (decisión 44, «menos texto, más decisión»): arriba, lo que hoy puede parar a un camión; debajo, una fila por
+// tramo en el orden del corredor con su peor estado. Las precauciones sin corte se cuentan, no se listan; el texto
+// oficial solo se ve al abrir la fila. Lo antiguo se va solo (docs/datos-y-fuentes.md, «Cuánto vive un aviso»).
 {
-  const paisesI = [...new Set(incidencias.flatMap((i) => i.paises))];
-  const tiposI = [...new Set(incidencias.map((i) => i.tipo))];
-  // HU-136 (V2): agrupados por lo que significan para el camión. Color + forma + palabra; sello único.
-  const GRAV = {
-    rojo: ['cerrado', 'Impiden pasar'],
-    ambar: ['restricciones', 'Con restricciones o sin confirmar'],
-    info: ['sin-confirmar', 'Informativos: no cambian el veredicto'],
-    resuelta: ['abierto', 'Resueltos en los últimos 15 días'],
+  const { avisos, fid } = AVISOS;
+  const activosA = avisos.filter((i) => i.estado === 'activa');
+  const informativo = (i) => (i.gravedad || 'ambar') === 'info';
+  // Tramo de cada aviso: el suyo o, si no lo trae, por el número de ruta. En los Andes, Jama o Sico.
+  const VIA = { 51: 'sico', 23: 'sico', 52: 'jama', 27: 'jama' };
+  const viaDe = (i) => (i.paso === 'sico' || i.paso === 'jama' ? i.paso : numRuta(`${i.ubicacion} ${i.tramo || ''} ${i.id}`).map((n) => VIA[n]).find(Boolean) || '');
+  const tramoDe = (i) => {
+    if (i.tramos?.length) return i.tramos[0];
+    if (i.paso) return rutas.tramos.find((t) => t.paso?.id === i.paso || t.alternativa?.id === i.paso)?.id || '';
+    const n = numRuta(i.ubicacion);
+    if (n.some((x) => VIA[x])) return 'andes';
+    if (n.includes('34') || n.includes('66')) return 'pozo-hondo';
+    return '';
   };
-  const grav = (i) => (i.estado !== 'activa' ? 'resuelta' : i.gravedad || 'ambar');
-  // V2: cada aviso es una línea (señal · lugar · qué pasa · fuente y fecha); al abrirla, el texto oficial y los datos.
-  const tarjetaInc = (i) => {
-    const g = grav(i);
-    const op = GRAV[g][0];
-    const tramosA = (i.tramos || [])
-      .map((id) => tramoPorId[id])
-      .filter(Boolean)
-      .map((t) => {
-        const gg = t.paso?.guia || t.guia;
-        return gg ? `<a href="${u(`/guia/${gg}/`)}">${esc(nombreTramo(t))}</a>` : esc(nombreTramo(t));
-      })
-      .join(' · ');
-    return `<li class="inc-tarjeta inc-${g}" id="inc-${esc(i.id)}" data-pais="${esc(i.paises.join(' '))}" data-gravedad="${g}">
-  <details class="inc-linea"><summary>
-    ${OPERATIVA[op].icono}
-    <span class="inc-que"><strong>${esc(i.ubicacion)}</strong><span>${txtOf(i.resumen || primeraFrase(i.descripcion))}</span>
-    <small>${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}${i.afecta === 'carga' ? ' para carga' : ''} · ${i.publicado ? fechaCorta(i.publicado) : 'sin fecha'} ${i.paises.map(bandera).join('')}</small></span>
-    ${icono('abajo')}
-  </summary>
-  <div class="inc-detalle">
-    <p class="inc-texto">${descLarga(i.descripcion)}</p>
-    <dl class="inc-datos">
-      ${i.inicio ? `<div><dt>Inicio</dt><dd>${fecha(i.inicio)}</dd></div>` : ''}
-      ${i.finPrevista ? `<div><dt>Fin previsto</dt><dd>${txtEs(i.finPrevista)}</dd></div>` : ''}
-      ${i.impacto ? `<div><dt>Transporte pesado</dt><dd>${txtEs(i.impacto)}</dd></div>` : ''}
-      ${tramosA ? `<div><dt>Afecta a</dt><dd>${tramosA}</dd></div>` : ''}
-    </dl>
-    <p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}${otras(i)}</p>
-  </div></details>
-</li>`;
+  // Filas: los tramos del corredor; el de los Andes, partido en Jama y Sico.
+  const filasT = [];
+  for (const t of rutas.tramos) {
+    if (t.id === 'andes') {
+      filasT.push({ id: 'andes-jama', tramo: t, via: 'jama', paso: 'jama', nombre: `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}, por Jama` });
+      filasT.push({ id: 'andes-sico', tramo: t, via: 'sico', paso: 'sico', nombre: `${nodoNombre[t.desde]} – ${nodoNombre[t.hasta]}, por Sico` });
+    } else filasT.push({ id: t.id, tramo: t, via: '', paso: t.paso?.id || null, nombre: t.paso?.id === 'puente-bioceanica' ? 'Puente de la Bioceánica' : nombreTramo(t) });
+  }
+  const avisosDe = (f) => avisos.filter((i) => tramoDe(i) === f.tramo.id && (!f.via || (viaDe(i) || 'jama') === f.via));
+  const opPaso = (id) => {
+    const e = estadoPaso(id);
+    return { e, op: e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar' };
   };
-  const ordenG = ['rojo', 'ambar', 'info', 'resuelta'];
-  const hace15 = new Date(new Date(`${HOY}T12:00:00Z`).getTime() - 15 * 864e5).toISOString().slice(0, 10);
-  const visibles = incidencias.filter((i) => i.estado === 'activa' || (i.fin || i.publicado || '') >= hace15);
-  const grupos = ordenG.map((g) => [g, visibles.filter((i) => grav(i) === g)]).filter(([, l]) => l.length);
-  const listaInc = grupos.map(([g, l]) => `<li class="inc-grupo" data-cabecera id="g-${g}"><h3>${GRAV[g][1]} <span class="inc-cuenta">${l.length}</span></h3></li>${l.map(tarjetaInc).join('')}`).join('');
-  const porPais = Object.keys(PAISES).map((k) => {
-    const de = (t) => organismos.filter((o) => o.pais === k && t.includes(o.tipo));
-    return `<tr><th scope="row">${esc(PAISES[k])}</th>
-      <td data-l="Alertas meteorológicas">${de(['meteorologia']).map((o) => `<a href="${esc(o.url)}" rel="noopener">${esc(o.nombre)}</a>`).join('<br>') || '<span class="sin-dato">Sin enlace verificado</span>'}</td>
-      <td data-l="Estado de rutas y pasos">${de(['vialidad', 'estado-pasos']).map((o) => `<a href="${esc(o.url)}" rel="noopener">${esc(o.nombre)}</a>`).join('<br>') || '<span class="sin-dato">Sin enlace verificado</span>'}</td></tr>`;
+  const motivoPaso = (id) => {
+    const { e, op } = opPaso(id);
+    if (e.avisoLado) return `${e.avisoLado.afecta === 'carga' ? 'Sin paso para camiones con carga' : etiquetaLado(e.avisoLado.valor)} (aviso de ${PAISES[e.avisoLado.lado]}).`;
+    if (op === 'cerrado') return (e.texto || '').split(/(?<=\.)\s/)[0] || `${OPERATIVA[op].texto}.`;
+    return `${OPERATIVA[op].texto}: mira la ficha antes de salir.`;
+  };
+  // El resumen sin repetir el lugar («BOQUERON – Ramales: cerrado» → «Cerrado»).
+  const resumenAviso = (i) => {
+    const r = String(i.resumen || primeraFrase(i.descripcion)).replace(new RegExp(`^(Tramo:\\s*)?${i.ubicacion.replace(/^Tramo:\s*/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*:\\s*`, 'i'), '');
+    return txtOf(r.charAt(0).toUpperCase() + r.slice(1));
+  };
+  const fechaFuente = (i) => `${i.publicado ? fechaCorta(i.publicado) : 'sin fecha'}`;
+  const detalle = (i) => `<li class="av-detalle" id="inc-${esc(i.id)}"><strong>${esc(i.ubicacion)}</strong> · ${resumenAviso(i)}<p class="inc-texto">${descLarga(i.descripcion)}</p><p class="sello-linea">${selloCorto(nivelReg(i, 'incidencia'), i.verificado, i.fuente, i.publicado)}${otras(i)}</p></li>`;
+  const fila = ({ op, titulo, texto, meta, via = '', id = '', abre = '' }) =>
+    `<li class="av-fila av-${op}"${id ? ` id="${esc(id)}"` : ''}${via ? ` data-via="${via}"` : ''}>${abre ? `<details><summary>` : '<div class="av-sum">'}${OPERATIVA[op].icono}<span class="av-que"><strong>${titulo}</strong><span>${texto}</span></span>${meta ? `<small class="av-meta">${meta}</small>` : ''}${abre ? `${icono('abajo')}</summary><ul class="av-detalles">${abre}</ul></details>` : '</div>'}</li>`;
+  // 1. Hoy te pueden parar: pasos no abiertos y avisos que limitan, confirmados (sin los de un paso ya listado).
+  const pasosParar = pasosHistoria.filter((h) => opPaso(h.id).op !== 'abierto' && opPaso(h.id).op !== 'sin-confirmar');
+  const tramosConPaso = new Set(rutas.tramos.filter((t) => pasosParar.some((h) => t.paso?.id === h.id)).map((t) => t.id));
+  const avisosParar = activosA.filter((i) => !informativo(i) && !i.sinConfirmar && !i.paso && !(i.tramos || []).some((t) => tramosConPaso.has(t)));
+  const parar = [
+    ...pasosParar.map((h) => fila({ op: opPaso(h.id).op, titulo: `<a href="${u(`/guia/${h.guia}/`)}">${esc(h.id === 'puente-bioceanica' ? 'Puente Porto Murtinho – Carmelo Peralta' : `Paso de ${h.nombre}`)}</a>`, texto: esc(motivoPaso(h.id)), meta: '', via: h.id === 'jama' || h.id === 'sico' ? h.id : '' })),
+    ...avisosParar.map((i) => fila({ op: i.gravedad === 'rojo' ? 'cerrado' : 'restricciones', titulo: esc(i.ubicacion), texto: resumenAviso(i), meta: esc(fechaFuente(i)), via: viaDe(i), id: `parar-${i.id}`, abre: detalle(i).replace(/ id="inc-[^"]*"/, '') })),
+  ];
+  // 2. Por tramo.
+  const filasHTML = filasT.map((f) => {
+    const suyos = avisosDe(f).filter((i) => i.estado === 'activa');
+    const limitan = suyos.filter((i) => !informativo(i) && !i.sinConfirmar);
+    const prec = suyos.filter((i) => informativo(i) && !i.sinConfirmar);
+    const sinConf = suyos.filter((i) => i.sinConfirmar);
+    const partes = [];
+    let op;
+    if (f.paso) {
+      const p = opPaso(f.paso);
+      op = p.op;
+      if (op !== 'abierto') partes.push(esc(motivoPaso(f.paso).replace(/\.$/, '')));
+    }
+    if (limitan.length) {
+      op = limitan.some((i) => i.gravedad === 'rojo') ? 'cerrado' : op === 'cerrado' ? 'cerrado' : 'restricciones';
+      partes.push(...limitan.slice(0, 2).map((i) => resumenAviso(i)));
+    }
+    if (prec.length) partes.push(`${plural(prec.length, 'aviso de precaución', 'avisos de precaución')}, sin cortes`);
+    if (sinConf.length) partes.push(`${plural(sinConf.length, 'aviso sin confirmar', 'avisos sin confirmar')}: la fuente no se actualiza`);
+    if (!op) {
+      const et = f.tramo.vista?.etiqueta || '';
+      op = sinConf.length || /atrasada|no disponible/i.test(et) ? 'sin-confirmar' : f.tramo.op === 'abierto' || et === 'Sin incidencias' ? 'abierto' : 'sin-confirmar';
+      if (!partes.length) partes.push(et === 'Sin incidencias' ? 'Sin avisos' : et === 'Sin vigilancia' ? 'Ninguna fuente oficial la publica cada día' : /atrasada/i.test(et) ? 'Sin confirmar: la fuente no se actualiza' : 'Sin avisos');
+    }
+    return fila({ op, titulo: esc(f.nombre), texto: partes.join(' · ') + '.', meta: suyos.length ? plural(suyos.length, 'aviso', 'avisos') : '', via: f.via, id: `tramo-${f.id}`, abre: suyos.map(detalle).join('') });
   });
+  const resueltos = avisos.filter((i) => i.estado !== 'activa');
+  const viasHay = ['jama', 'sico'];
   add(
     '/avisos/',
     layout({
-      titulo: 'Obras, restricciones y alertas',
-      descripcion: 'Obras, cortes y restricciones del Corredor Bioceánico, y enlaces a las alertas meteorológicas oficiales de cada país.',
+      titulo: 'Avisos del corredor',
+      descripcion: 'Lo que hoy puede parar a un camión en el Corredor Bioceánico y el estado de cada tramo, con su fuente oficial.',
       ruta: '/avisos/',
-      scripts: ['/assets/filtros.js'],
+      scripts: ['/assets/avisos.js'],
       cuerpo: `
-<div class="contenedor pagina-app">
-  <div class="dos-col avisos-col">
-    <section class="tarjeta" aria-labelledby="t-avisos">
-      <h1 id="t-avisos">Avisos</h1>
-      <div class="filtros-noticias" data-filtros="#lista-inc">
-        <div class="chips" role="group" aria-label="Qué significan">
-          <button class="chip" type="button" data-filtro="gravedad" data-valor="" aria-pressed="true">Todos ${incidencias.length}</button>
-          ${grupos.map(([g, l]) => `<button class="chip chip-${g}" type="button" data-filtro="gravedad" data-valor="${g}" aria-pressed="false">${{ rojo: 'Impiden', ambar: 'Limitan', info: 'Informativos', resuelta: 'Resueltos' }[g]} ${l.length}</button>`).join('')}
-        </div>
-        <div class="chips" role="group" aria-label="País">
-          <button class="chip" type="button" data-filtro="pais" data-valor="" aria-pressed="true">Todos</button>
-          ${paisesI.map((p) => `<button class="chip" type="button" data-filtro="pais" data-valor="${esc(p)}" aria-pressed="false" aria-label="${esc(PAISES[p])}" title="${esc(PAISES[p])}">${bandera(p)}</button>`).join('')}
-        </div>
-      </div>
-      <ul class="inc-lista" id="lista-inc">${listaInc}</ul>
-      <div class="vacio" data-vacio hidden><p>No hay avisos con esos filtros.</p><button class="btn btn-borde" type="button" data-limpiar>Quitar filtros</button></div>
-    </section>
-    <div class="ficha-lado">
-      ${mapaTarjeta({ clase: 'solo-ancho' })}
-      <section class="tarjeta plegables" aria-label="Más información">
-        ${plegable('meteorologia', 'Meteorología y estado de rutas', avisosMeteo.length ? plural(avisosMeteo.length, 'aviso vigente', 'avisos vigentes') : 'enlaces oficiales por país', `${
-          avisosMeteo.length
-            ? `<ul class="inc-lista">${avisosMeteo.map((a) => `<li class="inc-tarjeta"><h3>${esc(a.titulo)}</h3><p>${esc(a.zona)}</p><p class="inc-revisado">Vigente hasta el ${fecha(a.vigenteHasta)}. Fuente: ${fuenteEnlace(a.fuente)}</p></li>`).join('')}</ul>`
-            : ''
-        }<div class="tabla-marco"><table class="tabla-oficial">
-          <thead><tr><th scope="col">País</th><th scope="col">Alertas meteorológicas</th><th scope="col">Estado de rutas y pasos</th></tr></thead>
-          <tbody>${porPais.join('')}</tbody></table></div>
-          <p class="nota-pie">En Jama y Sico el viento blanco, la nieve y el hielo pueden cerrar la ruta en pocas horas.</p>`)}
-        ${plegable('novedades', 'Novedades recientes', 'avances de obras y acuerdos', `<ul class="lista-noticias">${recientes.slice(0, 3).map((n) => `<li>${noticia(n)}</li>`).join('')}</ul><a class="enlace-mas" href="${u('/novedades/')}">Ver todas las novedades${icono('derecha')}</a>`)}
-      </section>
-    </div>
-  </div>
+<div class="contenedor pagina-app avisos-v44">
+  <header class="pagina-cabeza"><h1>Avisos</h1><p>Solo lo que cambia tu viaje. Cada fila se abre con el texto oficial y su fuente.</p></header>
+  <div class="av-ruta"><label for="mi-ruta">Mi ruta</label><select id="mi-ruta" data-mi-ruta><option value="">Todo el corredor</option>${viasHay.map((v) => `<option value="${v}">Por ${v === 'jama' ? 'Jama' : 'Sico'}</option>`).join('')}</select></div>
+  <section class="tarjeta" aria-labelledby="t-parar">
+    <h2 id="t-parar">${parar.length ? `Hoy te pueden parar <span class="inc-cuenta">${parar.length}</span>` : 'Hoy nada te para'}</h2>
+    ${parar.length ? `<ul class="av-lista">${parar.join('')}</ul>` : '<p class="sin-dato">Ningún paso cerrado ni aviso oficial que limite el corredor.</p>'}
+  </section>
+  <section class="tarjeta" aria-labelledby="t-tramos">
+    <h2 id="t-tramos">Por tramo <small>de ${esc(nodoNombre[rutas.tramos[0].desde])} a ${esc(nodoNombre[rutas.tramos[rutas.tramos.length - 1].hasta])}</small></h2>
+    <ul class="av-lista">${filasHTML.join('')}</ul>
+    ${resueltos.length ? `<p class="av-resueltos"><strong>Resueltos esta semana:</strong> ${resueltos.map((i) => `${esc(i.ubicacion)} (${esc(fechaFuente(i))})`).join(' · ')}</p>` : ''}
+  </section>
+  <section class="tarjeta plegables" aria-label="Más información">
+    ${plegable('meteorologia', 'Alertas meteorológicas y partes oficiales', 'enlaces por país', `<ul class="lista-enlaces">${organismos.filter((o) => ['meteorologia', 'vialidad', 'estado-pasos'].includes(o.tipo)).map(enlaceOrganismo).join('')}</ul><p class="nota-pie">En Jama y Sico el viento blanco, la nieve y el hielo pueden cerrar la ruta en pocas horas.</p>`)}
+  </section>
 </div>`,
     })
   );
@@ -2794,7 +2852,7 @@ add(
       return { t: p.nombre, d: `Paso fronterizo. ${p.ubicacion.texto}`, u: u(`/guia/${g}/`), k: 'Paso fronterizo' };
     }),
     ...guia.filter((p) => p.seccion !== 'pasos').map((p) => ({ t: p.meta.titulo, d: p.meta.resumen, u: u(p.ruta), k: SECCIONES[p.seccion] })),
-    ...incidencias.map((i) => ({ t: `${i.ubicacion}: ${TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo}`, d: i.descripcion, u: u('/avisos/#obras'), k: 'Obra o restricción' })),
+    ...incidencias.map((i) => ({ t: `${i.ubicacion}: ${TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo}`, d: i.descripcion, u: enlaceAviso(i), k: 'Obra o restricción' })),
     ...festivos.map((f) => ({ t: `${f.nombre} (${PAISES[f.pais]})`, d: `${fecha(f.fecha)}. ${TIPOS_FESTIVO[f.tipo]}${f.validacion !== 'verificado' ? ', por confirmar' : ''}.`, u: u('/calendario/'), k: 'Festivo' })),
     ...novedades.map((n) => ({ t: n.titulo, d: n.detalle || '', u: n.fuente.url, k: `Novedad, ${n.fuente.nombre}` })),
     ...organismos.map((o) => ({ t: o.nombre, d: `Organismo oficial de ${PAISES[o.pais]}`, u: o.url, k: 'Enlace oficial' })),
