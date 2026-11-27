@@ -95,6 +95,8 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   ok(/se leen cada hora/.test(await p.textContent('#fp-AR summary')), 'fuentes: el país debe decir cuántas se leen cada hora');
   await p.goto(B + '/calendario/');
   ok(!(await p.$('#cal-pendiente')), 'calendario: «Qué falta por verificar» va a /operacion/');
+  // Lo vivo de /operacion/ viene de GitHub: en la prueba se responde vacío, sin red (si no, un 404 del día falso rompe la prueba).
+  await p.route(/raw\.githubusercontent\.com|api\.github\.com/, (r) => r.fulfill({ status: 200, contentType: 'application/json', body: r.request().url().includes('api.github.com') ? '[]' : '' }));
   await p.goto(B + '/operacion/');
   ok((await p.getAttribute('meta[name="robots"]', 'content')) === 'noindex, nofollow', 'operación: debe ser noindex');
   ok((await p.$$('main table')).length >= 4 && /Pendiente de verificar/.test(await p.textContent('main')), 'operación: faltan tablas o pendientes');
