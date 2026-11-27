@@ -954,6 +954,12 @@ async function abrirOCompletar(titulo, cuerpo, linea) {
   if (!ya) {
     const i = await gh('/issues', { method: 'POST', body: JSON.stringify({ title: titulo, body: cuerpo, labels: [ETIQUETA], assignees: [AVISAR_A] }) });
     console.log(`Incidencia abierta: #${i.number} ${titulo}`);
+    // Decisión 43 (mínimo vivo): un solo aviso abierto por fuente. Al abrir el de hoy se cierran los de días anteriores.
+    const raiz = titulo.replace(/\s*\(\d{4}-\d{2}-\d{2}\)$/, ' (');
+    for (const v of abiertas.filter((x) => x.title !== titulo && x.title.startsWith(raiz))) {
+      await gh(`/issues/${v.number}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed', state_reason: 'completed' }) });
+      console.log(`Cerrada la anterior: #${v.number} (sustituida por #${i.number})`);
+    }
     return;
   }
   if ((ya.body || '').includes(linea)) return console.log(`Ya avisado en #${ya.number}.`);
