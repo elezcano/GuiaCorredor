@@ -40,6 +40,10 @@
               "id": {
                 "$ref": "comun.schema.json#/$defs/id"
               },
+              "fijo": {
+                "type": "boolean",
+                "description": "Característica fija del paso o del tramo (decisión 44): sale en su ficha, no en la página de avisos."
+              },
               "paises": {
                 "type": "array",
                 "items": {

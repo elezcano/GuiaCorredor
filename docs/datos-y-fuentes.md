@@ -51,12 +51,13 @@ Regla de limpieza ([decisión 44](decisiones.md)): la página de avisos solo ens
 
 | Situación | Qué pasa |
 |---|---|
-| La fuente lo sigue publicando | Se muestra |
-| Solo «transitar con precaución», sin corte | Una línea por tramo, plegada |
-| 15 días sin novedades de su fuente, o la fuente está atrasada | «Sin confirmar», plegado |
-| 30 días sin novedades | Sale de la web (queda en el repositorio y en el registro) |
+| Leído solo y su fuente lo sigue publicando | Se muestra (el vigilante lo retira cuando falta dos lecturas seguidas) |
+| Leído solo y su fuente está atrasada o caída | «Sin confirmar»; sale de la web 30 días después de la última publicación de la fuente |
+| Cargado a mano | Vale 120 días si es obra, corte o puente sin habilitar, y 60 el resto, desde su última verificación; después «Sin confirmar», y 30 días más tarde sale |
+| Solo «transitar con precaución», sin corte | Se cuenta en la fila de su tramo, no se lista |
 | Resuelto | Visible 7 días; después sale |
-| No es un aviso: un teléfono, una concesión, una característica fija del paso | No entra; lo fijo va a la ficha |
+| No es un aviso: solo un teléfono o una concesión | No entra |
+| Característica fija del paso o del tramo (campo `fijo`) | Va a su ficha, no a la página de avisos |
 | Mismo tramo, misma fuente, mismo día | Un solo aviso |
 
 Cada dato operativo (estado, horario, incidencia) tiene su **propia** verificación: que el texto de la guía esté en revisión se avisa aparte y no oculta un estado verificado.

@@ -52,13 +52,15 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   await p.goto(B + '/planificador/?desde=7&hasta=6');
   ok((await p.textContent('.pl-cabeza')).includes('Calama → San Pedro de Atacama'), 'ruta corta en sentido contrario');
   ok(!(await p.textContent('#resultado')).includes('Papeles para cruzar'), 'una ruta sin fronteras no debe pedir papeles');
-  // Avisos
+  // Avisos (decisión 44): lo que te puede parar, una fila por tramo y el filtro «Mi ruta».
   await p.goto(B + '/avisos/');
   ok(await p.$('#inc-py15-lote3'), 'sin ancla de incidencia');
-  await p.click('button[data-filtro="pais"][data-valor="CL"]');
-  ok((await p.$$eval('#lista-inc > li.inc-tarjeta:not([hidden])', l => l.length)) === 1, 'filtro país avisos');
-  // HU-136: agrupados por lo que significan, con cabecera de grupo.
-  ok((await p.$$eval('#lista-inc > li.inc-grupo:not([hidden])', l => l.length)) === 1, 'avisos: solo queda visible el grupo con avisos de Chile');
+  ok(/Hoy (te pueden parar|nada te para)/.test(await p.textContent('#t-parar')) && (await p.$$('#t-tramos ~ .av-lista > .av-fila')).length >= 5, 'avisos: falta el bloque de lo que para o las filas por tramo');
+  ok((await p.$$('.av-fila[data-via="sico"]')).length > 0, 'avisos: falta la fila de Sico');
+  await p.selectOption('[data-mi-ruta]', 'jama');
+  ok((await p.$$eval('.av-fila[data-via="sico"]', (l) => l.every((x) => x.hidden))) && (await p.$$eval('.av-fila[data-via="jama"]', (l) => l.some((x) => !x.hidden))), 'avisos: «Mi ruta: por Jama» debe ocultar Sico');
+  await p.goto(B + '/avisos/#inc-py15-lote3');
+  ok(await p.$eval('#inc-py15-lote3', (e) => e.closest('details').open), 'avisos: un enlace a un aviso debe abrir su fila');
   // Ficha de tramo con incidencia
   await p.goto(B + '/guia/tramos/py15-chaco/');
   ok((await p.textContent('.ficha-operativa')).includes('40,5'), 'incidencia no aparece en la ficha del tramo');
