@@ -45,6 +45,20 @@ Un `verificado` sin `verificacion` válida cuenta como `por-verificar`, y `npm r
 | Horario | 180 días | Ídem |
 | Ficha, empresa, organismo | 365 días | Ídem |
 
+## Cuánto vive un aviso en la web
+
+Regla de limpieza ([decisión 44](decisiones.md)): la página de avisos solo enseña lo que cambia el viaje de hoy. Lo antiguo se va solo.
+
+| Situación | Qué pasa |
+|---|---|
+| La fuente lo sigue publicando | Se muestra |
+| Solo «transitar con precaución», sin corte | Una línea por tramo, plegada |
+| 15 días sin novedades de su fuente, o la fuente está atrasada | «Sin confirmar», plegado |
+| 30 días sin novedades | Sale de la web (queda en el repositorio y en el registro) |
+| Resuelto | Visible 7 días; después sale |
+| No es un aviso: un teléfono, una concesión, una característica fija del paso | No entra; lo fijo va a la ficha |
+| Mismo tramo, misma fuente, mismo día | Un solo aviso |
+
 Cada dato operativo (estado, horario, incidencia) tiene su **propia** verificación: que el texto de la guía esté en revisión se avisa aparte y no oculta un estado verificado.
 
 ## Reglas de publicación
