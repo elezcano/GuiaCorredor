@@ -36,6 +36,7 @@ flowchart LR
 | **Limpieza** | Borra la rama de cada PR al fusionarlo; cada lunes, las ramas ya publicadas que queden y los archivos de ejecución de más de 7 días (decisión 43) | Al fusionar y cada lunes | `limpieza.yml` |
 | **Tareas del día** | Correo al responsable con lo que necesita una persona | Cada día, 14:07 de España | `scripts/tareas.mjs`, `tareas.yml` |
 | **Enlaces externos** | Revisa las URL externas (informa, no bloquea) | Los lunes | `enlaces-externos.yml` |
+| **Operación** | Página de trabajo `/operacion/`: estado del vigilante y del Vigía, fuentes con su último error, pasos y de dónde sale cada estado, avisos, registro por pasada y pendientes. Fuera del menú, sin indexar, solo lectura, sin datos personales (decisión 45) | Lo vivo al abrirla (GitHub); lo publicado, en cada publicación | `paginaOperacion()` en `scripts/build.mjs`, `src/assets/operacion.js` |
 | **Trazados** | Calcula el trazado y los km de cada tramo (OpenStreetMap) y los deja en un PR | A mano | `trazados.yml` |
 
 ## Dónde vive cada dato

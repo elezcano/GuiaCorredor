@@ -291,6 +291,12 @@ const confianzaHTML = (c, { completo = true } = {}) => {
 };
 /** 22/11/2026: una línea por lado del paso. Cómo informa ese país y qué sabemos hoy, en palabras llanas. */
 const etiquetaLado = (v) => (!v || v === 'operativo' ? 'Habilitado' : v === 'pendiente' ? 'Sin confirmar' : ESTADOS[v] || v);
+/** «hoy 12:15», «ayer 18:01» o «24 nov, 08:23» (hora tal como la publica el organismo). */
+const cuandoCorto = (dia, hora) => {
+  const d = diasDesde(dia);
+  const f = d === 0 ? 'hoy' : d === 1 ? 'ayer' : fechaCorta(dia);
+  return hora ? `${f}${d > 1 ? ',' : ''} ${hora}` : f;
+};
 const ladosHTML = (p, e) => {
   const lados = Object.keys(p?.lados || {});
   if (lados.length < 2) return '';
@@ -307,10 +313,10 @@ const ladosHTML = (p, e) => {
       const av = ladoPorAviso(p, lado);
       if (av) {
         cls = 'aviso';
-        txt = `<strong>Sin avisos</strong> desde el ${fechaCorta(av.desde)}${av.explicacion ? ` · ${esc(av.explicacion)}` : ''}`;
+        txt = ult ? `<strong>Sin avisos</strong> · ${quien}, ${cuandoCorto(ult.publicado, ult.hora)} <span class="sello-ok">✓ oficial</span>` : `<strong>Sin avisos</strong> desde el ${fechaCorta(av.desde)}${av.explicacion ? ` · ${esc(av.explicacion)}` : ''}`;
       } else if (ult?.valor && ult.valor !== 'operativo') {
         cls = 'parte';
-        txt = `<strong>${esc(etiquetaLado(ult.valor))}</strong> · aviso oficial del ${fechaCorta(ult.publicado)}${ult.hora ? `, ${esc(ult.hora)}` : ''}${quien ? ` (${quien})` : ''}`;
+        txt = `<strong>${ult.afecta === 'carga' ? 'Sin paso para camiones con carga' : esc(etiquetaLado(ult.valor))}</strong> · ${quien || 'aviso oficial'}, ${cuandoCorto(ult.publicado, ult.hora)} <span class="sello-ok">✓ oficial</span>`;
       } else {
         cls = 'sin-dato';
         txt = `<strong>Sin confirmar</strong> · su canal oficial no se ha revisado en los últimos ${site.canalesParte?.[lado]?.plazoDias ?? 15} días`;
@@ -320,7 +326,10 @@ const ladosHTML = (p, e) => {
       if (auto) {
         cls = 'parte';
         const hora = new Date(auto.comprobado).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Salta' });
-        txt = `<strong>${esc(etiquetaLado(e.ultimo || e.valor))}</strong> · comprobado en la web oficial el ${fechaCorta(auto.comprobado.slice(0, 10))}, ${hora} (hora de Argentina)${ult ? ` · último parte de ${quien || esc(auto.organismo)}: ${fechaCorta(ult.publicado)}` : ''}`;
+        // Decisión 45: una línea por país, quién y cuándo. El detalle (web oficial, hora de lectura) va en «Historial y fuentes».
+        // Si el último parte no es de hoy, se dice también que la web oficial se comprobó hoy (y a qué hora).
+        const parteHoy = ult && diasDesde(ult.publicado) === 0;
+        txt = `<strong>${esc(etiquetaLado(e.ultimo || e.valor))}</strong> · ${quien || esc(auto.organismo)}, ${ult ? `${parteHoy ? '' : 'parte del '}${cuandoCorto(ult.publicado, ult.hora)}${parteHoy ? '' : ` · comprobado ${cuandoCorto(auto.comprobado.slice(0, 10), hora)}`}` : `comprobado ${cuandoCorto(auto.comprobado.slice(0, 10), hora)}`} <span class="sello-ok">✓ oficial</span>`;
       } else if (parteDeHoy(p, lado)) {
         const h = parteDeHoy(p, lado);
         cls = 'parte';
@@ -330,7 +339,7 @@ const ladosHTML = (p, e) => {
         txt = `<strong>Sin confirmar</strong> · sin parte de hoy ni lectura de su web oficial en las últimas ${LECTURA_LADO_H} h`;
       }
     }
-    return `<li class="lado lado-${cls}">${bandera(lado)}<span class="lado-pais">${esc(PAISES[lado])}</span><span class="lado-texto">${txt}${cls !== 'parte' && cls !== 'sin-canal' ? canalParte([lado]).replace(/\.$/, '') : ''}</span></li>`;
+    return `<li class="lado lado-${cls}">${bandera(lado)}<span class="lado-pais">${esc(PAISES[lado])}</span><span class="lado-texto">${txt}${cls !== 'parte' && cls !== 'sin-canal' && !(cls === 'aviso' && ult) ? canalParte([lado]).replace(/\.$/, '') : ''}</span></li>`;
   };
   return `<ul class="lados-paso">${lados.map(fila).join('')}</ul>`;
 };
@@ -701,7 +710,7 @@ const marca = fs
 
 const temaInicial = `<script>try{var t=localStorage.getItem('guia-corredor:tema');if(t==='oscuro'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.tema='oscuro'}catch(e){}</script>`;
 
-function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', estilos = [] }) {
+function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', estilos = [], privada = false }) {
   if (hayMapLibre && cuerpo.includes('id="mapa-vivo"') && !scripts.some((s) => /mapa(-perezoso)?\.js$/.test(s))) {
     scripts = [...scripts, '/assets/mapa-perezoso.js'];
     if (!datos.includes('id="datos-mapa"')) datos += datosMapaScript();
@@ -732,7 +741,7 @@ function layout({ titulo, descripcion, ruta, cuerpo, scripts = [], datos = '', e
   tienePT(ruta)
     ? `\n<link rel="alternate" hreflang="es" href="${esc(canon)}">\n<link rel="alternate" hreflang="pt-BR" href="${esc(site.url.replace(/\/$/, '') + u('/pt' + ruta))}">\n<link rel="alternate" hreflang="x-default" href="${esc(canon)}">`
     : ''
-}${site.indexable === false ? '\n<meta name="robots" content="noindex, nofollow">' : ''}
+}${site.indexable === false || privada ? '\n<meta name="robots" content="noindex, nofollow">' : ''}
 <meta property="og:title" content="${esc(t)}">
 <meta property="og:description" content="${esc(descripcion || site.lema)}">
 <meta property="og:type" content="website">
@@ -1335,7 +1344,7 @@ function carreterasParaLlegar(p, inc) {
       f.estado !== 'activa' ? ['pendiente', f.estado === 'manual' ? 'Revisión manual' : 'Sin vigilancia'] : !suyos.length && fuenteParada(f.fuente_id) ? ['pendiente', fuenteAtrasada(f.fuente_id) ? 'Fuente atrasada' : 'Fuente no disponible'] : rojo ? ['cerrado', rojo.afecta === 'carga' ? 'Cortado para carga' : 'Cortado'] : suyos.length ? ['restricciones', 'Con incidencias'] : ['sin-incidencias', 'Sin incidencias'];
     const org = f.organismo.split(',')[0].trim().replace(/^—$/, '');
     const nombre = nums.length ? f.carretera_o_paso : `${f.tramo} (${f.carretera_o_paso.toLowerCase()})`;
-    return `<li><strong>${txtEs(nombre)}</strong> ${estado(valor, 'tramo', etiqueta)}<span class="dato-fuente"${f.estado === 'activa' && f.fuente_id ? ` data-vig-fuentes="${esc(f.fuente_id)}"` : ''}>${org ? txtEs(org) : 'Ninguna fuente oficial la publica cada día'}${f.estado === 'activa' ? ` · <a href="${u('/fuentes/')}">comprobado cada hora</a>${f.frecuencia ? ` · publica: ${esc(frecuenciaCorta(f.frecuencia))}` : ''}` : ''}${suyos.length ? ` · <a href="#avisos-paso">${plural(suyos.length, 'aviso', 'avisos')}</a>` : ''}</span></li>`;
+    return `<li><strong>${txtEs(nombre)}</strong> ${estado(valor, 'tramo', etiqueta)}<span class="dato-fuente"${f.estado === 'activa' && f.fuente_id ? ` data-vig-fuentes="${esc(f.fuente_id)}"` : ''}>${org ? txtEs(org) : 'Ninguna fuente oficial la publica cada día'}${f.estado === 'activa' ? ` · <a href="${u('/fuentes/')}">comprobado cada hora</a>${f.frecuencia ? ` · publica: ${esc(frecuenciaCorta(f.frecuencia))}` : ''}` : ''}${suyos.length ? ` · <a href="${enlaceAviso(suyos[0])}">${plural(suyos.length, 'aviso', 'avisos')}</a>` : ''}</span></li>`;
   });
   return `<section class="carreteras-llegar" aria-labelledby="t-carreteras-${esc(p.id)}"><h3 id="t-carreteras-${esc(p.id)}">Carreteras para llegar</h3><ul class="lista-datos">${items.join('')}</ul></section>`;
 }
@@ -1378,7 +1387,6 @@ function fichaOperativa(p, guiaPag) {
       }
       ${ladosHTML(p, e)}
       ${prevision ? `<p class="respuesta-nota">Previsión: ${txtOf(prevision)}</p>` : ''}
-      ${selloHTML(e.nivel, e.verificado, p.estado.fuente, p.estado.publicado)}
     </div>
   </div>`;
   // Acciones: llamar al primer teléfono oficial, compartir por WhatsApp, planificar.
@@ -1436,7 +1444,6 @@ function fichaOperativa(p, guiaPag) {
      ${p.restricciones?.length ? `<h4>Transporte pesado</h4>${lista(p.restricciones)}` : ''}`
   );
   const nov = novedadesPaso(p);
-  const secHist = nov ? plegable('historial', 'Historial', `${plural(nov.n, 'entrada', 'entradas')} · la última, ${haceTiempo(nov.ultima)}`, nov.html) : '';
   const fila = (titulo, contenido) => `<div class="dato-fila"><dt>${titulo}</dt><dd>${contenido}</dd></div>`;
   const secSobre = plegable(
     'sobre-paso',
@@ -1454,6 +1461,29 @@ function fichaOperativa(p, guiaPag) {
     </dl>
     <button class="btn btn-borde btn-pequeno no-imprimir" type="button" onclick="document.querySelectorAll('.ficha-operativa details').forEach((d) => (d.open = true)); window.print()">${icono('imprimir')}Imprimir ficha completa</button>`
   );
+  // Decisión 45: de siete plegables a dos. «Historial y fuentes» es la integridad del dato (cada parte con su fuente y
+  // hora, la disponibilidad de 30 días y el historial); «Sobre el paso», lo fijo. Los avisos, una línea hacia /avisos/.
+  const partesTodos = partesHTML(p, op).replace('<h3 id="t-partes">Qué dice cada país</h3>', '<h4 id="t-partes">Partes oficiales de cada país</h4>');
+  const nPartes = (p.partes || []).length;
+  const fiabTxt = fiabilidadHTML(p);
+  const secHistFuentes = plegable(
+    'historial-fuentes',
+    'Historial y fuentes',
+    [nPartes ? plural(nPartes, 'parte oficial', 'partes oficiales') : null, fiabTxt ? 'disponibilidad de 30 días' : null, nov ? plural(nov.n, 'entrada', 'entradas') : null].filter(Boolean).join(' · ') || 'sin datos',
+    `${partesTodos}${fiabTxt}${nov ? `<h4>Historial</h4>${nov.html}` : ''}<p class="nota-pie"><a href="${u('/fiabilidad/')}">Cómo de fiables somos</a></p>`
+  );
+  const altitud = p.ubicacion?.texto?.match(/\d[\d.]*\s?m de altitud/)?.[0];
+  const sobreResumen = [altitud ? altitud.replace(' de altitud', '') : null, controles.length ? plural(controles.length, 'control para carga', 'controles para carga') : null, p.horarios?.length ? 'horario de cada lado' : null, tels.length ? 'teléfonos' : null].filter(Boolean).join(' · ');
+  const cuerpoDe = (html) => html.replace(/^[\s\S]*?<div class="plegable-cuerpo">/, '').replace(/<\/div><\/details>\s*$/, '');
+  const secSobreTodo = plegable(
+    'sobre-paso',
+    'Sobre el paso',
+    sobreResumen || 'ubicación, organismos y acceso',
+    `<h4>Controles para carga</h4>${cuerpoDe(secControles)}<h4>Horario de cada lado</h4>${cuerpoDe(secHorarios)}<h4>Teléfonos</h4>${cuerpoDe(secTel)}${p.restricciones?.length ? `<h4>Normas para camiones</h4>${lista(p.restricciones)}` : ''}${cuerpoDe(secSobre)}`
+  );
+  const filaAvisos = { jama: 'andes-jama', sico: 'andes-sico' }[p.id] || rutas.tramos.find((t) => t.paso?.id === p.id)?.id;
+  const avisosCamino = inc.filter((i) => AVISOS.ids.has(i.id));
+  const lineaAvisos = avisosCamino.length ? `<p class="linea-avisos">${OPERATIVA.restricciones.icono}<span>${plural(avisosCamino.length, 'aviso en el camino', 'avisos en el camino')} · <a href="${u(`/avisos/#tramo-${filaAvisos || ''}`)}">ver en Avisos</a></span></p>` : '';
   // HU-133 (R7): tres pestañas. El sentido del cruce vale para las tres.
   const pest = (id, txt, on) => `<button type="button" role="tab" id="tab-${id}" aria-controls="${id}" aria-selected="${on}" tabindex="${on ? 0 : -1}">${txt}</button>`;
   return `<section class="ficha-operativa" aria-labelledby="t-ficha">
@@ -1462,12 +1492,11 @@ function fichaOperativa(p, guiaPag) {
   <div class="pestanas" role="tablist" aria-label="Ficha del paso">${pest('hoy', 'Hoy', true)}${pest('papeles', 'Papeles', false)}${pest('calendario', 'Calendario', false)}</div>
   <div class="pestana" role="tabpanel" id="hoy" aria-labelledby="tab-hoy">
   ${respuesta}
-  ${partesHTML(p, op)}
   ${carreterasParaLlegar(p, inc)}
-  ${fiabilidadHTML(p)}
   ${acciones}
+  ${lineaAvisos}
   <div class="plegables">
-    ${secControles}${secHorarios}${secTel}${secAvisos}${secHist}${secSobre}
+    ${secHistFuentes}${secSobreTodo}
   </div>
   </div>
   <div class="pestana" role="tabpanel" id="papeles" aria-labelledby="tab-papeles" hidden>${papelesPaso(p)}</div>
@@ -1952,7 +1981,7 @@ function fichaPasoPagina(p, paso, cruce, zona, emp, nombresZona, nov) {
       <a class="volver" href="${u('/pasos/')}">${icono('izquierda')}Fronteras</a>
       <header class="ficha-titulo"><h1>${esc(nombre)}</h1>${lados ? `<p>${esc(lados)}</p>` : ''}</header>
       ${fichaOperativa(fichaPaso[paso.id], `${p.seccion}/${p.slug}`)}
-      <div class="plegables plegables-guia">${plegable('guia-paso', 'Guía del paso', esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase()), `${avisoValidacion(nivelGuia(p), p.meta.verificado)}<!--es--><div class="contenido-es" lang="es"><p class="resumen">${esc(p.meta.resumen)}</p>${p.html}</div><!--/es-->${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}`)}</div>
+      ${nivelGuia(p) === 'borrador' ? '' : `<div class="plegables plegables-guia">${plegable('guia-paso', 'Guía del paso', esc((NIVELES[nivelGuia(p)]?.texto || '').toLowerCase()), `${avisoValidacion(nivelGuia(p), p.meta.verificado)}<!--es--><div class="contenido-es" lang="es"><p class="resumen">${esc(p.meta.resumen)}</p>${p.html}</div><!--/es-->${nov.length ? `<h2 id="ultimos-cambios">Últimos cambios</h2><ul class="lista-noticias">${nov.map((n) => `<li>${noticia(n, { conLugar: false })}</li>`).join('')}</ul>` : ''}`)}</div>`}
     </article>
   </div>
 </div>`;
@@ -2352,6 +2381,7 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
 }
 
 // HU-136: «Fuentes que vigilamos», desde el CSV de fuentes del vigilante (el mismo que usa el vigilante).
+let detalleFuentesHTML = ''; // decisión 45: el detalle técnico de cada fuente va a /operacion/
 {
   const { filas } = cargarFuentesVigilancia();
   const ESTADO_FUENTE = {
@@ -2380,6 +2410,10 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
       </dl>${f.url ? `<a class="enlace-mas" href="${esc(f.url)}" rel="noopener">Ver la fuente oficial${icono('derecha')}</a>` : ''}</div>
     </details></li>`;
   };
+  detalleFuentesHTML = orden
+    .filter((k) => filas.some((f) => f.pais === k))
+    .map((k) => `<h3>${bandera(k)} ${esc(PAISES[k])}</h3><ul class="inc-lista">${filas.filter((f) => f.pais === k).map(fila).join('')}</ul>`)
+    .join('');
   const resumen = [
     ['abierto', cuenta('activa'), 'cada hora'],
     ['restricciones', cuenta('manual'), 'manuales'],
@@ -2401,10 +2435,21 @@ function guiaPagina(p, zona, emp, nombresZona, nov, cruce) {
     <section class="tarjeta" aria-labelledby="t-fuentes">
       <h1 id="t-fuentes">Fuentes que vigilamos</h1>
       <p class="resumen-estados">${resumen}</p>
-      ${orden
+      <p class="nota-pie">Solo publican el estado las fuentes oficiales de cada país. Toca un país para ver sus fuentes y su enlace oficial.</p>
+      <div class="plegables">${orden
         .filter((k) => filas.some((f) => f.pais === k))
-        .map((k) => `<h2 class="fuentes-pais" id="fp-${k}">${bandera(k)} ${esc(PAISES[k])}</h2><ul class="inc-lista">${filas.filter((f) => f.pais === k).map(fila).join('')}</ul>`)
-        .join('')}
+        .map((k) => {
+          // Decisión 45: una fila por país con su recuento; al abrirla, cada fuente una vez, con su enlace oficial.
+          const del = filas.filter((f) => f.pais === k);
+          const n = (e) => del.filter((f) => (Array.isArray(e) ? e : [e]).includes(f.estado)).length;
+          const resumenPais = [del.length + ' fuentes', n('activa') && `${n('activa')} se leen cada hora`, n('manual') && `${n('manual')} a mano`, n(['pendiente', 'pausada', 'sin-fuente']) && `${n(['pendiente', 'pausada', 'sin-fuente'])} pendiente o sin fuente`].filter(Boolean).join(' · ');
+          const unicas = [...new Map(del.map((f) => [f.fuente, f])).values()];
+          return `<details class="plegable" id="fp-${k}"><summary><span class="plegable-titulo">${bandera(k)} ${esc(PAISES[k])}</span><span class="plegable-resumen">${esc(resumenPais)}</span></summary><div class="plegable-cuerpo"><ul class="lista-fuentes">${unicas
+            .map((f) => `<li>${OPERATIVA[ESTADO_FUENTE[f.estado][0]].icono}<span>${f.url ? `<a href="${esc(f.url)}" rel="noopener">${esc(f.fuente)}</a>` : esc(f.fuente)} <small>${esc(ESTADO_FUENTE[f.estado][1])}</small></span></li>`)
+            .join('')}</ul></div></details>`;
+        })
+        .join('')}</div>
+      <p class="nota-pie">El detalle técnico de cada lectura (cómo se lee, la regla, cada cuánto publica el organismo) está en la <a href="${u('/operacion/')}">página de operación</a>.</p>
     </section>
     <section class="tarjeta" aria-labelledby="t-como">
       <h2 id="t-como">Cómo funciona</h2>
@@ -2680,6 +2725,60 @@ add(
   );
 }
 
+// Operación (decisión 45): página de trabajo, pública pero discreta (fuera del menú y del pie, sin indexar, solo en
+// español). Lo vivo (vigilante, fuentes, registro, Vigía y avisos de GitHub) lo lee el navegador al abrirla desde
+// GitHub; lo publicado (pasos, avisos, pendientes) sale de esta misma publicación. Sin datos personales. Solo lectura:
+// cada fila enlaza a donde se cambia el dato.
+function paginaOperacion() {
+  const repo = process.env.GITHUB_REPOSITORY || 'elezcano/GuiaCorredor';
+  const txt = (h) => String(h).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').replace(/ ([,.])/g, '$1').trim();
+  const filasPasos = pasosHistoria
+    .map((h) => {
+      const e = estadoPaso(h.id);
+      const op = e.confirmado ? operativaDe(e.valor, 'paso') : 'sin-confirmar';
+      const p = fichaPaso[h.id];
+      // Un lado por línea, corto: «AR · Habilitado · Gendarmería Nacional, hoy 12:15».
+      const lados = p ? (ladosHTML(p, e).match(/<li class="lado[\s\S]*?<\/li>/g) || []).map((li) => {
+        const pais = Object.keys(PAISES).find((k) => li.includes(`>${PAISES[k]}<`)) || '';
+        const t = txt(li.replace(/<span class="lado-pais">[\s\S]*?<\/span>/, '')).replace(/\s*✓ oficial.*$/, '').replace(/ · (Paraguay no publica|sin parte de hoy).*$/, '');
+        return `${pais} · ${t.length > 90 ? t.slice(0, 88) + '…' : t}`;
+      }) : [];
+      const aviso = e.contradictoria ? 'partes opuestos' : e.fuenteCaida ? 'fuente no responde' : e.sinLados ? 'falta un lado' : '';
+      return `<tr class="${op === 'cerrado' ? 'op-mal' : ''}"><td>${esc(h.nombre)}</td><td data-c="Publicado" class="op-${op}">${esc(OPERATIVA[op].texto)}</td><td data-c="Confianza">${esc(e.confianza ? CONFIANZAS[e.confianza.nivel]?.texto || e.confianza.nivel : '—')}</td><td data-c="Lados">${lados.map(esc).join('<br>') || '—'}</td><td data-c="Horario" class="num">${esc(horarioCorto(h.id))}</td><td data-c="Aviso">${esc(aviso) || '—'}</td><td data-c=""><a href="${u(`/guia/${h.guia}/`)}">ficha ↗</a> · <a href="https://github.com/${repo}/blob/main/data/pasos.json">datos ↗</a></td></tr>`;
+    })
+    .join('');
+  const activosOp = AVISOS.avisos.filter((i) => i.estado === 'activa' && (i.gravedad || 'ambar') !== 'info');
+  const filasAvisos = activosOp
+    .map((i) => `<tr class="${i.sinConfirmar ? 'op-mal' : ''}"><td>${esc(i.ubicacion)}</td><td data-c="Tipo">${esc(TIPOS_INCIDENCIA[i.tipo]?.[0] || i.tipo)}</td><td data-c="Fuente">${esc(AVISOS.fid(i))}</td><td data-c="Actualizado" class="num">${esc(i.actualizado || i.publicado || '—')}</td><td data-c="Estado">${i.sinConfirmar ? 'sin confirmar' : 'vigente'}</td><td data-c=""><a href="${u(`/avisos/#inc-${i.id}`)}">aviso ↗</a></td></tr>`)
+    .join('');
+  const pendientes = [...(festivosDoc.pendiente || []), 'Horarios del lado paraguayo y chileno de cada paso.'];
+  const ocultos = incidencias.length - AVISOS.avisos.length;
+  return `
+<div class="contenedor pagina-app operacion" data-repo="${esc(repo)}">
+  <header class="pagina-cabeza"><h1>Operación</h1><p>Página de trabajo, sin diseño. Solo lectura: cada enlace lleva a donde se cambia el dato. Horas de Argentina (España = +4 h). <span data-op-leido></span></p></header>
+  <div class="op-sistema">
+    <div><b>Vigilante</b><span data-op-vigilante>…</span></div>
+    <div><b>Vigía</b><span data-op-vigia>…</span></div>
+    <div><b>Web publicada</b><span>${esc(new Date().toISOString().slice(0, 16).replace('T', ' '))} UTC</span></div>
+    <div><b>Avisos abiertos en GitHub</b><span data-op-issues>…</span></div>
+  </div>
+  <p class="op-accion" data-op-accion hidden></p>
+  <h2>Fuentes <small>· en vivo</small></h2>
+  <table class="op-tabla apila" data-op-fuentes><thead><tr><th>Fuente</th><th>Última buena</th><th>El organismo publicó</th><th>Estado</th><th>Fallos</th><th>Último error</th><th></th></tr></thead><tbody><tr><td colspan="7">Cargando…</td></tr></tbody></table>
+  <h2>Pasos <small>· lo publicado y de dónde sale</small></h2>
+  <table class="op-tabla apila"><thead><tr><th>Paso</th><th>Publicado</th><th>Confianza</th><th>Lados</th><th>Horario</th><th>Aviso</th><th></th></tr></thead><tbody>${filasPasos}</tbody></table>
+  <h2>Avisos que limitan <small>· ${activosOp.length} en la web; ${ocultos} fuera por la regla de limpieza (decisión 44)</small></h2>
+  <table class="op-tabla apila"><thead><tr><th>Lugar</th><th>Tipo</th><th>Fuente</th><th>Actualizado</th><th>Estado</th><th></th></tr></thead><tbody>${filasAvisos || '<tr><td colspan="6">Ninguno.</td></tr>'}</tbody></table>
+  <h2>Registro <small>· las 60 últimas lecturas de hoy y ayer</small></h2>
+  <div class="op-filtros"><select data-op-paso><option value="">Todos los pasos</option></select><label><input type="checkbox" data-op-errores> solo errores</label><label><input type="checkbox" data-op-cambios> solo cambios</label> <a href="https://github.com/${repo}/tree/datos-vigilancia/registro">registro completo ↗</a></div>
+  <table class="op-tabla op-log num" data-op-registro><thead><tr><th>Hora AR</th><th>Paso</th><th>HTTP</th><th>Leído</th><th>Calculado → publicado</th></tr></thead><tbody><tr><td colspan="5">Cargando…</td></tr></tbody></table>
+  <h2>Pendiente de verificar</h2>
+  <ul class="lista-datos">${pendientes.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+  <h2>Detalle técnico de cada fuente</h2>
+  ${detalleFuentesHTML}
+  <p class="nota-pie">Sin datos personales. Datos en vivo: rama <a href="https://github.com/${repo}/tree/datos-vigilancia">datos-vigilancia</a>.</p>
+</div>`;
+}
 // Calendario aduanero (V3): una pantalla. A la izquierda, ¿qué día cruzas? y el mes en cuadrícula con los festivos
 // de cada país; a la derecha, el próximo feriado de cada país y los horarios de cada paso, plegados.
 {
@@ -2717,10 +2816,15 @@ add(
             (f) => `<li data-pais="${esc(f.pais)}"><details class="plegable cal-fest"><summary><span class="plegable-titulo">${filaFestivoCorta(f)}</span></summary><div class="plegable-cuerpo">${validacionHTML(nivelReg(f, 'festivo'), f.verificado, f.fuente)} ${f.nota ? `${txtEs(f.nota)} ` : ''}Norma: ${fuenteEnlace(f.fuente)}</div></details></li>`
           )
           .join('')}</ul>`
-      : '<p class="sin-dato">Ningún festivo cargado este mes.</p>';
+      : (() => {
+          // Decisión 45: un mes sin festivos no ocupa media pantalla con una cuadrícula vacía; una frase con el próximo feriado.
+          const sig = festivos.find((f) => f.tipo === 'feriado' && f.fecha > `${m}-31`);
+          const mismos = sig ? [...new Set(festivos.filter((f) => f.fecha === sig.fecha && f.tipo === 'feriado').map((f) => PAISES[f.pais]))] : [];
+          return `<p class="cal-vacio">${esc(nombreMes(m).split(' ')[0])}: ningún feriado en el corredor.${sig ? ` El próximo, el ${esc(fecha(sig.fecha).replace(/ de \d{4}$/, ''))} (${esc(listaY(mismos))}).` : ''}</p>`;
+        })();
     return `<section class="cal-mes" data-mes="${m}"${i ? ' hidden' : ''} aria-label="${esc(nombreMes(m))}">
       <div class="cal-mes-cab"><button type="button" class="boton-icono" data-mes-ir="-1" aria-label="Mes anterior"${i ? '' : ' disabled'}>${icono('izquierda')}</button><h2>${esc(nombreMes(m))}</h2><button type="button" class="boton-icono" data-mes-ir="1" aria-label="Mes siguiente"${i === meses.length - 1 ? ' disabled' : ''}>${icono('derecha')}</button></div>
-      <div class="cal-rejilla"><span class="cal-sem" aria-hidden="true">${DIAS.join('</span><span class="cal-sem" aria-hidden="true">')}</span>${celdas.join('')}</div>
+      ${delMes.length ? `<div class="cal-rejilla"><span class="cal-sem" aria-hidden="true">${DIAS.join('</span><span class="cal-sem" aria-hidden="true">')}</span>${celdas.join('')}</div>` : ''}
       ${lista}
     </section>`;
   };
@@ -2759,7 +2863,7 @@ add(
         .join('')}</div>
       ${meses.map(mesHTML).join('')}
       <p class="dato-fuente">Un festivo no implica que la aduana cierre. Festivos cargados del ${fecha(festivosDoc.desde)} al ${fecha(festivosDoc.hasta)}.</p>
-      ${plegable('cal-pendiente', 'Qué falta por verificar', plural((festivosDoc.pendiente || []).length + 1, 'punto', 'puntos'), `<ul class="lista-datos">${(festivosDoc.pendiente || []).map((x) => `<li>${esc(x)}</li>`).join('')}<li>Horarios del lado paraguayo y chileno de cada paso.</li></ul>`)}
+      <!-- Decisión 45: «Qué falta por verificar» es trabajo interno: está en /operacion/. -->
     </section>
     <div class="guia-lado">
       <section class="tarjeta cal-cuando-tarjeta" aria-label="¿Qué día cruzas?">${calendarioPaso({ lados: Object.fromEntries(Object.keys(PAISES).map((k) => [k, PAISES[k]])) }, { proximos: false })}</section>
@@ -2894,6 +2998,8 @@ paginas.push({
     )}">Ir al inicio</a><a class="btn btn-borde" href="${u('/guia/')}">Abrir la guía</a></div></div>`,
   }),
 });
+
+add('/operacion/', layout({ titulo: 'Operación', descripcion: 'Página de trabajo.', ruta: '/operacion/', cuerpo: paginaOperacion(), scripts: ['/assets/operacion.js'], privada: true }));
 
 // HU-135: versión en portugués de Brasil de Hoy, Rutas, Fronteras, fichas de paso y Servicios (/pt/…).
 {
@@ -3030,7 +3136,7 @@ fs.writeFileSync(
   `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${paginas
-  .filter((p) => !p.ruta.endsWith('.html') && !p.archivo)
+  .filter((p) => !p.ruta.endsWith('.html') && !p.archivo && !p.ruta.startsWith('/operacion/'))
   .map((p) => `  <url><loc>${urlBase}${p.ruta}</loc><lastmod>${hoy}</lastmod></url>`)
   .join('\n')}
 </urlset>
@@ -3038,7 +3144,7 @@ ${paginas
 );
 fs.writeFileSync(
   path.join(DIST, 'robots.txt'),
-  site.indexable === false ? 'User-agent: *\nAllow: /api/\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${urlBase}/sitemap.xml\n`
+  site.indexable === false ? 'User-agent: *\nAllow: /api/\nDisallow: /\n' : `User-agent: *\nAllow: /\nDisallow: ${B}/operacion/\nSitemap: ${urlBase}/sitemap.xml\n`
 );
 fs.writeFileSync(path.join(DIST, '.nojekyll'), '');
 

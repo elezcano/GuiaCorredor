@@ -7,7 +7,8 @@ import { ROOT } from './lib.mjs';
 
 /** Páginas que tienen versión en portugués (ruta española). */
 // HU-136: todas las páginas tienen versión en portugués (salvo archivos como 404.html).
-export const tienePT = (r) => typeof r === 'string' && r.startsWith('/') && !r.startsWith('/pt/') && !/\.\w+$/.test(r);
+// /operacion/ es la página de trabajo (decisión 45): solo en español.
+export const tienePT = (r) => typeof r === 'string' && r.startsWith('/') && !r.startsWith('/pt/') && !r.startsWith('/operacion/') && !/\.\w+$/.test(r);
 
 export function cargarDiccionario() {
   const d = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'i18n', 'pt-BR.json'), 'utf8'));
