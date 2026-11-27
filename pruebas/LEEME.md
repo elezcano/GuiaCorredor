@@ -57,6 +57,10 @@ Prueba de construcción, sin navegador: copia los datos de prueba, los modifica 
 
 Estado por lado del paso: Sico abierto con parte argentino y Chile «sin avisos» (Chile informa por aviso); Jama, con estado de prensa, sigue «Sin confirmar». Horario aparte del estado («cierra en…», «Fuera de horario · abre…»). Cotizar envía a su formulario de Google (se intercepta el envío: no llega nada a la hoja real), confirma «Solicitud enviada» y cuenta el evento en GoatCounter sin nada de lo escrito. Anunciarme también envía a su formulario. Sin script de estadísticas fuera de la web publicada.
 
+## Decisión 45 (en funcional.cjs, fiabilidad.cjs, partes.cjs y lados.cjs)
+
+La ficha tiene dos plegables y los partes de cada país y la disponibilidad están dentro de «Historial y fuentes»; cada lado dice quién y cuándo («parte del 12 nov · comprobado hoy»). «Fuentes que vigilamos» es una fila por país. El calendario no muestra «Qué falta por verificar». `/operacion/` es `noindex`, tiene sus tablas y los pendientes, y no sale en el menú ni en el pie.
+
 ## Tres niveles de comprobación
 
 | Nivel | Qué | Cuándo |

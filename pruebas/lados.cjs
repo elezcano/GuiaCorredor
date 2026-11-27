@@ -40,7 +40,7 @@ const ok = (c, m) => c || f.push(m);
   await p.goto(B + '/guia/pasos/pozo-hondo/');
   const lp = await p.$$eval('.lados-paso .lado', (l) => l.map((x) => ({ cls: x.className, t: x.innerText })));
   const arp = lp.find((x) => /Argentina/.test(x.t));
-  ok(arp && /lado-parte/.test(arp.cls) && /comprobado en la web oficial el 15 nov/.test(arp.t) && /último parte de Gendarmería Nacional: 12 nov/.test(arp.t), 'Pozo Hondo: Argentina comprobada hoy en la web oficial, con la fecha del último parte: ' + arp?.t);
+  ok(arp && /lado-parte/.test(arp.cls) && /Gendarmería Nacional, parte del 12 nov/.test(arp.t) && /comprobado hoy/.test(arp.t), 'Pozo Hondo: Argentina comprobada hoy en la web oficial, con la fecha del último parte: ' + arp?.t);
   // Decisión 33: Paraguay no tiene canal oficial del estado del paso → su lado no cuenta y la ficha lo dice.
   ok(lp.some((x) => /Paraguay/.test(x.t) && /lado-sin-canal/.test(x.cls) && /Sin canal oficial/.test(x.t)), 'Pozo Hondo: Paraguay «Sin canal oficial»: ' + JSON.stringify(lp));
   await p.goto(B + '/');

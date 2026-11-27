@@ -73,7 +73,9 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   await p.goto(B + '/guia/pasos/sico/');
   ok((await p.textContent('.tablero-fila.sel .estado')).startsWith('Abierto') && /Chile: sin avisos desde el 12 nov/.test(await p.textContent('.tablero-fila.sel')), 'cabecera de Sico: Chile por aviso dentro de plazo debe salir «Abierto · Chile: sin avisos desde el 12 nov»');
   await p.goto(B + '/guia/pasos/jama/');
-  ok((await p.textContent('#ultimos-cambios')) !== null, 'ficha sin noticias vinculadas');
+  // Decisión 45: dos plegables («Historial y fuentes», «Sobre el paso»); la guía en borrador no se muestra.
+  ok((await p.$$('.ficha-operativa .plegables > .plegable')).length === 2 && /Historial y fuentes/.test(await p.textContent('#historial-fuentes')) && /Sobre el paso/.test(await p.textContent('#sobre-paso')), 'ficha: deben quedar dos plegables');
+  ok(!(await p.$('section.partes:not(#historial-fuentes section.partes)')) && !(await p.$('.respuesta details.sello')), 'ficha: «Qué dice cada país» y el sello del pie de la tarjeta no deben salir fuera del historial');
   // Calendario (V3): un mes a la vista, filtro por país y tocar un día responde «¿Cuándo cruzas?»
   await p.goto(B + '/calendario/');
   ok((await p.$$('.cal-mes:not([hidden])')).length === 1, 'calendario: debe verse un solo mes');
@@ -87,6 +89,16 @@ const fallos = []; const ok = (c, m) => { if (!c) fallos.push(m); };
   await p.click('.cal-paises .chip[data-pais="BR"]');
   ok((await p.$$eval('.cal-lista > li:not([hidden])', (l) => l.every((x) => x.dataset.pais === 'BR'))), 'calendario: filtro por país');
   ok((await p.$$('.cal-horarios li')).length >= 3, 'calendario: faltan los horarios de los pasos');
+  // Decisión 45: fuentes por país, calendario sin cuadrícula vacía y /operacion/ discreta.
+  await p.goto(B + '/fuentes/');
+  ok((await p.$$('.tarjeta details.plegable[id^="fp-"]')).length >= 3 && !(await p.$('#t-fuentes ~ .inc-lista')), 'fuentes: una fila plegable por país');
+  ok(/se leen cada hora/.test(await p.textContent('#fp-AR summary')), 'fuentes: el país debe decir cuántas se leen cada hora');
+  await p.goto(B + '/calendario/');
+  ok(!(await p.$('#cal-pendiente')), 'calendario: «Qué falta por verificar» va a /operacion/');
+  await p.goto(B + '/operacion/');
+  ok((await p.getAttribute('meta[name="robots"]', 'content')) === 'noindex, nofollow', 'operación: debe ser noindex');
+  ok((await p.$$('main table')).length >= 4 && /Pendiente de verificar/.test(await p.textContent('main')), 'operación: faltan tablas o pendientes');
+  ok(!(await p.$('footer a[href*="operacion"], nav a[href*="operacion"]')), 'operación: no debe salir en el menú ni en el pie');
   // Buscar, directorio, guía, novedades
   await p.goto(B + '/buscar/?q=jama'); await p.waitForSelector('#resultados li');
   ok((await p.$$('#resultados li')).length > 0, 'buscador sin resultados');

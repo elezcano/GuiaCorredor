@@ -43,7 +43,8 @@ const ES = /\b(Hoy|Rutas|Servicios|Pedir cotización|Abierto|Cerrado|Sin confirm
   ok(!fuera.length, 'enlaces del pie en /pt/ que van a páginas en español: ' + fuera.join(', '));
   // El texto de la guía también está traducido.
   await p.goto(B + '/pt/guia/pasos/jama/');
-  ok(/Passagem de cordilheira/.test(await p.textContent('main')), 'el texto de la guía de Jama debe estar en portugués');
+  ok(!(await p.$('#guia-paso')) || /Passagem de cordilheira/.test(await p.textContent('main')), 'el texto de la guía de Jama debe estar en portugués');
+  ok(/Histórico e fontes/.test(await p.textContent('main')), 'los plegables nuevos de la ficha deben estar en portugués');
 
   // Menú, veredicto y horas.
   await p.goto(B + '/pt/');

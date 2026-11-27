@@ -33,6 +33,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
   for (const sch of ['light', 'dark']) {
     const p = await b.newPage({ viewport: { width: 360, height: 780 }, deviceScaleFactor: 2, colorScheme: sch });
     await p.goto(B + '/guia/pasos/sico/');
+    await p.evaluate(() => document.querySelectorAll('#historial-fuentes').forEach((d) => (d.open = true)));
     ok(await p.isVisible('.fiabilidad'), 'Sico: falta el bloque de fiabilidad');
     ok((await p.$$('.fiab-tira li')).length === 30, 'la tira no tiene 30 días');
     ok((await p.$$('.tabla-fiab tbody tr')).length === 2, 'faltan las filas de 30 y 90 días');
@@ -40,6 +41,7 @@ const f = []; const ok = (c, m) => c || f.push(m);
     ok(!(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth)), 'desborde en móvil ' + sch);
     await (await p.$('.fiabilidad')).screenshot({ path: captura(`fiabilidad-sico-${sch}.png`) });
     await p.goto(B + '/guia/pasos/carmelo-peralta-porto-murtinho/');
+    await p.evaluate(() => document.querySelectorAll('#historial-fuentes').forEach((d) => (d.open = true)));
     ok(!(await p.$('.fiabilidad .fiab-tira')) && /se medirá desde que abra/.test(await p.textContent('.fiabilidad')), 'el puente no habilitado no muestra días: dice que se medirá desde que abra');
     await p.close();
   }

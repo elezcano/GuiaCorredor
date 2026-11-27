@@ -1814,3 +1814,33 @@ textarea.cot-inp { height: 88px; padding: 12px 14px; resize: vertical; }
   .av-meta { grid-column: 2; grid-row: 2; }
   .av-detalles { margin-left: 0; }
 }
+
+/* Decisión 45: línea de avisos de la ficha. */
+.linea-avisos { display: flex; align-items: center; gap: 8px; margin: 14px 0 4px; font-size: 15px; }
+.cal-vacio { margin: 18px 0; font-size: 17px; }
+.lista-fuentes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.lista-fuentes li { display: flex; gap: 10px; align-items: flex-start; }
+.lista-fuentes small { display: block; color: var(--muted-foreground); }
+
+/* Decisión 45: /operacion/, página de trabajo. Tablas densas; en móvil cada fila se apila. */
+.operacion h2 { margin: 28px 0 8px; font-size: 18px; }
+.operacion h2 small { font-weight: 400; color: var(--muted-foreground); font-size: 14px; }
+.op-sistema { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.op-sistema > div { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; font-size: 14px; }
+.op-accion { background: color-mix(in srgb, var(--estado-cerrado, #b42318) 10%, transparent); border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
+.op-tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+.op-tabla th { text-align: left; font-weight: 600; border-bottom: 2px solid var(--border); padding: 6px 8px; }
+.op-tabla td { border-bottom: 1px solid var(--border); padding: 6px 8px; vertical-align: top; }
+.op-tabla tr.op-mal td { background: color-mix(in srgb, #f79009 8%, transparent); }
+.op-tabla small { color: var(--muted-foreground); }
+.op-tabla .num, .op-log td { font-family: 'DM Mono', ui-monospace, monospace; font-size: 13px; }
+.op-filtros { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 8px; font-size: 14px; }
+.op-filtros select { min-height: 44px; }
+.op-log { display: block; overflow-x: auto; }
+@media (max-width: 720px) {
+  .op-tabla.apila thead { display: none; }
+  .op-tabla.apila tr { display: block; border-bottom: 1px solid var(--border); padding: 8px 0; }
+  .op-tabla.apila td { display: flex; gap: 8px; border: 0; padding: 2px 0; }
+  .op-tabla.apila td[data-c]:not([data-c=""])::before { content: attr(data-c); min-width: 96px; color: var(--muted-foreground); }
+  .op-tabla.apila td:first-child { font-weight: 600; }
+}

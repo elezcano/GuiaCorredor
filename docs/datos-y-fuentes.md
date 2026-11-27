@@ -107,6 +107,10 @@ El vigilante lee cada hora, de 06 a 21 h de Argentina, las filas `activa` de [`f
 - Si una fuente falla 3 veces seguidas, llega un correo: el vigilante está ciego con ella. Si publica menos de lo habitual, sale «Fuente atrasada».
 - Antes de subir nada se pasa `npm run check`; si falla, no se publica.
 
+## Dónde se ve cada fuente
+
+«Fuentes que vigilamos» (`/fuentes/`) muestra una fila por país con cuántas fuentes hay, cuántas se leen cada hora, cuántas a mano y cuántas faltan; dentro, solo el nombre y el enlace oficial. Cómo se lee cada una, su regla, cada cuánto publica el organismo y su último error están en `/operacion/` (decisión 45).
+
 ## Cambiar o añadir una fuente
 
 | Quiero… | En `fuentes-vigilancia.csv` |
