@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 27/11/2026 | **Avisos: menos texto, más decisión** ([decisión 44](decisiones.md)): «Hoy te pueden parar», una fila por tramo (Jama y Sico aparte) y filtro «Mi ruta»; regla de limpieza de lo antiguo (resueltos 7 días; 30 días sin confirmar, fuera; sin teléfonos ni duplicados; lo fijo, a la ficha) | #316 (`d54c095`) |
 | 27/11/2026 | **Mínimo vivo** ([decisión 43](decisiones.md)): tarea «Limpieza» (rama de cada PR al fusionar; cada lunes, ramas publicadas y archivos de más de 7 días), un aviso abierto por fuente y Trello como única lista de pendientes (23 tareas antiguas de GitHub cerradas con su destino) | #313 (`bf6dbf7`) |
 | 27/11/2026 | **Partes de Chile del 26 y 27/11** (Unidad de Pasos Fronterizos, Región de Antofagasta): Sico sigue sin paso para camiones con carga; Jama habilitado para todo tipo de vehículos. «Confirmo» del responsable editorial citado en el PR | #304 (`8e823dc`) |
 | 26/11/2026 | **Vigía: rojo solo por lo nuestro** ([decisión 42](decisiones.md)): una fuente oficial atrasada (SIEMOP de Chile, congelada en todo el país desde el 17/11) abre su propio aviso y no pone el Vigía en rojo; el aviso de fallos solo se comenta cuando cambia la lista | #303 (`7306a4a`) |
