@@ -33,6 +33,24 @@ jobs:
       - id: humo
         run: node scripts/humo.mjs
         continue-on-error: true
+      # Fuentes oficiales atrasadas (decisión 42): un aviso por fuente, sin poner el Vigía en rojo. Se abre una vez y se
+      # cierra solo cuando el organismo vuelve a publicar.
+      - name: Avisos de fuentes oficiales atrasadas
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f vigia-atrasadas.json ] || exit 0
+          PREFIJO="Fuente oficial atrasada:"
+          node -e 'for (const a of JSON.parse(require("fs").readFileSync("vigia-atrasadas.json"))) console.log([a.nombre, a.desde, a.url, a.error].join("\t"))' > atrasadas.tsv
+          while IFS=$'\t' read -r NOMBRE DESDE URL ERROR; do
+            T="$PREFIJO $NOMBRE"
+            N=$(gh issue list --state open --search "in:title \"$T\"" --json number,title --jq ".[] | select(.title == \"$T\") | .number" | head -1)
+            [ -n "$N" ] || gh issue create --title "$T" --body "$NOMBRE responde, pero no publica nada nuevo desde el $DESDE ($ERROR). No es un fallo de la web: el vigilante sigue leyendo y la web trata esos datos como caducados. Este aviso se cierra solo cuando el organismo vuelva a publicar. Fuente: $URL"
+          done < atrasadas.tsv
+          gh issue list --state open --search "in:title \"$PREFIJO\"" --json number,title --jq '.[] | "\(.number)\t\(.title)"' | while IFS=$'\t' read -r N T; do
+            grep -qF "${T#"$PREFIJO "}"$'\t' atrasadas.tsv || gh issue close "$N" --comment "El organismo vuelve a publicar. Se cierra solo."
+          done
       - name: Abrir, actualizar o cerrar el issue
         env:
           GH_TOKEN: ${{ github.token }}
@@ -40,7 +58,15 @@ jobs:
           TITULO="Vigía: la web publicada tiene fallos"
           N=$(gh issue list --state open --search "in:title \"$TITULO\"" --json number --jq '.[0].number')
           if [ "${{ steps.humo.outcome }}" = "failure" ]; then
-            if [ -n "$N" ]; then gh issue comment "$N" --body-file vigia.md; else gh issue create --title "$TITULO" --body-file vigia.md; fi
+            FIRMA=$(sha1sum vigia-firma.txt | cut -c1-12)
+            if [ -n "$N" ]; then
+              # Solo se comenta si cambia la lista de fallos: el mismo fallo repetido no genera otro correo.
+              gh issue view "$N" --json body,comments --jq '[.body] + [.comments[].body] | join("\n")' | grep -qF "firma: $FIRMA" || gh issue comment "$N" --body "$(cat vigia.md)
+          <!-- firma: $FIRMA -->"
+            else
+              gh issue create --title "$TITULO" --body "$(cat vigia.md)
+          <!-- firma: $FIRMA -->"
+            fi
             exit 1
           elif [ -n "$N" ]; then
             gh issue close "$N" --comment "Vuelve a estar todo operativo. $(head -1 vigia.md)"

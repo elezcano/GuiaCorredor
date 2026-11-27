@@ -9,6 +9,7 @@ Abren la web en Chromium, como lo haría un usuario, y comprueban que lo que ya 
 | `informe-resumen.cjs` | Informe resumido (HU-80): el PDF ocupa una sola hoja A4 por Jama y por Sico, bloques, enlace al completo, móvil claro y oscuro |
 | `fiabilidad.cjs` | Disponibilidad del paso (HU-97; antes «Fiabilidad»): cálculo de días (cierre, solo carga, sin datos, pendientes) y bloque en la ficha y el informe |
 | `cruces.cjs` | Tiempos de cruce (decisión 41): países de cada paso, filtros, uno por navegador y día, mediana, mínimo de 3 y volumen alto |
+| `vigia.cjs` | Vigía (decisión 42): fuente atrasada como aviso, fuente caída como fallo y sin comentarios repetidos |
 | `servicio.cjs` | Cómo de fiables somos (decisión 39): cobertura, retraso, registro, bitácora y la página `/fiabilidad/` |
 | `sentido.cjs` | Sentido del cruce (HU-105): botón «⇄», orden de controles y partes, sentido en la URL y enlaces del planificador |
 | `fichas-paso.cjs` | Fichas de paso (HU-65 a HU-68): hora local, «abierto ahora», controles, botón Llamar y novedades |

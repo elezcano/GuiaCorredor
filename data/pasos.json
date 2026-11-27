@@ -1061,25 +1061,6 @@
         },
         {
           "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
-          "hora": "08:22",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-26",
-          "actualizado": "2026-11-26",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-26",
-            "alcance": "Leído automáticamente de la web oficial el 26/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
-          }
-        },
-        {
-          "lado": "AR",
           "emisor": "Vialidad Nacional",
           "valor": null,
           "texto": "RN 52 tramo Susques - Lte. con Chile.",
@@ -1094,6 +1075,25 @@
             "rol": "vigilante",
             "fecha": "2026-11-26",
             "alcance": "Leído automáticamente de la web oficial el 26/11 a las 10:00 (hora de Argentina): aviso de Vialidad «HABILITADA»: RN 52 tramo Susques - Lte. con Chile."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "08:23",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-27",
+          "actualizado": "2026-11-27",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-27",
+            "alcance": "Leído automáticamente de la web oficial el 27/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         },
         {
@@ -1112,6 +1112,24 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-26",
             "alcance": "Comprobado el 26/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 26/11/2026 publicado a las 14:30 hora de España, 10:30 hora de Chile), enviada por el responsable editorial: Complejo Fronterizo Integrado Jama «HABILITADO», horario 08:00 a 20:00 h (Chile y Argentina), todo tipo de vehículos, ruta CH-27 transitable, vehículo Toyota abandonado en el km 43.500 (lado derecho de la berma, sin ruedas), clima despejado variando a nubosidad parcial, viento entre 60 y 80 km/h."
+          }
+        },
+        {
+          "lado": "CL",
+          "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-27",
+          "actualizado": "2026-11-27",
+          "hora": "08:08",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "valor": "operativo",
+          "texto": "Habilitado para todo tipo de vehículos. Horario de atención del complejo (Unidad de Pasos Fronterizos): 08:00 a 20:00 h. Ruta CH-27 transitable, con un vehículo abandonado sin ruedas en el km 43,5 (berma derecha). Viento de 60 a 80 km/h.",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-27",
+            "alcance": "Comprobado el 27/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 27/11/2026 publicado a las 12:08 hora de España, 08:08 hora de Chile), enviada por el responsable editorial: Complejo Fronterizo Integrado Jama «HABILITADO», horario 08:00 a 20:00 h (Chile y Argentina), todo tipo de vehículos, ruta CH-27 transitable, vehículo Toyota abandonado en el km 43.500 (lado derecho de la berma, sin ruedas), clima despejado variando a nubosidad parcial, viento entre 60 y 80 km/h."
           }
         }
       ]
@@ -1136,8 +1154,8 @@
         }
       },
       "estado": {
-        "valor": "operativo",
-        "texto": "Abierto de 09:00–19:00 (hora de Argentina), según Gendarmería (parte del 26/11, 08:24).",
+        "valor": "cerrado",
+        "texto": "Cerrado por Gendarmería (parte del 26/11, 18:01, hora de Argentina): la web oficial lo marca cerrado dentro de su horario (09:00–19:00), sin motivo publicado.",
         "fuente": "ar-seguridad-paso-sico",
         "publicado": "2026-11-26",
         "actualizado": "2026-11-26",
@@ -1147,9 +1165,9 @@
           "verificadoPor": "vigilante",
           "rol": "vigilante",
           "fecha": "2026-11-26",
-          "alcance": "Leído automáticamente de la web oficial el 26/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
+          "alcance": "Leído automáticamente de la web oficial el 26/11 a las 19:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
         },
-        "consultado": "2026-11-26T13:00:28.576Z"
+        "consultado": "2026-11-26T22:00:24.426Z"
       },
       "horarios": [
         {
@@ -1503,6 +1521,22 @@
             "fecha": "2026-11-25",
             "alcance": "Leído automáticamente de la web oficial el 25/11 a las 21:00 (hora de Argentina): estado de Gendarmería «CERRADO», Vialidad «HABILITADA»."
           }
+        },
+        {
+          "fecha": "2026-11-26",
+          "valor": "operativo",
+          "texto": "Abierto de 09:00–19:00 (hora de Argentina), según Gendarmería (parte del 26/11, 08:24).",
+          "fuente": "ar-seguridad-paso-sico",
+          "publicado": "2026-11-26",
+          "actualizado": "2026-11-26",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-26",
+            "alcance": "Leído automáticamente de la web oficial el 26/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», Vialidad «HABILITADA»."
+          }
         }
       ],
       "controles": [
@@ -1598,9 +1632,9 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:00 (hora de Argentina).",
-          "hora": "08:24",
+          "valor": "cerrado",
+          "texto": "Cerrado por Gendarmería: la web oficial marca el paso cerrado dentro de su horario, sin motivo publicado.",
+          "hora": "18:01",
           "fuente": "ar-seguridad-paso-sico",
           "publicado": "2026-11-26",
           "actualizado": "2026-11-26",
@@ -1610,7 +1644,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-26",
-            "alcance": "Leído automáticamente de la web oficial el 26/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:00."
+            "alcance": "Leído automáticamente de la web oficial el 26/11 a las 19:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
           }
         },
         {
@@ -1630,6 +1664,25 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-26",
             "alcance": "Comprobado el 26/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 26/11/2026 publicado a las 14:30 hora de España, 10:30 hora de Chile), enviada por el responsable editorial: Complejo Fronterizo Integrado Sico «HABILITADO», horario 09:00 a 18:00 (Chile y Argentina), tipo de flujo: vehículos de transporte de pasajeros, particulares y camiones sin carga; ruta CH-23 transitable."
+          }
+        },
+        {
+          "lado": "CL",
+          "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-27",
+          "actualizado": "2026-11-27",
+          "hora": "08:08",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "valor": "restricciones",
+          "afecta": "carga",
+          "texto": "Habilitado solo para vehículos de pasajeros, particulares y camiones sin carga: no habilitado para camiones con carga. Horario de atención del complejo (Unidad de Pasos Fronterizos): 09:00 a 18:00 h. Ruta CH-23 transitable.",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-27",
+            "alcance": "Comprobado el 27/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 27/11/2026 publicado a las 12:08 hora de España, 08:08 hora de Chile), enviada por el responsable editorial: Complejo Fronterizo Integrado Sico «HABILITADO», horario 09:00 a 18:00 (Chile y Argentina), tipo de flujo: vehículos de transporte de pasajeros, particulares y camiones sin carga; ruta CH-23 transitable."
           }
         }
       ]

@@ -467,22 +467,22 @@
       "tipo": "corte",
       "estado": "activa",
       "gravedad": "ambar",
-      "resumen": "BOQUERON – Ramales: cerrado · MOPC 26/11 07:00",
-      "descripcion": "BOQUERON – Ramales: Clausurada (P/T/T/V). Informe del MOPC del 26/11/2026, 07:00 (hora de Paraguay).",
+      "resumen": "BOQUERON – Ramales: cerrado · MOPC 27/11 07:00",
+      "descripcion": "BOQUERON – Ramales: Clausurada (P/T/T/V). Informe del MOPC del 27/11/2026, 07:00 (hora de Paraguay).",
       "tramos": [
         "me-ph"
       ],
       "fuente": "py-mopc-estado-rutas",
-      "publicado": "2026-11-26",
-      "horaFuente": "2026-11-26T10:00:00.000Z",
-      "actualizado": "2026-11-26",
+      "publicado": "2026-11-27",
+      "horaFuente": "2026-11-27T10:00:00.000Z",
+      "actualizado": "2026-11-27",
       "evidencia": "oficial",
       "validacion": "verificado",
       "verificacion": {
         "verificadoPor": "vigilante",
         "rol": "vigilante",
-        "fecha": "2026-11-26",
-        "alcance": "Leído automáticamente de la web oficial el 26/11 a las 08:00 (hora de Argentina): BOQUERON – Ramales: BOQUERON – Ramales: Clausurada (P/T/T/V). Informe del MOPC del 26/11/2026, 07:00 (hora de Paraguay).."
+        "fecha": "2026-11-27",
+        "alcance": "Leído automáticamente de la web oficial el 27/11 a las 08:00 (hora de Argentina): BOQUERON – Ramales: BOQUERON – Ramales: Clausurada (P/T/T/V). Informe del MOPC del 27/11/2026, 07:00 (hora de Paraguay).."
       }
     },
     {
@@ -495,22 +495,22 @@
       "tipo": "corte",
       "estado": "activa",
       "gravedad": "ambar",
-      "resumen": "BOQUERON · RAMALES NO PAVIMENTADOS: cerrado por lluvia · MOPC 26/11 07:00",
-      "descripcion": "BOQUERON · RAMALES NO PAVIMENTADOS: Clausurado para todo tipo de vehiculos por lluvia. Informe del MOPC del 26/11/2026, 07:00 (hora de Paraguay).",
+      "resumen": "BOQUERON · RAMALES NO PAVIMENTADOS: cerrado por lluvia · MOPC 27/11 07:00",
+      "descripcion": "BOQUERON · RAMALES NO PAVIMENTADOS: Clausurado para todo tipo de vehiculos por lluvia. Informe del MOPC del 27/11/2026, 07:00 (hora de Paraguay).",
       "tramos": [
         "me-ph"
       ],
       "fuente": "py-mopc-estado-rutas",
-      "publicado": "2026-11-26",
-      "horaFuente": "2026-11-26T10:00:00.000Z",
-      "actualizado": "2026-11-26",
+      "publicado": "2026-11-27",
+      "horaFuente": "2026-11-27T10:00:00.000Z",
+      "actualizado": "2026-11-27",
       "evidencia": "oficial",
       "validacion": "verificado",
       "verificacion": {
         "verificadoPor": "vigilante",
         "rol": "vigilante",
-        "fecha": "2026-11-26",
-        "alcance": "Leído automáticamente de la web oficial el 26/11 a las 08:00 (hora de Argentina): Tramo: BOQUERON · RAMALES NO PAVIMENTADOS: BOQUERON · RAMALES NO PAVIMENTADOS: Clausurado para todo tipo de vehiculos por lluvia. Informe del MOPC del 26/11/2026, 07:00 (hora de Paraguay).."
+        "fecha": "2026-11-27",
+        "alcance": "Leído automáticamente de la web oficial el 27/11 a las 08:00 (hora de Argentina): Tramo: BOQUERON · RAMALES NO PAVIMENTADOS: BOQUERON · RAMALES NO PAVIMENTADOS: Clausurado para todo tipo de vehiculos por lluvia. Informe del MOPC del 27/11/2026, 07:00 (hora de Paraguay).."
       }
     },
     {
@@ -600,7 +600,7 @@
       "ubicacion": "BR-267/MS",
       "tramo": "BR-267/MS",
       "tipo": "desvio",
-      "estado": "activa",
+      "estado": "resuelta",
       "gravedad": "ambar",
       "resumen": "BR-267/MS: desvío · DNIT 23/11",
       "descripcion": "BR-267/MS: Desvío, según el DNIT (alerta del 23/11/2026, 13:54, hora de Brasília). Texto oficial: «O DNIT alerta para interrupção total do tráfego no km 624,3, da BR-267/MS, próximo ao município de Porto Murtinho, por período indeterminado.»",
@@ -611,15 +611,16 @@
       "enlace": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos/dnit-alerta-para-interrupcao-total-no-km-624-3-da-br267-ms-1",
       "publicado": "2026-11-23",
       "horaFuente": "2026-11-23T16:54:00.000Z",
-      "actualizado": "2026-11-23",
+      "actualizado": "2026-11-27",
       "evidencia": "oficial",
       "validacion": "verificado",
       "verificacion": {
         "verificadoPor": "vigilante",
         "rol": "vigilante",
-        "fecha": "2026-11-23",
-        "alcance": "Leído automáticamente de la web oficial el 23/11 a las 21:01 (hora de Argentina): BR-267/MS: BR-267/MS: Desvío, según el DNIT (alerta del 23/11/2026, 13:54, hora de Brasília). Texto oficial: «O DNIT alerta para interrupção total do tráfego no km 624,3, da BR-267/MS, próximo ao município de Porto Murtinho, por período indeterminado.»."
-      }
+        "fecha": "2026-11-27",
+        "alcance": "Leído automáticamente de la web oficial el 27/11 a las 02:00 (hora de Argentina): BR-267/MS: la fuente ya no lo lista."
+      },
+      "fin": "2026-11-27"
     }
   ]
 }

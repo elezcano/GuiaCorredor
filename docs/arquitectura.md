@@ -32,7 +32,7 @@ flowchart LR
 |---|---|---|---|
 | **Vigilante** | Lee las webs oficiales y publica lo que dicen con el sello «Web oficial» | Cada hora de 06 a 21 h de Argentina (lanzado desde cron-job.org; GitHub de respaldo) | `scripts/vigilante.mjs`, `vigilante.yml` |
 | **Publicar** | Comprueba los datos, construye la web y `api/v1`, pasa las pruebas y publica | Cada cambio en `main` y cada 3 h | `scripts/build.mjs`, `publicar.yml` |
-| **Vigía** | Abre la web publicada y comprueba que funciona; avisa si el vigilante pierde pasadas (más de 2 h sin pasar dentro de su horario) | Tras cada publicación y cada 6 h | `scripts/humo.mjs`, `vigia.yml` |
+| **Vigía** | Abre la web publicada y comprueba que funciona; avisa si el vigilante pierde pasadas (más de 2 h sin pasar dentro de su horario). Solo se pone en rojo por fallos nuestros; una fuente oficial que no publica abre su propio aviso (decisión 42) | Tras cada publicación y cada 6 h | `scripts/humo.mjs`, `vigia.yml` |
 | **Tareas del día** | Correo al responsable con lo que necesita una persona | Cada día, 14:07 de España | `scripts/tareas.mjs`, `tareas.yml` |
 | **Enlaces externos** | Revisa las URL externas (informa, no bloquea) | Los lunes | `enlaces-externos.yml` |
 | **Trazados** | Calcula el trazado y los km de cada tramo (OpenStreetMap) y los deja en un PR | A mano | `trazados.yml` |
