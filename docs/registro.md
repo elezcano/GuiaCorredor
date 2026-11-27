@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 27/11/2026 | **Partes de Chile del 26 y 27/11** (Unidad de Pasos Fronterizos, Región de Antofagasta): Sico sigue sin paso para camiones con carga; Jama habilitado para todo tipo de vehículos. «Confirmo» del responsable editorial citado en el PR | #304 (`8e823dc`) |
 | 26/11/2026 | **Vigía: rojo solo por lo nuestro** ([decisión 42](decisiones.md)): una fuente oficial atrasada (SIEMOP de Chile, congelada en todo el país desde el 17/11) abre su propio aviso y no pone el Vigía en rojo; el aviso de fallos solo se comenta cuando cambia la lista | #303 (`7306a4a`) |
 | 26/11/2026 | **Tiempos de cruce visibles** ([decisión 41](decisiones.md)): la web lee la pestaña «Publicar» de la hoja, ya moderada; cada sentido muestra «Nadie lo ha contado», «Faltan datos» o la mediana. Fórmulas de la hoja en columnas completas (el formulario desplazaba los rangos) | #297 (`07da462`) |
 | 26/11/2026 | **Tiempo de cruce** ([decisión 41](decisiones.md)): cada paso nombra sus dos países (Jama y Sico, «Hacia Chile» y «Hacia Argentina»; antes «Hacia Brasil»); prueba de la agregación, que encontró y corrigió un fallo que habría roto la publicación al activar la hoja; moderación en la hoja (Estado, «Volumen alto» y pestaña «Publicar»); la ficha dice que está reuniendo los primeros tiempos | #293 (`210dfec`) |
