@@ -311,17 +311,17 @@
           "organismo": "ar-pasos",
           "valor": "operativo",
           "texto": "Abierto, horario 07:00–20:00 (hora de Argentina).",
-          "hora": "18:40",
+          "hora": "12:38",
           "fuente": "ar-seguridad-paso-mision-la-paz",
-          "publicado": "2026-11-24",
-          "actualizado": "2026-11-24",
+          "publicado": "2026-11-27",
+          "actualizado": "2026-11-27",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "vigilante",
             "rol": "vigilante",
-            "fecha": "2026-11-24",
-            "alcance": "Leído automáticamente de la web oficial el 24/11 a las 19:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 07:00-20:00."
+            "fecha": "2026-11-27",
+            "alcance": "Leído automáticamente de la web oficial el 27/11 a las 14:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 07:00-20:00."
           }
         }
       ]
@@ -1078,25 +1078,6 @@
           }
         },
         {
-          "lado": "AR",
-          "emisor": "Gendarmería Nacional",
-          "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
-          "hora": "08:23",
-          "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-27",
-          "actualizado": "2026-11-27",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "vigilante",
-            "rol": "vigilante",
-            "fecha": "2026-11-27",
-            "alcance": "Leído automáticamente de la web oficial el 27/11 a las 09:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
-          }
-        },
-        {
           "lado": "CL",
           "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
           "fuente": "upf-chile-canal",
@@ -1130,6 +1111,25 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-27",
             "alcance": "Comprobado el 27/11/2026 con captura del canal oficial de WhatsApp de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, parte del 27/11/2026 publicado a las 12:08 hora de España, 08:08 hora de Chile), enviada por el responsable editorial: Complejo Fronterizo Integrado Jama «HABILITADO», horario 08:00 a 20:00 h (Chile y Argentina), todo tipo de vehículos, ruta CH-27 transitable, vehículo Toyota abandonado en el km 43.500 (lado derecho de la berma, sin ruedas), clima despejado variando a nubosidad parcial, viento entre 60 y 80 km/h."
+          }
+        },
+        {
+          "lado": "AR",
+          "emisor": "Gendarmería Nacional",
+          "organismo": "ar-pasos",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "12:15",
+          "fuente": "ar-seguridad-paso-jama",
+          "publicado": "2026-11-27",
+          "actualizado": "2026-11-27",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "verificacion": {
+            "verificadoPor": "vigilante",
+            "rol": "vigilante",
+            "fecha": "2026-11-27",
+            "alcance": "Leído automáticamente de la web oficial el 27/11 a las 14:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
