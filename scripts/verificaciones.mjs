@@ -9,6 +9,10 @@ import { ROOT } from './lib.mjs';
 import { ARCHIVOS } from './datos.mjs';
 
 const base = process.argv[2] || 'origin/main';
+// Decisión 46: los partes de un canal oficial que Ernesto envía por el chat ya los verifica él al enviarlos;
+// no necesitan la etiqueta. Solo los partes (`.partes[…]`) de las fuentes de site.canalesParte.<país>.fuentesParte.
+const site = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/site.json'), 'utf8'));
+const FUENTES_PARTE = new Set(Object.values(site.canalesParte || {}).flatMap((c) => (c && c.fuentesParte) || []));
 const enBase = (f) => {
   try {
     return execFileSync('git', ['show', `${base}:${f}`], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
@@ -26,6 +30,7 @@ const verificados = (txt, f) => {
   const recorrer = (o, ruta) => {
     if (Array.isArray(o)) return o.forEach((x, i) => recorrer(x, `${ruta}[${x?.id ?? i}]`));
     if (!o || typeof o !== 'object') return;
+    if (o.validacion === 'verificado' && /\.partes\[[^\]]+\]$/.test(ruta) && FUENTES_PARTE.has(o.fuente)) return;
     if (o.validacion === 'verificado') s.add(`${f}${ruta} (${o.verificacion?.fecha || 'sin fecha'})`);
     for (const [k, v] of Object.entries(o)) recorrer(v, `${ruta}.${k}`);
   };

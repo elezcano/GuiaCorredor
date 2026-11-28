@@ -1131,6 +1131,23 @@
             "fecha": "2026-11-28",
             "alcance": "Leído automáticamente de la web oficial el 28/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
+        },
+        {
+          "lado": "CL",
+          "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-28",
+          "actualizado": "2026-11-28",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "valor": "operativo",
+          "texto": "Habilitado para todo tipo de vehículos. Horario de atención del complejo (Unidad de Pasos Fronterizos): 08:00 a 20:00 h, misma hora en Chile y Argentina. Ruta CH-27 transitable, con un vehículo abandonado sin ruedas en el km 43,5 (berma derecha). Viento de 60 a 80 km/h.",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-28",
+            "alcance": "Comprobado el 28/11/2026 con el texto del parte oficial de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, canal de WhatsApp, parte del 28/11/2026, sin hora de publicación), enviado por el responsable editorial, que confirma que Chile y Argentina tienen la misma hora: Complejo Fronterizo Integrado Jama «HABILITADO», horario 08:00 a 20:00 h (Chile y Argentina), todo tipo de vehículos, ruta CH-27 transitable, vehículo Toyota abandonado en el km 43.500 (lado derecho de la berma, sin ruedas), clima despejado variando a nubosidad parcial, viento entre 60 y 80 km/h."
+          }
         }
       ]
     },
@@ -1699,6 +1716,24 @@
             "rol": "vigilante",
             "fecha": "2026-11-28",
             "alcance": "Leído automáticamente de la web oficial el 28/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:00."
+          }
+        },
+        {
+          "lado": "CL",
+          "emisor": "Unidad de Pasos Fronterizos de Chile (Región de Antofagasta)",
+          "fuente": "upf-chile-canal",
+          "publicado": "2026-11-28",
+          "actualizado": "2026-11-28",
+          "evidencia": "oficial",
+          "validacion": "verificado",
+          "valor": "restricciones",
+          "afecta": "carga",
+          "texto": "Habilitado solo para vehículos de pasajeros, particulares y camiones sin carga: no habilitado para camiones con carga. Horario de atención del complejo (Unidad de Pasos Fronterizos): 09:00 a 18:00 h, misma hora en Chile y Argentina. Ruta CH-23 transitable.",
+          "verificacion": {
+            "verificadoPor": "responsable-editorial",
+            "rol": "responsable-editorial",
+            "fecha": "2026-11-28",
+            "alcance": "Comprobado el 28/11/2026 con el texto del parte oficial de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, canal de WhatsApp, parte del 28/11/2026, sin hora de publicación), enviado por el responsable editorial, que confirma que Chile y Argentina tienen la misma hora: Complejo Fronterizo Integrado Sico «HABILITADO», horario 09:00 a 18:00 (Chile y Argentina), tipo de flujo: vehículos de transporte de pasajeros, particulares y camiones sin carga; ruta CH-23 transitable."
           }
         }
       ]

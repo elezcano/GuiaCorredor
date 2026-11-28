@@ -76,7 +76,11 @@
       "modo": "por-aviso",
       "explicacion": "Chile solo avisa cuando hay un problema",
       "plazoDias": 15,
-      "revisado": "2026-11-27"
+      "revisado": "2026-11-28",
+      "fuentesParte": [
+        "upf-chile-canal"
+      ],
+      "notaFuentesParte": "Partes de estas fuentes que Ernesto envía por el chat (captura o texto del canal oficial): Claude los carga y publica sin «publica» ni etiqueta revision-editorial (decisión 46)."
     },
     "PY": {
       "organismo": "Paraguay",
