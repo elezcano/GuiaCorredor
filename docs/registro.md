@@ -4,6 +4,7 @@ Cada cambio publicado de RadarCorredor, con su PR. Lo más reciente, arriba. Las
 
 | Fecha | Avance | Dónde |
 |---|---|---|
+| 28/11/2026 | **Parte de Chile del 28/11 y partes del chat sin esperar** ([decisión 46](decisiones.md)): Jama habilitado (08–20 h) y Sico sin paso para camiones con carga (09–18 h); los partes de canal oficial que envía Ernesto se publican en cuanto el CI está en verde, sin «publica» ni etiqueta | #327 (`8a35007`) |
 | 27/11/2026 | **Prueba de /operacion/ sin red**: la prueba funcional ya no pide a GitHub los datos en vivo (un 404 del día de prueba la hacía fallar a ratos, como en #319); solo cambia la prueba | #320 (`243467f`) |
 | 27/11/2026 | **Menos ruido: ficha, fuentes, calendario y operación** ([decisión 45](decisiones.md)): cada lado en una línea con quién y cuándo y dos plegables en la ficha; una fila por país en Fuentes; un mes sin feriados dice el próximo; página de trabajo `/operacion/` (noindex, fuera del menú) con vigilante, Vigía, fuentes, pasos, avisos, registro y pendientes | #318 (`1177932`) |
 | 27/11/2026 | **Avisos: menos texto, más decisión** ([decisión 44](decisiones.md)): «Hoy te pueden parar», una fila por tramo (Jama y Sico aparte) y filtro «Mi ruta»; regla de limpieza de lo antiguo (resueltos 7 días; 30 días sin confirmar, fuera; sin teléfonos ni duplicados; lo fijo, a la ficha) | #316 (`d54c095`) |
