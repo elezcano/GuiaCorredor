@@ -1117,9 +1117,9 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": "operativo",
-          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
-          "hora": "16:08",
+          "valor": null,
+          "texto": "Cierre de la jornada (fuera del horario 09:00–19:15, hora de Argentina).",
+          "hora": "20:13",
           "fuente": "ar-seguridad-paso-jama",
           "publicado": "2026-11-27",
           "actualizado": "2026-11-27",
@@ -1129,7 +1129,7 @@
             "verificadoPor": "vigilante",
             "rol": "vigilante",
             "fecha": "2026-11-27",
-            "alcance": "Leído automáticamente de la web oficial el 27/11 a las 17:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
+            "alcance": "Leído automáticamente de la web oficial el 27/11 a las 22:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:15."
           }
         }
       ]
