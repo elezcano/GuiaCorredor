@@ -381,25 +381,6 @@
           }
         },
         {
-          "lado": "CL",
-          "organismo": "complejo",
-          "texto": "08:00 a 20:00 (misma hora en Chile y Argentina), según la Unidad de Pasos Fronterizos de Chile (parte del 28/11/2026).",
-          "apertura": "08:00",
-          "cierre": "20:00",
-          "zona": "America/Santiago",
-          "fuente": "upf-chile-canal",
-          "publicado": "2026-11-28",
-          "actualizado": "2026-11-28",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "responsable-editorial",
-            "rol": "responsable-editorial",
-            "fecha": "2026-11-28",
-            "alcance": "Comprobado el 28/11/2026 con el texto del parte oficial de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, canal de WhatsApp, parte del 28/11/2026, sin hora de publicación), enviado por el responsable editorial, que confirma que Chile y Argentina tienen la misma hora: horario 08:00 a 20:00 (Chile y Argentina)."
-          }
-        },
-        {
           "lado": "AR",
           "texto": "Migraciones publica 8 a 18 h en su listado oficial (página de diciembre de 2025)",
           "fuente": "migraciones-argentina",
@@ -1223,25 +1204,6 @@
             "rol": "responsable-editorial",
             "fecha": "2026-11-16",
             "alcance": "Comprobado el 16/11/2026: el horario 09:00–19:00 en la página del Ministerio de Seguridad."
-          }
-        },
-        {
-          "lado": "CL",
-          "organismo": "complejo",
-          "texto": "09:00 a 18:00 (misma hora en Chile y Argentina), según la Unidad de Pasos Fronterizos de Chile (parte del 28/11/2026).",
-          "apertura": "09:00",
-          "cierre": "18:00",
-          "zona": "America/Santiago",
-          "fuente": "upf-chile-canal",
-          "publicado": "2026-11-28",
-          "actualizado": "2026-11-28",
-          "evidencia": "oficial",
-          "validacion": "verificado",
-          "verificacion": {
-            "verificadoPor": "responsable-editorial",
-            "rol": "responsable-editorial",
-            "fecha": "2026-11-28",
-            "alcance": "Comprobado el 28/11/2026 con el texto del parte oficial de la Unidad de Pasos Fronterizos de Chile (Región de Antofagasta, canal de WhatsApp, parte del 28/11/2026, sin hora de publicación), enviado por el responsable editorial, que confirma que Chile y Argentina tienen la misma hora: horario 09:00 a 18:00 (Chile y Argentina)."
           }
         },
         {
