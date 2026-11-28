@@ -1117,19 +1117,19 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": null,
-          "texto": "Cierre de la jornada (fuera del horario 09:00–19:15, hora de Argentina).",
-          "hora": "20:13",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:15 (hora de Argentina).",
+          "hora": "08:30",
           "fuente": "ar-seguridad-paso-jama",
-          "publicado": "2026-11-27",
-          "actualizado": "2026-11-27",
+          "publicado": "2026-11-28",
+          "actualizado": "2026-11-28",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "vigilante",
             "rol": "vigilante",
-            "fecha": "2026-11-27",
-            "alcance": "Leído automáticamente de la web oficial el 27/11 a las 22:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:15."
+            "fecha": "2026-11-28",
+            "alcance": "Leído automáticamente de la web oficial el 28/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:15."
           }
         }
       ]
@@ -1686,19 +1686,19 @@
           "lado": "AR",
           "emisor": "Gendarmería Nacional",
           "organismo": "ar-pasos",
-          "valor": null,
-          "texto": "Cierre de la jornada (fuera del horario 09:00–19:00, hora de Argentina).",
-          "hora": "19:36",
+          "valor": "operativo",
+          "texto": "Abierto, horario 09:00–19:00 (hora de Argentina).",
+          "hora": "08:57",
           "fuente": "ar-seguridad-paso-sico",
-          "publicado": "2026-11-27",
-          "actualizado": "2026-11-27",
+          "publicado": "2026-11-28",
+          "actualizado": "2026-11-28",
           "evidencia": "oficial",
           "validacion": "verificado",
           "verificacion": {
             "verificadoPor": "vigilante",
             "rol": "vigilante",
-            "fecha": "2026-11-27",
-            "alcance": "Leído automáticamente de la web oficial el 27/11 a las 20:00 (hora de Argentina): estado de Gendarmería «CERRADO», horario 09:00-19:00."
+            "fecha": "2026-11-28",
+            "alcance": "Leído automáticamente de la web oficial el 28/11 a las 10:00 (hora de Argentina): estado de Gendarmería «ABIERTO», horario 09:00-19:00."
           }
         }
       ]
